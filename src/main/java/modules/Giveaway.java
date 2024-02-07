@@ -22,7 +22,7 @@ public class Giveaway {
 
         String tutText = TextManager.getString(
                 locale,
-                Category.UTILITY,
+                Category.CONFIGURATION,
                 "giveaway_tutorial",
                 amountOfWinners != 1,
                 emoji.getFormatted(),

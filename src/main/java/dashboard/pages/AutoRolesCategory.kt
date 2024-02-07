@@ -2,7 +2,7 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
-import commands.runnables.utilitycategory.AutoRolesCommand
+import commands.runnables.configurationcategory.AutoRolesCommand
 import core.TextManager
 import dashboard.ActionResult
 import dashboard.DashboardCategory
@@ -36,7 +36,7 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val descText = DashboardText(getString(Category.UTILITY, "autoroles_state0_description"))
+        val descText = DashboardText(getString(Category.CONFIGURATION, "autoroles_state0_description"))
         val rolesComboBox = DashboardMultiRolesComboBox(
                 this,
                 Command.getCommandLanguage(AutoRolesCommand::class.java, locale).title,
@@ -50,18 +50,18 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
         mainContainer.add(descText, rolesComboBox, DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
-        val syncButton = DashboardButton(getString(Category.UTILITY, "autoroles_dashboard_syncbutton")) {
+        val syncButton = DashboardButton(getString(Category.CONFIGURATION, "autoroles_dashboard_syncbutton")) {
             val roleList: List<Role> = DBAutoRoles.getInstance().retrieve(guild.idLong).roleIds.mapNotNull { guild.getRoleById(it) }
             val future = RoleAssigner.assignRoles(guild, roleList, true, locale, AutoRolesCommand::class.java)
 
             if (future.isEmpty) {
                 return@DashboardButton ActionResult()
-                        .withErrorMessage(getString(Category.UTILITY, "autoroles_syncactive"))
+                        .withErrorMessage(getString(Category.CONFIGURATION, "autoroles_syncactive"))
             }
 
             BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_ROLES_SYNC, atomicMember)
             return@DashboardButton ActionResult()
-                    .withSuccessMessage(getString(Category.UTILITY, "autoroles_syncstart"))
+                    .withSuccessMessage(getString(Category.CONFIGURATION, "autoroles_syncstart"))
         }
         syncButton.isEnabled = isPremium
         syncButton.style = DashboardButton.Style.PRIMARY

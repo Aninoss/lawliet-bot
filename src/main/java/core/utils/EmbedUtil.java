@@ -1,7 +1,7 @@
 package core.utils;
 
 import commands.Command;
-import commands.runnables.utilitycategory.AlertsCommand;
+import commands.runnables.configurationcategory.AlertsCommand;
 import constants.Emojis;
 import constants.LogStatus;
 import core.TextManager;

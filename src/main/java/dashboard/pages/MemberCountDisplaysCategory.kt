@@ -2,7 +2,7 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
-import commands.runnables.utilitycategory.MemberCountDisplayCommand
+import commands.runnables.configurationcategory.MemberCountDisplayCommand
 import core.atomicassets.AtomicVoiceChannel
 import dashboard.ActionResult
 import dashboard.DashboardCategory
@@ -52,33 +52,33 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
                     GridRow(it.voiceChannelId.toString(), values)
                 }
 
-        val headers = getString(Category.UTILITY, "mcdisplays_dashboard_gridheader").split('\n').toTypedArray()
+        val headers = getString(Category.CONFIGURATION, "mcdisplays_dashboard_gridheader").split('\n').toTypedArray()
         val grid = DashboardGrid(headers, rows) {
             DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountBeanSlots.remove(it.data.toLong())
             ActionResult()
                     .withRedraw()
         }
-        grid.rowButton = getString(Category.UTILITY, "mcdisplays_dashboard_gridremove")
+        grid.rowButton = getString(Category.CONFIGURATION, "mcdisplays_dashboard_gridremove")
         return grid
     }
 
     fun generateNewDisplayField(): DashboardComponent {
         val container = VerticalContainer()
         container.add(
-                DashboardTitle(getString(Category.UTILITY, "mcdisplays_state1_title")),
+                DashboardTitle(getString(Category.CONFIGURATION, "mcdisplays_state1_title")),
                 generateNewDisplayPropertiesField()
         )
 
         val buttonField = HorizontalContainer()
-        val addButton = DashboardButton(getString(Category.UTILITY, "mcdisplays_dashboard_add")) {
+        val addButton = DashboardButton(getString(Category.CONFIGURATION, "mcdisplays_dashboard_add")) {
             val voiceChannel = atomicVoiceChannel?.get()?.orElse(null)
             if (voiceChannel == null) {
                 return@DashboardButton ActionResult()
-                        .withErrorMessage(getString(Category.UTILITY, "mcdisplays_dashboard_invalidvc"))
+                        .withErrorMessage(getString(Category.CONFIGURATION, "mcdisplays_dashboard_invalidvc"))
             }
             if (nameMask == null) {
                 return@DashboardButton ActionResult()
-                        .withErrorMessage(getString(Category.UTILITY, "mcdisplays_dashboard_invalidmask"))
+                        .withErrorMessage(getString(Category.CONFIGURATION, "mcdisplays_dashboard_invalidmask"))
             }
 
             val err = MemberCountDisplay.initialize(locale, voiceChannel)
@@ -105,7 +105,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
     fun generateNewDisplayPropertiesField(): DashboardComponent {
         val container = VerticalContainer()
 
-        val channelLabel = getString(Category.UTILITY, "mcdisplays_dashboard_vc")
+        val channelLabel = getString(Category.CONFIGURATION, "mcdisplays_dashboard_vc")
         val channelComboBox = DashboardComboBox(channelLabel, DashboardComboBox.DataType.VOICE_CHANNELS, false, 1) {
             val newAtomicVoiceChannel = AtomicVoiceChannel(atomicGuild.idLong, it.data.toLong())
             val err = MemberCountDisplay.checkChannel(locale, newAtomicVoiceChannel.get().get())
@@ -123,19 +123,19 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         }
         container.add(channelComboBox, DashboardSeparator())
 
-        val nameMaskLabel = getString(Category.UTILITY, "mcdisplays_dashboard_mask")
+        val nameMaskLabel = getString(Category.CONFIGURATION, "mcdisplays_dashboard_mask")
         val nameMaskTextField = DashboardTextField(nameMaskLabel, 1, MemberCountDisplayCommand.MAX_NAME_MASK_LENGTH) {
             if (MemberCountDisplay.replaceVariables(it.data, "", "", "", "").equals(it.data)) {
                 return@DashboardTextField ActionResult()
                         .withRedraw()
-                        .withErrorMessage(getString(Category.UTILITY, "mcdisplays_dashboard_novars"))
+                        .withErrorMessage(getString(Category.CONFIGURATION, "mcdisplays_dashboard_novars"))
             }
 
             nameMask = it.data
             ActionResult()
         }
         nameMaskTextField.value = nameMask ?: ""
-        container.add(nameMaskTextField, DashboardText(getString(Category.UTILITY, "mcdisplays_vars").replace("-", "•")))
+        container.add(nameMaskTextField, DashboardText(getString(Category.CONFIGURATION, "mcdisplays_vars").replace("-", "•")))
 
         return container;
     }

@@ -3,7 +3,7 @@ package modules;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Category;
-import commands.runnables.utilitycategory.MemberCountDisplayCommand;
+import commands.runnables.configurationcategory.MemberCountDisplayCommand;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.RatelimitUpdater;
@@ -54,7 +54,7 @@ public class MemberCountDisplay {
             }
         } catch (InsufficientPermissionException | ErrorResponseException e) {
             //Ignore
-            return TextManager.getString(locale, Category.UTILITY, "mcdisplays_nopermissions");
+            return TextManager.getString(locale, Category.CONFIGURATION, "mcdisplays_nopermissions");
         }
 
         Role publicRole = voiceChannel.getGuild().getPublicRole();
@@ -80,7 +80,7 @@ public class MemberCountDisplay {
             manager.complete();
         } catch (ErrorResponseException e) {
             //Ignore
-            return TextManager.getString(locale, Category.UTILITY, "mcdisplays_nopermissions");
+            return TextManager.getString(locale, Category.CONFIGURATION, "mcdisplays_nopermissions");
         }
 
         return null;
@@ -92,7 +92,7 @@ public class MemberCountDisplay {
             return channelMissingPerms;
         }
         if (DBMemberCountDisplays.getInstance().retrieve(channel.getGuild().getIdLong()).getMemberCountBeanSlots().containsKey(channel.getIdLong())) {
-            return TextManager.getString(locale, Category.UTILITY, "mcdisplays_alreadyexists");
+            return TextManager.getString(locale, Category.CONFIGURATION, "mcdisplays_alreadyexists");
         }
 
         return null;

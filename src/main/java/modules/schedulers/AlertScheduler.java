@@ -4,7 +4,7 @@ import commands.Category;
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnAlertListener;
-import commands.runnables.utilitycategory.AlertsCommand;
+import commands.runnables.configurationcategory.AlertsCommand;
 import constants.ExternalLinks;
 import constants.Settings;
 import core.*;
@@ -216,8 +216,8 @@ public class AlertScheduler {
                 FeatureLogger.inc(PremiumFeature.ALERTS, slot.getGuildId());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
-                        .setTitle(TextManager.getString(locale, Category.UTILITY, "alerts_scheduler_toomuch_title"))
-                        .setDescription(TextManager.getString(locale, Category.UTILITY, "alerts_scheduler_toomuch_server",
+                        .setTitle(TextManager.getString(locale, Category.CONFIGURATION, "alerts_scheduler_toomuch_title"))
+                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "alerts_scheduler_toomuch_server",
                                 StringUtil.numToString(AlertsCommand.LIMIT_SERVER),
                                 ExternalLinks.PREMIUM_WEBSITE
                         ));
@@ -238,8 +238,8 @@ public class AlertScheduler {
                 FeatureLogger.inc(PremiumFeature.ALERTS, slot.getGuildId());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
-                        .setTitle(TextManager.getString(locale, Category.UTILITY, "alerts_scheduler_toomuch_title"))
-                        .setDescription(TextManager.getString(locale, Category.UTILITY, "alerts_scheduler_toomuch_channel",
+                        .setTitle(TextManager.getString(locale, Category.CONFIGURATION, "alerts_scheduler_toomuch_title"))
+                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "alerts_scheduler_toomuch_channel",
                                 StringUtil.numToString(AlertsCommand.LIMIT_CHANNEL),
                                 ExternalLinks.PREMIUM_WEBSITE
                         ));

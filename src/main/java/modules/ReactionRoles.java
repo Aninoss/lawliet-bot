@@ -2,7 +2,7 @@ package modules;
 
 import commands.Category;
 import commands.Command;
-import commands.runnables.utilitycategory.ReactionRolesCommand;
+import commands.runnables.configurationcategory.ReactionRolesCommand;
 import constants.Emojis;
 import core.*;
 import core.atomicassets.AtomicRole;
@@ -167,7 +167,7 @@ public class ReactionRoles {
 
         if (!roleRequirements.isEmpty()) {
             eb.addField(
-                    TextManager.getString(locale, Category.UTILITY, "reactionroles_state3_mrolerequirements"),
+                    TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_state3_mrolerequirements"),
                     new ListGen<AtomicRole>().getList(roleRequirements, locale, m -> m.getPrefixedNameInField(locale)),
                     true
             );
@@ -226,12 +226,12 @@ public class ReactionRoles {
             }
             case SELECT_MENU -> {
                 StringSelectMenu.Builder builder = StringSelectMenu.create("roles")
-                        .setPlaceholder(TextManager.getString(locale, Category.UTILITY, "reactionroles_selectmenu_placeholder", multipleRoles))
+                        .setPlaceholder(TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_selectmenu_placeholder", multipleRoles))
                         .setMinValues(removeRole ? 0 : 1)
                         .setMaxValues(multipleRoles ? 25 : 1);
 
                 if (removeRole) {
-                    builder.addOption(TextManager.getString(locale, Category.UTILITY, "reactionroles_selectmenu_norole"), "-1");
+                    builder.addOption(TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_selectmenu_norole"), "-1");
                 }
 
                 for (int i = 0; i < slots.size(); i++) {
@@ -267,28 +267,28 @@ public class ReactionRoles {
     ) {
         boolean isPro = ServerPatreonBoostCache.get(channel.getGuild().getIdLong());
         if (slots.isEmpty()) {
-            return TextManager.getString(locale, Category.UTILITY, "reactionroles_noshortcuts");
+            return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_noshortcuts");
         }
         if (!roleRequirements.isEmpty() && !isPro) {
-            return TextManager.getString(locale, Category.UTILITY, "reactionroles_rolerequirements_nopro");
+            return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_rolerequirements_nopro");
         }
         if (slots.stream().anyMatch(s -> s.getCustomLabel() != null) && !isPro) {
-            return TextManager.getString(locale, Category.UTILITY, "reactionroles_customlabels_nopro");
+            return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_customlabels_nopro");
         }
 
         if (newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
             if (slots.size() > ReactionRolesCommand.MAX_REACTION_SLOTS) {
-                return TextManager.getString(locale, Category.UTILITY, "reactionroles_toomanyshortcuts_type", StringUtil.numToString(ReactionRolesCommand.MAX_REACTION_SLOTS));
+                return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_toomanyshortcuts_type", StringUtil.numToString(ReactionRolesCommand.MAX_REACTION_SLOTS));
             }
             for (int i = 0; i < slots.size(); i++) {
                 ReactionRoleMessageSlot slot = slots.get(i);
                 if (slot.getEmoji() == null) {
-                    return TextManager.getString(locale, Category.UTILITY, "reactionroles_noemoji");
+                    return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_noemoji");
                 }
                 for (int j = 0; j < i; j++) {
                     ReactionRoleMessageSlot slot2 = slots.get(j);
                     if (EmojiUtil.equals(slot.getEmoji(), slot2.getEmoji())) {
-                        return TextManager.getString(locale, Category.UTILITY, "reactionroles_duplicateemojis");
+                        return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_duplicateemojis");
                     }
                 }
             }
@@ -300,12 +300,12 @@ public class ReactionRoles {
                     .filter(r -> r.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS)
                     .count();
             if (newComponentTypeMessages >= ReactionRolesCommand.MAX_NEW_COMPONENTS_MESSAGES && !isPro) {
-                return TextManager.getString(locale, Category.UTILITY, "reactionroles_limitexceeded");
+                return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_limitexceeded");
             }
             if (newComponents == ReactionRoleMessage.ComponentType.SELECT_MENU &&
                     slots.size() > ReactionRolesCommand.MAX_SELECT_MENU_SLOTS
             ) {
-                return TextManager.getString(locale, Category.UTILITY, "reactionroles_toomanyshortcuts_type", StringUtil.numToString(ReactionRolesCommand.MAX_SELECT_MENU_SLOTS));
+                return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_toomanyshortcuts_type", StringUtil.numToString(ReactionRolesCommand.MAX_SELECT_MENU_SLOTS));
             }
             if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
                 return TextManager.getString(locale, TextManager.GENERAL, "permission_channel", "#" + StringUtil.escapeMarkdownInField(channel.getName()));

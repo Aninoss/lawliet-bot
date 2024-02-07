@@ -1,7 +1,7 @@
 package modules.repair;
 
 import commands.Command;
-import commands.runnables.utilitycategory.AutoChannelCommand;
+import commands.runnables.configurationcategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
 import core.ShardManager;
 import mysql.hibernate.HibernateManager;

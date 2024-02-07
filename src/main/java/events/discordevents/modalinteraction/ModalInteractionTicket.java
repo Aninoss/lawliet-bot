@@ -34,7 +34,7 @@ public class ModalInteractionTicket extends ModalInteractionAbstract {
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "rejected"))
-                        .setDescription(TextManager.getString(guildEntity.getLocale(), commands.Category.UTILITY, "ticket_toomanychannels"));
+                        .setDescription(TextManager.getString(guildEntity.getLocale(), commands.Category.CONFIGURATION, "ticket_toomanychannels"));
                 event.replyEmbeds(eb.build())
                         .setEphemeral(true)
                         .queue();

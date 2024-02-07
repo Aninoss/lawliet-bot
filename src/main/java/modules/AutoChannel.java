@@ -1,7 +1,7 @@
 package modules;
 
 import commands.Command;
-import commands.runnables.utilitycategory.AutoChannelCommand;
+import commands.runnables.configurationcategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
 import core.utils.BotPermissionUtil;
 import mysql.hibernate.entity.guild.GuildEntity;

@@ -2,10 +2,10 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
+import commands.runnables.configurationcategory.AutoQuoteCommand
 import commands.runnables.configurationcategory.LanguageCommand
 import commands.runnables.configurationcategory.PrefixCommand
-import commands.runnables.utilitycategory.AutoQuoteCommand
-import commands.runnables.utilitycategory.TriggerDeleteCommand
+import commands.runnables.configurationcategory.TriggerDeleteCommand
 import constants.Language
 import core.TextManager
 import dashboard.ActionResult
@@ -117,7 +117,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         switch.isChecked = DBAutoQuote.getInstance().retrieve(atomicGuild.idLong).isActive
-        switch.subtitle = getString(Category.UTILITY, "autoquote_info")
+        switch.subtitle = getString(Category.CONFIGURATION, "autoquote_info")
         return switch
     }
 
@@ -136,7 +136,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         switch.isChecked = guildEntity.removeAuthorMessageEffectively
-        switch.subtitle = getString(Category.UTILITY, "triggerdelete_info")
+        switch.subtitle = getString(Category.CONFIGURATION, "triggerdelete_info")
         switch.isEnabled = isPremium
         return switch
     }

@@ -80,27 +80,26 @@ public class CommandContainer {
         commandList.add(SuggestionConfigCommand.class);
         commandList.add(CustomConfigCommand.class);
         commandList.add(ReminderManageCommand.class);
-
-        //UTILITY
         commandList.add(AlertsCommand.class);
-        commandList.add(VoteCommand.class);
         commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
         commandList.add(StickyRolesCommand.class);
         commandList.add(AutoChannelCommand.class);
         commandList.add(AutoQuoteCommand.class);
-        commandList.add(AssignRoleCommand.class);
-        commandList.add(RevokeRoleCommand.class);
         commandList.add(MemberCountDisplayCommand.class);
         commandList.add(TriggerDeleteCommand.class);
-        commandList.add(ReminderCommand.class);
         commandList.add(GiveawayCommand.class);
+        commandList.add(CommandChannelShortcutsCommand.class);
+
+        //UTILITY
+        commandList.add(VoteCommand.class);
+        commandList.add(AssignRoleCommand.class);
+        commandList.add(RevokeRoleCommand.class);
+        commandList.add(ReminderCommand.class);
         commandList.add(SuggestionCommand.class);
-        commandList.add(TicketCommand.class);
         commandList.add(CustomCommand.class);
         commandList.add(SetNSFWCommand.class);
-        commandList.add(CommandChannelShortcutsCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

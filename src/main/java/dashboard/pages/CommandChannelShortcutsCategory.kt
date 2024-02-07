@@ -3,7 +3,7 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.CommandContainer
-import commands.runnables.utilitycategory.CommandChannelShortcutsCommand
+import commands.runnables.configurationcategory.CommandChannelShortcutsCommand
 import core.TextManager
 import core.atomicassets.AtomicStandardGuildMessageChannel
 import core.atomicassets.AtomicTextChannel
@@ -41,7 +41,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         mainContainer.add(
-                DashboardText(getString(Category.UTILITY, "ccshortcuts_default_desc")),
+                DashboardText(getString(Category.CONFIGURATION, "ccshortcuts_default_desc")),
                 generateShortcutGrid(guild),
                 generateNewShortcutField(guild)
         )
@@ -55,7 +55,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
                     GridRow(it.key.toString(), values)
                 }
 
-        val headers = arrayOf(getString(Category.UTILITY, "ccshortcuts_add_channel"), getString(Category.UTILITY, "ccshortcuts_add_command"))
+        val headers = arrayOf(getString(Category.CONFIGURATION, "ccshortcuts_add_channel"), getString(Category.CONFIGURATION, "ccshortcuts_add_command"))
         val grid = DashboardGrid(headers, rows) {
             guildEntity.beginTransaction()
             commandChannelShortcuts.remove(it.data.toLong())
@@ -65,8 +65,8 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
                     .withRedraw()
         }
         grid.isEnabled = isPremium
-        grid.rowButton = getString(Category.UTILITY, "ccshortcuts_dashboard_remove")
-        grid.enableConfirmationMessage(getString(Category.UTILITY, "ccshortcuts_dashboard_gridconfirm"))
+        grid.rowButton = getString(Category.CONFIGURATION, "ccshortcuts_dashboard_remove")
+        grid.enableConfirmationMessage(getString(Category.CONFIGURATION, "ccshortcuts_dashboard_gridconfirm"))
 
         return grid
     }
@@ -74,14 +74,14 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
     fun generateNewShortcutField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
         container.add(
-                DashboardTitle(getString(Category.UTILITY, "ccshortcuts_add_title")),
+                DashboardTitle(getString(Category.CONFIGURATION, "ccshortcuts_add_title")),
         )
 
         val horizontalContainerer = HorizontalContainer()
         horizontalContainerer.alignment = HorizontalContainer.Alignment.BOTTOM
         horizontalContainerer.allowWrap = true
 
-        val channelLabel = getString(Category.UTILITY, "ccshortcuts_add_channel")
+        val channelLabel = getString(Category.CONFIGURATION, "ccshortcuts_add_channel")
         val channelComboBox = DashboardComboBox(channelLabel, DashboardComboBox.DataType.TEXT_CHANNELS, false, 1) {
             channelId = it.data.toLong()
             ActionResult()
@@ -94,7 +94,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         }
         horizontalContainerer.add(channelComboBox)
 
-        val commandLabel = getString(Category.UTILITY, "ccshortcuts_add_command")
+        val commandLabel = getString(Category.CONFIGURATION, "ccshortcuts_add_command")
         val commandValues = CommandContainer.getFullCommandList()
                 .map {
                     val trigger = Command.getCommandProperties(it).trigger
@@ -112,7 +112,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         }
         horizontalContainerer.add(commandComboBox)
 
-        val addButton = DashboardButton(getString(Category.UTILITY, "ccshortcuts_dashboard_add")) {
+        val addButton = DashboardButton(getString(Category.CONFIGURATION, "ccshortcuts_dashboard_add")) {
             if (!isPremium || channelId == null || trigger == null) {
                 return@DashboardButton ActionResult()
                         .withRedraw()
@@ -129,7 +129,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
             }
             if (commandChannelShortcuts.containsKey(channelId)) {
                 return@DashboardButton ActionResult()
-                        .withErrorMessage(getString(Category.UTILITY, "ccshortcuts_log_channel_exist"))
+                        .withErrorMessage(getString(Category.CONFIGURATION, "ccshortcuts_log_channel_exist"))
             }
 
             guildEntity.beginTransaction()

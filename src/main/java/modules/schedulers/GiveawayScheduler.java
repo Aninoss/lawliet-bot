@@ -3,7 +3,7 @@ package modules.schedulers;
 import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.runnables.utilitycategory.GiveawayCommand;
+import commands.runnables.configurationcategory.GiveawayCommand;
 import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
@@ -109,8 +109,8 @@ public class GiveawayScheduler {
 
         CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(TextManager.getString(locale, Category.UTILITY, "giveaway_results_title", reroll, commandProps.emoji(), giveawayData.getTitle()))
-                .setDescription(TextManager.getString(locale, "utility", "giveaway_results", winners.size() != 1))
+                .setTitle(TextManager.getString(locale, Category.CONFIGURATION, "giveaway_results_title", reroll, commandProps.emoji(), giveawayData.getTitle()))
+                .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "giveaway_results", winners.size() != 1))
                 .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
         giveawayData.getImageUrl().ifPresent(eb::setImage);
         if (winners.size() > 0) {
@@ -120,7 +120,7 @@ public class GiveawayScheduler {
                     false
             );
         } else {
-            eb.setDescription(TextManager.getString(locale, "utility", "giveaway_results_empty"));
+            eb.setDescription(TextManager.getString(locale, Category.CONFIGURATION, "giveaway_results_empty"));
         }
         giveawayData.stop();
 

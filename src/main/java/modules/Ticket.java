@@ -3,7 +3,7 @@ package modules;
 import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.runnables.utilitycategory.TicketCommand;
+import commands.runnables.configurationcategory.TicketCommand;
 import constants.Emojis;
 import constants.LogStatus;
 import core.*;
@@ -65,10 +65,10 @@ public class Ticket {
         String emoji = Command.getCommandProperties(TicketCommand.class).emoji();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(emoji + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle())
-                .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_message_content"));
+                .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_message_content"));
 
         textChannel.sendMessageEmbeds(eb.build())
-                .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_CREATE, TextManager.getString(locale, Category.UTILITY, "ticket_button_create"))))
+                .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_CREATE, TextManager.getString(locale, Category.CONFIGURATION, "ticket_button_create"))))
                 .queue(message -> {
                     DBStaticReactionMessages.getInstance()
                             .retrieve(message.getGuild().getIdLong())
@@ -88,7 +88,7 @@ public class Ticket {
         } else {
             TextChannel existingTicketChannel = existingTicketChannelOpt.get();
             if (PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, existingTicketChannel, Permission.MESSAGE_SEND)) {
-                String text = TextManager.getString(locale, commands.Category.UTILITY, "ticket_alreadyopen", member.getAsMention());
+                String text = TextManager.getString(locale, commands.Category.CONFIGURATION, "ticket_alreadyopen", member.getAsMention());
                 existingTicketChannel.sendMessage(text).queue();
             }
         }
@@ -115,7 +115,7 @@ public class Ticket {
             /* member greeting */
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
-                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()));
+                    .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()));
 
             try {
                 Message starterMessage = textChannel.sendMessageEmbeds(eb.build())
@@ -159,7 +159,7 @@ public class Ticket {
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
-                        .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getAsTag()), textChannel.getAsMention()));
+                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getAsTag()), textChannel.getAsMention()));
                 announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
                         .setEmbeds(ebAnnouncement.build())
                         .setComponents(generateButtons(locale, ticketData.getTicketAssignmentMode() == TicketData.TicketAssignmentMode.MANUAL))
@@ -212,9 +212,9 @@ public class Ticket {
         List<Button> buttonList = new ArrayList<>();
 
         if (includeAssignButton) {
-            buttonList.add(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_ASSIGN, TextManager.getString(locale, Category.UTILITY, "ticket_button_assign")));
+            buttonList.add(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_ASSIGN, TextManager.getString(locale, Category.CONFIGURATION, "ticket_button_assign")));
         }
-        buttonList.add(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close")));
+        buttonList.add(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.CONFIGURATION, "ticket_button_close")));
 
         return ActionRow.of(buttonList);
     }
@@ -271,7 +271,7 @@ public class Ticket {
             Collections.reverse(messageList);
 
             ArrayList<String[]> csvRows = new ArrayList<>();
-            csvRows.add(TextManager.getString(locale, Category.UTILITY, "ticket_csv_titles").split("\n"));
+            csvRows.add(TextManager.getString(locale, Category.CONFIGURATION, "ticket_csv_titles").split("\n"));
             DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
                     .withLocale(Locale.US);
             long lastAuthorId = 0L;
@@ -339,7 +339,7 @@ public class Ticket {
         String csvUrl = TicketProtocolCache.getUrl(ticketChannel.getTextChannelId());
         Locale locale = guildEntity.getLocale();
         String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
-        String desc = TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed",
+        String desc = TextManager.getString(locale, Category.CONFIGURATION, "ticket_announcement_closed",
                 StringUtil.escapeMarkdownInField(ticketTextChannel.getName()),
                 StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName(locale))
         );
@@ -348,7 +348,7 @@ public class Ticket {
                 .setTitle(title)
                 .setDescription(desc);
         if (csvUrl != null) {
-            EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
+            EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.CONFIGURATION, "ticket_csv_warning"));
         }
 
         DBStaticReactionMessages.getInstance().retrieve(ticketTextChannel.getGuild().getIdLong())
@@ -357,7 +357,7 @@ public class Ticket {
                 .setComponents()
                 .setEmbeds(eb.build());
         if (csvUrl != null) {
-            Button button = Button.of(ButtonStyle.LINK, csvUrl, TextManager.getString(locale, Category.UTILITY, "ticket_csv_download"));
+            Button button = Button.of(ButtonStyle.LINK, csvUrl, TextManager.getString(locale, Category.CONFIGURATION, "ticket_csv_download"));
             messageAction = messageAction.setComponents(ActionRows.of(button));
         }
         messageAction.queue();
@@ -410,7 +410,7 @@ public class Ticket {
                 String title = Command.getCommandProperties(TicketCommand.class).emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
                 String desc = TextManager.getString(
                         locale,
-                        Category.UTILITY,
+                        Category.CONFIGURATION,
                         "ticket_announcement_assigned",
                         channel.getAsMention(),
                         StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName(locale)),
@@ -426,7 +426,7 @@ public class Ticket {
 
             if (BotPermissionUtil.canWriteEmbed(channel)) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_assign", member.getUser().getAsTag()));
+                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_assign", member.getUser().getAsTag()));
                 channel.sendMessageEmbeds(eb.build()).queue();
             }
         }
@@ -492,8 +492,8 @@ public class Ticket {
 
         if (PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setTitle(TextManager.getString(locale, Category.UTILITY, "ticket_close_title"))
-                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_close"));
+                    .setTitle(TextManager.getString(locale, Category.CONFIGURATION, "ticket_close_title"))
+                    .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_close"));
             channel.sendMessageEmbeds(eb.build()).queue();
         }
 
@@ -502,9 +502,9 @@ public class Ticket {
 
     private static String extractContentFromMessage(Locale locale, Message message) {
         String content = message.getContentDisplay();
-        if (message.getEmbeds().size() > 0 &&
+        if (!message.getEmbeds().isEmpty() &&
                 message.getEmbeds().get(0).getDescription() != null &&
-                message.getEmbeds().get(0).getDescription().length() > 0
+                !message.getEmbeds().get(0).getDescription().isEmpty()
         ) {
             MessageEmbed messageEmbed = message.getEmbeds().get(0);
             String newContent = message.getContentDisplay().isBlank()
@@ -515,7 +515,7 @@ public class Ticket {
             ) {
                 content = TextManager.getString(
                         locale,
-                        Category.UTILITY,
+                        Category.CONFIGURATION,
                         "ticket_csv_author",
                         messageEmbed.getAuthor().getName(),
                         newContent

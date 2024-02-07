@@ -2,7 +2,7 @@ package events.discordevents.guildmemberremove;
 
 import java.util.HashSet;
 import java.util.Locale;
-import commands.runnables.utilitycategory.WelcomeCommand;
+import commands.runnables.configurationcategory.WelcomeCommand;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;

@@ -3,7 +3,7 @@ package mysql.modules.staticreactionmessages;
 import java.sql.Types;
 import java.util.Map;
 import commands.Command;
-import commands.runnables.utilitycategory.ReactionRolesCommand;
+import commands.runnables.configurationcategory.ReactionRolesCommand;
 import core.CustomObservableMap;
 import core.ShardManager;
 import mysql.DBDataLoad;

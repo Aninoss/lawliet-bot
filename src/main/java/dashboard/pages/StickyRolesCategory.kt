@@ -2,7 +2,7 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
-import commands.runnables.utilitycategory.StickyRolesCommand
+import commands.runnables.configurationcategory.StickyRolesCommand
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
 import dashboard.component.DashboardText
@@ -27,7 +27,7 @@ class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val descText = DashboardText(getString(Category.UTILITY, "stickyroles_state0_description"))
+        val descText = DashboardText(getString(Category.CONFIGURATION, "stickyroles_state0_description"))
         val rolesComboBox = DashboardMultiRolesComboBox(
                 this,
                 Command.getCommandLanguage(StickyRolesCommand::class.java, locale).title,

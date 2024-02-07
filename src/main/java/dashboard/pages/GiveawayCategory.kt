@@ -2,7 +2,7 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
-import commands.runnables.utilitycategory.GiveawayCommand
+import commands.runnables.configurationcategory.GiveawayCommand
 import core.CustomObservableMap
 import core.ShardManager
 import core.TextManager
@@ -76,8 +76,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         return generateGiveawaysTable(
             guild,
             giveawayDataMap,
-            getString(Category.UTILITY, "giveaway_dashboard_ongoing_title"),
-            getString(Category.UTILITY, "giveaway_dashboard_ongoing_button"),
+            getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_title"),
+            getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_button"),
             { it.isActive }
         ) {
             val giveawayDataTemp = DBGiveaway.getInstance().retrieve(atomicGuild.idLong).get(it.data.toLong())
@@ -92,8 +92,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         return generateGiveawaysTable(
             guild,
             giveawayDataMap,
-            getString(Category.UTILITY, "giveaway_dashboard_completed_title"),
-            getString(Category.UTILITY, "giveaway_dashboard_completed_button"),
+            getString(Category.CONFIGURATION, "giveaway_dashboard_completed_title"),
+            getString(Category.CONFIGURATION, "giveaway_dashboard_completed_button"),
             { !it.isActive }
         ) {
             val giveawayDataTemp = DBGiveaway.getInstance().retrieve(atomicGuild.idLong).get(it.data.toLong())
@@ -118,7 +118,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 GridRow(it.messageId.toString(), values)
             }
 
-        val headers = getString(Category.UTILITY, "giveaway_dashboard_header").split('\n').toTypedArray()
+        val headers = getString(Category.CONFIGURATION, "giveaway_dashboard_header").split('\n').toTypedArray()
         val grid = DashboardGrid(headers, rows) {
             action(it)
             ActionResult()
@@ -134,16 +134,16 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         val container = VerticalContainer()
 
         val title = when (mode) {
-            Mode.OVERVIEW -> getString(Category.UTILITY, "giveaway_state1_title")
-            Mode.EDIT -> getString(Category.UTILITY, "giveaway_state2_title")
-            Mode.REROLL -> getString(Category.UTILITY, "giveaway_state12_title")
+            Mode.OVERVIEW -> getString(Category.CONFIGURATION, "giveaway_state1_title")
+            Mode.EDIT -> getString(Category.CONFIGURATION, "giveaway_state2_title")
+            Mode.REROLL -> getString(Category.CONFIGURATION, "giveaway_state12_title")
         }
         container.add(DashboardTitle(title))
 
         val channelArticleContainer = HorizontalContainer()
         channelArticleContainer.allowWrap = true
 
-        val channelLabel = getString(Category.UTILITY, "giveaway_dashboard_channel")
+        val channelLabel = getString(Category.CONFIGURATION, "giveaway_dashboard_channel")
         val channelComboBox = DashboardTextChannelComboBox(channelLabel, locale, guild.idLong, channelId, false) {
             if (mode != Mode.OVERVIEW) {
                 return@DashboardTextChannelComboBox ActionResult()
@@ -155,7 +155,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         channelComboBox.isEnabled = mode == Mode.OVERVIEW
         channelArticleContainer.add(channelComboBox)
 
-        val articleTextfield = DashboardTextField(getString(Category.UTILITY, "giveaway_state3_mtitle"), 1, GiveawayCommand.ARTICLE_LENGTH_MAX) {
+        val articleTextfield = DashboardTextField(getString(Category.CONFIGURATION, "giveaway_state3_mtitle"), 1, GiveawayCommand.ARTICLE_LENGTH_MAX) {
             if (mode == Mode.REROLL) {
                 return@DashboardTextField ActionResult()
             }
@@ -167,13 +167,13 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             articleTextfield.value = article
         }
         articleTextfield.editButton = false
-        articleTextfield.placeholder = getString(Category.UTILITY, "giveaway_dashboard_article_placeholder")
+        articleTextfield.placeholder = getString(Category.CONFIGURATION, "giveaway_dashboard_article_placeholder")
         articleTextfield.isEnabled = mode != Mode.REROLL
         channelArticleContainer.add(articleTextfield)
         container.add(channelArticleContainer)
 
         val descTextfield =
-            DashboardMultiLineTextField(getString(Category.UTILITY, "giveaway_state3_mdescription"), 0, GiveawayCommand.DESC_LENGTH_MAX) {
+            DashboardMultiLineTextField(getString(Category.CONFIGURATION, "giveaway_state3_mdescription"), 0, GiveawayCommand.DESC_LENGTH_MAX) {
                 if (mode == Mode.REROLL) {
                     return@DashboardMultiLineTextField ActionResult()
                 }
@@ -185,11 +185,11 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             descTextfield.value = desc
         }
         descTextfield.editButton = false
-        descTextfield.placeholder = getString(Category.UTILITY, "giveaway_dashboard_desc_placeholder")
+        descTextfield.placeholder = getString(Category.CONFIGURATION, "giveaway_dashboard_desc_placeholder")
         descTextfield.isEnabled = mode != Mode.REROLL
         container.add(descTextfield, DashboardSeparator())
 
-        val durationField = DashboardDurationField(getString(Category.UTILITY, "giveaway_state3_mduration")) {
+        val durationField = DashboardDurationField(getString(Category.CONFIGURATION, "giveaway_state3_mduration")) {
             if (mode != Mode.OVERVIEW) {
                 return@DashboardDurationField ActionResult()
             }
@@ -206,7 +206,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         winnersEmojiContainer.allowWrap = true
 
         val winnersField =
-            DashboardNumberField(getString(Category.UTILITY, "giveaway_state3_mwinners"), GiveawayCommand.WINNERS_MIN.toLong(), GiveawayCommand.WINNERS_MAX.toLong()) {
+            DashboardNumberField(getString(Category.CONFIGURATION, "giveaway_state3_mwinners"), GiveawayCommand.WINNERS_MIN.toLong(), GiveawayCommand.WINNERS_MAX.toLong()) {
                 winners = it.data.toLong()
                 ActionResult()
             }
@@ -214,7 +214,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         winnersField.editButton = false
         winnersEmojiContainer.add(winnersField)
 
-        val emojiField = DashboardTextField(getString(Category.UTILITY, "giveaway_state3_memoji"), 0, 100) {
+        val emojiField = DashboardTextField(getString(Category.CONFIGURATION, "giveaway_state3_memoji"), 0, 100) {
             if (mode != Mode.OVERVIEW) {
                 return@DashboardTextField ActionResult()
             }
@@ -223,7 +223,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             if (emojis.isEmpty()) {
                 ActionResult()
                     .withRedraw()
-                    .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_noemoji"))
+                    .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_noemoji"))
             } else {
                 val emoji = emojis[0]
                 if (emoji is UnicodeEmoji || ShardManager.customEmojiIsKnown(emoji as CustomEmoji)) {
@@ -243,7 +243,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         container.add(winnersEmojiContainer, DashboardSeparator())
 
         if (mode != Mode.REROLL) {
-            val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "giveaway_dashboard_includedimage"), "giveaway") {
+            val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "giveaway_dashboard_includedimage"), "giveaway") {
                 image = it.data
                 ActionResult()
                     .withRedraw()
@@ -252,7 +252,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
             if (image != null) {
                 container.add(DashboardImage(image))
-                val removeImageButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_removeimage")) {
+                val removeImageButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_removeimage")) {
                     image = null
                     ActionResult()
                         .withRedraw()
@@ -265,7 +265,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         val buttonContainer = HorizontalContainer()
         buttonContainer.allowWrap = true
 
-        val sendButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_send", mode.ordinal)) {
+        val sendButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_send", mode.ordinal)) {
             if (mode != Mode.REROLL) {
                 if (mode == Mode.OVERVIEW) {
                     BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_ADD, atomicMember, article)
@@ -288,11 +288,11 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                     switchMode(Mode.OVERVIEW)
                     return@DashboardButton ActionResult()
                         .withRedrawScrollToTop()
-                        .withSuccessMessage(getString(Category.UTILITY, "giveaway_dashboard_success", 2))
+                        .withSuccessMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_success", 2))
                 } else {
                     return@DashboardButton ActionResult()
                         .withRedraw()
-                        .withErrorMessage(getString(Category.UTILITY, "giveaway_nomessage"))
+                        .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_nomessage"))
                 }
             }
         }
@@ -300,7 +300,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         buttonContainer.add(sendButton)
 
         if (mode == Mode.EDIT) {
-            val endPrematurelyButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_endpre")) {
+            val endPrematurelyButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_endpre")) {
                 BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_END, atomicMember, previousArticle)
                 return@DashboardButton confirm(guild, true)
             }
@@ -309,7 +309,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         }
 
         if (mode == Mode.REROLL) {
-            val removeButton = DashboardButton(getString(Category.UTILITY, "giveaway_state13_delete")) {
+            val removeButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_state13_delete")) {
                 BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REMOVE, atomicMember, article)
                 DBGiveaway.getInstance().retrieve(guild.getIdLong()).remove(messageId)
                 switchMode(Mode.OVERVIEW)
@@ -344,7 +344,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         if (mode == Mode.EDIT && (!giveawayMap.containsKey(messageId) || !giveawayMap[messageId]!!.isActive)) {
             switchMode(Mode.OVERVIEW)
             return ActionResult()
-                .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_toolate"))
+                .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_toolate"))
                 .withRedrawScrollToTop()
         }
 
@@ -362,7 +362,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             if (mode != Mode.OVERVIEW) {
                 return ActionResult()
                     .withRedraw()
-                    .withErrorMessage(getString(Category.UTILITY, "giveaway_nomessage"))
+                    .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_nomessage"))
             }
         }
 
@@ -377,7 +377,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         val actionResult = ActionResult()
             .withRedrawScrollToTop()
-            .withSuccessMessage(getString(Category.UTILITY, "giveaway_dashboard_success", mode != Mode.OVERVIEW))
+            .withSuccessMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_success", mode != Mode.OVERVIEW))
         switchMode(Mode.OVERVIEW)
         return actionResult
     }
@@ -386,7 +386,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         val channel = channelId?.let { guild.getTextChannelById(it.toString()) }
         if (channel == null) { /* invalid channel */
             return ActionResult()
-                .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_invalidchannel"))
+                .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_invalidchannel"))
         }
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) { /* no permissions in channel */
             return ActionResult()
@@ -395,7 +395,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         if (article == null || article!!.isBlank()) { /* invalid article */
             return ActionResult()
-                .withErrorMessage(getString(Category.UTILITY, "giveaway_noitem"))
+                .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_noitem"))
         }
 
         return null

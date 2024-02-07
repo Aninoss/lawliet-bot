@@ -3,7 +3,7 @@ package commands.listeners
 import commands.Command
 import commands.CommandContainer
 import commands.CommandEvent
-import commands.runnables.utilitycategory.TriggerDeleteCommand
+import commands.runnables.configurationcategory.TriggerDeleteCommand
 import core.MemberCacheController
 import core.PermissionCheckRuntime
 import core.Program

@@ -12,7 +12,6 @@ import commands.runnables.invitetrackingcategory.InviteTrackingCommand
 import commands.runnables.moderationcategory.InviteFilterCommand
 import commands.runnables.moderationcategory.ModSettingsCommand
 import commands.runnables.moderationcategory.WordFilterCommand
-import commands.runnables.utilitycategory.*
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta

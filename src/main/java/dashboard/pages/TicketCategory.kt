@@ -2,7 +2,7 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
-import commands.runnables.utilitycategory.TicketCommand
+import commands.runnables.configurationcategory.TicketCommand
 import core.TextManager
 import dashboard.ActionResult
 import dashboard.DashboardCategory
@@ -71,11 +71,11 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         }
         channelComboBox.putCssProperties("margin-top", "0.5em")
 
-        val sendButton = DashboardButton(getString(category = Category.UTILITY, "ticket_state4_title")) {
+        val sendButton = DashboardButton(getString(category = Category.CONFIGURATION, "ticket_state4_title")) {
             val error = Ticket.sendTicketMessage(locale, atomicGuild.get().get().getTextChannelById(createMessageChannelId!!))
             if (error == null) {
                 return@DashboardButton ActionResult()
-                        .withSuccessMessage(getString(Category.UTILITY, "ticket_message_sent"))
+                        .withSuccessMessage(getString(Category.CONFIGURATION, "ticket_message_sent"))
             } else {
                 return@DashboardButton ActionResult()
                         .withErrorMessage(error)
@@ -97,7 +97,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val container = VerticalContainer()
 
         val logChannel = DashboardTextChannelComboBox(
-                getString(Category.UTILITY, "ticket_state0_mannouncement"),
+                getString(Category.CONFIGURATION, "ticket_state0_mannouncement"),
                 locale,
                 atomicGuild.idLong,
                 ticketData.announcementTextChannelId.orElse(null),
@@ -114,7 +114,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
         val staffRoles = DashboardMultiRolesComboBox(
                 this,
-                getString(Category.UTILITY, "ticket_state0_mstaffroles"),
+                getString(Category.CONFIGURATION, "ticket_state0_mstaffroles"),
                 { ticketData.staffRoleIds },
                 true,
                 TicketCommand.MAX_STAFF_ROLES,
@@ -123,10 +123,10 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         staffContainer.add(staffRoles)
 
         val assignmentValues = TicketAssignmentMode.values().mapIndexed() { i, mode ->
-            DiscordEntity(i.toString(), getString(Category.UTILITY, "ticket_assignment_modes").split("\n")[i])
+            DiscordEntity(i.toString(), getString(Category.CONFIGURATION, "ticket_assignment_modes").split("\n")[i])
         }
         val assignmentMode = DashboardComboBox(
-                getString(Category.UTILITY, "ticket_state0_massign"),
+                getString(Category.CONFIGURATION, "ticket_state0_massign"),
                 assignmentValues,
                 false,
                 1
@@ -145,9 +145,9 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     private fun generateAutoCloseOnInactivityField(ticketData: TicketData): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.UTILITY, "ticket_state0_mcloseoninactivity")))
+        container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcloseoninactivity")))
 
-        val active = DashboardSwitch(getString(Category.UTILITY, "ticket_dashboard_active")) {
+        val active = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_dashboard_active")) {
             if (it.data) {
                 DBTicket.getInstance().retrieve(atomicGuild.idLong).autoCloseHours = 1
             } else {
@@ -158,16 +158,16 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         }
         active.isChecked = ticketData.autoCloseHoursEffectively != null
         active.isEnabled = isPremium
-        active.enableConfirmationMessage(getString(Category.UTILITY, "ticket_dashboard_autoclose_warning"))
+        active.enableConfirmationMessage(getString(Category.CONFIGURATION, "ticket_dashboard_autoclose_warning"))
         container.add(active, DashboardSeparator())
 
-        val duration = DashboardDurationField(getString(Category.UTILITY, "ticket_dashboard_autoclose_duration")) {
+        val duration = DashboardDurationField(getString(Category.CONFIGURATION, "ticket_dashboard_autoclose_duration")) {
             DBTicket.getInstance().retrieve(atomicGuild.idLong).autoCloseHours = it.data.toInt() / 60
             return@DashboardDurationField ActionResult()
                     .withRedraw()
         }
         duration.includeMinutes = false
-        duration.enableConfirmationMessage(getString(Category.UTILITY, "ticket_dashboard_autoclose_warning"))
+        duration.enableConfirmationMessage(getString(Category.CONFIGURATION, "ticket_dashboard_autoclose_warning"))
         if (ticketData.autoCloseHoursEffectively != null) {
             duration.value = ticketData.autoCloseHoursEffectively.toLong() * 60
         }
@@ -185,16 +185,16 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     private fun generateTicketCreateOptionsField(ticketData: TicketData): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.UTILITY, "ticket_state0_mcreateoptions")))
+        container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcreateoptions")))
 
-        val pingStaff = DashboardSwitch(getString(Category.UTILITY, "ticket_state0_mping")) {
+        val pingStaff = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mping")) {
             DBTicket.getInstance().retrieve(atomicGuild.idLong).pingStaff = it.data
             return@DashboardSwitch ActionResult()
         }
         pingStaff.isChecked = ticketData.pingStaff
         container.add(pingStaff, DashboardSeparator())
 
-        val enforceTextInputs = DashboardSwitch(getString(Category.UTILITY, "ticket_state0_mtextinput")) {
+        val enforceTextInputs = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mtextinput")) {
             DBTicket.getInstance().retrieve(atomicGuild.idLong).userMessages = it.data
             return@DashboardSwitch ActionResult()
         }
@@ -202,7 +202,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         container.add(enforceTextInputs, DashboardSeparator())
 
         val greetingText = DashboardMultiLineTextField(
-                getString(Category.UTILITY, "ticket_state0_mcreatemessage"),
+                getString(Category.CONFIGURATION, "ticket_state0_mcreatemessage"),
                 0,
                 TicketCommand.MAX_GREETING_TEXT_LENGTH
         ) {
@@ -221,16 +221,16 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     private fun generateTicketCloseOptionsField(ticketData: TicketData): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.UTILITY, "ticket_state0_mcloseoptions")))
+        container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcloseoptions")))
 
-        val membersCanCloseTickets = DashboardSwitch(getString(Category.UTILITY, "ticket_state0_mmembercanclose")) {
+        val membersCanCloseTickets = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mmembercanclose")) {
             DBTicket.getInstance().retrieve(atomicGuild.idLong).setMemberCanClose(it.data)
             return@DashboardSwitch ActionResult()
         }
         membersCanCloseTickets.isChecked = ticketData.memberCanClose()
         container.add(membersCanCloseTickets, DashboardSeparator())
 
-        val saveProtocols = DashboardSwitch(getString(Category.UTILITY, "ticket_dashboard_protocols")) {
+        val saveProtocols = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_dashboard_protocols")) {
             DBTicket.getInstance().retrieve(atomicGuild.idLong).protocol = it.data
             return@DashboardSwitch ActionResult()
         }
@@ -238,7 +238,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         saveProtocols.isEnabled = isPremium
         container.add(saveProtocols, DashboardSeparator())
 
-        val deleteChannels = DashboardSwitch(getString(Category.UTILITY, "ticket_state0_mdeletechannel")) {
+        val deleteChannels = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mdeletechannel")) {
             DBTicket.getInstance().retrieve(atomicGuild.idLong).deleteChannelOnTicketClose = it.data
             return@DashboardSwitch ActionResult()
         }

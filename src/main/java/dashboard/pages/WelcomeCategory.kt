@@ -2,7 +2,7 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
-import commands.runnables.utilitycategory.WelcomeCommand
+import commands.runnables.configurationcategory.WelcomeCommand
 import core.LocalFile
 import core.TextManager
 import core.utils.BotPermissionUtil
@@ -49,9 +49,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     }
 
     fun generateWelcomeField(guild: Guild, welcomeData: WelcomeMessageData): DashboardComponent {
-        val container = VerticalContainer(DashboardTitle(getString(Category.UTILITY, "welcome_dashboard_join")))
+        val container = VerticalContainer(DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_join")))
 
-        val activeSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_dashboard_active")) {
+        val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isWelcomeActive = it.data
             ActionResult()
         }
@@ -59,7 +59,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
-            getString(Category.UTILITY, "welcome_state0_mdescription"),
+            getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
             1,
             WelcomeCommand.MAX_WELCOME_DESCRIPTION_LENGTH
         ) {
@@ -67,9 +67,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.welcomeText
-        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables").replace("-", "•")), DashboardSeparator())
+        container.add(descriptionField, DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("-", "•")), DashboardSeparator())
 
-        val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
+        val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.welcomeEmbed = it.data
             ActionResult()
         }
@@ -77,7 +77,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(embedSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardTextChannelComboBox(
-            getString(Category.UTILITY, "welcome_state0_mchannel"),
+            getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
             locale,
             atomicGuild.idLong,
             welcomeData.welcomeChannelId,
@@ -105,7 +105,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
         container.add(DashboardSeparator())
 
-        val bannerSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_mbanner")) {
+        val bannerSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_mbanner")) {
             welcomeData.banner = it.data
             ActionResult()
         }
@@ -113,7 +113,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(bannerSwitch, DashboardSeparator())
 
         val titleField = DashboardTextField(
-            getString(Category.UTILITY, "welcome_state0_mtitle"),
+            getString(Category.CONFIGURATION, "welcome_state0_mtitle"),
             1,
             WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
         ) {
@@ -123,7 +123,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         titleField.value = welcomeData.welcomeTitle
         container.add(titleField)
 
-        val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "welcome_dashboard_backgroundimage"), "temp") {
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_backgroundimage"), "temp") {
             val segments = it.data.split('/')
             val localFile = LocalFile(LocalFile.Directory.CDN, String.format("temp/%s", segments[segments.size - 1]))
             val destinationFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
@@ -142,14 +142,14 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             container.add(bannerImage)
         }
 
-        val previewButton = DashboardButton(getString(Category.UTILITY, "welcome_dashboard_preview")) {
+        val previewButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_dashboard_preview")) {
             renderBannerPreview = true
             ActionResult()
                 .withRedraw()
         }
         previewButton.style = DashboardButton.Style.PRIMARY
 
-        val resetButton = DashboardButton(getString(Category.UTILITY, "welcome_state4_options")) {
+        val resetButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_state4_options")) {
             val backgroundFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
             backgroundFile.delete()
             renderBannerPreview = true
@@ -164,9 +164,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     }
 
     fun generateDMField(welcomeData: WelcomeMessageData): DashboardComponent {
-        val container = VerticalContainer(DashboardTitle(getString(Category.UTILITY, "welcome_dashboard_dm")))
+        val container = VerticalContainer(DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_dm")))
 
-        val activeSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_dashboard_active")) {
+        val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isDmActive = it.data
             ActionResult()
         }
@@ -174,7 +174,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
-            getString(Category.UTILITY, "welcome_state0_mdescription"),
+            getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
             1,
             WelcomeCommand.MAX_DM_DESCRIPTION_LENGTH
         ) {
@@ -182,9 +182,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.dmText
-        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables").replace("-", "•")), DashboardSeparator())
+        container.add(descriptionField, DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("-", "•")), DashboardSeparator())
 
-        val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
+        val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.dmEmbed = it.data
             ActionResult()
         }
@@ -195,9 +195,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     }
 
     fun generateLeaveField(guild: Guild, welcomeData: WelcomeMessageData): DashboardComponent {
-        val container = VerticalContainer(DashboardTitle(getString(Category.UTILITY, "welcome_dashboard_leave")))
+        val container = VerticalContainer(DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_leave")))
 
-        val activeSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_dashboard_active")) {
+        val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isGoodbyeActive = it.data
             ActionResult()
         }
@@ -205,7 +205,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
-            getString(Category.UTILITY, "welcome_state0_mdescription"),
+            getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
             1,
             WelcomeCommand.MAX_FAREWELL_DESCRIPTION_LENGTH
         ) {
@@ -213,9 +213,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.goodbyeText
-        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables").replace("-", "•")), DashboardSeparator())
+        container.add(descriptionField, DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("-", "•")), DashboardSeparator())
 
-        val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
+        val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.goodbyeEmbed = it.data
             ActionResult()
         }
@@ -223,7 +223,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(embedSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardTextChannelComboBox(
-            getString(Category.UTILITY, "welcome_state0_mchannel"),
+            getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
             locale,
             atomicGuild.idLong,
             welcomeData.goodbyeChannelId,

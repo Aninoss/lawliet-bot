@@ -3,7 +3,7 @@ package events.discordevents.voicechannelupdateuserlimit;
 import java.util.ArrayList;
 import java.util.Locale;
 import commands.Command;
-import commands.runnables.utilitycategory.AutoChannelCommand;
+import commands.runnables.configurationcategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.VoiceChannelUpdateUserLimitAbstract;

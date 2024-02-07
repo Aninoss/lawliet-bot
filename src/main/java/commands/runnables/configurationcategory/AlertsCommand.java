@@ -1,4 +1,4 @@
-package commands.runnables.utilitycategory;
+package commands.runnables.configurationcategory;
 
 import commands.*;
 import commands.listeners.CommandProperties;

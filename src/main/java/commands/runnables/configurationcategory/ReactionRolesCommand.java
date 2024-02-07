@@ -1,4 +1,4 @@
-package commands.runnables.utilitycategory;
+package commands.runnables.configurationcategory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
