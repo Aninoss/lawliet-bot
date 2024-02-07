@@ -294,11 +294,15 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onHttpRequest(@NotNull HttpRequestEvent event) {
+        if (event.getResponse() != null && event.getResponse().code / 100 != 2) {
+            MainLogger.get().warn("Http response code {} for {} {}", event.getResponse().code, event.getRequest().getRoute().getMethod(), event.getRequest().getRoute().getCompiledRoute());
+        }
+
         String routeBased = event.getRequest().getRoute().getBaseRoute().getRoute();
         String[] routeBasedParts = routeBased.split("/");
         String[] routeCompiledParts = event.getRoute().getCompiledRoute().split("/");
 
-        String route = event.getRoute().getMethod().toString() + " " + routeBased;
+        String route = event.getRoute().getMethod() + " " + routeBased;
         RequestRouteLogger.logRoute(route, event.isRateLimit());
 
         Long guildId = null;
