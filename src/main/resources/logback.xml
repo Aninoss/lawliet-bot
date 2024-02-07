@@ -45,10 +45,25 @@
         </encoder>
     </appender>
 
-    <root level="INFO">
+    <appender name="STD_OUT_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <neverBlock>true</neverBlock>
         <appender-ref ref="STD_OUT" />
+    </appender>
+
+    <appender name="STD_WARN_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <neverBlock>true</neverBlock>
         <appender-ref ref="STD_WARN" />
+    </appender>
+
+    <appender name="STD_ERR_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <neverBlock>true</neverBlock>
         <appender-ref ref="STD_ERR" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STD_OUT_ASYNC" />
+        <appender-ref ref="STD_WARN_ASYNC" />
+        <appender-ref ref="STD_ERR_ASYNC" />
     </root>
 
 </configuration>
