@@ -7,7 +7,6 @@ import commands.runnables.configurationcategory.*
 import commands.runnables.fisherysettingscategory.FisheryCommand
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand
 import commands.runnables.fisherysettingscategory.VCTimeCommand
-import commands.runnables.fisherysettingscategory.VoteRewardsCommand
 import commands.runnables.informationcategory.HelpCommand
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand
 import commands.runnables.moderationcategory.InviteFilterCommand
@@ -39,7 +38,7 @@ import java.util.*
             AutoRolesCommand::class, StickyRolesCommand::class, AutoChannelCommand::class, AutoQuoteCommand::class, MemberCountDisplayCommand::class,
             TriggerDeleteCommand::class, GiveawayCommand::class, TicketCommand::class, ModSettingsCommand::class, InviteFilterCommand::class,
             WordFilterCommand::class, FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class, InviteTrackingCommand::class,
-            CustomConfigCommand::class, VoteRewardsCommand::class, CommandChannelShortcutsCommand::class, ReminderManageCommand::class
+            CustomConfigCommand::class, CommandChannelShortcutsCommand::class, ReminderManageCommand::class
         ]
 )
 class ConfigAdapter : SlashAdapter() {

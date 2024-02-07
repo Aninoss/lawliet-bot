@@ -142,7 +142,6 @@ public class CommandContainer {
         commandList.add(FisheryCommand.class);
         commandList.add(FisheryRolesCommand.class);
         commandList.add(VCTimeCommand.class);
-        commandList.add(VoteRewardsCommand.class);
         commandList.add(FisheryManageCommand.class);
         commandList.add(TreasureCommand.class);
         commandList.add(PowerUpCommand.class);
