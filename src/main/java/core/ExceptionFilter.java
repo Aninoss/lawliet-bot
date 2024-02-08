@@ -40,6 +40,10 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             return FilterReply.DENY;
         }
 
+        if (message.contains("50007")) {
+            return FilterReply.DENY;
+        }
+
         return FilterReply.NEUTRAL;
     }
 
