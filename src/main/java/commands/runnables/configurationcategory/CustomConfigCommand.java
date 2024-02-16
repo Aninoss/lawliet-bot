@@ -172,7 +172,7 @@ public class CustomConfigCommand extends NavigationAbstract {
                 }
 
                 guildEntity.beginTransaction();
-                customCommands.put(trigger, new CustomCommandEntity(guildEntity, textResponse));
+                customCommands.put(trigger, new CustomCommandEntity(textResponse));
                 if (oldTrigger != null && !trigger.equals(oldTrigger)) {
                     customCommands.remove(oldTrigger);
                 }

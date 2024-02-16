@@ -9,7 +9,6 @@ import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
@@ -21,9 +20,8 @@ import core.utils.*;
 import events.discordevents.modalinteraction.ModalInteractionTicket;
 import kotlin.Pair;
 import modules.Ticket;
-import mysql.modules.ticket.DBTicket;
-import mysql.modules.ticket.TicketChannel;
-import mysql.modules.ticket.TicketData;
+import mysql.hibernate.entity.guild.TicketChannelEntity;
+import mysql.hibernate.entity.guild.TicketsEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -48,14 +46,14 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "ticket",
-        botChannelPermissions = { Permission.MESSAGE_EXT_EMOJI },
-        botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MANAGE_ROLES },
-        userGuildPermissions = { Permission.MANAGE_CHANNEL },
-        releaseDate = { 2021, 5, 24 },
+        botChannelPermissions = {Permission.MESSAGE_EXT_EMOJI},
+        botGuildPermissions = {Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MANAGE_ROLES},
+        userGuildPermissions = {Permission.MANAGE_CHANNEL},
+        releaseDate = {2021, 5, 24},
         emoji = "🎟️",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "tickets", "supportticket", "supporttickets" }
+        aliases = {"tickets", "supportticket", "supporttickets"}
 )
 public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener {
 
@@ -77,9 +75,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public final static String BUTTON_ID_CLOSE = "close";
     public final static String BUTTON_ID_ASSIGN = "assign";
 
-    private TicketData ticketData;
     private NavigationHelper<AtomicRole> staffRoleNavigationHelper;
-    private CustomObservableList<AtomicRole> staffRoles;
     private TextChannel tempPostChannel = null;
 
     public TicketCommand(Locale locale, String prefix) {
@@ -88,9 +84,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        staffRoles = AtomicRole.transformIdList(event.getGuild(), ticketData.getStaffRoleIds());
-        staffRoleNavigationHelper = new NavigationHelper<>(this, guildEntity -> staffRoles, AtomicRole.class, MAX_STAFF_ROLES, false);
+        staffRoleNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getTickets().getStaffRoles(), AtomicRole.class, MAX_STAFF_ROLES, false);
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -104,7 +98,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     @ControllerMessage(state = ANNOUNCEMENT_CHANNEL)
     public MessageInputResponse onMessageAnnouncementChannel(MessageReceivedEvent event, String input) {
         List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-        if (channelList.size() == 0) {
+        if (channelList.isEmpty()) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
             return MessageInputResponse.FAILED;
         } else {
@@ -116,7 +110,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return MessageInputResponse.FAILED;
             }
 
-            ticketData.setAnnouncementTextChannelId(textChannel.getIdLong());
+            TicketsEntity tickets = getGuildEntity().getTickets();
+            tickets.beginTransaction();
+            tickets.setLogChannelId(textChannel.getIdLong());
+            tickets.commitTransaction();
+
             setLog(LogStatus.SUCCESS, getString("announcement_set"));
             setState(MAIN);
             return MessageInputResponse.SUCCESS;
@@ -127,7 +125,10 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public MessageInputResponse onMessageCloseOnInactivity(MessageReceivedEvent event, String input) {
         int hours = (int) (MentionUtil.getTimeMinutes(input).getValue() / 60);
         if (hours > 0) {
-            ticketData.setAutoCloseHours(hours);
+            getGuildEntity().beginTransaction();
+            getGuildEntity().getTickets().setAutoCloseHours(hours);
+            getGuildEntity().commitTransaction();
+
             setLog(LogStatus.SUCCESS, getString("autoclose_set"));
             setState(MAIN);
             return MessageInputResponse.SUCCESS;
@@ -140,7 +141,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     @ControllerMessage(state = CREATE_TICKET_MESSAGE)
     public MessageInputResponse onMessageCreateTicketMessage(MessageReceivedEvent event, String input) {
         List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-        if (channelList.size() == 0) {
+        if (channelList.isEmpty()) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
             return MessageInputResponse.FAILED;
         } else {
@@ -151,9 +152,12 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @ControllerMessage(state = GREETING_TEXT)
     public MessageInputResponse onMessageGreetingText(MessageReceivedEvent event, String input) {
-        if (input.length() > 0) {
+        if (!input.isEmpty()) {
             if (input.length() <= MAX_GREETING_TEXT_LENGTH) {
-                ticketData.setCreateMessage(input);
+                getGuildEntity().beginTransaction();
+                getGuildEntity().getTickets().setGreetingText(input);
+                getGuildEntity().commitTransaction();
+
                 setLog(LogStatus.SUCCESS, getString("greetingset"));
                 setState(0);
                 return MessageInputResponse.SUCCESS;
@@ -167,6 +171,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @ControllerButton(state = MAIN)
     public boolean onButtonMain(ButtonInteractionEvent event, int i) {
+        TicketsEntity tickets = getGuildEntity().getTickets();
+
         switch (i) {
             case -1 -> {
                 deregisterListenersWithComponentMessage();
@@ -202,32 +208,42 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
             }
             case 6 -> {
-                ticketData.setPingStaff(!ticketData.getPingStaff());
-                setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.getPingStaff(), getString("state0_mping")));
+                tickets.beginTransaction();
+                tickets.setPingStaffRoles(!tickets.getPingStaffRoles());
+                tickets.commitTransaction();
+                setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getPingStaffRoles(), getString("state0_mping")));
                 return true;
             }
             case 7 -> {
-                ticketData.setUserMessages(!ticketData.getUserMessages());
-                setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.getUserMessages(), getString("state0_mtextinput")));
+                tickets.beginTransaction();
+                tickets.setEnforceModal(!tickets.getEnforceModal());
+                tickets.commitTransaction();
+                setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getEnforceModal(), getString("state0_mtextinput")));
                 return true;
             }
             case 8 -> {
-                ticketData.setMemberCanClose(!ticketData.memberCanClose());
-                setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.memberCanClose(), getString("state0_mmembercanclose")));
+                tickets.beginTransaction();
+                tickets.setMembersCanCloseTickets(!tickets.getMembersCanCloseTickets());
+                tickets.commitTransaction();
+                setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getMembersCanCloseTickets(), getString("state0_mmembercanclose")));
                 return true;
             }
             case 9 -> {
                 if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                    ticketData.setProtocol(!ticketData.getProtocol());
-                    setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.getProtocolEffectively(), getString("state0_mprotocol")));
+                    tickets.beginTransaction();
+                    tickets.setProtocols(!tickets.getProtocols());
+                    tickets.commitTransaction();
+                    setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getProtocolsEffectively(), getString("state0_mprotocol")));
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
                 }
                 return true;
             }
             case 10 -> {
-                ticketData.setDeleteChannelOnTicketClose(!ticketData.getDeleteChannelOnTicketClose());
-                setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.getDeleteChannelOnTicketClose(), getString("state0_mdeletechannel")));
+                tickets.beginTransaction();
+                tickets.setDeleteChannelsOnClose(!tickets.getDeleteChannelsOnClose());
+                tickets.commitTransaction();
+                setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getDeleteChannelsOnClose(), getString("state0_mdeletechannel")));
                 return true;
             }
             case 11 -> {
@@ -248,7 +264,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
             }
             case 0 -> {
-                ticketData.setAnnouncementTextChannelId(null);
+                TicketsEntity tickets = getGuildEntity().getTickets();
+                tickets.beginTransaction();
+                tickets.setLogChannelId(null);
+                tickets.commitTransaction();
+
                 setLog(LogStatus.SUCCESS, getString("announcement_set"));
                 setState(MAIN);
                 return true;
@@ -277,7 +297,10 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             setState(MAIN);
             return true;
         }
-        ticketData.setTicketAssignmentMode(TicketData.TicketAssignmentMode.values()[i]);
+        getGuildEntity().beginTransaction();
+        getGuildEntity().getTickets().setAssignmentMode(TicketsEntity.AssignmentMode.values()[i]);
+        getGuildEntity().commitTransaction();
+
         setLog(LogStatus.SUCCESS, getString("assignment_set", getString("assignment_modes").split("\n")[i]));
         setState(MAIN);
         return true;
@@ -289,7 +312,10 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             setState(MAIN);
             return true;
         } else if (i == 0) {
-            ticketData.setAutoCloseHours(null);
+            getGuildEntity().beginTransaction();
+            getGuildEntity().getTickets().setAutoCloseHours(null);
+            getGuildEntity().commitTransaction();
+
             setLog(LogStatus.SUCCESS, getString("autoclose_set"));
             setState(MAIN);
             return true;
@@ -324,7 +350,10 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             setState(0);
             return true;
         } else if (i == 0) {
-            ticketData.setCreateMessage(null);
+            getGuildEntity().beginTransaction();
+            getGuildEntity().getTickets().setGreetingText(null);
+            getGuildEntity().commitTransaction();
+
             setLog(LogStatus.SUCCESS, getString("greetingset"));
             setState(0);
             return true;
@@ -334,20 +363,22 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @Draw(state = MAIN)
     public EmbedBuilder onDrawMain(Member member) {
+        TicketsEntity tickets = getGuildEntity().getTickets();
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this)
-                .addField(getString("state0_mannouncement"), ticketData.getAnnouncementTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
-                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
-                .addField(getString("state0_massign"), getString("assignment_modes").split("\n")[ticketData.getTicketAssignmentMode().ordinal()], true)
-                .addField(getString("state0_mcloseoninactivity") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), getCloseOnInactivityValue(), true)
-                .addField(getString("state0_mcreatemessage"), StringUtil.shortenString(StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), 1024), false)
-                .addField(getString("state0_mcreateoptions"), generateCreateOptionsField(), false)
-                .addField(getString("state0_mcloseoptions"), generateCloseOptionsField(), false);
+                .addField(getString("state0_mannouncement"), tickets.getLogChannelId() != null ? tickets.getLogChannel().getPrefixedNameInField(getLocale()) : notSet, true)
+                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(tickets.getStaffRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
+                .addField(getString("state0_massign"), getString("assignment_modes").split("\n")[tickets.getAssignmentMode().ordinal()], true)
+                .addField(getString("state0_mcloseoninactivity") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), getCloseOnInactivityValue(tickets), true)
+                .addField(getString("state0_mcreatemessage"), StringUtil.shortenString(tickets.getGreetingText() != null ? StringUtil.escapeMarkdown(tickets.getGreetingText()) : notSet, 1024), false)
+                .addField(getString("state0_mcreateoptions"), generateCreateOptionsField(tickets), false)
+                .addField(getString("state0_mcloseoptions"), generateCloseOptionsField(tickets), false);
     }
 
-    private String getCloseOnInactivityValue() {
-        Integer autoCloseMinutes = ticketData.getAutoCloseHoursEffectively();
+    private String getCloseOnInactivityValue(TicketsEntity tickets) {
+        Integer autoCloseMinutes = tickets.getAutoCloseHoursEffectively();
         if (autoCloseMinutes == null) {
             return StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), false);
         } else {
@@ -355,21 +386,21 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
     }
 
-    private String generateCreateOptionsField() {
+    private String generateCreateOptionsField(TicketsEntity tickets) {
         return generateOptionsString(
                 List.of(
-                        new Pair<>(getString("state0_mping"), ticketData.getPingStaff()),
-                        new Pair<>(getString("state0_mtextinput"), ticketData.getUserMessages())
+                        new Pair<>(getString("state0_mping"), tickets.getPingStaffRoles()),
+                        new Pair<>(getString("state0_mtextinput"), tickets.getEnforceModal())
                 )
         );
     }
 
-    private String generateCloseOptionsField() {
+    private String generateCloseOptionsField(TicketsEntity tickets) {
         return generateOptionsString(
                 List.of(
-                        new Pair<>(getString("state0_mmembercanclose"), ticketData.memberCanClose()),
-                        new Pair<>(getString("state0_mprotocol") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), ticketData.getProtocolEffectively()),
-                        new Pair<>(getString("state0_mdeletechannel"), ticketData.getDeleteChannelOnTicketClose())
+                        new Pair<>(getString("state0_mmembercanclose"), tickets.getMembersCanCloseTickets()),
+                        new Pair<>(getString("state0_mprotocol") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), tickets.getProtocolsEffectively()),
+                        new Pair<>(getString("state0_mdeletechannel"), tickets.getDeleteChannelsOnClose())
                 )
         );
     }
@@ -443,31 +474,38 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @Override
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
-            TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-            TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
+        if (!(event.getChannel() instanceof TextChannel)) {
+            return;
+        }
 
-            if (ticketChannel == null && event.getEmoji().getFormatted().equals(getCommandProperties().emoji())) {
-                Category category = event.getChannel().asTextChannel().getParentCategory();
-                if (category == null || category.getTextChannels().size() < 50) {
-                    Ticket.createTicket(ticketData, getGuildEntity(), event.getChannel().asTextChannel(), event.getMember(), null);
-                } else {
-                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
-                    JDAUtil.openPrivateChannel(event.getMember())
-                            .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                            .queue();
+        TicketsEntity ticketsEntity = getGuildEntity().getTickets();
+        TicketChannelEntity ticketChannelEntity = ticketsEntity.getTicketChannels().get(event.getChannel().getIdLong());
+
+        if (ticketChannelEntity == null && event.getEmoji().getFormatted().equals(getCommandProperties().emoji())) {
+            Category category = event.getChannel().asTextChannel().getParentCategory();
+            if (category == null || category.getTextChannels().size() < 50) {
+                Ticket.createTicket(getGuildEntity(), event.getChannel().asTextChannel(), event.getMember(), null);
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
+                JDAUtil.openPrivateChannel(event.getMember())
+                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                        .queue();
+            }
+        } else if (ticketChannelEntity != null && EmojiUtil.equals(event.getEmoji(), TICKET_CLOSE_EMOJI)) {
+            if (memberIsStaff(event.getMember(), ticketsEntity.getStaffRoleIds()) ||
+                    (event.getMember().getIdLong() == ticketChannelEntity.getMemberId() && ticketsEntity.getMembersCanCloseTickets())
+            ) {
+                if (ticketChannelEntity.getIntroductionMessageId() == 0L) {
+                    ticketsEntity.beginTransaction();
+                    ticketChannelEntity.setIntroductionMessageId(event.getMessageIdLong());
+                    ticketsEntity.commitTransaction();
                 }
-            } else if (ticketChannel != null && EmojiUtil.equals(event.getEmoji(), TICKET_CLOSE_EMOJI)) {
-                if (memberIsStaff(event.getMember(), ticketData.getStaffRoleIds()) ||
-                        (event.getMember().getIdLong() == ticketChannel.getMemberId() && ticketData.memberCanClose())
-                ) {
-                    ticketChannel.setStarterMessageId(event.getMessageIdLong());
-                    Ticket.closeTicket(ticketData, getGuildEntity(), event.getChannel().asTextChannel(), ticketChannel);
-                } else {
-                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
-                    event.getChannel().asTextChannel().sendMessageEmbeds(eb.build())
-                            .queue();
-                }
+
+                Ticket.closeTicket(getGuildEntity(), ticketChannelEntity, event.getChannel().asTextChannel());
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
+                event.getChannel().asTextChannel().sendMessageEmbeds(eb.build())
+                        .queue();
             }
         }
     }
@@ -490,12 +528,12 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             return;
         }
 
-        TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
+        TicketsEntity ticketsEntity = getGuildEntity().getTickets();
         TextChannel channel = (TextChannel) channelTemp;
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(channel.getIdLong());
+        TicketChannelEntity ticketChannelEntity = ticketsEntity.getTicketChannels().get(channel.getIdLong());
 
-        if (ticketChannel == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
-            if (ticketData.getUserMessages()) {
+        if (ticketChannelEntity == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
+            if (ticketsEntity.getEnforceModal()) {
                 TextInput message = TextInput.create("message", getString("modal_message"), TextInputStyle.PARAGRAPH)
                         .setPlaceholder(getString("modal_message_placeholder"))
                         .setMinLength(30)
@@ -510,7 +548,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             } else {
                 Category category = channel.getParentCategory();
                 if (category == null || category.getTextChannels().size() < 50) {
-                    Ticket.createTicket(ticketData, getGuildEntity(), channel, event.getMember(), null);
+                    Ticket.createTicket(getGuildEntity(), channel, event.getMember(), null);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
                     event.replyEmbeds(eb.build())
@@ -518,15 +556,17 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                             .queue();
                 }
             }
-        } else if (ticketChannel != null) {
+        } else if (ticketChannelEntity != null) {
             if (event.getComponentId().equals(BUTTON_ID_CLOSE)) {
-                if (memberIsStaff(event.getMember(), ticketData.getStaffRoleIds()) ||
-                        (event.getMember().getIdLong() == ticketChannel.getMemberId() && ticketData.memberCanClose())
+                if (memberIsStaff(event.getMember(), ticketsEntity.getStaffRoleIds()) ||
+                        (event.getMember().getIdLong() == ticketChannelEntity.getMemberId() && ticketsEntity.getMembersCanCloseTickets())
                 ) {
-                    if (secondaryId == null) {
-                        ticketChannel.setStarterMessageId(event.getMessageIdLong());
+                    if (secondaryId == null && ticketChannelEntity.getIntroductionMessageId() == 0L) {
+                        ticketsEntity.beginTransaction();
+                        ticketChannelEntity.setIntroductionMessageId(event.getMessageIdLong());
+                        ticketsEntity.commitTransaction();
                     }
-                    Ticket.closeTicket(ticketData, getGuildEntity(), channel, ticketChannel);
+                    Ticket.closeTicket(getGuildEntity(), ticketChannelEntity, channel);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                     event.replyEmbeds(eb.build())
@@ -534,8 +574,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                             .queue();
                 }
             } else if (event.getComponentId().equals(BUTTON_ID_ASSIGN)) {
-                if (memberIsStaff(event.getMember(), ticketData.getStaffRoleIds())) {
-                    Ticket.assignTicket(event.getMember(), channel, ticketData, ticketChannel, getGuildEntity());
+                if (memberIsStaff(event.getMember(), ticketsEntity.getStaffRoleIds())) {
+                    Ticket.assignTicket(event.getMember(), channel, getGuildEntity(), ticketChannelEntity);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotassign"));
                     event.replyEmbeds(eb.build())

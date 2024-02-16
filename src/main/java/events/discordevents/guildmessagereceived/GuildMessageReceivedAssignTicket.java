@@ -6,9 +6,8 @@ import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.Ticket;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.ticket.DBTicket;
-import mysql.modules.ticket.TicketChannel;
-import mysql.modules.ticket.TicketData;
+import mysql.hibernate.entity.guild.TicketChannelEntity;
+import mysql.hibernate.entity.guild.TicketsEntity;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -19,12 +18,11 @@ public class GuildMessageReceivedAssignTicket extends GuildMessageReceivedAbstra
     public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (event.getChannel() instanceof TextChannel) {
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-            TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-            TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
-            if (ticketChannel != null &&
-                    ticketChannel.getTicketAssignmentMode() != TicketData.TicketAssignmentMode.EVERYONE
+            TicketChannelEntity ticketChannelEntity = guildEntity.getTickets().getTicketChannels().get(event.getChannel().getIdLong());
+            if (ticketChannelEntity != null &&
+                    ticketChannelEntity.getAssignmentMode() != TicketsEntity.AssignmentMode.EVERYONE
             ) {
-                Ticket.assignTicket(event.getMember(), event.getChannel().asTextChannel(), ticketData, ticketChannel, guildEntity);
+                Ticket.assignTicket(event.getMember(), event.getChannel().asTextChannel(), guildEntity, ticketChannelEntity);
             }
         }
         return true;

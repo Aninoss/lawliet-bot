@@ -4,6 +4,7 @@ import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.TicketCommand
 import core.TextManager
+import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -16,8 +17,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.Ticket
 import mysql.hibernate.entity.guild.GuildEntity
-import mysql.modules.ticket.DBTicket
-import mysql.modules.ticket.TicketData
+import mysql.hibernate.entity.guild.TicketsEntity
 import mysql.modules.ticket.TicketData.TicketAssignmentMode
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -31,21 +31,22 @@ import java.util.*
 )
 class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
-    var createMessageChannelId: Long? = null;
+    var createMessageChannelId: Long? = null
+
+    val ticketsEntity: TicketsEntity
+        get() = guildEntity.tickets
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(TicketCommand::class.java, locale).title
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val ticketData = DBTicket.getInstance().retrieve(guild.idLong)
-
         mainContainer.add(
                 generateTicketMessageField(),
-                generateGeneralField(ticketData),
-                generateTicketCreateOptionsField(ticketData),
-                generateTicketCloseOptionsField(ticketData),
-                generateAutoCloseOnInactivityField(ticketData)
+                generateGeneralField(),
+                generateTicketCreateOptionsField(),
+                generateTicketCloseOptionsField(),
+                generateAutoCloseOnInactivityField()
         )
     }
 
@@ -93,18 +94,33 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         return container
     }
 
-    private fun generateGeneralField(ticketData: TicketData): DashboardComponent {
+    private fun generateGeneralField(): DashboardComponent {
         val container = VerticalContainer()
 
         val logChannel = DashboardTextChannelComboBox(
                 getString(Category.CONFIGURATION, "ticket_state0_mannouncement"),
                 locale,
                 atomicGuild.idLong,
-                ticketData.announcementTextChannelId.orElse(null),
+                ticketsEntity.logChannelId,
                 true
-        ) {
-            DBTicket.getInstance().retrieve(atomicGuild.idLong)
-                    .setAnnouncementTextChannelId(it.data?.toLong())
+        ) { e ->
+            val channel = atomicGuild.get().map { it.getTextChannelById(e.data.toLong()) }
+                    .orElse(null)
+            if (channel == null) {
+                return@DashboardTextChannelComboBox ActionResult()
+                        .withRedraw()
+            }
+
+            val channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+            if (channelMissingPerms != null) {
+                return@DashboardTextChannelComboBox ActionResult()
+                        .withRedraw()
+                        .withErrorMessage(channelMissingPerms)
+            }
+
+            ticketsEntity.beginTransaction()
+            ticketsEntity.logChannelId = channel.idLong
+            ticketsEntity.commitTransaction()
             return@DashboardTextChannelComboBox ActionResult()
         }
         container.add(logChannel)
@@ -115,7 +131,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val staffRoles = DashboardMultiRolesComboBox(
                 this,
                 getString(Category.CONFIGURATION, "ticket_state0_mstaffroles"),
-                { ticketData.staffRoleIds },
+                { it.tickets.staffRoleIds },
                 true,
                 TicketCommand.MAX_STAFF_ROLES,
                 false
@@ -131,10 +147,12 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 false,
                 1
         ) {
-            DBTicket.getInstance().retrieve(atomicGuild.idLong).ticketAssignmentMode = TicketAssignmentMode.values()[it.data.toInt()]
+            ticketsEntity.beginTransaction()
+            ticketsEntity.assignmentMode = TicketsEntity.AssignmentMode.values()[it.data.toInt()]
+            ticketsEntity.commitTransaction()
             return@DashboardComboBox ActionResult()
         }
-        assignmentMode.selectedValues = listOf(assignmentValues[ticketData.ticketAssignmentMode.ordinal])
+        assignmentMode.selectedValues = listOf(assignmentValues[ticketsEntity.assignmentMode.ordinal])
         staffContainer.add(assignmentMode)
         container.add(staffContainer)
 
@@ -143,33 +161,38 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         return container
     }
 
-    private fun generateAutoCloseOnInactivityField(ticketData: TicketData): DashboardComponent {
+    private fun generateAutoCloseOnInactivityField(): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcloseoninactivity")))
 
         val active = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_dashboard_active")) {
+            ticketsEntity.beginTransaction()
             if (it.data) {
-                DBTicket.getInstance().retrieve(atomicGuild.idLong).autoCloseHours = 1
+                ticketsEntity.autoCloseHours = 1
             } else {
-                DBTicket.getInstance().retrieve(atomicGuild.idLong).autoCloseHours = null
+                ticketsEntity.autoCloseHours = null
             }
+            ticketsEntity.commitTransaction()
             return@DashboardSwitch ActionResult()
                     .withRedraw()
         }
-        active.isChecked = ticketData.autoCloseHoursEffectively != null
+        active.isChecked = ticketsEntity.autoCloseHoursEffectively != null
         active.isEnabled = isPremium
         active.enableConfirmationMessage(getString(Category.CONFIGURATION, "ticket_dashboard_autoclose_warning"))
         container.add(active, DashboardSeparator())
 
         val duration = DashboardDurationField(getString(Category.CONFIGURATION, "ticket_dashboard_autoclose_duration")) {
-            DBTicket.getInstance().retrieve(atomicGuild.idLong).autoCloseHours = it.data.toInt() / 60
+            ticketsEntity.beginTransaction()
+            ticketsEntity.autoCloseHours = it.data.toInt() / 60
+            ticketsEntity.commitTransaction()
+
             return@DashboardDurationField ActionResult()
                     .withRedraw()
         }
         duration.includeMinutes = false
         duration.enableConfirmationMessage(getString(Category.CONFIGURATION, "ticket_dashboard_autoclose_warning"))
-        if (ticketData.autoCloseHoursEffectively != null) {
-            duration.value = ticketData.autoCloseHoursEffectively.toLong() * 60
+        if (ticketsEntity.autoCloseHoursEffectively != null) {
+            duration.value = ticketsEntity.autoCloseHoursEffectively!!.toLong() * 60
         }
         duration.isEnabled = isPremium
         container.add(duration)
@@ -183,22 +206,28 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         return container
     }
 
-    private fun generateTicketCreateOptionsField(ticketData: TicketData): DashboardComponent {
+    private fun generateTicketCreateOptionsField(): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcreateoptions")))
 
         val pingStaff = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mping")) {
-            DBTicket.getInstance().retrieve(atomicGuild.idLong).pingStaff = it.data
+            ticketsEntity.beginTransaction()
+            ticketsEntity.pingStaffRoles = it.data
+            ticketsEntity.commitTransaction()
+
             return@DashboardSwitch ActionResult()
         }
-        pingStaff.isChecked = ticketData.pingStaff
+        pingStaff.isChecked = ticketsEntity.pingStaffRoles
         container.add(pingStaff, DashboardSeparator())
 
         val enforceTextInputs = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mtextinput")) {
-            DBTicket.getInstance().retrieve(atomicGuild.idLong).userMessages = it.data
+            ticketsEntity.beginTransaction()
+            ticketsEntity.enforceModal = it.data
+            ticketsEntity.commitTransaction()
+
             return@DashboardSwitch ActionResult()
         }
-        enforceTextInputs.isChecked = ticketData.userMessages
+        enforceTextInputs.isChecked = ticketsEntity.enforceModal
         container.add(enforceTextInputs, DashboardSeparator())
 
         val greetingText = DashboardMultiLineTextField(
@@ -206,43 +235,51 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 0,
                 TicketCommand.MAX_GREETING_TEXT_LENGTH
         ) {
-            if (it.data.isEmpty()) {
-                DBTicket.getInstance().retrieve(atomicGuild.idLong).setCreateMessage(null)
-            } else {
-                DBTicket.getInstance().retrieve(atomicGuild.idLong).setCreateMessage(it.data)
-            }
+            ticketsEntity.beginTransaction()
+            ticketsEntity.greetingText = it.data.ifEmpty { null }
+            ticketsEntity.commitTransaction()
+
             return@DashboardMultiLineTextField ActionResult()
         }
-        greetingText.value = ticketData.createMessage.orElse("")
+        greetingText.value = ticketsEntity.greetingText ?: ""
         container.add(greetingText)
 
         return container
     }
 
-    private fun generateTicketCloseOptionsField(ticketData: TicketData): DashboardComponent {
+    private fun generateTicketCloseOptionsField(): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcloseoptions")))
 
         val membersCanCloseTickets = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mmembercanclose")) {
-            DBTicket.getInstance().retrieve(atomicGuild.idLong).setMemberCanClose(it.data)
+            ticketsEntity.beginTransaction()
+            ticketsEntity.membersCanCloseTickets = it.data
+            ticketsEntity.commitTransaction()
+
             return@DashboardSwitch ActionResult()
         }
-        membersCanCloseTickets.isChecked = ticketData.memberCanClose()
+        membersCanCloseTickets.isChecked = ticketsEntity.membersCanCloseTickets
         container.add(membersCanCloseTickets, DashboardSeparator())
 
         val saveProtocols = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_dashboard_protocols")) {
-            DBTicket.getInstance().retrieve(atomicGuild.idLong).protocol = it.data
+            ticketsEntity.beginTransaction()
+            ticketsEntity.protocols = it.data
+            ticketsEntity.commitTransaction()
+
             return@DashboardSwitch ActionResult()
         }
-        saveProtocols.isChecked = ticketData.protocolEffectively
+        saveProtocols.isChecked = ticketsEntity.protocolsEffectively
         saveProtocols.isEnabled = isPremium
         container.add(saveProtocols, DashboardSeparator())
 
         val deleteChannels = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mdeletechannel")) {
-            DBTicket.getInstance().retrieve(atomicGuild.idLong).deleteChannelOnTicketClose = it.data
+            ticketsEntity.beginTransaction()
+            ticketsEntity.deleteChannelsOnClose = it.data
+            ticketsEntity.commitTransaction()
+
             return@DashboardSwitch ActionResult()
         }
-        deleteChannels.isChecked = ticketData.deleteChannelOnTicketClose
+        deleteChannels.isChecked = ticketsEntity.deleteChannelsOnClose
         container.add(deleteChannels)
 
         return container

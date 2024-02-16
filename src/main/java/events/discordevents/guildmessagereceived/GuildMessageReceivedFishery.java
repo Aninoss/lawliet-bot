@@ -12,7 +12,6 @@ import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.ticket.DBTicket;
 import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.Permission;
@@ -42,7 +41,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
             if (!messageRegistered ||
                     guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE ||
                     !BotPermissionUtil.canWriteEmbed(event.getGuildChannel(), Permission.MESSAGE_HISTORY) ||
-                    DBTicket.getInstance().retrieve(event.getGuild().getIdLong()).getTicketChannels().containsKey(event.getChannel().getIdLong())
+                    guildEntity.getTickets().getTicketChannels().containsKey(event.getChannel().getIdLong())
             ) {
                 return true;
             }

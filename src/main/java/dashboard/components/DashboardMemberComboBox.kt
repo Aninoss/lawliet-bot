@@ -6,8 +6,13 @@ import dashboard.data.DiscordEntity
 import dashboard.listener.DashboardEventListener
 import java.util.*
 
-class DashboardMemberComboBox(label: String, locale: Locale, guildId: Long, selectedMember: Long?, canBeEmpty: Boolean,
-                              action: DashboardEventListener<String>
+class DashboardMemberComboBox(
+        label: String,
+        locale: Locale,
+        guildId: Long,
+        selectedMember: Long?,
+        canBeEmpty: Boolean,
+        action: DashboardEventListener<String>
 ) : DashboardComboBox(label, DataType.MEMBERS, canBeEmpty, 1) {
 
     init {

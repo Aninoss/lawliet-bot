@@ -6,8 +6,13 @@ import dashboard.data.DiscordEntity
 import dashboard.listener.DashboardEventListener
 import java.util.*
 
-class DashboardTextChannelComboBox(label: String, locale: Locale, guildId: Long, selectedChannel: Long?, canBeEmpty: Boolean,
-                                   action: DashboardEventListener<String>
+class DashboardTextChannelComboBox(
+        label: String,
+        locale: Locale,
+        guildId: Long,
+        selectedChannel: Long?,
+        canBeEmpty: Boolean,
+        action: DashboardEventListener<String>
 ) : DashboardComboBox(label, DataType.TEXT_CHANNELS, canBeEmpty, 1) {
 
     init {

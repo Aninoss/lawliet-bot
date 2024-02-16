@@ -21,7 +21,7 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     val reminders: List<ReminderEntity>
         get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", userId.toLong())
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyEnumerated(EnumType.STRING)
     val fisheryDmReminders = mutableMapOf<FisheryDmReminderEntity.Type, FisheryDmReminderEntity>()
 

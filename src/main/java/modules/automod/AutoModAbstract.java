@@ -10,7 +10,6 @@ import core.MainLogger;
 import core.PermissionCheckRuntime;
 import modules.Mod;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.ticket.DBTicket;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -33,7 +32,7 @@ public abstract class AutoModAbstract {
      * returns true if the message is fine
      */
     public boolean check() {
-        boolean isTicketChannel = DBTicket.getInstance().retrieve(message.getGuild().getIdLong()).getTicketChannels()
+        boolean isTicketChannel = guildEntity.getTickets().getTicketChannels()
                 .containsKey(message.getChannel().getIdLong());
 
         if (!message.getAuthor().isBot() && !isTicketChannel && checkCondition(message)) {

@@ -67,6 +67,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @Column(name = STICKY_ROLES)
     val stickyRoles = StickyRolesEntity()
 
+    @Embedded
+    @Column(name = TICKETS)
+    val tickets = TicketsEntity()
+
     @ElementCollection
     @SortNatural
     val customCommands = sortedMapOf<String, CustomCommandEntity>()
@@ -90,7 +94,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
         inviteFilter.postLoad(this)
         wordFilter.postLoad(this)
         stickyRoles.postLoad(this)
-        customCommands.values.forEach { it.postLoad(this) }
+        tickets.postLoad(this)
     }
 
     override fun postRemove() {

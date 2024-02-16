@@ -9,8 +9,8 @@ import events.scheduleevents.ScheduleEventHourly;
 import modules.Ticket;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.modules.ticket.DBTicket;
-import mysql.modules.ticket.TicketChannel;
+import mysql.hibernate.entity.guild.TicketChannelEntity;
+import mysql.hibernate.entity.guild.TicketsEntity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
@@ -34,31 +34,31 @@ public class TicketsAutoClose implements ExceptionRunnable {
         AtomicInteger counter = new AtomicInteger(0);
 
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(TicketsAutoClose.class)) {
-            DBTicket.getInstance().retrieveAllGuildIdsWithAutoClose().stream()
-                    .filter(guildId -> ShardManager.getLocalGuildById(guildId).isPresent())
-                    .map(guildId -> DBTicket.getInstance().retrieve(guildId))
-                    .filter(ticketData -> ticketData.getAutoCloseHoursEffectively() != null)
-                    .forEach(ticketData -> {
-                        for (TicketChannel ticketChannel : new ArrayList<>(ticketData.getTicketChannels().values())) {
-                            TextChannel textChannel = ticketChannel.getTextChannel().orElse(null);
+            TicketsEntity.findAllGuildEntitiesWithTicketsAutoClose(entityManager).stream()
+                    .filter(guildEntity -> ShardManager.getLocalGuildById(guildEntity.getGuildId()).isPresent() &&
+                            guildEntity.getTickets().getAutoCloseHoursEffectively() != null)
+                    .forEach(guildEntity -> {
+                        TicketsEntity ticketsEntity = guildEntity.getTickets();
+
+                        for (TicketChannelEntity ticketChannelEntity : new ArrayList<>(ticketsEntity.getTicketChannels().values())) {
+                            TextChannel textChannel = ShardManager.getLocalGuildById(guildEntity.getGuildId()).get().getTextChannelById(ticketChannelEntity.getChannelId());
                             if (textChannel == null) {
                                 continue;
                             }
 
-                            List<Message> messages = textChannel.getHistory().retrievePast(25).complete().stream()
-                                    .filter(m -> !m.isWebhookMessage() && !m.getAuthor().isBot())
-                                    .collect(Collectors.toList());
+                        List<Message> messages = textChannel.getHistory().retrievePast(25).complete().stream()
+                                .filter(m -> !m.isWebhookMessage() && !m.getAuthor().isBot())
+                                .collect(Collectors.toList());
 
                             if (!messages.isEmpty() &&
-                                    messages.get(0).getAuthor().getIdLong() != ticketChannel.getMemberId() &&
-                                    messages.get(0).getTimeCreated().toInstant().plus(Duration.ofHours(ticketData.getAutoCloseHours())).isBefore(Instant.now())
+                                    messages.get(0).getAuthor().getIdLong() != ticketChannelEntity.getMemberId() &&
+                                    messages.get(0).getTimeCreated().toInstant().plus(Duration.ofHours(ticketsEntity.getAutoCloseHoursEffectively())).isBefore(Instant.now())
                             ) {
-                                FeatureLogger.inc(PremiumFeature.TICKETS, ticketData.getGuildId());
-                                Ticket.closeTicket(ticketData, entityManager.findGuildEntity(ticketData.getGuildId()), textChannel, ticketChannel);
+                                FeatureLogger.inc(PremiumFeature.TICKETS, guildEntity.getGuildId());
+                                Ticket.closeTicket(guildEntity, ticketChannelEntity, textChannel);
                                 counter.incrementAndGet();
                             }
                         }
-                        entityManager.clear();
                     });
         }
 

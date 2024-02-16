@@ -7,8 +7,6 @@ import events.discordevents.eventtypeabstracts.ModalInteractionAbstract;
 import modules.Ticket;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.ticket.DBTicket;
-import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -23,11 +21,10 @@ public class ModalInteractionTicket extends ModalInteractionAbstract {
     public boolean onModalInteraction(ModalInteractionEvent event, EntityManagerWrapper entityManager) {
         if (event.getChannel() instanceof TextChannel && event.getModalId().equals(ID)) {
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-            TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
             Category category = event.getChannel().asTextChannel().getParentCategory();
 
             if (category == null || category.getTextChannels().size() < 50) {
-                Ticket.createTicket(ticketData, guildEntity, event.getChannel().asTextChannel(), event.getMember(),
+                Ticket.createTicket(guildEntity, event.getChannel().asTextChannel(), event.getMember(),
                         event.getValue("message").getAsString()
                 );
                 event.deferEdit().queue();

@@ -52,7 +52,6 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     var manageRoles = CustomObservableList<Long>(emptyList())
     var managePropertyIndex = 0
     var manageNewValue = "+0"
-    var authToken: String? = null
 
     val fisheryEntity: FisheryEntity
         get() = guildEntity.fishery

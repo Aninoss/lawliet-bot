@@ -5,9 +5,8 @@ import events.discordevents.eventtypeabstracts.UserTypingAbstract;
 import modules.Ticket;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.ticket.DBTicket;
-import mysql.modules.ticket.TicketChannel;
-import mysql.modules.ticket.TicketData;
+import mysql.hibernate.entity.guild.TicketChannelEntity;
+import mysql.hibernate.entity.guild.TicketsEntity;
 import net.dv8tion.jda.api.events.user.UserTypingEvent;
 
 @DiscordEvent
@@ -16,13 +15,12 @@ public class UserTypingAssignTicket extends UserTypingAbstract {
     @Override
     public boolean onUserTyping(UserTypingEvent event, EntityManagerWrapper entityManager) throws Throwable {
         GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-        TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
-        if (ticketChannel != null &&
-                ticketChannel.getTicketAssignmentMode() == TicketData.TicketAssignmentMode.FIRST &&
-                !ticketChannel.isAssigned()
+        TicketChannelEntity ticketChannelEntity = guildEntity.getTickets().getTicketChannels().get(event.getChannel().getIdLong());
+        if (ticketChannelEntity != null &&
+                ticketChannelEntity.getAssignmentMode() == TicketsEntity.AssignmentMode.FIRST &&
+                !ticketChannelEntity.getAssigned()
         ) {
-            Ticket.assignTicket(event.getMember(), event.getChannel().asTextChannel(), ticketData, ticketChannel, guildEntity);
+            Ticket.assignTicket(event.getMember(), event.getChannel().asTextChannel(), guildEntity, ticketChannelEntity);
         }
         return true;
     }

@@ -14,7 +14,12 @@ import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.guild.TicketChannelEntity;
+import mysql.hibernate.entity.guild.TicketsEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.ticket.DBTicket;
+import mysql.modules.ticket.TicketChannel;
+import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -192,7 +197,40 @@ public class DiscordConnector {
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate() {
-        // ignored
+        transferSqlToHibernate(
+                "Ticket",
+                GuildEntity::getTickets,
+                TicketsEntity::isUsed,
+                tickets -> {
+                    GuildEntity guildEntity = tickets.getHibernateEntity();
+                    TicketData ticketData = DBTicket.getInstance().retrieve(guildEntity.getGuildId());
+
+                    tickets.setLogChannelId(ticketData.getAnnouncementTextChannelId().orElse(null));
+                    tickets.setStaffRoleIds(ticketData.getStaffRoleIds());
+                    tickets.setAssignmentMode(TicketsEntity.AssignmentMode.values()[ticketData.getTicketAssignmentMode().ordinal()]);
+                    tickets.setAutoCloseHours(ticketData.getAutoCloseHours());
+                    tickets.setGreetingText(ticketData.getCreateMessage().orElse(null));
+                    tickets.setPingStaffRoles(ticketData.getPingStaff());
+                    tickets.setEnforceModal(ticketData.getUserMessages());
+                    tickets.setMembersCanCloseTickets(ticketData.memberCanClose());
+                    tickets.setProtocols(ticketData.getProtocol());
+                    tickets.setDeleteChannelsOnClose(ticketData.getDeleteChannelOnTicketClose());
+                    tickets.setTicketIndex(ticketData.getCounter());
+
+                    for (TicketChannel ticketChannel : ticketData.getTicketChannels().values()) {
+                        TicketChannelEntity ticketChannelEntity = new TicketChannelEntity(
+                                ticketChannel.getTextChannelId(),
+                                ticketChannel.getMemberId(),
+                                ticketChannel.getAnnouncementChannelId(),
+                                ticketChannel.getAnnouncementMessageId(),
+                                ticketChannel.isAssigned(),
+                                ticketChannel.getStarterMessageId(),
+                                TicketsEntity.AssignmentMode.values()[ticketChannel.getTicketAssignmentMode().ordinal()]
+                        );
+                        tickets.getTicketChannels().put(ticketChannelEntity.getChannelId(), ticketChannelEntity);
+                    }
+                }
+        );
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(
