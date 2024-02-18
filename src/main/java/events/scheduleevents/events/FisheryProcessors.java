@@ -45,7 +45,7 @@ public class FisheryProcessors implements ExceptionRunnable {
 
         HashMap<Long, HashSet<Guild>> reminderGuildMap = new HashMap<>();
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(FisheryProcessors.class)) {
             for (Guild guild : ShardManager.getLocalGuilds()) {
                 GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
                 if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {

@@ -21,7 +21,7 @@ public class UserWithWorkFisheryDmReminderCache extends SingleCache<Set<Long>> {
 
     @Override
     protected Set<Long> fetchValue() {
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(UserWithWorkFisheryDmReminderCache.class)) {
             return FisheryDmReminderEntity.findAllUserEntitiesWithType(entityManager, FisheryDmReminderEntity.Type.WORK)
                     .stream()
                     .map(UserEntity::getUserId)

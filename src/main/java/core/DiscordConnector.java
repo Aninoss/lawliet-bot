@@ -214,7 +214,7 @@ public class DiscordConnector {
             guildIdList = new DBDataLoadAll<Long>(sqlTableName, "serverId", " AND serverId > " + guildIdOffset + " ORDER BY serverId LIMIT " + limit)
                     .getList(resultSet -> resultSet.getLong(1));
 
-            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(DiscordConnector.class)) {
                 for (long guildId : guildIdList) {
                     GuildEntity guildEntity = entityManager.find(GuildEntity.class, String.valueOf(guildId));
                     if (guildEntity == null) {

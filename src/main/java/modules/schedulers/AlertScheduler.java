@@ -85,7 +85,7 @@ public class AlertScheduler {
     private static boolean manageAlert(TrackerData slot) {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
-        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(slot.getGuildId())) {
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(slot.getGuildId(), AlertScheduler.class)) {
             processAlert(guildEntity, slot);
         } catch (Throwable throwable) {
             MainLogger.get().error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);

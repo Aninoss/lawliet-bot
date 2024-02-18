@@ -79,7 +79,7 @@ public class GiveawayScheduler {
                     for (MessageReaction reaction : message.getReactions()) {
                         if (reaction.getEmoji().getFormatted().equals(giveawayData.getEmoji())) {
                             reaction.retrieveUsers().queue(users -> {
-                                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(giveawayData.getGuildId())) {
+                                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(giveawayData.getGuildId(), GiveawayScheduler.class)) {
                                             processGiveaway(giveawayData, guildEntity, message, new ArrayList<>(users), numberOfWinners, reroll);
                                         }
                                     }

@@ -44,7 +44,7 @@ public class ServerMuteScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId, ServerMuteScheduler.class)) {
                     onServerMuteExpire(guildEntity, map.get(memberId));
                 }
             }

@@ -45,7 +45,7 @@ public class ReminderUpvote implements ExceptionRunnable {
             throw new RuntimeException(e);
         }
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(ReminderUpvote.class)) {
             Map<Long, UserEntity> userEntities = FisheryDmReminderEntity.findAllUserEntitiesWithType(entityManager, FisheryDmReminderEntity.Type.CLAIM).stream()
                     .collect(Collectors.toMap(UserEntity::getUserId, Function.identity()));
 

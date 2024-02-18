@@ -44,7 +44,7 @@ public class JailScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId, JailScheduler.class)) {
                     onJailExpire(guildEntity, map.get(memberId));
                 }
             }

@@ -22,7 +22,7 @@ class CustomAdapter : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
-        HibernateManager.findGuildEntity(event.guild!!.idLong).use { guildEntity ->
+        HibernateManager.findGuildEntity(event.guild!!.idLong, CustomAdapter::class.java).use { guildEntity ->
             val userText = event.focusedOption.value
             return guildEntity.customCommands.keys
                     .filter { it.lowercase().contains(userText.lowercase()) }

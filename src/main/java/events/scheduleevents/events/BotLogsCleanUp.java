@@ -19,7 +19,7 @@ public class BotLogsCleanUp implements ExceptionRunnable {
     }
 
     public static void execute() {
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(BotLogsCleanUp.class)) {
             entityManager.getTransaction().begin();
             int deleted = BotLogEntity.cleanUp(entityManager);
             entityManager.getTransaction().commit();

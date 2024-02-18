@@ -36,7 +36,7 @@ public class OnDashboardInit implements SyncServerFunction {
 
     private void addTitles(long guildId, long userId, Locale locale, JSONObject resultJson) {
         JSONArray titlesJson = new JSONArray();
-        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId, OnDashboardInit.class)) {
             for (DashboardCategory retrieveCategory : DashboardManager.retrieveCategories(guildId, userId, locale, guildEntity)) {
                 if (retrieveCategory.anyCommandRequirementsAreAccessible()) {
                     JSONObject data = new JSONObject();

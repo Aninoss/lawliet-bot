@@ -290,7 +290,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                     return message.getIdLong();
                 })
                 .exceptionally(e -> {
-                    try (GuildEntity guildEntity = HibernateManager.findGuildEntity(member.getGuild().getIdLong())) {
+                    try (GuildEntity guildEntity = HibernateManager.findGuildEntity(member.getGuild().getIdLong(), getClass())) {
                         ExceptionUtil.handleCommandException(e, this, getCommandEvent(), guildEntity);
                     }
                     return null;

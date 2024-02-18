@@ -35,7 +35,7 @@ public class OnDashboardCategoryInit implements SyncServerFunction {
             boolean createNew = jsonObject.getBoolean("create_new");
             Locale locale = Language.from(localeString).getLocale();
 
-            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId, OnDashboardCategoryInit.class)) {
                 DashboardCategory category = DashboardManager.getCategoryCache().getIfPresent(userId);
                 if (createNew || category == null) {
                     category = DashboardManager.retrieveCategory(categoryId, guildId, userId, locale, guildEntity);

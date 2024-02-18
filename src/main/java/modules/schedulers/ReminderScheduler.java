@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 public class ReminderScheduler {
 
     public static void start() {
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(ReminderScheduler.class)) {
             entityManager.findAllForResponsibleIds(ReminderEntity.class, "confirmationMessageGuildId")
                     .forEachRemaining(ReminderScheduler::loadReminder);
         } catch (Throwable e) {
@@ -45,7 +45,7 @@ public class ReminderScheduler {
 
     public static void loadReminder(UUID id, Instant triggerTime) {
         MainScheduler.schedule(triggerTime, () -> {
-            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(ReminderScheduler.class)) {
                 ReminderEntity reminderEntity = entityManager.find(ReminderEntity.class, id);
                 if (reminderEntity != null && reminderEntity.getValid() && Instant.now().isAfter(reminderEntity.getTriggerTime())) {
                     onReminderDue(entityManager, reminderEntity);

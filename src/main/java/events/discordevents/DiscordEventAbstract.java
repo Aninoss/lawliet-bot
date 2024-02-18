@@ -40,12 +40,13 @@ public abstract class DiscordEventAbstract {
     protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, long guildId, EventExecution function) {
         if ((user != null && user.getIdLong() == ShardManager.getSelfId()) ||
                 !ShardManager.getJDABlocker().guildIsAvailable(guildId) ||
-                (guildId != 0 && ShardManager.getLocalGuildById(guildId).isEmpty())
+                (guildId != 0 && ShardManager.getLocalGuildById(guildId).isEmpty()) ||
+                listenerList.isEmpty()
         ) {
             return;
         }
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(DiscordEventAbstract.class)) {
             boolean banned = user != null && UserBannedCache.getInstance().isBanned(user.getIdLong());
             boolean bot = user != null && user.isBot();
             for (EventPriority priority : EventPriority.values()) {
@@ -74,6 +75,7 @@ public abstract class DiscordEventAbstract {
     }
 
     private static boolean run(EventExecution function, DiscordEventAbstract listener, EntityManagerWrapper entityManager) {
+        entityManager.setCallingClass(listener.getClass());
         try {
             return function.apply(listener, entityManager);
         } catch (Throwable throwable) {

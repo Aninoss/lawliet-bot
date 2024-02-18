@@ -133,7 +133,7 @@ public class Console {
 
         if (durationMinutes > 0 && Program.isMainCluster() && Program.publicInstance()) {
             Instant bannedUntil = Instant.now().plus(Duration.ofMinutes(durationMinutes));
-            try (UserEntity user = HibernateManager.findUserEntity(userId)) {
+            try (UserEntity user = HibernateManager.findUserEntity(userId, Console.class)) {
                 Txt2ImgEntity txt2img = user.getTxt2img();
 
                 txt2img.beginTransaction();
@@ -460,7 +460,7 @@ public class Console {
 
     private static void onUnban(String[] args) {
         long userId = Long.parseLong(args[1]);
-        try (UserEntity userEntity = HibernateManager.findUserEntity(userId)) {
+        try (UserEntity userEntity = HibernateManager.findUserEntity(userId, Console.class)) {
             userEntity.beginTransaction();
             userEntity.setBanReason(null);
             userEntity.commitTransaction();
@@ -473,7 +473,7 @@ public class Console {
         long userId = Long.parseLong(args[1]);
         String reason = collectArgs(args, 2).replace("\\n", "\n");
 
-        try (UserEntity userEntity = HibernateManager.findUserEntity(userId)) {
+        try (UserEntity userEntity = HibernateManager.findUserEntity(userId, Console.class)) {
             userEntity.beginTransaction();
             userEntity.setBanReason(reason);
             userEntity.commitTransaction();

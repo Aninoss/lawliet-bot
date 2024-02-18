@@ -36,7 +36,7 @@ public class FeatureLogger {
         long guildHours = Math.round(Math.min(24, getHoursAfterStartTime()) * ShardManager.getLocalGuildSize().get());
         HashMap<PremiumFeature, HashSet<Long>> dateMapPremium = mapPremium.getOrDefault(date, new HashMap<>());
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(FeatureLogger.class)) {
             entityManager.getTransaction().begin();
             FeatureLoggingEntity featureLoggingEntity = entityManager.find(FeatureLoggingEntity.class, date);
 

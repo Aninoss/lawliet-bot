@@ -26,11 +26,13 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
     private final EntityManager entityManager;
     private final AsyncTimer asyncTimer;
+    private Class<?> callingClass;
 
-    public EntityManagerWrapper(EntityManager entityManager) {
+    public EntityManagerWrapper(EntityManager entityManager, Class<?> callingClass) {
         this.entityManager = entityManager;
+        this.callingClass = callingClass;
         asyncTimer = new AsyncTimer(Duration.ofMinutes(1));
-        asyncTimer.setTimeOutListener(thread -> MainLogger.get().warn("EntityManager is still open after 1 minute!", ExceptionUtil.generateForStack(thread)));
+        asyncTimer.setTimeOutListener(thread -> MainLogger.get().warn("EntityManager is still open after 1 minute! ({})", this.callingClass.getSimpleName(), ExceptionUtil.generateForStack(thread)));
     }
 
     @Override
@@ -430,6 +432,10 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     @Override
     public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
         return entityManager.getEntityGraphs(entityClass);
+    }
+
+    public void setCallingClass(Class<?> callingClass) {
+        this.callingClass = callingClass;
     }
 
 }

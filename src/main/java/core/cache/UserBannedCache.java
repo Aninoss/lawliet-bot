@@ -20,7 +20,7 @@ public class UserBannedCache extends SingleCache<Set<Long>> {
 
     @Override
     protected Set<Long> fetchValue() {
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(UserBannedCache.class)) {
             return entityManager.createQuery("FROM " + UserEntity.class.getName() + " WHERE banReason IS NOT NULL", UserEntity.class)
                     .getResultList()
                     .stream()

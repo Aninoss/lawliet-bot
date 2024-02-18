@@ -28,7 +28,7 @@ public class ReminderDaily implements ExceptionRunnable {
             return;
         }
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(ReminderDaily.class)) {
             List<UserEntity> userEntities = FisheryDmReminderEntity.findAllUserEntitiesWithType(entityManager, FisheryDmReminderEntity.Type.DAILY);
             for (UserEntity userEntity : userEntities) {
                 FisheryDmReminderEntity fisheryDmReminder = userEntity.getFisheryDmReminders().get(FisheryDmReminderEntity.Type.DAILY);

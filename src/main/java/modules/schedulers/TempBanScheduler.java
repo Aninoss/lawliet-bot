@@ -42,7 +42,7 @@ public class TempBanScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId, TempBanScheduler.class)) {
                     onTempBanExpire(guildEntity, map.get(memberId));
                 }
             }

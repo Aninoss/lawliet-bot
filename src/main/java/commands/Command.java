@@ -622,7 +622,7 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public GuildEntity refreshGuildEntity() {
-        GuildEntity guildEntity = HibernateManager.findGuildEntity(getGuildId().get());
+        GuildEntity guildEntity = HibernateManager.findGuildEntity(getGuildId().get(), getClass());
         setGuildEntity(guildEntity);
         return guildEntity;
     }

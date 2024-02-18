@@ -2,6 +2,7 @@ package modules.repair;
 
 import core.MemberCacheController;
 import modules.JoinRoles;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.JDA;
@@ -28,8 +29,9 @@ public class RolesRepair {
     }
 
     public void run(JDA jda, int minutes) {
-        for (Guild guild : jda.getGuilds()) {
-            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong())) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(RolesRepair.class)) {
+            for (Guild guild : jda.getGuilds()) {
+                GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
                 if (JoinRoles.guildIsRelevant(guild, guildEntity)) {
                     MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
                             .filter(member -> userJoinedRecently(member, minutes))
@@ -41,6 +43,7 @@ public class RolesRepair {
                                 }
                             });
                 }
+                entityManager.clear();
             }
         }
     }

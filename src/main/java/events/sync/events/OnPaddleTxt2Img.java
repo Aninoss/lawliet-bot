@@ -15,7 +15,7 @@ public class OnPaddleTxt2Img implements SyncServerFunction {
         long userId = jsonObject.getLong("user_id");
         int n = jsonObject.getInt("n");
 
-        try (UserEntity userEntity = HibernateManager.findUserEntity(userId)) {
+        try (UserEntity userEntity = HibernateManager.findUserEntity(userId, OnPaddleTxt2Img.class)) {
             Txt2ImgEntity txt2img = userEntity.getTxt2img();
 
             txt2img.beginTransaction();

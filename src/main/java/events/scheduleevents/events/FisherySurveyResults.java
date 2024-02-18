@@ -57,7 +57,7 @@ public class FisherySurveyResults implements ExceptionRunnable {
         byte won = lastSurvey.getWon();
         int percent = won != 2 ? (int) Math.round(lastSurvey.getFirstVoteNumbers(won) / (double) lastSurvey.getFirstVoteNumber() * 100) : 0;
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(FisherySurveyResults.class)) {
             HashMap<Long, ArrayList<SurveySecondVote>> secondVotesByMember = groupSecondVotesToMembers(entityManager, lastSurvey);
 
             /* processing survey results */

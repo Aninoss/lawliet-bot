@@ -45,7 +45,7 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageDat
                         );
                     } else {
                         Locale locale;
-                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(serverId)) {
+                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(serverId, DBWelcomeMessage.class)) {
                             locale = guildEntity.getLocale();
                         }
 

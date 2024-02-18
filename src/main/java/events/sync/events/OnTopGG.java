@@ -7,8 +7,8 @@ import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryStatus;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.upvotes.DBUpvotes;
 import mysql.modules.upvotes.UpvoteSlot;
@@ -50,9 +50,9 @@ public class OnTopGG implements SyncServerFunction {
 
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
         AtomicInteger guilds = new AtomicInteger();
-        for (Long guildId : FisheryUserManager.getGuildIdsForFisheryUser(userId)) {
-            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
-                if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(OnTopGG.class)) {
+            for (Long guildId : FisheryUserManager.getGuildIdsForFisheryUser(userId)) {
+                if (entityManager.findGuildEntity(guildId).getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
                     continue;
                 }
 
@@ -65,6 +65,8 @@ public class OnTopGG implements SyncServerFunction {
                     userBean.addUpvote(factor);
                 }
                 guilds.incrementAndGet();
+
+                entityManager.clear();
             }
         }
 

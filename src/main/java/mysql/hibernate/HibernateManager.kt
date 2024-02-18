@@ -24,23 +24,23 @@ object HibernateManager {
     }
 
     @JvmStatic
-    fun createEntityManager(): EntityManagerWrapper {
-        return EntityManagerWrapper(entityManagerFactory.createEntityManager())
+    fun createEntityManager(callingClass: Class<*>): EntityManagerWrapper {
+        return EntityManagerWrapper(entityManagerFactory.createEntityManager(), callingClass)
     }
 
     @JvmStatic
-    fun findGuildEntity(guildId: Long): GuildEntity {
-        return createEntityManager().findGuildEntity(guildId)
+    fun findGuildEntity(guildId: Long, callingClass: Class<*>): GuildEntity {
+        return createEntityManager(callingClass).findGuildEntity(guildId)
     }
 
     @JvmStatic
-    fun findUserEntity(userId: Long): UserEntity {
-        return createEntityManager().findUserEntity(userId)
+    fun findUserEntity(userId: Long, callingClass: Class<*>): UserEntity {
+        return createEntityManager(callingClass).findUserEntity(userId)
     }
 
     @JvmStatic
-    fun findUserEntityReadOnly(userId: Long): UserEntity {
-        return createEntityManager().findUserEntityReadOnly(userId)
+    fun findUserEntityReadOnly(userId: Long, callingClass: Class<*>): UserEntity {
+        return createEntityManager(callingClass).findUserEntityReadOnly(userId)
     }
 
 }

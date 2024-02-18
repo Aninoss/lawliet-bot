@@ -29,7 +29,7 @@ public class OnDashboardAction implements SyncServerFunction {
                 List<Permission> missingBotPermissions = category.missingBotPermissions();
                 List<Permission> missingUserPermissions = category.missingUserPermissions();
 
-                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId, OnDashboardAction.class)) {
                     category.setGuildEntity(guildEntity);
 
                     if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty() && category.anyCommandRequirementsAreAccessible()) {
