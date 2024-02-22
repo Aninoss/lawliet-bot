@@ -51,7 +51,7 @@ public class JailCommand extends WarnCommand {
     }
 
     public JailCommand(Locale locale, String prefix, boolean includeNotInGuild, boolean jail) {
-        super(locale, prefix, false, false, includeNotInGuild, true, jail);
+        super(locale, prefix, false, false, includeNotInGuild, true, jail, false);
         this.jail = jail;
     }
 

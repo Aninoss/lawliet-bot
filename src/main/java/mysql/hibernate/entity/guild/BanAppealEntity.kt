@@ -4,7 +4,6 @@ import javax.persistence.Embeddable
 
 @Embeddable
 class BanAppealEntity(
-        var userId: Long = 0L,
-        var text: String = "",
+        var message: String = "",
         var open: Boolean = true
 )

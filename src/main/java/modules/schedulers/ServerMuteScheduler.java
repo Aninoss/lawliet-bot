@@ -62,7 +62,7 @@ public class ServerMuteScheduler {
         if (member != null) {
             Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, prefix);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(member.getUser().getAsTag())));
-            Mod.postLogMembers(command, eb, guildEntity.getModeration(), member);
+            Mod.postLogMembers(command, eb, guildEntity.getModeration(), member, false);
         } else {
             User user;
             try {
@@ -73,7 +73,7 @@ public class ServerMuteScheduler {
             }
             Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, prefix);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(user.getAsTag())));
-            Mod.postLogUsers(command, eb, serverMuteData.getGuild().get(), guildEntity.getModeration(), user);
+            Mod.postLogUsers(command, eb, serverMuteData.getGuild().get(), guildEntity.getModeration(), user, false);
         }
     }
 

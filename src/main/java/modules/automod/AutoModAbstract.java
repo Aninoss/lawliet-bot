@@ -63,10 +63,14 @@ public abstract class AutoModAbstract {
         designEmbed(message, locale, eb);
 
         Command command = CommandManager.createCommandByClass(commandClass, locale, guildEntity.getPrefix());
-        Mod.postLogMembers(command, eb, guildEntity.getModeration(), member).join();
+        Mod.postLogMembers(command, eb, guildEntity.getModeration(), member, willBanMember(message, locale)).join();
         Mod.insertWarning(guildEntity, member, guild.getSelfMember(), commandTitle,
                 withAutoActions(message, locale)
         );
+    }
+
+    protected boolean willBanMember(Message message, Locale locale) {
+        return false;
     }
 
     protected abstract boolean withAutoActions(Message message, Locale locale);

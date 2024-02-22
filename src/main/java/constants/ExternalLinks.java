@@ -15,5 +15,6 @@ public interface ExternalLinks {
     String GITHUB = "https://github.com/Aninoss/lawliet-bot";
     String REPORT_URL = "https://lawlietbot.xyz/report?content=";
     String DEVELOPMENT_VOTES_URL = "https://lawlietbot.xyz/developmentvotes";
+    String BAN_APPEAL_URL = "https://lawlietbot.xyz/banappeal/";
 
 }

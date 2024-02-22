@@ -4,8 +4,10 @@ import commands.Category;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
+import constants.ExternalLinks;
 import core.*;
 import core.atomicassets.AtomicRole;
+import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.FutureUtil;
 import core.utils.JDAUtil;
@@ -25,6 +27,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.Duration;
@@ -89,14 +94,17 @@ public class Mod {
                 if (banList.stream().noneMatch(ban -> ban.getUser().getIdLong() == target.getIdLong())) {
                     Integer durationMinutes = moderationEntity.getAutoBan().getDurationMinutes();
                     String durationString = durationMinutes != null ? TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(durationMinutes)).toString() : "";
+
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
                             .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getAsTag()), durationString));
 
-                    postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target).join();
+                    postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, true).join();
+
                     guild.ban(target, 0, TimeUnit.DAYS)
                             .reason(TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
                             .queue();
+
                     if (durationMinutes != null) {
                         TempBanData tempBanData = new TempBanData(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(durationMinutes)));
                         DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBanData);
@@ -112,7 +120,7 @@ public class Mod {
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", StringUtil.escapeMarkdown(target.getAsTag())));
 
-                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target).join();
+                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, false).join();
                 guild.kick(target)
                         .reason(TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
                         .queue();
@@ -130,7 +138,7 @@ public class Mod {
                             .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autojail"))
                             .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autojail_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getAsTag()), durationString));
 
-                    postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target).join();
+                    postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, false).join();
                     Jail.jail(guild, member, durationMinutes, TextManager.getString(locale, Category.MODERATION, "mod_autojail"), guildEntity);
                 }
             }
@@ -145,21 +153,21 @@ public class Mod {
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_automute"))
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_automute_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getAsTag()), durationString));
 
-                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target).join();
+                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, false).join();
                 Mute.mute(guild, target, durationMinutes, TextManager.getString(locale, Category.MODERATION, "mod_automute"));
             }
         }
     }
 
-    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, ModerationEntity moderationEntity, Member member) {
-        return postLogMembers(command, eb, moderationEntity, Collections.singletonList(member));
+    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, ModerationEntity moderationEntity, Member member, boolean includeBanAppealButton) {
+        return postLogMembers(command, eb, moderationEntity, Collections.singletonList(member), includeBanAppealButton);
     }
 
-    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationEntity moderationEntity, User user) {
-        return postLogUsers(command, eb, guild, moderationEntity, Collections.singletonList(user));
+    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationEntity moderationEntity, User user, boolean includeBanAppealButton) {
+        return postLogUsers(command, eb, guild, moderationEntity, Collections.singletonList(user), includeBanAppealButton);
     }
 
-    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, ModerationEntity moderationEntity, List<Member> members) {
+    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, ModerationEntity moderationEntity, List<Member> members, boolean includeBanAppealButton) {
         eb.setFooter("");
 
         CompletableFuture<Void> future = FutureUtil.supplyAsync(() -> {
@@ -167,7 +175,7 @@ public class Mod {
                 if (!member.getUser().isBot()) {
                     try {
                         JDAUtil.openPrivateChannel(member)
-                                .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                                .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()).setComponents(getBanAppealActionRow(moderationEntity, includeBanAppealButton)))
                                 .complete();
                     } catch (Throwable e) {
                         MainLogger.get().error("Exception", e);
@@ -181,7 +189,7 @@ public class Mod {
         return future;
     }
 
-    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationEntity moderationEntity, List<User> users) {
+    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationEntity moderationEntity, List<User> users, boolean includeBanAppealButton) {
         eb.setFooter("");
 
         CompletableFuture<Void> future = FutureUtil.supplyAsync(() -> {
@@ -190,7 +198,7 @@ public class Mod {
                         if (!member.getUser().isBot()) {
                             try {
                                 JDAUtil.openPrivateChannel(member)
-                                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()).setComponents(getBanAppealActionRow(moderationEntity, includeBanAppealButton)))
                                         .complete();
                             } catch (Throwable e) {
                                 MainLogger.get().error("Exception", e);
@@ -212,6 +220,17 @@ public class Mod {
                 channel.sendMessageEmbeds(eb.build()).queue();
             }
         });
+    }
+
+    private static List<ActionRow> getBanAppealActionRow(ModerationEntity moderationEntity, boolean includeBanAppealButton) {
+        if (includeBanAppealButton && moderationEntity.getBanAppealLogChannelIdEffectively() != null) {
+            GuildEntity guildEntity = moderationEntity.getHibernateEntity();
+            String banAppealButtonLabel = TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "moderation_appealban");
+            Button banAppealButton = Button.of(ButtonStyle.LINK, ExternalLinks.BAN_APPEAL_URL + guildEntity.getGuildId(), banAppealButtonLabel);
+            return ActionRows.of(banAppealButton);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
 }

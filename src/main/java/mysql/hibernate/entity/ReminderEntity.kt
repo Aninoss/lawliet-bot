@@ -36,11 +36,7 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity(), LanguageAsse
 
     var intervalMinutes: Int? = null
     val intervalMinutesEffectively: Int?
-        get() = if (type == Type.GUILD_REMINDER && ServerPatreonBoostCache.get(targetId)) {
-            intervalMinutes
-        } else {
-            null
-        }
+        get() = if (type == Type.GUILD_REMINDER && ServerPatreonBoostCache.get(targetId)) intervalMinutes else null
 
     @Column(name = "language")
     @Enumerated(EnumType.STRING)

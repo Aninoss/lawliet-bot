@@ -62,11 +62,7 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
             _treasureChestProbabilityInPercent = value
         }
     val treasureChestProbabilityInPercentEffectively: Double
-        get() = if (ServerPatreonBoostCache.get(guildId)) {
-            treasureChestProbabilityInPercent
-        } else {
-            0.25
-        }
+        get() = if (ServerPatreonBoostCache.get(guildId)) treasureChestProbabilityInPercent else 0.25
 
     @Column(name = "$FISHERY.powerUpProbabilityInPercent")
     private var _powerUpProbabilityInPercent: Double? = null
@@ -76,11 +72,7 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
             _powerUpProbabilityInPercent = value
         }
     val powerUpProbabilityInPercentEffectively: Double
-        get() = if (ServerPatreonBoostCache.get(guildId)) {
-            powerUpProbabilityInPercent
-        } else {
-            0.35
-        }
+        get() = if (ServerPatreonBoostCache.get(guildId)) powerUpProbabilityInPercent else 0.35
 
     @ElementCollection
     var excludedChannelIds: MutableList<Long> = mutableListOf()
@@ -146,11 +138,7 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
             _voiceHoursLimit = value
         }
     val voiceHoursLimitEffectively: Int
-        get() = if (ServerPatreonBoostCache.get(guildId)) {
-            voiceHoursLimit
-        } else {
-            5
-        }
+        get() = if (ServerPatreonBoostCache.get(guildId)) voiceHoursLimit else 5
 
 
     override fun getGuildId(): Long {

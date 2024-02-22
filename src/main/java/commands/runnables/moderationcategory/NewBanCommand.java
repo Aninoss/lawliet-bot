@@ -1,11 +1,12 @@
 package commands.runnables.moderationcategory;
 
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 import commands.listeners.CommandProperties;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
+
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 @CommandProperties(
         trigger = "newban",

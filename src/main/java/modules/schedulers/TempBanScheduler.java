@@ -83,7 +83,7 @@ public class TempBanScheduler {
             }
             Command command = CommandManager.createCommandByClass(BanCommand.class, locale, prefix);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "ban_expired", StringUtil.escapeMarkdown(user.getAsTag())));
-            Mod.postLogUsers(command, eb, guild, guildEntity.getModeration(), user);
+            Mod.postLogUsers(command, eb, guild, guildEntity.getModeration(), user, false);
         }
     }
 

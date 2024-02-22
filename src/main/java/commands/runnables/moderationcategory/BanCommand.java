@@ -37,7 +37,7 @@ public class BanCommand extends WarnCommand {
     private long minutes;
 
     public BanCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, false, true, true, true);
+        super(locale, prefix, true, false, true, true, true, true);
     }
 
     @Override

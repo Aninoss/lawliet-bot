@@ -41,7 +41,7 @@ public class MuteCommand extends WarnCommand {
     }
 
     public MuteCommand(Locale locale, String prefix, boolean setMute) {
-        super(locale, prefix, false, false, setMute, true, setMute);
+        super(locale, prefix, false, false, setMute, true, setMute, false);
         this.setMute = setMute;
     }
 

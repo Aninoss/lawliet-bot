@@ -54,18 +54,22 @@ public class WarnCommand extends Command implements OnButtonListener {
     private final boolean includeNotInGuild;
     private final boolean sendLogWarnings;
     private final boolean hasDuration;
+    private final boolean includeBanAppealButton;
 
     public WarnCommand(Locale locale, String prefix) {
-        this(locale, prefix, true, true, true, true, false);
+        this(locale, prefix, true, true, true, true, false, false);
     }
 
-    public WarnCommand(Locale locale, String prefix, boolean sendWarning, boolean autoActions, boolean includeNotInGuild, boolean sendLogWarnings, boolean hasDuration) {
+    public WarnCommand(Locale locale, String prefix, boolean sendWarning, boolean autoActions, boolean includeNotInGuild,
+                       boolean sendLogWarnings, boolean hasDuration, boolean includeBanAppealButton
+    ) {
         super(locale, prefix);
         this.sendWarning = sendWarning;
         this.autoActions = autoActions;
         this.includeNotInGuild = includeNotInGuild;
         this.sendLogWarnings = sendLogWarnings;
         this.hasDuration = hasDuration;
+        this.includeBanAppealButton = includeBanAppealButton;
     }
 
     protected MentionList<User> getUserList(CommandEvent event, String args) throws Throwable {
@@ -184,7 +188,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         }
 
         if (sendLogWarnings) {
-            Mod.postLogUsers(this, actionEmbed, channel.getGuild(), getGuildEntity().getModeration(), userList).join();
+            Mod.postLogUsers(this, actionEmbed, channel.getGuild(), getGuildEntity().getModeration(), userList, includeBanAppealButton).join();
         } else {
             Mod.sendAnnouncement(this, actionEmbed, getGuildEntity().getModeration());
         }

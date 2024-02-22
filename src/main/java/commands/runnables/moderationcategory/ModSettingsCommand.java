@@ -5,26 +5,32 @@ import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
+import commands.listeners.OnStaticButtonListener;
 import commands.runnables.NavigationAbstract;
+import constants.Emojis;
+import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.cache.ServerPatreonBoostCache;
+import core.utils.*;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.AutoModEntity;
+import mysql.hibernate.entity.guild.BanAppealEntity;
 import mysql.hibernate.entity.guild.ModerationEntity;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
@@ -39,9 +45,13 @@ import java.util.stream.Collectors;
         usesExtEmotes = true,
         aliases = { "moderation", "modsettings" }
 )
-public class ModSettingsCommand extends NavigationAbstract {
+public class ModSettingsCommand extends NavigationAbstract implements OnStaticButtonListener {
 
     public static int MAX_JAIL_ROLES = 20;
+    public static final String BUTTON_ID_UNBAN = "ban_appeals_unban";
+    public static final String BUTTON_ID_DECLINE = "ban_appeals_decline";
+    public static final String BUTTON_ID_DECLINE_PERMANENTLY = "ban_appeals_decline_permanently";
+
 
     private Integer autoKickTemp;
     private Integer autoBanTemp;
@@ -294,6 +304,28 @@ public class ModSettingsCommand extends NavigationAbstract {
                     return MessageInputResponse.FAILED;
                 }
 
+            case 16:
+                channelsList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
+                if (channelsList.isEmpty()) {
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+                    return MessageInputResponse.FAILED;
+                } else {
+                    TextChannel channel = channelsList.get(0);
+                    if (checkWriteEmbedInChannelWithLog(channel)) {
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), channel.getIdLong());
+
+                        moderation.beginTransaction();
+                        moderation.setBanAppealLogChannelId(channel.getIdLong());
+                        moderation.commitTransaction();
+
+                        setLog(LogStatus.SUCCESS, getString("banappealchannelset"));
+                        setState(0);
+                        return MessageInputResponse.SUCCESS;
+                    } else {
+                        return MessageInputResponse.FAILED;
+                    }
+                }
+
             default:
                 return null;
         }
@@ -332,18 +364,26 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 4:
-                        setState(8);
+                        if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                            return true;
+                        }
+                        setState(16);
                         return true;
 
                     case 5:
-                        setState(13);
+                        setState(8);
                         return true;
 
                     case 6:
-                        setState(2);
+                        setState(13);
                         return true;
 
                     case 7:
+                        setState(2);
+                        return true;
+
+                    case 8:
                         setState(3);
                         return true;
 
@@ -612,6 +652,22 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return false;
                 }
 
+            case 16:
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                }
+
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), null);
+
+                moderation.beginTransaction();
+                moderation.setBanAppealLogChannelId(null);
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("banappealchannelset"));
+                setState(0);
+                return true;
+
             default:
                 return false;
         }
@@ -632,6 +688,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         .addField(getString("state0_mchannel"), moderation.getLogChannelId() != null ? moderation.getLogChannel().getPrefixedNameInField(locale) : notSet, true)
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, locale, moderation.getConfirmationMessages()), true)
                         .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(moderation.getJailRoles(), locale, m -> m.getPrefixedNameInField(locale)), true)
+                        .addField(getString("state0_mbanappeallogchannel") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), moderation.getBanAppealLogChannelIdEffectively() != null ? moderation.getBanAppealLogChannelEffectively().getPrefixedNameInField(locale) : notSet, true)
                         .addField(getString("state0_mautomod"), getString(
                                 "state0_mautomod_desc",
                                 getAutoModString(textChannel, moderation.getAutoMute()),
@@ -695,6 +752,10 @@ public class ModSettingsCommand extends NavigationAbstract {
                 setComponents(getString("state15_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state15_description"), getString("state15_title"));
 
+            case 16:
+                setComponents(getString("state16_options"));
+                return EmbedFactory.getEmbedDefault(this, getString("state16_description", ExternalLinks.BAN_APPEAL_URL + member.getGuild().getId()), getString("state16_title"));
+
             default:
                 return null;
         }
@@ -722,6 +783,68 @@ public class ModSettingsCommand extends NavigationAbstract {
             content = content + " " + TextManager.getString(locale, Category.MODERATION,"mod_duration", TimeUtil.getRemainingTimeString(locale, durationMinutes * 60_000L, true));
         }
         return content;
+    }
+
+    @Override
+    public void onStaticButton(@NotNull ButtonInteractionEvent event, @Nullable String secondaryId) {
+        long bannedUserId = Long.parseLong(secondaryId);
+        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+                getLocale(),
+                event.getMember(),
+                new Permission[] { Permission.BAN_MEMBERS },
+                new Permission[] { Permission.BAN_MEMBERS }
+        );
+        if (errEmbed != null) {
+            event.replyEmbeds(errEmbed.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        EmbedBuilder eb = new EmbedBuilder(event.getMessage().getEmbeds().get(0));
+        ModerationEntity moderationEntity = getGuildEntity().getModeration();
+        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessageIdLong());
+
+        switch (event.getButton().getId()) {
+            case BUTTON_ID_UNBAN -> {
+                event.getGuild().unban(UserSnowflake.fromId(bannedUserId))
+                        .reason(getString("banappeals"))
+                        .queue();
+
+                moderationEntity.beginTransaction();
+                moderationEntity.getBanAppeals().remove(bannedUserId);
+                moderationEntity.commitTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.BAN_APPEAL_UNBAN, event.getMember(), null, null, List.of(bannedUserId));
+
+                EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("banappeals_unban"));
+            }
+            case BUTTON_ID_DECLINE -> {
+                moderationEntity.beginTransaction();
+                moderationEntity.getBanAppeals().remove(bannedUserId);
+                moderationEntity.commitTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.BAN_APPEAL_DECLINE, event.getMember(), null, null, List.of(bannedUserId));
+
+                EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("banappeals_decline"));
+            }
+            case BUTTON_ID_DECLINE_PERMANENTLY -> {
+                BanAppealEntity banAppealEntity = moderationEntity.getBanAppeals().get(bannedUserId);
+                if (banAppealEntity == null) {
+                    EmbedUtil.addLog(eb, LogStatus.FAILURE, getString("banappeals_decline_permanently_not_found"));
+                    break;
+                }
+
+                moderationEntity.beginTransaction();
+                banAppealEntity.setOpen(false);
+                moderationEntity.commitTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.BAN_APPEAL_DECLINE_PERMANENTLY, event.getMember(), null, null, List.of(bannedUserId));
+
+                EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("banappeals_decline_permanently"));
+            }
+        }
+
+        event.editMessageEmbeds(eb.build())
+                .setComponents()
+                .queue();
     }
 
     private void logAutoMod(BotLogEntity.Event event, Member member, Integer value0, Integer value1) {

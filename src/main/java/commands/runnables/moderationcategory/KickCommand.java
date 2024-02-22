@@ -18,7 +18,7 @@ import java.util.Locale;
 public class KickCommand extends WarnCommand {
 
     public KickCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, false, false, true, false);
+        super(locale, prefix, true, false, false, true, false, false);
     }
 
     @Override

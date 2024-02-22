@@ -2,6 +2,7 @@ package mysql.hibernate.entity.guild
 
 import core.atomicassets.AtomicRole
 import core.atomicassets.AtomicTextChannel
+import core.cache.ServerPatreonBoostCache
 import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import javax.persistence.Column
@@ -26,8 +27,10 @@ class ModerationEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscor
         }
 
     var banAppealLogChannelId: Long? = null
-    val banAppealLogChannel: AtomicTextChannel
-        get() = getAtomicTextChannel(banAppealLogChannelId)
+    val banAppealLogChannelIdEffectively: Long?
+        get() = if (ServerPatreonBoostCache.get(guildId)) banAppealLogChannelId else null
+    val banAppealLogChannelEffectively: AtomicTextChannel
+        get() = getAtomicTextChannel(banAppealLogChannelIdEffectively)
 
     @ElementCollection
     var jailRoleIds: MutableList<Long> = mutableListOf()
@@ -38,6 +41,9 @@ class ModerationEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscor
     val autoJail = AutoModEntity()
     val autoKick = AutoModEntity()
     val autoBan = AutoModEntity()
+
+    @ElementCollection
+    val banAppeals = mutableMapOf<Long, BanAppealEntity>()
 
 
     fun isUsed(): Boolean { //TODO: remove afterwards

@@ -35,11 +35,7 @@ class TicketsEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
 
     var autoCloseHours: Int? = null
     val autoCloseHoursEffectively: Int?
-        get() = if (ServerPatreonBoostCache.get(guildId)) {
-            autoCloseHours
-        } else {
-            null
-        }
+        get() = if (ServerPatreonBoostCache.get(guildId)) autoCloseHours else null
 
     var greetingText: String? = null
 
@@ -75,11 +71,7 @@ class TicketsEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
             _protocols = value
         }
     val protocolsEffectively: Boolean
-        get() = if (ServerPatreonBoostCache.get(guildId)) {
-            protocols
-        } else {
-            false
-        }
+        get() = if (ServerPatreonBoostCache.get(guildId)) protocols else false
 
     @Column(name = "$TICKETS.deleteChannelsOnClose")
     var _deleteChannelsOnClose: Boolean? = null

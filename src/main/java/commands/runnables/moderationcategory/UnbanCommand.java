@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 public class UnbanCommand extends WarnCommand {
 
     public UnbanCommand(Locale locale, String prefix) {
-        super(locale, prefix, false, false, true, true, false);
+        super(locale, prefix, false, false, true, true, false, false);
     }
 
     @Override

@@ -4,7 +4,9 @@ import commands.Category
 import commands.runnables.moderationcategory.InviteFilterCommand
 import commands.runnables.moderationcategory.ModSettingsCommand
 import commands.runnables.moderationcategory.WordFilterCommand
+import constants.ExternalLinks
 import core.TextManager
+import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -55,6 +57,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             if (anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 mainContainer.add(
                         generateGeneralConfigurationField(),
+                        generateBanAppealField(),
                         generateAutoModField()
                 )
             }
@@ -88,6 +91,16 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         return container
     }
 
+    fun generateBanAppealField(): DashboardComponent {
+        val container = VerticalContainer()
+        container.add(
+                DashboardTitle(getString(Category.MODERATION, "mod_banappeals")),
+                DashboardText(getString(Category.MODERATION, "mod_banappeals_desc", ExternalLinks.BAN_APPEAL_URL + atomicGuild.idLong)),
+                generateBanAppealLogChannelComponent()
+        )
+        return container
+    }
+
     fun generateNotificationChannelComponent(): DashboardComponent {
         val channelComboBox = DashboardTextChannelComboBox(
                 getString(Category.MODERATION, "mod_state0_mchannel"),
@@ -95,14 +108,33 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 atomicGuild.idLong,
                 moderationEntity.logChannelId,
                 true
-        ) {
+        ) { e ->
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 return@DashboardTextChannelComboBox ActionResult()
                         .withRedraw()
             }
 
+            if (e.data != null) {
+                val channel = atomicGuild.get()
+                        .map { it.getTextChannelById(e.data) }
+                        .orElse(null)
+
+                if (channel == null) {
+                    return@DashboardTextChannelComboBox ActionResult()
+                            .withRedraw()
+                }
+
+                if (!BotPermissionUtil.canWriteEmbed(channel)) {
+                    return@DashboardTextChannelComboBox ActionResult()
+                            .withRedraw()
+                            .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
+                }
+            }
+
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, atomicMember, moderationEntity.logChannelId, e.data)
+
             moderationEntity.beginTransaction()
-            moderationEntity.logChannelId = it.data?.toLong()
+            moderationEntity.logChannelId = e.data?.toLong()
             moderationEntity.commitTransaction()
             ActionResult()
         }
@@ -115,6 +147,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 return@DashboardSwitch ActionResult()
                         .withRedraw()
             }
+
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_CONFIRMATION_MESSAGES, atomicMember, null, it.data)
 
             moderationEntity.beginTransaction()
             moderationEntity.confirmationMessages = it.data
@@ -133,8 +167,59 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 true,
                 ModSettingsCommand.MAX_JAIL_ROLES,
                 true,
-                ModSettingsCommand::class
+                ModSettingsCommand::class,
+                BotLogEntity.Event.MOD_JAIL_ROLES
         )
+    }
+
+    fun generateBanAppealLogChannelComponent(): DashboardComponent {
+        val container = VerticalContainer()
+        val channelComboBox = DashboardTextChannelComboBox(
+                getString(Category.MODERATION, "mod_dashboard_banappeallogchannel"),
+                locale,
+                atomicGuild.idLong,
+                moderationEntity.banAppealLogChannelIdEffectively,
+                true
+        ) { e ->
+            if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
+                return@DashboardTextChannelComboBox ActionResult()
+                        .withRedraw()
+            }
+
+            if (e.data != null) {
+                val channel = atomicGuild.get()
+                        .map { it.getTextChannelById(e.data) }
+                        .orElse(null)
+
+                if (channel == null) {
+                    return@DashboardTextChannelComboBox ActionResult()
+                            .withRedraw()
+                }
+
+                if (!BotPermissionUtil.canWriteEmbed(channel)) {
+                    return@DashboardTextChannelComboBox ActionResult()
+                            .withRedraw()
+                            .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
+                }
+            }
+
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, atomicMember, moderationEntity.banAppealLogChannelIdEffectively, e.data)
+
+            moderationEntity.beginTransaction()
+            moderationEntity.banAppealLogChannelId = e.data?.toLong()
+            moderationEntity.commitTransaction()
+            ActionResult()
+        }
+        channelComboBox.isEnabled = isPremium
+        container.add(channelComboBox)
+
+        if (!isPremium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
+        }
+
+        return container;
     }
 
     fun generateAutoModField(): DashboardComponent {

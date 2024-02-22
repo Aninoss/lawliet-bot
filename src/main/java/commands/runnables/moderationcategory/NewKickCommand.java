@@ -39,7 +39,7 @@ public class NewKickCommand extends WarnCommand {
     private long minutes;
 
     public NewKickCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, false, false, false, false);
+        super(locale, prefix, true, false, false, false, false, false);
     }
 
     @Override

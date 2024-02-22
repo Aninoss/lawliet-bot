@@ -32,11 +32,15 @@ public class InviteFilter extends AutoModAbstract {
     }
 
     @Override
-    protected boolean withAutoActions(Message message, Locale locale) {
-        if (inviteFilterEntity.getAction() == InviteFilterEntity.Action.BAN_USER &&
+    protected boolean willBanMember(Message message, Locale locale) {
+        return inviteFilterEntity.getAction() == InviteFilterEntity.Action.BAN_USER &&
                 PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.BAN_MEMBERS) &&
-                BotPermissionUtil.canInteract(message.getGuild(), message.getAuthor())
-        ) {
+                BotPermissionUtil.canInteract(message.getGuild(), message.getAuthor());
+    }
+
+    @Override
+    protected boolean withAutoActions(Message message, Locale locale) {
+        if (willBanMember(message, locale)) {
             message.getGuild()
                     .ban(message.getMember(), 0, TimeUnit.DAYS)
                     .reason(TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
@@ -90,7 +94,7 @@ public class InviteFilter extends AutoModAbstract {
                 !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR)
         ) {
             List<String> inviteLinks = message.getInvites();
-            if (inviteLinks.size() > 0) {
+            if (!inviteLinks.isEmpty()) {
                 return inviteLinks.stream()
                         .map(InviteCache::getInviteByCode)
                         .map(future -> {

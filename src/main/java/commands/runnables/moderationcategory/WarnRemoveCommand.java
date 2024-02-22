@@ -34,7 +34,7 @@ public class WarnRemoveCommand extends WarnCommand {
     private int n = 1;
 
     public WarnRemoveCommand(Locale locale, String prefix) {
-        super(locale, prefix, false, false, true, true, false);
+        super(locale, prefix, false, false, true, true, false, false);
     }
 
     @Override
