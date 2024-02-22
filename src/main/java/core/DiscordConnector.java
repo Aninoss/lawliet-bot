@@ -14,9 +14,12 @@ import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.guild.ModerationEntity;
 import mysql.hibernate.entity.guild.TicketChannelEntity;
 import mysql.hibernate.entity.guild.TicketsEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.moderation.DBModeration;
+import mysql.modules.moderation.ModerationData;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
@@ -96,7 +99,8 @@ public class DiscordConnector {
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
 
-        transferSqlToHibernate();
+        transferTicketsSqlToHibernate();
+        transferModerationSqlToHibernate();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -196,7 +200,7 @@ public class DiscordConnector {
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
-    private static <T extends HibernateEntityInterface> void transferSqlToHibernate() {
+    private static void transferTicketsSqlToHibernate() {
         transferSqlToHibernate(
                 "Ticket",
                 GuildEntity::getTickets,
@@ -229,6 +233,37 @@ public class DiscordConnector {
                         );
                         tickets.getTicketChannels().put(ticketChannelEntity.getChannelId(), ticketChannelEntity);
                     }
+                }
+        );
+    }
+
+    private static void transferModerationSqlToHibernate() {
+        transferSqlToHibernate(
+                "Moderation",
+                GuildEntity::getModeration,
+                ModerationEntity::isUsed,
+                moderation -> {
+                    GuildEntity guildEntity = moderation.getHibernateEntity();
+                    ModerationData moderationData = DBModeration.getInstance().retrieve(guildEntity.getGuildId());
+
+                    moderation.setLogChannelId(moderationData.getAnnouncementChannelId().orElse(null));
+                    moderation.setConfirmationMessages(moderationData.getQuestion());
+                    moderation.setJailRoleIds(moderationData.getJailRoleIds());
+
+                    moderation.getAutoMute().setInfractions(moderationData.getAutoMute() != 0 ? moderationData.getAutoMute() : null);
+                    moderation.getAutoMute().setInfractionDays(moderationData.getAutoMuteDays() != 0 ? moderationData.getAutoMuteDays() : null);
+                    moderation.getAutoMute().setDurationMinutes(moderationData.getAutoMuteDuration() != 0 ? moderationData.getAutoMuteDuration() : null);
+
+                    moderation.getAutoJail().setInfractions(moderationData.getAutoJail() != 0 ? moderationData.getAutoJail() : null);
+                    moderation.getAutoJail().setInfractionDays(moderationData.getAutoJailDays() != 0 ? moderationData.getAutoJailDays() : null);
+                    moderation.getAutoJail().setDurationMinutes(moderationData.getAutoJailDuration() != 0 ? moderationData.getAutoJailDuration() : null);
+
+                    moderation.getAutoKick().setInfractions(moderationData.getAutoKick() != 0 ? moderationData.getAutoKick() : null);
+                    moderation.getAutoKick().setInfractionDays(moderationData.getAutoKickDays() != 0 ? moderationData.getAutoKickDays() : null);
+
+                    moderation.getAutoBan().setInfractions(moderationData.getAutoBan() != 0 ? moderationData.getAutoBan() : null);
+                    moderation.getAutoBan().setInfractionDays(moderationData.getAutoBanDays() != 0 ? moderationData.getAutoBanDays() : null);
+                    moderation.getAutoBan().setDurationMinutes(moderationData.getAutoBanDuration() != 0 ? moderationData.getAutoBanDuration() : null);
                 }
         );
     }

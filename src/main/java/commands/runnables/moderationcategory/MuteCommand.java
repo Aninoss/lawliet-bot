@@ -72,7 +72,7 @@ public class MuteCommand extends WarnCommand {
     @Override
     protected void process(Guild guild, User target, String reason) {
         if (setMute) {
-            Mute.mute(guild, target, minutes, reason);
+            Mute.mute(guild, target, minutes != 0 ? (int) minutes : null, reason);
         } else {
             Mute.unmute(guild, target, reason);
         }

@@ -14,10 +14,13 @@ import mysql.modules.tempban.DBTempBan;
 import mysql.modules.tempban.TempBanData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 
 import java.time.Instant;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class TempBanScheduler {
 
@@ -53,28 +56,35 @@ public class TempBanScheduler {
         DBTempBan.getInstance().retrieve(tempBanData.getGuildId())
                 .remove(tempBanData.getMemberId(), tempBanData);
 
-        tempBanData.getGuild()
-                .ifPresent(guild -> {
-                    String prefix = guildEntity.getPrefix();
-                    Locale locale = guildEntity.getLocale();
+        Guild guild = tempBanData.getGuild().orElse(null);
+        if (guild == null) {
+            return;
+        }
 
-                    if (PermissionCheckRuntime.botHasPermission(
-                            locale,
-                            BanCommand.class,
-                            guild,
-                            Permission.BAN_MEMBERS
-                    )) {
-                        guild.unban(UserSnowflake.fromId(tempBanData.getMemberId()))
-                                .reason(TextManager.getString(locale, Category.MODERATION, "ban_expired_title"))
-                                .queue();
+        String prefix = guildEntity.getPrefix();
+        Locale locale = guildEntity.getLocale();
 
-                        ShardManager.fetchUserById(tempBanData.getMemberId()).thenAccept(user -> {
-                            Command command = CommandManager.createCommandByClass(BanCommand.class, locale, prefix);
-                            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "ban_expired", StringUtil.escapeMarkdown(user.getAsTag())));
-                            Mod.postLogUsers(command, eb, guild, user);
-                        });
-                    }
-                });
+        if (PermissionCheckRuntime.botHasPermission(
+                locale,
+                BanCommand.class,
+                guild,
+                Permission.BAN_MEMBERS
+        )) {
+            guild.unban(UserSnowflake.fromId(tempBanData.getMemberId()))
+                    .reason(TextManager.getString(locale, Category.MODERATION, "ban_expired_title"))
+                    .queue();
+
+            User user;
+            try {
+                user = ShardManager.fetchUserById(tempBanData.getMemberId()).get();
+            } catch (InterruptedException | ExecutionException e) {
+                // Ignore
+                return;
+            }
+            Command command = CommandManager.createCommandByClass(BanCommand.class, locale, prefix);
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "ban_expired", StringUtil.escapeMarkdown(user.getAsTag())));
+            Mod.postLogUsers(command, eb, guild, guildEntity.getModeration(), user);
+        }
     }
 
 }

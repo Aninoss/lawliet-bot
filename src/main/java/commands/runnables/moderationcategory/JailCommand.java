@@ -8,6 +8,7 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MemberCacheController;
 import core.TextManager;
+import core.atomicassets.AtomicRole;
 import core.mention.Mention;
 import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
@@ -15,11 +16,12 @@ import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Jail;
-import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
@@ -55,9 +57,7 @@ public class JailCommand extends WarnCommand {
 
     @Override
     protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
-        Guild guild = event.getGuild();
-        ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
-        List<Role> notManagableRoles = moderationData.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong).stream()
+        List<Role> notManagableRoles = AtomicRole.to(getGuildEntity().getModeration().getJailRoles()).stream()
                 .filter(role -> !BotPermissionUtil.canManage(role))
                 .collect(Collectors.toList());
 
@@ -84,9 +84,8 @@ public class JailCommand extends WarnCommand {
     }
 
     @Override
-    public EmbedBuilder userActionCheckGeneralError(Guild guild) {
-        ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
-        List<Role> notManagableRoles = moderationData.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong).stream()
+    public EmbedBuilder userActionCheckGeneralError() {
+        List<Role> notManagableRoles = AtomicRole.to(getGuildEntity().getModeration().getJailRoles()).stream()
                 .filter(role -> !BotPermissionUtil.canManage(role))
                 .collect(Collectors.toList());
 
@@ -104,7 +103,7 @@ public class JailCommand extends WarnCommand {
         if (jail) {
             Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
             if (member != null) {
-                newPermissionIssues.set(!Jail.jail(guild, member, minutes, reason, getGuildEntity()));
+                newPermissionIssues.set(!Jail.jail(guild, member, minutes != 0 ? (int) minutes : null, reason, getGuildEntity()));
             }
         } else {
             newPermissionIssues.set(!Jail.unjail(guild, target, reason, getGuildEntity()));

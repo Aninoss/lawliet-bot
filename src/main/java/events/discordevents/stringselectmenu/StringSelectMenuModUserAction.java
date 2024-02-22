@@ -4,7 +4,10 @@ import commands.Category;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.WarnCommand;
 import commands.runnables.moderationcategory.WarnRemoveCommand;
-import core.*;
+import core.EmbedFactory;
+import core.MemberCacheController;
+import core.ShardManager;
+import core.TextManager;
 import core.modals.ModalMediator;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -14,8 +17,6 @@ import events.discordevents.eventtypeabstracts.StringSelectMenuAbstract;
 import modules.moduserinteractions.ModUserInteractionManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -159,11 +160,10 @@ public class StringSelectMenuModUserAction extends StringSelectMenuAbstract impl
                             event.deferEdit().queue();
                         }
                         User targetUser = ShardManager.fetchUserById(targetUserId).get();
-                        ModerationData moderationData = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
 
                         modCommand.setGuildEntity(guildEntity);
                         modCommand.userActionPrepareExecution(targetUser, reason, durationMinutes, amount);
-                        modCommand.checkAndExecute(event.getGuildChannel(), event.getMember(), moderationData);
+                        modCommand.checkAndExecute(event.getGuildChannel(), event.getMember());
 
                         event.getHook().editOriginalEmbeds(modCommand.draw(event.getMember()).build())
                                 .setComponents()

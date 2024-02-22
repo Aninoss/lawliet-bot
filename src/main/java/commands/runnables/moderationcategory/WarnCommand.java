@@ -15,8 +15,6 @@ import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mod;
-import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -48,7 +46,6 @@ public class WarnCommand extends Command implements OnButtonListener {
 
     private List<User> userList;
     private String reason;
-    private ModerationData moderationData;
     private Status status = Status.PENDING;
     private final ArrayList<User> memberMissingAccessList = new ArrayList<>();
     private final ArrayList<User> botMissingAccessList = new ArrayList<>();
@@ -96,7 +93,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         this.reason = reason;
     }
 
-    public EmbedBuilder userActionCheckGeneralError(Guild guild) {
+    public EmbedBuilder userActionCheckGeneralError() {
         return null;
     }
 
@@ -132,8 +129,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             return false;
         }
 
-        moderationData = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
-        if (userList.size() > 1 || moderationData.getQuestion()) {
+        if (userList.size() > 1 || getGuildEntity().getModeration().getConfirmationMessages()) {
             setComponents(
                     Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), Category.MODERATION, "warn_button_confirm")),
                     Button.of(ButtonStyle.SECONDARY, "false", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
@@ -141,7 +137,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             registerButtonListener(event.getMember());
         } else {
             event.deferReply();
-            boolean success = checkAndExecute(event.getTextChannel(), event.getMember(), moderationData);
+            boolean success = checkAndExecute(event.getTextChannel(), event.getMember());
             drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
             return success;
         }
@@ -175,7 +171,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         return true;
     }
 
-    public boolean checkAndExecute(GuildChannel channel, Member executor, ModerationData moderationData) throws Throwable {
+    public boolean checkAndExecute(GuildChannel channel, Member executor) throws Throwable {
         checkAllProcess(executor);
         if (!memberMissingAccessList.isEmpty() || !botMissingAccessList.isEmpty()) {
             status = Status.ERROR;
@@ -188,9 +184,9 @@ public class WarnCommand extends Command implements OnButtonListener {
         }
 
         if (sendLogWarnings) {
-            Mod.postLogUsers(this, actionEmbed, channel.getGuild(), moderationData, userList).join();
+            Mod.postLogUsers(this, actionEmbed, channel.getGuild(), getGuildEntity().getModeration(), userList).join();
         } else {
-            Mod.sendAnnouncement(this, actionEmbed, DBModeration.getInstance().retrieve(channel.getGuild().getIdLong()));
+            Mod.sendAnnouncement(this, actionEmbed, getGuildEntity().getModeration());
         }
 
         for (User user : userList) {
@@ -229,7 +225,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         boolean confirm = Boolean.parseBoolean(event.getComponentId());
         if (confirm) {
             event.deferEdit().queue();
-            checkAndExecute(event.getChannel().asTextChannel(), event.getMember(), moderationData);
+            checkAndExecute(event.getChannel().asTextChannel(), event.getMember());
         } else {
             status = Status.CANCELED;
         }

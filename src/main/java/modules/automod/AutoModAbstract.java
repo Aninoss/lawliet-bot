@@ -63,7 +63,7 @@ public abstract class AutoModAbstract {
         designEmbed(message, locale, eb);
 
         Command command = CommandManager.createCommandByClass(commandClass, locale, guildEntity.getPrefix());
-        Mod.postLogMembers(command, eb, guild, member).join();
+        Mod.postLogMembers(command, eb, guildEntity.getModeration(), member).join();
         Mod.insertWarning(guildEntity, member, guild.getSelfMember(), commandTitle,
                 withAutoActions(message, locale)
         );

@@ -101,7 +101,7 @@ class TicketsEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     var ticketChannels = mutableMapOf<Long, TicketChannelEntity>()
 
 
-    fun isUsed(): Boolean {
+    fun isUsed(): Boolean { //TODO: remove afterwards
         return _ticketIndex != null
     }
 

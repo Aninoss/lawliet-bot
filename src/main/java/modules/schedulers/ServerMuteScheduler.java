@@ -10,15 +10,15 @@ import core.utils.StringUtil;
 import modules.Mod;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 
 import java.time.Instant;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class ServerMuteScheduler {
 
@@ -60,25 +60,20 @@ public class ServerMuteScheduler {
         Locale locale = guildEntity.getLocale();
 
         if (member != null) {
-            if (!serverMuteData.isNewMethod()) {
-                Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
-                if (muteRole != null && PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
-                    member.getGuild().removeRoleFromMember(member, muteRole)
-                            .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
-                            .queue();
-                }
-            }
-
             Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, prefix);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(member.getUser().getAsTag())));
-            Mod.postLogMembers(command, eb, member.getGuild(), member);
+            Mod.postLogMembers(command, eb, guildEntity.getModeration(), member);
         } else {
-            ShardManager.fetchUserById(serverMuteData.getMemberId())
-                    .thenAccept(user -> {
-                        Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, prefix);
-                        EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(user.getAsTag())));
-                        Mod.postLogUsers(command, eb, serverMuteData.getGuild().get(), user);
-                    });
+            User user;
+            try {
+                user = ShardManager.fetchUserById(serverMuteData.getMemberId()).get();
+            } catch (InterruptedException | ExecutionException e) {
+                // Ignore
+                return;
+            }
+            Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, prefix);
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(user.getAsTag())));
+            Mod.postLogUsers(command, eb, serverMuteData.getGuild().get(), guildEntity.getModeration(), user);
         }
     }
 

@@ -56,6 +56,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     val fishery = FisheryEntity()
 
     @Embedded
+    @Column(name = MODERATION)
+    val moderation = ModerationEntity()
+
+    @Embedded
     @Column(name = INVITE_FILTER)
     val inviteFilter = InviteFilterEntity()
 
@@ -78,6 +82,9 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @ElementCollection
     val commandChannelShortcuts = mutableMapOf<Long, String>()
 
+    @ElementCollection
+    val banAppeals = mutableMapOf<Long, BanAppealEntity>()
+
     val reminders: List<ReminderEntity>
         get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", guildId.toLong())
 
@@ -91,6 +98,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @PostLoad
     override fun postLoad() {
         fishery.postLoad(this)
+        moderation.postLoad(this)
         inviteFilter.postLoad(this)
         wordFilter.postLoad(this)
         stickyRoles.postLoad(this)

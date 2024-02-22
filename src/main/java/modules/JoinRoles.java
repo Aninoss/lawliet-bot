@@ -1,12 +1,12 @@
 package modules;
 
-import commands.runnables.fisherysettingscategory.FisheryCommand;
-import commands.runnables.moderationcategory.JailCommand;
-import commands.runnables.moderationcategory.MuteCommand;
 import commands.runnables.configurationcategory.AutoRolesCommand;
 import commands.runnables.configurationcategory.StickyRolesCommand;
+import commands.runnables.fisherysettingscategory.FisheryCommand;
+import commands.runnables.moderationcategory.JailCommand;
 import core.PermissionCheckRuntime;
 import core.RestActionQueue;
+import core.atomicassets.AtomicRole;
 import core.utils.BotPermissionUtil;
 import core.utils.TimeUtil;
 import modules.fishery.FisheryStatus;
@@ -14,10 +14,6 @@ import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.guild.StickyRolesEntity;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.jails.DBJails;
-import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationData;
-import mysql.modules.servermute.DBServerMute;
-import mysql.modules.servermute.ServerMuteData;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -38,12 +34,10 @@ public class JoinRoles {
     private static final AninossRaidProtection aninossRaidProtection = new AninossRaidProtection();
 
     public static boolean guildIsRelevant(Guild guild, GuildEntity guildEntity) {
-        ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
         return !DBAutoRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().isEmpty() ||
                 (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE && !guildEntity.getFishery().getRoleIds().isEmpty()) ||
                 !guildEntity.getStickyRoles().getRoleIds().isEmpty() ||
-                !moderationData.getJailRoleIds().isEmpty() ||
-                moderationData.getMuteRoleId().isPresent();
+                !guildEntity.getModeration().getJailRoleIds().isEmpty();
     }
 
     public static CompletableFuture<Void> process(Member member, boolean bulk, GuildEntity guildEntity) {
@@ -53,13 +47,12 @@ public class JoinRoles {
             Locale locale = guildEntity.getLocale();
 
             if (DBJails.getInstance().retrieve(member.getGuild().getIdLong()).containsKey(member.getIdLong())) {
-                getJailRoles(locale, member, rolesToAdd);
+                getJailRoles(locale, guildEntity, rolesToAdd);
             } else {
                 getAutoRoles(locale, member, rolesToAdd);
                 getStickyRoles(locale, member, guildEntity, rolesToAdd);
                 getFisheryRoles(locale, member, guildEntity, rolesToAdd, new HashSet<>());
             }
-            getMuteRole(locale, member, rolesToAdd);
 
             rolesToAdd.removeIf(role -> member.getRoles().contains(role));
             if (!rolesToAdd.isEmpty()) {
@@ -125,21 +118,8 @@ public class JoinRoles {
         }
     }
 
-    public static void getMuteRole(Locale locale, Member member, HashSet<Role> rolesToAdd) {
-        Guild guild = member.getGuild();
-        ServerMuteData serverMuteData = DBServerMute.getInstance().retrieve(guild.getIdLong()).get(member.getIdLong());
-        if (serverMuteData != null && !serverMuteData.isNewMethod()) {
-            DBModeration.getInstance().retrieve(guild.getIdLong()).getMuteRole().ifPresent(muteRole -> {
-                if (PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
-                    rolesToAdd.add(muteRole);
-                }
-            });
-        }
-    }
-
-    public static void getJailRoles(Locale locale, Member member, HashSet<Role> rolesToAdd) {
-        Guild guild = member.getGuild();
-        List<Role> jailRoles = DBModeration.getInstance().retrieve(guild.getIdLong()).getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
+    public static void getJailRoles(Locale locale, GuildEntity guildEntity, HashSet<Role> rolesToAdd) {
+        List<Role> jailRoles = AtomicRole.to(guildEntity.getModeration().getJailRoles());
         PermissionCheckRuntime.botCanManageRoles(locale, JailCommand.class, jailRoles);
         for (Role jailRole : jailRoles) {
             if (BotPermissionUtil.canManage(jailRole)) {

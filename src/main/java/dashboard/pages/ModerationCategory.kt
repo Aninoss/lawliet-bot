@@ -20,11 +20,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.automod.WordFilter
 import mysql.hibernate.entity.BotLogEntity
-import mysql.hibernate.entity.guild.GuildEntity
-import mysql.hibernate.entity.guild.InviteFilterEntity
-import mysql.hibernate.entity.guild.WordFilterEntity
-import mysql.modules.moderation.DBModeration
-import mysql.modules.moderation.ModerationData
+import mysql.hibernate.entity.guild.*
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -39,10 +35,12 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
     var autoModConfigSlot: AutoModSlots? = null
     var autoModConfigStep = 0
-    var autoModConfigTempValue = 1
-    var autoModConfigTempDays = 1
-    var autoModConfigTempDuration = 1
+    var autoModConfigTempValue: Int? = 1
+    var autoModConfigTempDays: Int? = 1
+    var autoModConfigTempDuration: Int? = 1
 
+    val moderationEntity: ModerationEntity
+        get() = guildEntity.moderation
     val inviteFilterEntity: InviteFilterEntity
         get() = guildEntity.inviteFilter
     val wordFilterEntity: WordFilterEntity
@@ -95,7 +93,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 getString(Category.MODERATION, "mod_state0_mchannel"),
                 locale,
                 atomicGuild.idLong,
-                DBModeration.getInstance().retrieve(atomicGuild.idLong).announcementChannelId.orElse(null),
+                moderationEntity.logChannelId,
                 true
         ) {
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
@@ -103,7 +101,9 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
-            DBModeration.getInstance().retrieve(atomicGuild.idLong).setAnnouncementChannelId(it.data?.toLong())
+            moderationEntity.beginTransaction()
+            moderationEntity.logChannelId = it.data?.toLong()
+            moderationEntity.commitTransaction()
             ActionResult()
         }
         return channelComboBox;
@@ -116,10 +116,12 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
-            DBModeration.getInstance().retrieve(atomicGuild.idLong).question = it.data
+            moderationEntity.beginTransaction()
+            moderationEntity.confirmationMessages = it.data
+            moderationEntity.commitTransaction()
             ActionResult()
         }
-        switch.isChecked = DBModeration.getInstance().retrieve(atomicGuild.idLong).question
+        switch.isChecked = moderationEntity.confirmationMessages
         return switch
     }
 
@@ -127,7 +129,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         return DashboardMultiRolesComboBox(
                 this,
                 getString(Category.MODERATION, "mod_state0_mjailroles"),
-                { DBModeration.getInstance().retrieve(atomicGuild.idLong).jailRoleIds },
+                { it.moderation.jailRoleIds },
                 true,
                 ModSettingsCommand.MAX_JAIL_ROLES,
                 true,
@@ -136,35 +138,34 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     }
 
     fun generateAutoModField(): DashboardComponent {
-        val modData = DBModeration.getInstance().retrieve(atomicGuild.idLong)
         val container = VerticalContainer()
         container.add(
                 DashboardTitle(getString(Category.MODERATION, "mod_state0_mautomod")),
-                generateAutoModSlotField(modData, AutoModSlots.MUTE),
+                generateAutoModSlotField(AutoModSlots.MUTE),
                 DashboardSeparator(),
-                generateAutoModSlotField(modData, AutoModSlots.JAIL),
+                generateAutoModSlotField(AutoModSlots.JAIL),
                 DashboardSeparator(),
-                generateAutoModSlotField(modData, AutoModSlots.KICK),
+                generateAutoModSlotField(AutoModSlots.KICK),
                 DashboardSeparator(),
-                generateAutoModSlotField(modData, AutoModSlots.BAN)
+                generateAutoModSlotField(AutoModSlots.BAN)
         )
         return container
     }
 
-    fun generateAutoModSlotField(modData: ModerationData, slot: AutoModSlots): DashboardComponent {
-        val value = slot.getValue(modData)
-        val days = slot.getDays(modData)
-        val duration = slot.getDuration(modData)
+    fun generateAutoModSlotField(slot: AutoModSlots): DashboardComponent {
+        val infractions = slot.getInfractions(moderationEntity)
+        val infractionDays = slot.getInfractionDays(moderationEntity)
+        val durationMinutes = slot.getDurationMinutes(moderationEntity)
 
         val container = HorizontalContainer()
         container.allowWrap = true
         container.alignment = HorizontalContainer.Alignment.CENTER
 
         val name = getString(Category.MODERATION, "mod_auto${slot.id}")
-        val status = if (value <= 0) {
+        val status = if (infractions == null) {
             getString(Category.MODERATION, "mod_off")
         } else {
-            ModSettingsCommand.getAutoModString(locale, value, days, duration).replace("*", "")
+            ModSettingsCommand.getAutoModString(locale, infractions, infractionDays, durationMinutes).replace("*", "")
         }
         container.add(DashboardText("$name: $status"), HorizontalPusher())
 
@@ -187,14 +188,14 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         configButton.style = DashboardButton.Style.PRIMARY
         buttonContainer.add(configButton)
 
-        if (slot.getValue(modData) > 0) {
+        if (slot.getInfractions(moderationEntity) != null) {
             val turnOffButton = DashboardButton(getString(Category.MODERATION, "mod_state${slot.states[0]}_options")) {
                 if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                     return@DashboardButton ActionResult()
                             .withRedraw()
                 }
 
-                slot.setData(modData, 0, 0, 0)
+                slot.setData(moderationEntity, null, null, null)
                 BotLogEntity.log(entityManager, slot.eventDisable, atomicMember)
                 ActionResult()
                         .withRedraw()
@@ -452,7 +453,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                             .withRedraw()
                 }
 
-                autoModConfigTempDays = 0
+                autoModConfigTempDays = null
                 return@DashboardButton autoModConfigNextStep()
             }
             countAllButton.style = DashboardButton.Style.PRIMARY
@@ -464,7 +465,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                             .withRedraw()
                 }
 
-                autoModConfigTempDuration = 0
+                autoModConfigTempDuration = null
                 return@DashboardButton autoModConfigNextStep()
             }
             countAllButton.style = DashboardButton.Style.PRIMARY
@@ -490,13 +491,12 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                     .withRedrawScrollToTop()
         } else {
             val text = getString(Category.MODERATION, "mod_auto${autoModConfigSlot!!.id}set")
-            val modData = DBModeration.getInstance().retrieve(atomicGuild.idLong)
-            logAutoMod(autoModConfigSlot!!.eventWarns, autoModConfigSlot!!.getValue(modData), autoModConfigTempValue)
-            logAutoMod(autoModConfigSlot!!.eventWarnDays, autoModConfigSlot!!.getDays(modData), autoModConfigTempDays)
+            logAutoMod(autoModConfigSlot!!.eventWarns, autoModConfigSlot!!.getInfractions(moderationEntity), autoModConfigTempValue)
+            logAutoMod(autoModConfigSlot!!.eventWarnDays, autoModConfigSlot!!.getInfractionDays(moderationEntity), autoModConfigTempDays)
             if (autoModConfigStep == 2) {
-                logAutoMod(autoModConfigSlot!!.eventDuration!!, autoModConfigSlot!!.getDuration(modData), autoModConfigTempDuration)
+                logAutoMod(autoModConfigSlot!!.eventDuration!!, autoModConfigSlot!!.getDurationMinutes(moderationEntity), autoModConfigTempDuration)
             }
-            autoModConfigSlot!!.setData(modData, autoModConfigTempValue, autoModConfigTempDays, autoModConfigTempDuration)
+            autoModConfigSlot!!.setData(moderationEntity, autoModConfigTempValue, autoModConfigTempDays, autoModConfigTempDuration)
             autoModConfigSlot = null
             return ActionResult()
                     .withRedrawScrollToTop()
@@ -504,8 +504,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         }
     }
 
-    private fun logAutoMod(event: BotLogEntity.Event, value0: Int, value1: Int) {
-        BotLogEntity.log(entityManager, event, atomicMember, if (value0 != 0) value0 else null, if (value1 != 0) value1 else null)
+    private fun logAutoMod(event: BotLogEntity.Event, value0: Int?, value1: Int?) {
+        BotLogEntity.log(entityManager, event, atomicMember, value0, value1)
     }
 
     enum class AutoModSlots(val id: String,
@@ -517,43 +517,42 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         MUTE("mute", BotLogEntity.Event.MOD_AUTO_MUTE_DISABLE, BotLogEntity.Event.MOD_AUTO_MUTE_WARNS,
                 BotLogEntity.Event.MOD_AUTO_MUTE_WARN_DAYS, BotLogEntity.Event.MOD_AUTO_MUTE_DURATION, 8, 9, 10
         ) {
-            override fun getValue(modData: ModerationData): Int = modData.autoMute
-            override fun getDays(modData: ModerationData): Int = modData.autoMuteDays
-            override fun getDuration(modData: ModerationData): Int = modData.autoMuteDuration
-            override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoMute(value, days, duration)
+            override fun getAutoModEntity(moderationEntity: ModerationEntity): AutoModEntity = moderationEntity.autoMute
         },
 
         JAIL("jail", BotLogEntity.Event.MOD_AUTO_JAIL_DISABLE, BotLogEntity.Event.MOD_AUTO_JAIL_WARNS,
                 BotLogEntity.Event.MOD_AUTO_JAIL_WARN_DAYS, BotLogEntity.Event.MOD_AUTO_JAIL_DURATION, 13, 14, 15
         ) {
-            override fun getValue(modData: ModerationData): Int = modData.autoJail
-            override fun getDays(modData: ModerationData): Int = modData.autoJailDays
-            override fun getDuration(modData: ModerationData): Int = modData.autoJailDuration
-            override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoJail(value, days, duration)
+            override fun getAutoModEntity(moderationEntity: ModerationEntity): AutoModEntity = moderationEntity.autoJail
         },
 
         KICK("kick", BotLogEntity.Event.MOD_AUTO_KICK_DISABLE, BotLogEntity.Event.MOD_AUTO_KICK_WARNS,
                 BotLogEntity.Event.MOD_AUTO_KICK_WARN_DAYS, null, 2, 4
         ) {
-            override fun getValue(modData: ModerationData): Int = modData.autoKick
-            override fun getDays(modData: ModerationData): Int = modData.autoKickDays
-            override fun getDuration(modData: ModerationData): Int = 0
-            override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoKick(value, days)
+            override fun getAutoModEntity(moderationEntity: ModerationEntity): AutoModEntity = moderationEntity.autoKick
         },
 
         BAN("ban", BotLogEntity.Event.MOD_AUTO_BAN_DISABLE, BotLogEntity.Event.MOD_AUTO_BAN_WARNS,
                 BotLogEntity.Event.MOD_AUTO_BAN_WARN_DAYS, BotLogEntity.Event.MOD_AUTO_BAN_DURATION, 3, 5, 7
         ) {
-            override fun getValue(modData: ModerationData): Int = modData.autoBan
-            override fun getDays(modData: ModerationData): Int = modData.autoBanDays
-            override fun getDuration(modData: ModerationData): Int = modData.autoBanDuration
-            override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoBan(value, days, duration)
+            override fun getAutoModEntity(moderationEntity: ModerationEntity): AutoModEntity = moderationEntity.autoBan
         };
 
-        abstract fun getValue(modData: ModerationData): Int
-        abstract fun getDays(modData: ModerationData): Int
-        abstract fun getDuration(modData: ModerationData): Int
-        abstract fun setData(modData: ModerationData, value: Int, days: Int, duration: Int)
+        abstract fun getAutoModEntity(moderationEntity: ModerationEntity): AutoModEntity
+        fun getInfractions(moderationEntity: ModerationEntity): Int? = getAutoModEntity(moderationEntity).infractions
+        fun getInfractionDays(moderationEntity: ModerationEntity): Int? = getAutoModEntity(moderationEntity).infractionDays
+        fun getDurationMinutes(moderationEntity: ModerationEntity): Int? = getAutoModEntity(moderationEntity).durationMinutes
+        fun setData(moderationEntity: ModerationEntity, infractions: Int?, infractionDays: Int?, durationMinutes: Int?) {
+            val autoModEntity = getAutoModEntity(moderationEntity)
+
+            moderationEntity.beginTransaction()
+            autoModEntity.infractions = infractions
+            autoModEntity.infractionDays = infractionDays
+            if (this != KICK) {
+                autoModEntity.durationMinutes = durationMinutes
+            }
+            moderationEntity.commitTransaction()
+        }
 
     }
 

@@ -18,7 +18,6 @@ import dashboard.data.DiscordEntity
 import modules.Ticket
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.hibernate.entity.guild.TicketsEntity
-import mysql.modules.ticket.TicketData.TicketAssignmentMode
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -138,7 +137,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         )
         staffContainer.add(staffRoles)
 
-        val assignmentValues = TicketAssignmentMode.values().mapIndexed() { i, mode ->
+        val assignmentValues = TicketsEntity.AssignmentMode.values().mapIndexed() { i, mode ->
             DiscordEntity(i.toString(), getString(Category.CONFIGURATION, "ticket_assignment_modes").split("\n")[i])
         }
         val assignmentMode = DashboardComboBox(

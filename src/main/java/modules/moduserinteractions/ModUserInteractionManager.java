@@ -64,7 +64,7 @@ public class ModUserInteractionManager {
             return errorEmbed;
         }
 
-        return modCommand.userActionCheckGeneralError(member.getGuild());
+        return modCommand.userActionCheckGeneralError();
     }
 
     private static EmbedBuilder checkCommandTurnedOn(Member member, Command command) {
