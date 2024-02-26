@@ -1,10 +1,5 @@
 package core.cache;
 
-import java.time.Duration;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -13,6 +8,12 @@ import core.utils.FutureUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Invite;
 import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.time.Duration;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class InviteCache {
 

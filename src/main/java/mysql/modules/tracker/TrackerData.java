@@ -1,6 +1,7 @@
 package mysql.modules.tracker;
 
 import commands.Category;
+import core.DiscordDomain;
 import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
@@ -229,7 +230,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                 StandardGuildMessageChannel channel = channelOpt.get();
                 IncomingWebhookClient webhookClient = WebhookClient.createClient(
                         channel.getJDA(),
-                        webhookUrl.replace("https://discord.com", "https://" + System.getenv("DISCORD_DOMAIN"))
+                        webhookUrl.replace("https://discord.com", "https://" + DiscordDomain.get())
                 );
 
                 List<MessageEmbed> webhookEmbeds = embeds.stream()

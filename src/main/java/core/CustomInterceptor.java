@@ -16,7 +16,7 @@ public class CustomInterceptor implements Interceptor {
     public @NotNull Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         request = request.newBuilder()
-                .url(request.url().url().toString().replace("https://discord.com", "https://" + System.getenv("DISCORD_DOMAIN")))
+                .url(request.url().url().toString().replace("https://discord.com", "https://" + DiscordDomain.get()))
                 .build();
 
         if (RegexPatterns.INTERACTION.matcher(request.url().encodedPath()).matches()) {
