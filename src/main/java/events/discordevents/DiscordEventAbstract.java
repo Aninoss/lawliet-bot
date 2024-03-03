@@ -8,6 +8,7 @@ import mysql.hibernate.HibernateManager;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class DiscordEventAbstract {
 
@@ -75,7 +76,7 @@ public abstract class DiscordEventAbstract {
     }
 
     private static boolean run(EventExecution function, DiscordEventAbstract listener, EntityManagerWrapper entityManager) {
-        entityManager.setCallingClass(listener.getClass());
+        entityManager.setParameters(List.of(listener.getClass().getSimpleName()));
         try {
             return function.apply(listener, entityManager);
         } catch (Throwable throwable) {

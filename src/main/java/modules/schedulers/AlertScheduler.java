@@ -28,6 +28,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -86,6 +87,7 @@ public class AlertScheduler {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
         try (GuildEntity guildEntity = HibernateManager.findGuildEntity(slot.getGuildId(), AlertScheduler.class)) {
+            guildEntity.getEntityManager().addParameters(List.of(slot.getCommandTrigger()));
             processAlert(guildEntity, slot);
         } catch (Throwable throwable) {
             MainLogger.get().error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);

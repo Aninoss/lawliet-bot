@@ -16,23 +16,23 @@ import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
     private final EntityManager entityManager;
     private final AsyncTimer asyncTimer;
-    private Class<?> callingClass;
+    private ArrayList<String> parameters = new ArrayList<>();
 
     public EntityManagerWrapper(EntityManager entityManager, Class<?> callingClass) {
         this.entityManager = entityManager;
-        this.callingClass = callingClass;
-        asyncTimer = new AsyncTimer(Duration.ofMinutes(1));
-        asyncTimer.setTimeOutListener(thread -> MainLogger.get().warn("EntityManager is still open after 1 minute! ({})", this.callingClass.getSimpleName(), ExceptionUtil.generateForStack(thread)));
+        this.asyncTimer = new AsyncTimer(Duration.ofMinutes(1));
+        this.asyncTimer.setTimeOutListener(thread -> {
+            ArrayList<String> newParameters = new ArrayList<>(List.of(callingClass.getSimpleName()));
+            newParameters.addAll(parameters);
+            MainLogger.get().warn("EntityManager is still open after 1 minute! {}", newParameters, ExceptionUtil.generateForStack(thread));
+        });
     }
 
     @Override
@@ -434,8 +434,12 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
         return entityManager.getEntityGraphs(entityClass);
     }
 
-    public void setCallingClass(Class<?> callingClass) {
-        this.callingClass = callingClass;
+    public void setParameters(Collection<String> parameters) {
+        this.parameters = new ArrayList<>(parameters);
+    }
+
+    public void addParameters(Collection<String> parameters) {
+        this.parameters.addAll(parameters);
     }
 
 }
