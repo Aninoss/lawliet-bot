@@ -19,6 +19,7 @@
             <property name="hibernate.ogm.datastore.create_database" value="true"/>
             <property name="hibernate.create_empty_composites.enabled" value="true"/>
             <property name="org.hibernate.flushMode" value="COMMIT"/>
+            <property name="hibernate.ogm.mongodb.driver.threadsAllowedToBlockForConnectionMultiplier" value="10"/>
         </properties>
     </persistence-unit>
 </persistence>
