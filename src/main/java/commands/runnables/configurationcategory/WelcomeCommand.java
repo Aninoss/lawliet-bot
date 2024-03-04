@@ -16,6 +16,7 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -76,6 +77,10 @@ public class WelcomeCommand extends NavigationAbstract {
             case 1:
                 if (!input.isEmpty()) {
                     if (input.length() <= MAX_WELCOME_TITLE_LENGTH) {
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_TITLE, event.getMember(), welcomeMessageData.getWelcomeTitle(), input);
+                        getEntityManager().getTransaction().commit();
+
                         welcomeMessageData.setWelcomeTitle(input);
                         setLog(LogStatus.SUCCESS, getString("titleset"));
                         setState(0);
@@ -90,6 +95,10 @@ public class WelcomeCommand extends NavigationAbstract {
             case 2:
                 if (!input.isEmpty()) {
                     if (input.length() <= MAX_WELCOME_DESCRIPTION_LENGTH) {
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_TEXT, event.getMember(), welcomeMessageData.getWelcomeText(), input);
+                        getEntityManager().getTransaction().commit();
+
                         welcomeMessageData.setWelcomeText(input);
                         setLog(LogStatus.SUCCESS, getString("textset"));
                         setState(0);
@@ -108,6 +117,10 @@ public class WelcomeCommand extends NavigationAbstract {
                     return MessageInputResponse.FAILED;
                 } else {
                     if (checkWriteEmbedInChannelAndAttachFilesWithLog(channelList.get(0))) {
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_CHANNEL, event.getMember(), welcomeMessageData.getWelcomeChannelId(), channelList.get(0).getIdLong());
+                        getEntityManager().getTransaction().commit();
+
                         welcomeMessageData.setWelcomeChannelId(channelList.get(0).getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
@@ -122,6 +135,10 @@ public class WelcomeCommand extends NavigationAbstract {
                 if (!attachmentList.isEmpty() && attachmentList.get(0).isImage()) {
                     LocalFile localFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", event.getGuild().getIdLong()));
                     if (FileUtil.downloadImageAttachment(attachmentList.get(0), localFile)) {
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_SET, event.getMember());
+                        getEntityManager().getTransaction().commit();
+
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
@@ -134,6 +151,10 @@ public class WelcomeCommand extends NavigationAbstract {
             case 6:
                 if (!input.isEmpty()) {
                     if (input.length() <= MAX_FAREWELL_DESCRIPTION_LENGTH) {
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_TEXT, event.getMember(), welcomeMessageData.getGoodbyeText(), input);
+                        getEntityManager().getTransaction().commit();
+
                         welcomeMessageData.setGoodbyeText(input);
                         setLog(LogStatus.SUCCESS, getString("textset"));
                         setState(0);
@@ -152,6 +173,10 @@ public class WelcomeCommand extends NavigationAbstract {
                     return MessageInputResponse.FAILED;
                 } else {
                     if (checkWriteEmbedInChannelAndAttachFilesWithLog(channelList.get(0))) {
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_CHANNEL, event.getMember(), welcomeMessageData.getGoodbyeChannelId(), channelList.get(0).getIdLong());
+                        getEntityManager().getTransaction().commit();
+
                         welcomeMessageData.setGoodbyeChannelId(channelList.get(0).getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
@@ -164,6 +189,10 @@ public class WelcomeCommand extends NavigationAbstract {
             case 8:
                 if (!input.isEmpty()) {
                     if (input.length() <= MAX_DM_DESCRIPTION_LENGTH) {
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_TEXT, event.getMember(), welcomeMessageData.getDmText(), input);
+                        getEntityManager().getTransaction().commit();
+
                         welcomeMessageData.setDmText(input);
                         setLog(LogStatus.SUCCESS, getString("textset"));
                         setState(0);
@@ -192,6 +221,11 @@ public class WelcomeCommand extends NavigationAbstract {
                     switch (i) {
                         case 0 -> {
                             welcomeMessageData.toggleWelcomeActive();
+
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_ACTIVE, event.getMember(), null, welcomeMessageData.isWelcomeActive());
+                            getEntityManager().getTransaction().commit();
+
                             setLog(LogStatus.SUCCESS, getString("activeset", welcomeMessageData.isWelcomeActive(), getString("dashboard_join")));
                             return true;
                         }
@@ -201,6 +235,11 @@ public class WelcomeCommand extends NavigationAbstract {
                         }
                         case 2 -> {
                             welcomeMessageData.toggleWelcomeEmbed();
+
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_EMBEDS, event.getMember(), null, welcomeMessageData.getWelcomeEmbed());
+                            getEntityManager().getTransaction().commit();
+
                             setLog(LogStatus.SUCCESS, getString("embedset", welcomeMessageData.getWelcomeEmbed()));
                             return true;
                         }
@@ -210,6 +249,11 @@ public class WelcomeCommand extends NavigationAbstract {
                         }
                         case 4 -> {
                             welcomeMessageData.toggleBanner();
+
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNERS, event.getMember(), null, welcomeMessageData.getBanner());
+                            getEntityManager().getTransaction().commit();
+
                             setLog(LogStatus.SUCCESS, getString("bannerset", welcomeMessageData.getBanner()));
                             return true;
                         }
@@ -231,6 +275,11 @@ public class WelcomeCommand extends NavigationAbstract {
                     switch (i) {
                         case 0 -> {
                             welcomeMessageData.toggleDmActive();
+
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_ACTIVE, event.getMember(), null, welcomeMessageData.isDmActive());
+                            getEntityManager().getTransaction().commit();
+
                             setLog(LogStatus.SUCCESS, getString("activeset", welcomeMessageData.isDmActive(), getString("dashboard_dm")));
                             return true;
                         }
@@ -240,6 +289,11 @@ public class WelcomeCommand extends NavigationAbstract {
                         }
                         case 2 -> {
                             welcomeMessageData.toggleDmEmbed();
+
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_EMBEDS, event.getMember(), null, welcomeMessageData.getDmEmbed());
+                            getEntityManager().getTransaction().commit();
+
                             setLog(LogStatus.SUCCESS, getString("embedset", welcomeMessageData.getDmEmbed()));
                             return true;
                         }
@@ -249,6 +303,11 @@ public class WelcomeCommand extends NavigationAbstract {
                     switch (i) {
                         case 0 -> {
                             welcomeMessageData.toggleGoodbyeActive();
+
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_ACTIVE, event.getMember(), null, welcomeMessageData.isGoodbyeActive());
+                            getEntityManager().getTransaction().commit();
+
                             setLog(LogStatus.SUCCESS, getString("activeset", welcomeMessageData.isGoodbyeActive(), getString("dashboard_leave")));
                             return true;
                         }
@@ -258,6 +317,11 @@ public class WelcomeCommand extends NavigationAbstract {
                         }
                         case 2 -> {
                             welcomeMessageData.toggleGoodbyeEmbed();
+
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_EMBEDS, event.getMember(), null, welcomeMessageData.getGoodbyeEmbed());
+                            getEntityManager().getTransaction().commit();
+
                             setLog(LogStatus.SUCCESS, getString("embedset", welcomeMessageData.getGoodbyeEmbed()));
                             return true;
                         }
@@ -275,6 +339,10 @@ public class WelcomeCommand extends NavigationAbstract {
             return true;
         }
         if (state == 4) {
+            getEntityManager().getTransaction().begin();
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_RESET, event.getMember());
+            getEntityManager().getTransaction().commit();
+
             LocalFile localFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", event.getGuild().getIdLong()));
             localFile.delete();
             setLog(LogStatus.SUCCESS, getString("backgroundset"));

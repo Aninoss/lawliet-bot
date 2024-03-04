@@ -138,6 +138,21 @@ class BotLogEntity(
         AUTO_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, AutoRolesCommand::class.java),
         AUTO_ROLES_SYNC,
         STICKY_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, StickyRolesCommand::class.java),
+        WELCOME_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WelcomeCommand::class.java, "welcome_logs_welcome_active"),
+        WELCOME_TEXT(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, WelcomeCommand::class.java, "welcome_logs_welcome_text"),
+        WELCOME_EMBEDS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WelcomeCommand::class.java, "welcome_logs_welcome_embed"),
+        WELCOME_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, WelcomeCommand::class.java, "welcome_logs_welcome_channel"),
+        WELCOME_BANNERS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WelcomeCommand::class.java, "welcome_state0_mbanner"),
+        WELCOME_BANNER_TITLE(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, WelcomeCommand::class.java, "welcome_state0_mtitle"),
+        WELCOME_BANNER_BACKGROUND_SET,
+        WELCOME_BANNER_BACKGROUND_RESET,
+        WELCOME_DM_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WelcomeCommand::class.java, "welcome_logs_dm_active"),
+        WELCOME_DM_TEXT(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, WelcomeCommand::class.java, "welcome_logs_dm_text"),
+        WELCOME_DM_EMBEDS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WelcomeCommand::class.java, "welcome_logs_dm_embed"),
+        WELCOME_LEAVE_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WelcomeCommand::class.java, "welcome_logs_leave_active"),
+        WELCOME_LEAVE_TEXT(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, WelcomeCommand::class.java, "welcome_logs_leave_text"),
+        WELCOME_LEAVE_EMBEDS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WelcomeCommand::class.java, "welcome_logs_leave_embed"),
+        WELCOME_LEAVE_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, WelcomeCommand::class.java, "welcome_logs_leave_channel"),
     }
 
 
@@ -245,7 +260,6 @@ class BotLogEntity(
             val log = BotLogEntity(UUID.randomUUID(), guildId, event, memberId, newTargetMemberIds,
                     Instant.now().epochSecond, null, newValues0.toMutableList(), newValues1)
             entityManager.persist(log)
-            entityManager.detach(log)
 
             lastLogCache.put(guildId, log)
         }

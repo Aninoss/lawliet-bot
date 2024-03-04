@@ -17,6 +17,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import modules.graphics.WelcomeGraphics
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.welcomemessage.DBWelcomeMessage
 import mysql.modules.welcomemessage.WelcomeMessageData
@@ -53,6 +54,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isWelcomeActive = it.data
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_ACTIVE, atomicMember, null, it.data)
+            entityManager.transaction.commit()
+
             ActionResult()
         }
         activeSwitch.isChecked = welcomeData.isWelcomeActive
@@ -63,6 +69,10 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             1,
             WelcomeCommand.MAX_WELCOME_DESCRIPTION_LENGTH
         ) {
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_TEXT, atomicMember, welcomeData.welcomeText, it.data)
+            entityManager.transaction.commit()
+
             welcomeData.welcomeText = it.data
             ActionResult()
         }
@@ -71,6 +81,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.welcomeEmbed = it.data
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_EMBEDS, atomicMember, null, it.data)
+            entityManager.transaction.commit()
+
             ActionResult()
         }
         embedSwitch.isChecked = welcomeData.welcomeEmbed
@@ -91,6 +106,10 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
             }
 
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_CHANNEL, atomicMember, welcomeData.welcomeChannelId, channelId)
+            entityManager.transaction.commit()
+
             welcomeData.welcomeChannelId = channelId
             ActionResult()
                 .withRedraw()
@@ -107,6 +126,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val bannerSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_mbanner")) {
             welcomeData.banner = it.data
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNERS, atomicMember, null, it.data)
+            entityManager.transaction.commit()
+
             ActionResult()
         }
         bannerSwitch.isChecked = welcomeData.banner
@@ -117,6 +141,10 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             1,
             WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
         ) {
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNER_TITLE, atomicMember, welcomeData.welcomeTitle, it.data)
+            entityManager.transaction.commit()
+
             welcomeData.welcomeTitle = it.data
             ActionResult()
         }
@@ -129,6 +157,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             val destinationFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
             destinationFile.delete()
             localFile.copyTo(destinationFile, true)
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_SET, atomicMember)
+            entityManager.transaction.commit()
+
             renderBannerPreview = true
             ActionResult()
                 .withRedraw()
@@ -152,6 +185,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val resetButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_state4_options")) {
             val backgroundFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
             backgroundFile.delete()
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_RESET, atomicMember)
+            entityManager.transaction.commit()
+
             renderBannerPreview = true
             ActionResult()
                 .withRedraw()
@@ -168,6 +206,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isDmActive = it.data
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_ACTIVE, atomicMember, null, it.data)
+            entityManager.transaction.commit()
+
             ActionResult()
         }
         activeSwitch.isChecked = welcomeData.isDmActive
@@ -178,6 +221,10 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             1,
             WelcomeCommand.MAX_DM_DESCRIPTION_LENGTH
         ) {
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_TEXT, atomicMember, welcomeData.dmText, it.data)
+            entityManager.transaction.commit()
+
             welcomeData.dmText = it.data
             ActionResult()
         }
@@ -186,6 +233,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.dmEmbed = it.data
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_EMBEDS, atomicMember, null, it.data)
+            entityManager.transaction.commit()
+
             ActionResult()
         }
         embedSwitch.isChecked = welcomeData.dmEmbed
@@ -199,6 +251,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isGoodbyeActive = it.data
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_ACTIVE, atomicMember, null, it.data)
+            entityManager.transaction.commit()
+
             ActionResult()
         }
         activeSwitch.isChecked = welcomeData.isGoodbyeActive
@@ -209,6 +266,10 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             1,
             WelcomeCommand.MAX_FAREWELL_DESCRIPTION_LENGTH
         ) {
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_TEXT, atomicMember, welcomeData.goodbyeText, it.data)
+            entityManager.transaction.commit()
+
             welcomeData.goodbyeText = it.data
             ActionResult()
         }
@@ -217,6 +278,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.goodbyeEmbed = it.data
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_EMBEDS, atomicMember, null, it.data)
+            entityManager.transaction.commit()
+
             ActionResult()
         }
         embedSwitch.isChecked = welcomeData.goodbyeEmbed
@@ -236,6 +302,10 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withRedraw()
                     .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
             }
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_CHANNEL, atomicMember, welcomeData.goodbyeChannelId, it.data.toLong())
+            entityManager.transaction.commit()
 
             welcomeData.goodbyeChannelId = it.data.toLong()
             ActionResult()
