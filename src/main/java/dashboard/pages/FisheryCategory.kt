@@ -112,7 +112,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
                     val fisheryMemberList = collectFisheryMemberList()
                     fisheryMemberList.forEach(FisheryMemberData::remove)
+
+                    entityManager.transaction.begin()
                     BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_MANAGE_RESET, atomicMember, null, null, fisheryMemberList.map { it.memberId })
+                    entityManager.transaction.commit()
+
                     ActionResult()
                             .withSuccessMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_reset_success", fisheryMemberList.size != 1, StringUtil.numToString(fisheryMemberList.size)))
                 } else {
@@ -183,7 +187,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 val valueBefore = fisheryManageValue(fisheryMemberList)
                 if (FisheryManage.updateValues(fisheryMemberList, guildEntity, managePropertyIndex, manageNewValue)) {
                     val valueAfter = fisheryManageValue(fisheryMemberList)
+
+                    entityManager.transaction.begin()
                     BotLogEntity.log(entityManager, BotLogEntity.Event.values()[BotLogEntity.Event.FISHERY_MANAGE_FISH.ordinal + managePropertyIndex], atomicMember, valueBefore, valueAfter, fisheryMemberList.map { it.memberId })
+                    entityManager.transaction.commit()
+
                     ActionResult()
                             .withSuccessMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_modify_success", fisheryMemberList.size != 1, StringUtil.numToString(fisheryMemberList.size)))
                 } else {
@@ -301,8 +309,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                         .withRedraw()
             }
 
-            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, atomicMember, fisheryEntity.roleUpgradeChannelId, it.data)
             guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, atomicMember, fisheryEntity.roleUpgradeChannelId, it.data)
             fisheryEntity.roleUpgradeChannelId = it.data?.toLong()
             guildEntity.commitTransaction()
 
@@ -319,8 +327,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             guildEntity.beginTransaction()
             fisheryEntity.singleRoles = it.data
-            guildEntity.commitTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_ROLES_SINGLE_ROLES, atomicMember, null, fisheryEntity.singleRoles)
+            guildEntity.commitTransaction()
 
             ActionResult()
         }
@@ -342,8 +350,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                         .withRedraw()
             }
 
-            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_ROLES_PRICE_MIN, atomicMember, fisheryEntity.rolePriceMin, it.data)
             guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_ROLES_PRICE_MIN, atomicMember, fisheryEntity.rolePriceMin, it.data)
             fisheryEntity.rolePriceMin = it.data.toLong()
             guildEntity.commitTransaction()
 
@@ -358,8 +366,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                         .withRedraw()
             }
 
-            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_ROLES_PRICE_MAX, atomicMember, fisheryEntity.rolePriceMax, it.data)
             guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_ROLES_PRICE_MAX, atomicMember, fisheryEntity.rolePriceMax, it.data)
             fisheryEntity.rolePriceMax = it.data.toLong()
             guildEntity.commitTransaction()
 
@@ -384,8 +392,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                         .withRedraw()
             }
 
-            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, atomicMember, fisheryEntity.voiceHoursLimit, it.data)
             guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, atomicMember, fisheryEntity.voiceHoursLimit, it.data)
             fisheryEntity.voiceHoursLimit = it.data.toInt()
             guildEntity.commitTransaction()
 
@@ -401,8 +409,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                         .withRedraw()
             }
 
-            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, atomicMember, fisheryEntity.voiceHoursLimit, 24)
             guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, atomicMember, fisheryEntity.voiceHoursLimit, 24)
             fisheryEntity.voiceHoursLimit = 24
             guildEntity.commitTransaction()
 
@@ -443,7 +451,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     private fun generateSwitches(): DashboardComponent {
         val container = VerticalContainer()
 
-        val switchTreasure = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mtreasurechests_title", "").trim()) {
+        val switchTreasure = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_treasurechests")) {
             if (!anyCommandsAreAccessible(FisheryCommand::class)) {
                 return@DashboardSwitch ActionResult()
                         .withRedraw()
@@ -451,8 +459,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             guildEntity.beginTransaction()
             fisheryEntity.treasureChests = it.data
-            guildEntity.commitTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_TREASURE_CHESTS, atomicMember, null, it.data)
+            guildEntity.commitTransaction()
 
             ActionResult()
         }
@@ -460,7 +468,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         switchTreasure.isChecked = fisheryEntity.treasureChests
         container.add(switchTreasure)
 
-        val switchPowerups = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mpowerups_title", "").trim()) {
+        val switchPowerups = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_powerups")) {
             if (!anyCommandsAreAccessible(FisheryCommand::class)) {
                 return@DashboardSwitch ActionResult()
                         .withRedraw()
@@ -468,8 +476,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             guildEntity.beginTransaction()
             fisheryEntity.powerUps = it.data
-            guildEntity.commitTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_POWER_UPS, atomicMember, null, it.data)
+            guildEntity.commitTransaction()
 
             ActionResult()
         }
@@ -477,7 +485,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         switchPowerups.isChecked = fisheryEntity.powerUps
         container.add(switchPowerups)
 
-        val switchReminders = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mreminders_title", "").trim()) {
+        val switchReminders = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_reminders")) {
             if (!anyCommandsAreAccessible(FisheryCommand::class)) {
                 return@DashboardSwitch ActionResult()
                         .withRedraw()
@@ -485,8 +493,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             guildEntity.beginTransaction()
             fisheryEntity.fishReminders = it.data
-            guildEntity.commitTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_FISH_REMINDERS, atomicMember, null, it.data)
+            guildEntity.commitTransaction()
 
             ActionResult()
         }
@@ -494,7 +502,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         switchReminders.isChecked = fisheryEntity.fishReminders
         container.add(switchReminders)
 
-        val switchCoinLimit = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mcoinsgivenlimit_title", "").trim()) {
+        val switchCoinLimit = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_coingiftlimit")) {
             if (!anyCommandsAreAccessible(FisheryCommand::class)) {
                 return@DashboardSwitch ActionResult()
                         .withRedraw()
@@ -502,8 +510,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             guildEntity.beginTransaction()
             fisheryEntity.coinGiftLimit = it.data
-            guildEntity.commitTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_COIN_GIFT_LIMIT, atomicMember, null, it.data)
+            guildEntity.commitTransaction()
 
             ActionResult()
         }
@@ -515,8 +523,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         probabilitiesContainer.allowWrap = true
 
         val treasureChestProbability = DashboardFloatingNumberField(getString(Category.FISHERY_SETTINGS, "fishery_probabilities_treasure"), 0, 100) {
-            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_TREASURE_CHEST_PROBABILITY, atomicMember, fisheryEntity.treasureChestProbabilityInPercent, it.data)
             fisheryEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_TREASURE_CHEST_PROBABILITY, atomicMember, fisheryEntity.treasureChestProbabilityInPercent, it.data)
             fisheryEntity.treasureChestProbabilityInPercent = it.data
             fisheryEntity.commitTransaction()
 
@@ -527,8 +535,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         probabilitiesContainer.add(treasureChestProbability)
 
         val powerUpProbability = DashboardFloatingNumberField(getString(Category.FISHERY_SETTINGS, "fishery_probabilities_powerups"), 0, 100) {
-            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_POWER_UP_PROBABILITY, atomicMember, fisheryEntity.powerUpProbabilityInPercent, it.data)
             fisheryEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_POWER_UP_PROBABILITY, atomicMember, fisheryEntity.powerUpProbabilityInPercent, it.data)
             fisheryEntity.powerUpProbabilityInPercent = it.data
             fisheryEntity.commitTransaction()
 
@@ -559,8 +567,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                                 .withRedraw()
                     }
 
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_STATUS, atomicMember, fisheryEntity.fisheryStatus, FisheryStatus.PAUSED)
                     guildEntity.beginTransaction()
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_STATUS, atomicMember, fisheryEntity.fisheryStatus, FisheryStatus.PAUSED)
                     fisheryEntity.fisheryStatus = FisheryStatus.PAUSED
                     guildEntity.commitTransaction()
 
@@ -578,9 +586,9 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
                     GlobalThreadPool.submit { FisheryUserManager.deleteGuildData(atomicGuild.idLong) }
 
+                    guildEntity.beginTransaction()
                     BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_STATUS, atomicMember, fisheryEntity.fisheryStatus, FisheryStatus.STOPPED)
                     BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_DATA_RESET, atomicMember)
-                    guildEntity.beginTransaction()
                     fisheryEntity.fisheryStatus = FisheryStatus.STOPPED
                     guildEntity.commitTransaction()
 
@@ -599,8 +607,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                                 .withRedraw()
                     }
 
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_STATUS, atomicMember, fisheryEntity.fisheryStatus, FisheryStatus.ACTIVE)
                     guildEntity.beginTransaction()
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_STATUS, atomicMember, fisheryEntity.fisheryStatus, FisheryStatus.ACTIVE)
                     fisheryEntity.fisheryStatus = FisheryStatus.ACTIVE
                     guildEntity.commitTransaction()
 
@@ -618,8 +626,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                                 .withRedraw()
                     }
 
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_STATUS, atomicMember, fisheryEntity.fisheryStatus, FisheryStatus.ACTIVE)
                     guildEntity.beginTransaction()
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_STATUS, atomicMember, fisheryEntity.fisheryStatus, FisheryStatus.ACTIVE)
                     fisheryEntity.fisheryStatus = FisheryStatus.ACTIVE
                     guildEntity.commitTransaction()
 

@@ -59,7 +59,10 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
                         .withErrorMessage(getString(Category.CONFIGURATION, "autoroles_syncactive"))
             }
 
+            entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_ROLES_SYNC, atomicMember)
+            entityManager.transaction.commit()
+
             return@DashboardButton ActionResult()
                     .withSuccessMessage(getString(Category.CONFIGURATION, "autoroles_syncstart"))
         }

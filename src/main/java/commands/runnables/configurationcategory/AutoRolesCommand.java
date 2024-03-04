@@ -103,7 +103,10 @@ public class AutoRolesCommand extends NavigationAbstract {
                             yield true;
                         }
 
+                        getEntityManager().getTransaction().begin();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_ROLES_SYNC, event.getMember());
+                        getEntityManager().getTransaction().commit();
+
                         setLog(LogStatus.SUCCESS, getString("syncstart"));
                         yield true;
                     }

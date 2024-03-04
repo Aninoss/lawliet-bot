@@ -48,17 +48,17 @@ class DashboardMultiTextChannelsComboBox(
             if (it.type == "add") {
                 guildEntity.beginTransaction()
                 selectedChannels += it.data.toLong()
-                guildEntity.commitTransaction()
                 if (botLogEvent != null) {
                     BotLogEntity.log(dashboardCategory.entityManager, botLogEvent, guildId, memberId, it.data, null)
                 }
+                guildEntity.commitTransaction()
             } else if (it.type == "remove") {
                 guildEntity.beginTransaction()
                 selectedChannels -= it.data.toLong()
-                guildEntity.commitTransaction()
                 if (botLogEvent != null) {
                     BotLogEntity.log(dashboardCategory.entityManager, botLogEvent, guildId, memberId, null, it.data)
                 }
+                guildEntity.commitTransaction()
             }
 
             ActionResult()

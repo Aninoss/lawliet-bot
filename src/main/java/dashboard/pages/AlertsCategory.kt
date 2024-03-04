@@ -82,7 +82,9 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val grid = DashboardGrid(headers, rows) {
             val alertSlot = alertMap.get(it.data.toInt())
             if (alertSlot != null) {
+                entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.ALERTS, atomicMember, null, alertSlot.commandTrigger)
+                entityManager.transaction.commit()
                 alertSlot.delete()
             }
             ActionResult()
@@ -198,7 +200,11 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                     minInterval
             )
             clearAttributes()
+
+            entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.ALERTS, atomicMember, trackerData.commandTrigger, null)
+            entityManager.transaction.commit()
+
             alertMap.put(trackerData.hashCode(), trackerData)
             AlertScheduler.loadAlert(trackerData)
             ActionResult()

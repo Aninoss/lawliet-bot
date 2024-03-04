@@ -10,7 +10,6 @@ import core.TextManager;
 import core.modals.ModalMediator;
 import core.utils.StringUtil;
 import modules.Prefix;
-import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -40,8 +39,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         if (!args.isEmpty() && !args.isBlank()) {
             if (args.length() <= MAX_LENGTH) {
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.PREFIX, event.getMember(), getGuildEntity().getPrefix(), args);
-                Prefix.changePrefix(event.getGuild(), getLocale(), args, getGuildEntity());
+                Prefix.changePrefix(event.getMember(), getLocale(), args, getGuildEntity());
                 drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(args))))
                         .exceptionally(ExceptionLogger.get());
                 return true;
@@ -72,8 +70,8 @@ public class PrefixCommand extends Command implements OnButtonListener {
                     if (newPrefix.isBlank()) {
                         newPrefix = "L.";
                     }
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.PREFIX, e.getMember(), getGuildEntity().getPrefix(), newPrefix);
-                    Prefix.changePrefix(event.getGuild(), getLocale(), newPrefix, getGuildEntity());
+
+                    Prefix.changePrefix(e.getMember(), getLocale(), newPrefix, getGuildEntity());
                     return EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(newPrefix)));
                 })
                 .addActionRow(textInput)

@@ -1,21 +1,54 @@
 package modules;
 
 import commands.Category;
+import commands.Command;
 import constants.Emojis;
 import core.TextManager;
 import core.atomicassets.AtomicGuildChannel;
 import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicRole;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
 import mysql.hibernate.entity.BotLogEntity;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class BotLogs {
+
+    public static String getMessage(Locale locale, BotLogEntity botLog, boolean markdown) {
+        List<User> targetedUserList = botLog.getTargetedUserList();
+        String memberString = (markdown ? "**" : "") + new AtomicMember(botLog.getGuildId(), botLog.getMemberId()).getTaggedName(locale) + (markdown ? "**" : "");
+        String targetedUserString = MentionUtil.getMentionedStringOfDiscriminatedUsers(locale, targetedUserList).getMentionText();
+        if (!markdown) {
+            targetedUserString = targetedUserString.replace("**", "");
+        }
+
+        String message;
+        if (botLog.getEvent().getCommandClass() == null) {
+            message = TextManager.getString(locale, TextManager.LOGS, "event_" + botLog.getEvent().name(), memberString, targetedUserString);
+        } else {
+            String commandTitle = Command.getCommandLanguage(botLog.getEvent().getCommandClass(), locale).getTitle();
+            if (botLog.getEvent().getValueNameTextKey() == null) {
+                message = TextManager.getString(locale, TextManager.LOGS, targetedUserList.isEmpty() ? "event_command" : "event_command_membertomember", memberString, commandTitle, targetedUserString);
+            } else {
+                Category category;
+                if (botLog.getEvent().getValueNameTextCategory() == null) {
+                    category = Command.getCategory(botLog.getEvent().getCommandClass());
+                } else {
+                    category = botLog.getEvent().getValueNameTextCategory();
+                }
+                String valueName = TextManager.getString(locale, category, botLog.getEvent().getValueNameTextKey());
+                message = TextManager.getString(locale, TextManager.LOGS, targetedUserList.isEmpty() ? "event_command_value" : "event_command_value_membertomember", memberString, valueName, commandTitle, targetedUserString);
+            }
+        }
+
+        return message;
+    }
 
     public static List<Pair<String, String>> getExpandedValueFields(Locale locale, long guildId, BotLogEntity botLog, boolean inBlocks) {
         BotLogEntity.ValueType valueType = botLog.getEvent().getValueType();
@@ -109,5 +142,5 @@ public class BotLogs {
         sb.append(Emojis.ZERO_WIDTH_SPACE.getFormatted());
         return sb.toString();
     }
-    
+
 }

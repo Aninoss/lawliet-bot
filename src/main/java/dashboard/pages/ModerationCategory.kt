@@ -131,9 +131,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 }
             }
 
-            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, atomicMember, moderationEntity.logChannelId, e.data)
-
             moderationEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, atomicMember, moderationEntity.logChannelId, e.data)
             moderationEntity.logChannelId = e.data?.toLong()
             moderationEntity.commitTransaction()
             ActionResult()
@@ -148,9 +147,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
-            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_CONFIRMATION_MESSAGES, atomicMember, null, it.data)
-
             moderationEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_CONFIRMATION_MESSAGES, atomicMember, null, it.data)
             moderationEntity.confirmationMessages = it.data
             moderationEntity.commitTransaction()
             ActionResult()
@@ -203,9 +201,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 }
             }
 
-            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, atomicMember, moderationEntity.banAppealLogChannelIdEffectively, e.data)
-
             moderationEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, atomicMember, moderationEntity.banAppealLogChannelIdEffectively, e.data)
             moderationEntity.banAppealLogChannelId = e.data?.toLong()
             moderationEntity.commitTransaction()
             ActionResult()
@@ -280,8 +277,11 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                             .withRedraw()
                 }
 
+                moderationEntity.beginTransaction()
                 slot.setData(moderationEntity, null, null, null)
                 BotLogEntity.log(entityManager, slot.eventDisable, atomicMember)
+                moderationEntity.commitTransaction()
+
                 ActionResult()
                         .withRedraw()
                         .withSuccessMessage(getString(Category.MODERATION, "mod_auto${slot.id}set"))
@@ -307,8 +307,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
             inviteFilterEntity.beginTransaction()
             inviteFilterEntity.active = it.data
-            inviteFilterEntity.commitTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_FILTER_ACTIVE, atomicMember, null, it.data)
+            inviteFilterEntity.commitTransaction()
 
             ActionResult()
                     .withRedraw()
@@ -337,8 +337,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             }
 
             val newAction = InviteFilterEntity.Action.values()[it.data.toInt()]
-            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_FILTER_ACTION, atomicMember, inviteFilterEntity.action, newAction)
             inviteFilterEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_FILTER_ACTION, atomicMember, inviteFilterEntity.action, newAction)
             inviteFilterEntity.action = newAction
             inviteFilterEntity.commitTransaction()
 
@@ -391,8 +391,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
             wordFilterEntity.beginTransaction()
             wordFilterEntity.active = it.data
-            wordFilterEntity.commitTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WORD_FILTER_ACTIVE, atomicMember, null, it.data)
+            wordFilterEntity.commitTransaction()
 
             ActionResult()
                     .withRedraw()
@@ -445,13 +445,13 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         wordFilterEntity.words += it
                     }
                 }
-                wordFilterEntity.commitTransaction()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.WORD_FILTER_WORDS, atomicMember, newWordsList, null)
+                wordFilterEntity.commitTransaction()
             } else if (it.type == "remove") {
                 wordFilterEntity.beginTransaction()
                 wordFilterEntity.words -= it.data
-                wordFilterEntity.commitTransaction()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.WORD_FILTER_WORDS, atomicMember, null, it.data)
+                wordFilterEntity.commitTransaction()
             }
 
             ActionResult()
@@ -576,12 +576,16 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                     .withRedrawScrollToTop()
         } else {
             val text = getString(Category.MODERATION, "mod_auto${autoModConfigSlot!!.id}set")
+
+            moderationEntity.beginTransaction()
             logAutoMod(autoModConfigSlot!!.eventWarns, autoModConfigSlot!!.getInfractions(moderationEntity), autoModConfigTempValue)
             logAutoMod(autoModConfigSlot!!.eventWarnDays, autoModConfigSlot!!.getInfractionDays(moderationEntity), autoModConfigTempDays)
             if (autoModConfigStep == 2) {
                 logAutoMod(autoModConfigSlot!!.eventDuration!!, autoModConfigSlot!!.getDurationMinutes(moderationEntity), autoModConfigTempDuration)
             }
             autoModConfigSlot!!.setData(moderationEntity, autoModConfigTempValue, autoModConfigTempDays, autoModConfigTempDuration)
+            moderationEntity.commitTransaction()
+
             autoModConfigSlot = null
             return ActionResult()
                     .withRedrawScrollToTop()
@@ -630,13 +634,11 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         fun setData(moderationEntity: ModerationEntity, infractions: Int?, infractionDays: Int?, durationMinutes: Int?) {
             val autoModEntity = getAutoModEntity(moderationEntity)
 
-            moderationEntity.beginTransaction()
             autoModEntity.infractions = infractions
             autoModEntity.infractionDays = infractionDays
             if (this != KICK) {
                 autoModEntity.durationMinutes = durationMinutes
             }
-            moderationEntity.commitTransaction()
         }
 
     }

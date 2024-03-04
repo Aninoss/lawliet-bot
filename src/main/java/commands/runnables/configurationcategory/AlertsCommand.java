@@ -254,7 +254,10 @@ public class AlertsCommand extends NavigationAbstract {
         } else {
             TrackerData slotRemove = alerts.get(Integer.parseInt(event.getComponentId()));
             if (slotRemove != null) {
+                getEntityManager().getTransaction().begin();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.ALERTS, event.getMember(), null, slotRemove.getCommandTrigger());
+                getEntityManager().getTransaction().commit();
+
                 slotRemove.delete();
                 setLog(LogStatus.SUCCESS, getString("state2_removed", slotRemove.getCommandTrigger()));
                 if (alerts.isEmpty()) {
@@ -434,7 +437,10 @@ public class AlertsCommand extends NavigationAbstract {
                 minInterval
         );
 
+        getEntityManager().getTransaction().begin();
         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.ALERTS, member, commandCache.getTrigger(), null);
+        getEntityManager().getTransaction().commit();
+
         alerts.put(slot.hashCode(), slot);
         AlertScheduler.loadAlert(slot);
         setState(STATE_COMMAND);

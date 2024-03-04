@@ -84,8 +84,8 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
         }
 
         FisheryEntity fishery = getGuildEntity().getFishery();
-        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, member, fishery.getVoiceHoursLimit(), value);
         fishery.beginTransaction();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, member, fishery.getVoiceHoursLimit(), value);
         fishery.setVoiceHoursLimit(value);
         fishery.commitTransaction();
 
@@ -94,8 +94,8 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
 
     private EmbedBuilder markUnlimited(Member member) {
         FisheryEntity fishery = getGuildEntity().getFishery();
-        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, member, fishery.getVoiceHoursLimit(), 24);
         fishery.beginTransaction();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, member, fishery.getVoiceHoursLimit(), 24);
         fishery.setVoiceHoursLimit(24);
         fishery.commitTransaction();
 

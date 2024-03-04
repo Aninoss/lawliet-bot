@@ -378,11 +378,13 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
             case 7:
                 if (!title.isEmpty()) {
+                    getEntityManager().getTransaction().begin();
                     if (editMode) {
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_END, event.getMember(), previousTitle);
                     } else {
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_ADD, event.getMember(), title);
                     }
+                    getEntityManager().getTransaction().commit();
                     send(event, editMode);
                 } else {
                     setLog(LogStatus.FAILURE, getString("noitem"));
@@ -392,7 +394,10 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             case 8:
                 if (editMode) {
                     if (!title.isEmpty()) {
+                        getEntityManager().getTransaction().begin();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_EDIT, event.getMember(), previousTitle);
+                        getEntityManager().getTransaction().commit();
+
                         send(event, false);
                     } else {
                         setLog(LogStatus.FAILURE, getString("noitem"));
@@ -489,16 +494,21 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             return true;
         } else if (i == 0 && rerollWinners > 0) {
             boolean messageExists = GiveawayScheduler.processGiveawayUsers(rerollGiveawayData, rerollWinners, true).join();
+            getEntityManager().getTransaction().begin();
             if (messageExists) {
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REROLL, event.getMember(), rerollGiveawayData.getTitle());
                 setLog(LogStatus.SUCCESS, getString("rerollset", rerollGiveawayData.getTitle()));
             } else {
                 setLog(LogStatus.FAILURE, getString("error"));
             }
+            getEntityManager().getTransaction().commit();
             setState(REROLL_MESSAGE);
             return true;
         } else if (i == (rerollWinners > 0 ? 1 : 0)) {
+            getEntityManager().getTransaction().begin();
             BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REMOVE, event.getMember(), rerollGiveawayData.getTitle());
+            getEntityManager().getTransaction().commit();
+
             giveawayMap.remove(rerollGiveawayData.getMessageId());
             setLog(LogStatus.SUCCESS, getString("removed", rerollGiveawayData.getTitle()));
             setState(REROLL_MESSAGE);

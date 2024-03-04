@@ -41,14 +41,19 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val label = getString(Category.CONFIGURATION, "nsfwfilter_state0_mkeywords")
         val comboBox = DashboardComboBox(label, emptyList(), true, NSFWFilterCommand.MAX_FILTERS) {
             if (it.type == "add") {
+                entityManager.transaction.begin()
                 it.data.split(" ").forEach { data ->
                     if (data.length <= NSFWFilterCommand.MAX_LENGTH && !nsfwKeywords.contains(data) && data.length > 0) {
                         BotLogEntity.log(entityManager, BotLogEntity.Event.NSFW_FILTER, atomicMember, data.lowercase(), null)
                         nsfwKeywords.add(data.lowercase())
                     }
                 }
+                entityManager.transaction.commit()
             } else if (it.type == "remove") {
+                entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.NSFW_FILTER, atomicMember, null, it.data)
+                entityManager.transaction.commit()
+
                 nsfwKeywords.remove(it.data)
             }
             ActionResult()

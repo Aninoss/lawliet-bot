@@ -1,19 +1,21 @@
 package commands.runnables.configurationcategory;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import constants.LogStatus;
-import core.EmbedFactory;
 import core.CommandPermissions;
+import core.EmbedFactory;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "cperms",
@@ -47,6 +49,10 @@ public class CommandPermissionsCommand extends Command implements OnButtonListen
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
+        getEntityManager().getTransaction().begin();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_PERMISSIONS_TRANSFER, event.getMember());
+        getEntityManager().getTransaction().commit();
+
         if (CommandPermissions.transferCommandPermissions(event.getGuild())) {
             setLog(LogStatus.SUCCESS, getString("success"));
         } else {

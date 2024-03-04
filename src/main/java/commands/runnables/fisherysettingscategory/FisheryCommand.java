@@ -115,8 +115,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     case 0:
                         fishery.beginTransaction();
                         fishery.setTreasureChests(!fishery.getTreasureChests());
-                        fishery.commitTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHESTS, event.getMember(), null, fishery.getTreasureChests());
+                        fishery.commitTransaction();
 
                         setLog(LogStatus.SUCCESS, getString("treasurechestsset", fishery.getTreasureChests()));
                         stopLock = true;
@@ -125,8 +125,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     case 1:
                         fishery.beginTransaction();
                         fishery.setPowerUps(!fishery.getPowerUps());
-                        fishery.commitTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_POWER_UPS, event.getMember(), null, fishery.getPowerUps());
+                        fishery.commitTransaction();
 
                         setLog(LogStatus.SUCCESS, getString("powerupsset", fishery.getPowerUps()));
                         stopLock = true;
@@ -135,8 +135,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     case 2:
                         fishery.beginTransaction();
                         fishery.setFishReminders(!fishery.getFishReminders());
-                        fishery.commitTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_FISH_REMINDERS, event.getMember(), null, fishery.getFishReminders());
+                        fishery.commitTransaction();
 
                         setLog(LogStatus.SUCCESS, getString("remindersset", fishery.getFishReminders()));
                         stopLock = true;
@@ -145,8 +145,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     case 3:
                         fishery.beginTransaction();
                         fishery.setCoinGiftLimit(!fishery.getCoinGiftLimit());
-                        fishery.commitTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_COIN_GIFT_LIMIT, event.getMember(), null, fishery.getCoinGiftLimit());
+                        fishery.commitTransaction();
 
                         setLog(LogStatus.SUCCESS, getString("coinsgivenset", fishery.getCoinGiftLimit()));
                         stopLock = true;
@@ -198,6 +198,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                                     }
 
                                     FisheryEntity newFishery = getGuildEntity().getFishery();
+                                    newFishery.beginTransaction();
 
                                     double newTreasureChestProbability = NumberUtil.trimDecimalPositions(treasureChestsProbability, 2);
                                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHEST_PROBABILITY, e.getMember(),
@@ -209,7 +210,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                                             newFishery.getPowerUpProbabilityInPercent(), newPowerUpProbability
                                     );
 
-                                    newFishery.beginTransaction();
+
                                     newFishery.setTreasureChestProbabilityInPercent(newTreasureChestProbability);
                                     newFishery.setPowerUpProbabilityInPercent(newPowerUpProbability);
                                     newFishery.commitTransaction();
@@ -234,13 +235,13 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
                     case 7:
                         if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.ACTIVE);
                             fishery.beginTransaction();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.ACTIVE);
                             fishery.setFisheryStatus(FisheryStatus.ACTIVE);
                             fishery.commitTransaction();
                         } else {
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.PAUSED);
                             fishery.beginTransaction();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.PAUSED);
                             fishery.setFisheryStatus(FisheryStatus.PAUSED);
                             fishery.commitTransaction();
                         }
@@ -257,9 +258,9 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                             } else {
                                 GlobalThreadPool.submit(() -> FisheryUserManager.deleteGuildData(event.getGuild().getIdLong()));
 
+                                fishery.beginTransaction();
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.STOPPED);
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_DATA_RESET, event.getMember());
-                                fishery.beginTransaction();
                                 fishery.setFisheryStatus(FisheryStatus.STOPPED);
                                 fishery.commitTransaction();
 

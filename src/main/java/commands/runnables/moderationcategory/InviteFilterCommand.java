@@ -71,9 +71,9 @@ public class InviteFilterCommand extends NavigationAbstract {
                 } else {
                     List<Long> newMemberIds = userIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
                     Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(inviteFilter.getExcludedMemberIds(), newMemberIds);
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
 
                     inviteFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
                     inviteFilter.setExcludedMemberIds(newMemberIds);
                     inviteFilter.commitTransaction();
 
@@ -93,9 +93,9 @@ public class InviteFilterCommand extends NavigationAbstract {
                 } else {
                     List<Long> newChannelIds = channelIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
                     Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(inviteFilter.getExcludedChannelIds(), newChannelIds);
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
 
                     inviteFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
                     inviteFilter.setExcludedChannelIds(newChannelIds);
                     inviteFilter.commitTransaction();
 
@@ -115,9 +115,9 @@ public class InviteFilterCommand extends NavigationAbstract {
                 } else {
                     List<Long> newMemberIds = logRecieverList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
                     Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(inviteFilter.getLogReceiverUserIds(), newMemberIds);
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
 
                     inviteFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
                     inviteFilter.setLogReceiverUserIds(newMemberIds);
                     inviteFilter.commitTransaction();
 
@@ -145,8 +145,8 @@ public class InviteFilterCommand extends NavigationAbstract {
                     case 0:
                         inviteFilter.beginTransaction();
                         inviteFilter.setActive(!inviteFilter.getActive());
-                        inviteFilter.commitTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_ACTIVE, event.getMember(), null, inviteFilter.getActive());
+                        inviteFilter.commitTransaction();
 
                         setLog(LogStatus.SUCCESS, getString("onoffset", !inviteFilter.getActive()));
                         return true;
@@ -176,8 +176,8 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS, event.getMember(), null, inviteFilter.getExcludedMemberIds());
                     inviteFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS, event.getMember(), null, inviteFilter.getExcludedMemberIds());
                     inviteFilter.setExcludedMemberIds(Collections.emptyList());
                     inviteFilter.commitTransaction();
 
@@ -192,8 +192,8 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS, event.getMember(), null, inviteFilter.getExcludedChannelIds());
                     inviteFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS, event.getMember(), null, inviteFilter.getExcludedChannelIds());
                     inviteFilter.setExcludedChannelIds(Collections.emptyList());
                     inviteFilter.commitTransaction();
 
@@ -208,8 +208,8 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS, event.getMember(), null, inviteFilter.getLogReceiverUserIds());
                     inviteFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS, event.getMember(), null, inviteFilter.getLogReceiverUserIds());
                     inviteFilter.setLogReceiverUserIds(Collections.emptyList());
                     inviteFilter.commitTransaction();
 
@@ -225,8 +225,9 @@ public class InviteFilterCommand extends NavigationAbstract {
                     return true;
                 } else if (i <= 2) {
                     InviteFilterEntity.Action newAction = InviteFilterEntity.Action.values()[i];
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_ACTION, event.getMember(), inviteFilter.getAction(), newAction);
+
                     inviteFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_ACTION, event.getMember(), inviteFilter.getAction(), newAction);
                     inviteFilter.setAction(newAction);
                     inviteFilter.commitTransaction();
 

@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -95,10 +94,9 @@ public class NavigationHelper<T> {
                     }
                 }
             }
-            guildEntity.commitTransaction();
 
             if (logEvent != null && !added.isEmpty()) {
-                List<String> addedStrings = Collections.emptyList();
+                List<String> addedStrings;
                 if (added.get(0) instanceof MentionableAtomicAsset<?>) {
                     addedStrings = JDAUtil.toIdList((List<MentionableAtomicAsset<?>>) added);
                 } else {
@@ -108,6 +106,7 @@ public class NavigationHelper<T> {
                 }
                 BotLogEntity.log(command.getEntityManager(), logEvent, member, addedStrings, null);
             }
+            guildEntity.commitTransaction();
 
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_add" + typeString, n != 1, String.valueOf(n)));
             command.setState(stateBack);
@@ -127,10 +126,9 @@ public class NavigationHelper<T> {
         } else if (i >= 0 && i < srcList.size()) {
             command.getGuildEntity().beginTransaction();
             T removed = srcList.remove(i);
-            command.getGuildEntity().commitTransaction();
 
             if (logEvent != null) {
-                String removedString = null;
+                String removedString;
                 if (removed instanceof MentionableAtomicAsset<?>) {
                     removedString = ((MentionableAtomicAsset<?>) removed).getId();
                 } else {
@@ -138,6 +136,7 @@ public class NavigationHelper<T> {
                 }
                 BotLogEntity.log(command.getEntityManager(), logEvent, member, null, removedString);
             }
+            command.getGuildEntity().commitTransaction();
 
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_remove" + typeString));
             if (srcList.isEmpty()) {

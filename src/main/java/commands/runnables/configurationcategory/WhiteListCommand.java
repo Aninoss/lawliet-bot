@@ -86,7 +86,10 @@ public class WhiteListCommand extends NavigationAbstract {
                     }
                     case 2 -> {
                         if (!whiteListedChannels.isEmpty()) {
+                            getEntityManager().getTransaction().begin();
                             BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CHANNEL_WHITELIST, event.getMember(), null, JDAUtil.toIdList(whiteListedChannels));
+                            getEntityManager().getTransaction().commit();
+
                             whiteListedChannels.clear();
                             setLog(LogStatus.SUCCESS, getString("channelcleared"));
                         } else {

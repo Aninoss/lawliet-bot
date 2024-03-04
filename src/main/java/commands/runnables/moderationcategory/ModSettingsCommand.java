@@ -87,9 +87,8 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                 } else {
                     TextChannel channel = channelsList.get(0);
                     if (checkWriteEmbedInChannelWithLog(channel)) {
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, event.getMember(), moderation.getLogChannelId(), channel.getIdLong());
-
                         moderation.beginTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, event.getMember(), moderation.getLogChannelId(), channel.getIdLong());
                         moderation.setLogChannelId(channel.getIdLong());
                         moderation.commitTransaction();
 
@@ -137,10 +136,10 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                 if (StringUtil.stringIsInt(input)) {
                     int value = Integer.parseInt(input);
                     if (value >= 1) {
+                        moderation.beginTransaction();
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARNS, event.getMember(), moderation.getAutoKick().getInfractions(), autoKickTemp);
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARN_DAYS, event.getMember(), moderation.getAutoKick().getInfractionDays(), value);
 
-                        moderation.beginTransaction();
                         moderation.getAutoKick().setInfractions(autoKickTemp);
                         moderation.getAutoKick().setInfractionDays(value);
                         moderation.commitTransaction();
@@ -176,11 +175,11 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
             case 7:
                 long minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
+                    moderation.beginTransaction();
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARNS, event.getMember(), moderation.getAutoBan().getInfractions(), autoBanTemp);
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARN_DAYS, event.getMember(), moderation.getAutoBan().getInfractionDays(), autoBanDaysTemp);
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_DURATION, event.getMember(), moderation.getAutoBan().getDurationMinutes(), (int) minutes);
 
-                    moderation.beginTransaction();
                     moderation.getAutoBan().setInfractions(autoBanTemp);
                     moderation.getAutoBan().setInfractionDays(autoBanDaysTemp);
                     moderation.getAutoBan().setDurationMinutes((int) minutes);
@@ -229,11 +228,11 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
             case 10:
                 minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
+                    moderation.beginTransaction();
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARNS, event.getMember(), moderation.getAutoMute().getInfractions(), autoMuteTemp);
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARN_DAYS, event.getMember(), moderation.getAutoMute().getInfractionDays(), autoMuteDaysTemp);
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_DURATION, event.getMember(), moderation.getAutoMute().getDurationMinutes(), (int) minutes);
 
-                    moderation.beginTransaction();
                     moderation.getAutoMute().setInfractions(autoMuteTemp);
                     moderation.getAutoMute().setInfractionDays(autoMuteDaysTemp);
                     moderation.getAutoMute().setDurationMinutes((int) minutes);
@@ -286,11 +285,11 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
             case 15:
                 minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
+                    moderation.beginTransaction();
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARNS, event.getMember(), moderation.getAutoJail().getInfractions(), autoJailTemp);
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARN_DAYS, event.getMember(), moderation.getAutoJail().getInfractionDays(), autoJailDaysTemp);
                     logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_DURATION, event.getMember(), moderation.getAutoJail().getDurationMinutes(), (int) minutes);
 
-                    moderation.beginTransaction();
                     moderation.getAutoJail().setInfractions(autoJailTemp);
                     moderation.getAutoJail().setInfractionDays(autoJailDaysTemp);
                     moderation.getAutoJail().setDurationMinutes((int) minutes);
@@ -312,9 +311,8 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                 } else {
                     TextChannel channel = channelsList.get(0);
                     if (checkWriteEmbedInChannelWithLog(channel)) {
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), channel.getIdLong());
-
                         moderation.beginTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), channel.getIdLong());
                         moderation.setBanAppealLogChannelId(channel.getIdLong());
                         moderation.commitTransaction();
 
@@ -349,9 +347,9 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                     case 1:
                         moderation.beginTransaction();
                         moderation.setConfirmationMessages(!moderation.getConfirmationMessages());
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_CONFIRMATION_MESSAGES, event.getMember(), null, moderation.getConfirmationMessages());
                         moderation.commitTransaction();
 
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_CONFIRMATION_MESSAGES, event.getMember(), null, moderation.getConfirmationMessages());
                         setLog(LogStatus.SUCCESS, getString("setquestion", moderation.getConfirmationMessages()));
                         return true;
 
@@ -398,9 +396,8 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         return true;
 
                     case 0:
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, event.getMember(), moderation.getLogChannelId(), null);
-
                         moderation.beginTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, event.getMember(), moderation.getLogChannelId(), null);
                         moderation.setLogChannelId(null);
                         moderation.commitTransaction();
 
@@ -422,9 +419,9 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         moderation.beginTransaction();
                         moderation.getAutoKick().setInfractions(null);
                         moderation.getAutoKick().setInfractionDays(null);
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_KICK_DISABLE, event.getMember());
                         moderation.commitTransaction();
 
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_KICK_DISABLE, event.getMember());
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
@@ -444,9 +441,9 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         moderation.getAutoBan().setInfractions(null);
                         moderation.getAutoBan().setInfractionDays(null);
                         moderation.getAutoBan().setDurationMinutes(null);
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_BAN_DISABLE, event.getMember());
                         moderation.commitTransaction();
 
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_BAN_DISABLE, event.getMember());
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
@@ -462,10 +459,10 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         return true;
 
                     case 0:
+                        moderation.beginTransaction();
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARNS, event.getMember(), moderation.getAutoKick().getInfractions(), autoKickTemp);
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARN_DAYS, event.getMember(), moderation.getAutoKick().getInfractionDays(), null);
 
-                        moderation.beginTransaction();
                         moderation.getAutoKick().setInfractions(autoKickTemp);
                         moderation.getAutoKick().setInfractionDays(null);
                         moderation.commitTransaction();
@@ -500,11 +497,11 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         return true;
 
                     case 0:
+                        moderation.beginTransaction();
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARNS, event.getMember(), moderation.getAutoBan().getInfractions(), autoBanTemp);
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARN_DAYS, event.getMember(), moderation.getAutoBan().getInfractionDays(), autoBanDaysTemp);
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_DURATION, event.getMember(), moderation.getAutoBan().getDurationMinutes(), null);
 
-                        moderation.beginTransaction();
                         moderation.getAutoBan().setInfractions(autoBanTemp);
                         moderation.getAutoBan().setInfractionDays(autoBanDaysTemp);
                         moderation.getAutoBan().setDurationMinutes(null);
@@ -529,9 +526,9 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         moderation.getAutoMute().setInfractions(null);
                         moderation.getAutoMute().setInfractionDays(null);
                         moderation.getAutoMute().setDurationMinutes(null);
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_MUTE_DISABLE, event.getMember());
                         moderation.commitTransaction();
 
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_MUTE_DISABLE, event.getMember());
                         setLog(LogStatus.SUCCESS, getString("automuteset"));
                         setState(0);
                         return true;
@@ -562,11 +559,11 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         return true;
 
                     case 0:
+                        moderation.beginTransaction();
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARNS, event.getMember(), moderation.getAutoMute().getInfractions(), autoMuteTemp);
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARN_DAYS, event.getMember(), moderation.getAutoMute().getInfractionDays(), autoMuteDaysTemp);
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_DURATION, event.getMember(), moderation.getAutoMute().getDurationMinutes(), null);
 
-                        moderation.beginTransaction();
                         moderation.getAutoMute().setInfractions(autoMuteTemp);
                         moderation.getAutoMute().setInfractionDays(autoMuteDaysTemp);
                         moderation.getAutoMute().setDurationMinutes(null);
@@ -601,9 +598,9 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         moderation.getAutoJail().setInfractions(null);
                         moderation.getAutoJail().setInfractionDays(null);
                         moderation.getAutoJail().setDurationMinutes(null);
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_JAIL_DISABLE, event.getMember());
                         moderation.commitTransaction();
 
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_JAIL_DISABLE, event.getMember());
                         setLog(LogStatus.SUCCESS, getString("autojailset"));
                         setState(0);
                         return true;
@@ -634,11 +631,11 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         return true;
 
                     case 0:
+                        moderation.beginTransaction();
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARNS, event.getMember(), moderation.getAutoJail().getInfractions(), autoJailTemp);
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARN_DAYS, event.getMember(), moderation.getAutoJail().getInfractionDays(), autoJailDaysTemp);
                         logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_DURATION, event.getMember(), moderation.getAutoJail().getDurationMinutes(), null);
 
-                        moderation.beginTransaction();
                         moderation.getAutoJail().setInfractions(autoJailTemp);
                         moderation.getAutoJail().setInfractionDays(autoJailDaysTemp);
                         moderation.getAutoJail().setDurationMinutes(null);
@@ -658,9 +655,8 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                     return true;
                 }
 
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), null);
-
                 moderation.beginTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), null);
                 moderation.setBanAppealLogChannelId(null);
                 moderation.commitTransaction();
 
@@ -813,16 +809,16 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
                 moderationEntity.beginTransaction();
                 moderationEntity.getBanAppeals().remove(bannedUserId);
-                moderationEntity.commitTransaction();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.BAN_APPEAL_UNBAN, event.getMember(), null, null, List.of(bannedUserId));
+                moderationEntity.commitTransaction();
 
                 EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("banappeals_unban"));
             }
             case BUTTON_ID_DECLINE -> {
                 moderationEntity.beginTransaction();
                 moderationEntity.getBanAppeals().remove(bannedUserId);
-                moderationEntity.commitTransaction();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.BAN_APPEAL_DECLINE, event.getMember(), null, null, List.of(bannedUserId));
+                moderationEntity.commitTransaction();
 
                 EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("banappeals_decline"));
             }
@@ -835,8 +831,8 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
                 moderationEntity.beginTransaction();
                 banAppealEntity.setOpen(false);
-                moderationEntity.commitTransaction();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.BAN_APPEAL_DECLINE_PERMANENTLY, event.getMember(), null, null, List.of(bannedUserId));
+                moderationEntity.commitTransaction();
 
                 EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("banappeals_decline_permanently"));
             }

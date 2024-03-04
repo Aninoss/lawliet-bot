@@ -77,9 +77,9 @@ public class WordFilterCommand extends NavigationAbstract {
                 } else {
                     List<Long> newMemberIds = memberIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
                     Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(wordFilter.getExcludedMemberIds(), newMemberIds);
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
 
                     wordFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
                     wordFilter.setExcludedMemberIds(newMemberIds);
                     wordFilter.commitTransaction();
 
@@ -99,9 +99,9 @@ public class WordFilterCommand extends NavigationAbstract {
                 } else {
                     List<Long> newMemberIds = logRecieverList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
                     Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(wordFilter.getLogReceiverUserIds(), newMemberIds);
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
 
                     wordFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
                     wordFilter.setLogReceiverUserIds(newMemberIds);
                     wordFilter.commitTransaction();
 
@@ -137,8 +137,8 @@ public class WordFilterCommand extends NavigationAbstract {
                     case 0:
                         wordFilter.beginTransaction();
                         wordFilter.setActive(!wordFilter.getActive());
-                        wordFilter.commitTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_ACTIVE, event.getMember(), null, wordFilter.getActive());
+                        wordFilter.commitTransaction();
 
                         setLog(LogStatus.SUCCESS, getString("onoffset", !wordFilter.getActive()));
                         return true;
@@ -168,8 +168,8 @@ public class WordFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS, event.getMember(), null, wordFilter.getExcludedMemberIds());
                     wordFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS, event.getMember(), null, wordFilter.getExcludedMemberIds());
                     wordFilter.setExcludedMemberIds(Collections.emptyList());
                     wordFilter.commitTransaction();
 
@@ -184,8 +184,8 @@ public class WordFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS, event.getMember(), null, wordFilter.getLogReceiverUserIds());
                     wordFilter.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS, event.getMember(), null, wordFilter.getLogReceiverUserIds());
                     wordFilter.setLogReceiverUserIds(Collections.emptyList());
                     wordFilter.commitTransaction();
 

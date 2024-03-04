@@ -59,10 +59,10 @@ class DashboardMultiRolesComboBox(
                     if (!checkManageable || (BotPermissionUtil.canManage(role) && BotPermissionUtil.can(guild.selfMember, Permission.MANAGE_ROLES))) {
                         guildEntity.beginTransaction()
                         selectedRoles += event.data.toLong()
-                        guildEntity.commitTransaction()
                         if (botLogEvent != null) {
                             BotLogEntity.log(dashboardCategory.entityManager, botLogEvent, guildId, memberId, event.data, null)
                         }
+                        guildEntity.commitTransaction()
                         return@setActionListener ActionResult()
                     } else {
                         val text = TextManager.getString(dashboardCategory.locale, TextManager.GENERAL, "permission_role", false, "\"${role!!.name}\"")
@@ -73,10 +73,10 @@ class DashboardMultiRolesComboBox(
                 } else if (event.type == "remove") {
                     guildEntity.beginTransaction()
                     selectedRoles -= event.data.toLong()
-                    guildEntity.commitTransaction()
                     if (botLogEvent != null) {
                         BotLogEntity.log(dashboardCategory.entityManager, botLogEvent, guildId, memberId, null, event.data)
                     }
+                    guildEntity.commitTransaction()
                     return@setActionListener ActionResult()
                 } else {
                     return@setActionListener ActionResult()

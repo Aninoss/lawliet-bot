@@ -267,11 +267,13 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         val sendButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_send", mode.ordinal)) {
             if (mode != Mode.REROLL) {
+                entityManager.transaction.begin()
                 if (mode == Mode.OVERVIEW) {
                     BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_ADD, atomicMember, article)
                 } else {
                     BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_EDIT, atomicMember, previousArticle)
                 }
+                entityManager.transaction.commit()
                 return@DashboardButton confirm(guild, false)
             } else {
                 val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
@@ -284,7 +286,10 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
                 val messageExists = GiveawayScheduler.processGiveawayUsers(giveawayData, winners.toInt(), true).get()
                 if (messageExists) {
+                    entityManager.transaction.begin()
                     BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REROLL, atomicMember, article)
+                    entityManager.transaction.commit()
+
                     switchMode(Mode.OVERVIEW)
                     return@DashboardButton ActionResult()
                         .withRedrawScrollToTop()
@@ -301,7 +306,10 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         if (mode == Mode.EDIT) {
             val endPrematurelyButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_endpre")) {
+                entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_END, atomicMember, previousArticle)
+                entityManager.transaction.commit()
+
                 return@DashboardButton confirm(guild, true)
             }
             endPrematurelyButton.style = DashboardButton.Style.PRIMARY
@@ -310,7 +318,10 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         if (mode == Mode.REROLL) {
             val removeButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_state13_delete")) {
+                entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REMOVE, atomicMember, article)
+                entityManager.transaction.commit()
+
                 DBGiveaway.getInstance().retrieve(guild.getIdLong()).remove(messageId)
                 switchMode(Mode.OVERVIEW)
                 ActionResult()

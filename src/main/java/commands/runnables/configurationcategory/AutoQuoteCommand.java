@@ -30,7 +30,10 @@ public class AutoQuoteCommand extends CommandOnOffSwitchAbstract {
     @Override
     protected boolean setActive(Member member, boolean active) {
         DBAutoQuote.getInstance().retrieve(member.getGuild().getIdLong()).setActive(active);
+
+        getEntityManager().getTransaction().begin();
         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_QUOTE, member, null, active);
+        getEntityManager().getTransaction().commit();
         return true;
     }
 

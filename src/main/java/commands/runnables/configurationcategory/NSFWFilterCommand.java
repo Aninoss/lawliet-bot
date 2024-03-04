@@ -76,6 +76,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
         }
 
         int n = 0;
+        getEntityManager().getTransaction().begin();
         for (String str : mentionedKeywords) {
             if (!keywords.contains(str) && keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.NSFW_FILTER, event.getMember(), str, null);
@@ -83,6 +84,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
                 n++;
             }
         }
+        getEntityManager().getTransaction().commit();
 
         setLog(LogStatus.SUCCESS, getString("keywordadd", n != 1, String.valueOf(n)));
         setState(0);
@@ -128,7 +130,10 @@ public class NSFWFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i >= 0 && i < keywords.size()) {
+                    getEntityManager().getTransaction().begin();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.NSFW_FILTER, event.getMember(), null, keywords.get(i));
+                    getEntityManager().getTransaction().commit();
+
                     keywords.remove(i);
                     setLog(LogStatus.SUCCESS, getString("keywordremove"));
                     if (keywords.isEmpty()) setState(0);

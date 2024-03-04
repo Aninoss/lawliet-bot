@@ -74,8 +74,9 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 }
 
                 val language = Language.valueOf(it.data)
-                BotLogEntity.log(entityManager, BotLogEntity.Event.LANGUAGE, atomicMember, guildEntity.language, language)
+
                 guildEntity.beginTransaction()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.LANGUAGE, atomicMember, guildEntity.language, language)
                 guildEntity.language = language
                 guildEntity.commitTransaction()
 
@@ -94,8 +95,8 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 }
 
                 val prefix = it.data
-                BotLogEntity.log(entityManager, BotLogEntity.Event.PREFIX, atomicMember, guildEntity.prefix, prefix)
-                Prefix.changePrefix(guild, locale, prefix, guildEntity)
+
+                Prefix.changePrefix(guild.selfMember, locale, prefix, guildEntity)
                 ActionResult()
             }
             prefixField.value = guildEntity.prefix
@@ -112,7 +113,10 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withRedraw()
             }
 
+            guildEntity.beginTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_QUOTE, atomicMember, null, it.data)
+            entityManager.transaction.commit()
+
             DBAutoQuote.getInstance().retrieve(atomicGuild.idLong).isActive = it.data
             ActionResult()
         }
@@ -131,8 +135,9 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             guildEntity.beginTransaction()
             guildEntity.removeAuthorMessage = it.data
-            guildEntity.commitTransaction()
             BotLogEntity.log(entityManager, BotLogEntity.Event.REMOVE_AUTHOR_MESSAGE, atomicMember, null, it.data)
+            guildEntity.commitTransaction()
+
             ActionResult()
         }
         switch.isChecked = guildEntity.removeAuthorMessageEffectively

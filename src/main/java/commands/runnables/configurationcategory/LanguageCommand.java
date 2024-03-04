@@ -62,8 +62,8 @@ public class LanguageCommand extends Command implements OnStringSelectMenuListen
                 setLocale(language.getLocale());
 
                 GuildEntity guildEntity = getGuildEntity();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.LANGUAGE, event.getMember(), guildEntity.getLanguage(), language);
                 guildEntity.beginTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.LANGUAGE, event.getMember(), guildEntity.getLanguage(), language);
                 guildEntity.setLanguage(language);
                 guildEntity.commitTransaction();
 
@@ -97,8 +97,8 @@ public class LanguageCommand extends Command implements OnStringSelectMenuListen
         setLocale(language.getLocale());
 
         GuildEntity guildEntity = getGuildEntity();
-        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.LANGUAGE, event.getMember(), guildEntity.getLanguage(), language);
         guildEntity.beginTransaction();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.LANGUAGE, event.getMember(), guildEntity.getLanguage(), language);
         guildEntity.setLanguage(language);
         guildEntity.commitTransaction();
 

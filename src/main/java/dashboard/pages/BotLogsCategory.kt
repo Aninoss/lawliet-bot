@@ -4,7 +4,6 @@ import commands.Category
 import commands.Command
 import commands.runnables.informationcategory.BotLogsCommand
 import core.TextManager
-import core.utils.MentionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -81,8 +80,7 @@ class BotLogsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .append(TimeFormat.DATE_TIME_SHORT.atInstant(botLog.timeUpdate!!).toString())
         }
 
-        val targetedUserString = MentionUtil.getMentionedStringOfDiscriminatedUsers(locale, botLog.targetedUserList).mentionText.replace("**", "")
-        val desc = getString(TextManager.LOGS, "event_" + botLog.event.name, atomicMember.getTaggedName(locale), targetedUserString)
+        val desc = BotLogs.getMessage(locale, botLog, false)
         val header = DashboardText("$timeString｜$desc")
         return ExpandableContainer(VerticalContainer(header), generateBotLogValuesFields(botLog))
     }

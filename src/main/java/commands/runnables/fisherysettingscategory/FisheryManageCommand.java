@@ -229,14 +229,20 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         List<Long> memberIds = fisheryMemberGroup.getFisheryMemberList().stream()
                 .map(FisheryMemberData::getMemberId)
                 .collect(Collectors.toList());
+
+        getEntityManager().getTransaction().begin();
         BotLogEntity.log(getEntityManager(), logEvent, member, valueBefore, valueNow, memberIds);
+        getEntityManager().getTransaction().commit();
     }
 
     private void logReset(Member member) {
         List<Long> memberIds = fisheryMemberGroup.getFisheryMemberList().stream()
                 .map(FisheryMemberData::getMemberId)
                 .collect(Collectors.toList());
+
+        getEntityManager().getTransaction().begin();
         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_MANAGE_RESET, member, null, null, memberIds);
+        getEntityManager().getTransaction().commit();
     }
 
     private String emojiOfProperty(int i) {

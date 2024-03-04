@@ -302,13 +302,19 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             ).get(5, TimeUnit.SECONDS)
 
             if (editMode) {
+                entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.REACTION_ROLES_EDIT, atomicMember, previousTitle)
+                entityManager.transaction.commit()
+
                 switchMode(false)
                 ActionResult()
                         .withSuccessMessage(getString(Category.CONFIGURATION, "reactionroles_state9_description"))
                         .withRedrawScrollToTop()
             } else {
+                entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.REACTION_ROLES_ADD, atomicMember, newTitle)
+                entityManager.transaction.commit()
+
                 switchMode(false)
                 ActionResult()
                         .withSuccessMessage(getString(Category.CONFIGURATION, "reactionroles_state9_description"))

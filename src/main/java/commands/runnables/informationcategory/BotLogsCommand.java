@@ -4,8 +4,6 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
 import constants.Emojis;
-import core.TextManager;
-import core.utils.MentionUtil;
 import javafx.util.Pair;
 import modules.BotLogs;
 import mysql.hibernate.entity.BotLogEntity;
@@ -72,9 +70,6 @@ public class BotLogsCommand extends ListAbstract {
             return new Pair<>(deleted, "> " + deleted);
         }
 
-        String memberString = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), List.of(member.getUser())).getMentionText();
-        String targetedUserString = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), botLog.getTargetedUserList()).getMentionText();
-
         StringBuilder title = new StringBuilder();
         if (botLog.getEvent().getValuesRelationship() != BotLogEntity.ValuesRelationship.EMPTY) {
             title.append(Emojis.LETTERS[expandableEntries.size()].getFormatted())
@@ -92,7 +87,8 @@ public class BotLogsCommand extends ListAbstract {
                     .append(" - ")
                     .append(TimeFormat.DATE_TIME_SHORT.atInstant(botLog.getTimeUpdate()));
         }
-        String message = TextManager.getString(getLocale(), TextManager.LOGS, "event_" + botLog.getEvent().name(), memberString, targetedUserString);
+
+        String message = BotLogs.getMessage(getLocale(), botLog, true);
         return new Pair<>(title.toString(), getString("slot", message));
     }
 

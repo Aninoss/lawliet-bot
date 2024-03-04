@@ -33,8 +33,8 @@ public class TriggerDeleteCommand extends CommandOnOffSwitchAbstract {
     protected boolean setActive(Member member, boolean active) {
         getGuildEntity().beginTransaction();
         getGuildEntity().setRemoveAuthorMessage(active);
-        getGuildEntity().commitTransaction();
         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.REMOVE_AUTHOR_MESSAGE, member, null, active);
+        getGuildEntity().commitTransaction();
         return true;
     }
 

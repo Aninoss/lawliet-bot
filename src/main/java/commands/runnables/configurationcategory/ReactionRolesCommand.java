@@ -446,11 +446,14 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                     return true;
                 }
 
+                getEntityManager().getTransaction().begin();
                 if (editMode) {
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.REACTION_ROLES_EDIT, event.getMember(), previousTitle);
                 } else {
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.REACTION_ROLES_ADD, event.getMember(), title);
                 }
+                getEntityManager().getTransaction().commit();
+
                 ReactionRoles.sendMessage(getLocale(), textChannel, title, description, slots, roleRequirements, removeRole,
                         multipleRoles, showRoleConnections, newComponents, showRoleNumbers, banner, editMode, editMessageId
                 ).get(5, TimeUnit.SECONDS);

@@ -67,7 +67,10 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
                         .withRedraw()
             }
 
+            entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_PERMISSIONS_TRANSFER, atomicMember)
+            entityManager.transaction.commit()
+
             val actionResult = ActionResult()
             if (CommandPermissions.transferCommandPermissions(guild)) {
                 actionResult.withSuccessMessage(getString(Category.CONFIGURATION, "cperms_success"))
@@ -138,10 +141,16 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
 
             if (it.type == "add") {
                 commandManagementData.switchedOffElements += it.data
+
+                entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_MANAGEMENT, atomicMember, it.data, null)
+                entityManager.transaction.commit()
             } else if (it.type == "remove") {
                 commandManagementData.switchedOffElements -= it.data
+
+                entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_MANAGEMENT, atomicMember, null, it.data)
+                entityManager.transaction.commit()
             }
             ActionResult()
         }

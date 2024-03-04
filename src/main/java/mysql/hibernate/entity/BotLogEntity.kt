@@ -2,6 +2,18 @@ package mysql.hibernate.entity
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import commands.Category
+import commands.Command
+import commands.runnables.configurationcategory.*
+import commands.runnables.fisherysettingscategory.FisheryCommand
+import commands.runnables.fisherysettingscategory.FisheryManageCommand
+import commands.runnables.fisherysettingscategory.FisheryRolesCommand
+import commands.runnables.fisherysettingscategory.VCTimeCommand
+import commands.runnables.invitetrackingcategory.InviteTrackingCommand
+import commands.runnables.moderationcategory.InviteFilterCommand
+import commands.runnables.moderationcategory.ModSettingsCommand
+import commands.runnables.moderationcategory.WordFilterCommand
+import core.MainLogger
 import core.ShardManager
 import core.atomicassets.AtomicMember
 import mysql.hibernate.EntityManagerWrapper
@@ -39,47 +51,49 @@ class BotLogEntity(
         EMPTY, OLD_AND_NEW, ADD_AND_REMOVE, SINGLE_VALUE_COLUMN
     }
 
-    enum class Event(val valuesRelationship: ValuesRelationship = ValuesRelationship.EMPTY, val valueType: ValueType? = null) {
+    enum class Event(val valuesRelationship: ValuesRelationship = ValuesRelationship.EMPTY, val valueType: ValueType? = null,
+                     val commandClass: Class<out Command>? = null, val valueNameTextKey: String? = null, val valueNameTextCategory: Category? = null
+    ) {
         NULL,
-        LANGUAGE(ValuesRelationship.OLD_AND_NEW, ValueType.TEXT_KEY),
-        PREFIX(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        AUTO_QUOTE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        REMOVE_AUTHOR_MESSAGE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        COMMAND_MANAGEMENT(ValuesRelationship.ADD_AND_REMOVE, ValueType.COMMAND_CATEGORY),
-        CHANNEL_WHITELIST(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL),
+        LANGUAGE(ValuesRelationship.OLD_AND_NEW, ValueType.TEXT_KEY, LanguageCommand::class.java),
+        PREFIX(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, PrefixCommand::class.java),
+        AUTO_QUOTE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, AutoQuoteCommand::class.java),
+        REMOVE_AUTHOR_MESSAGE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, TriggerDeleteCommand::class.java),
+        COMMAND_MANAGEMENT(ValuesRelationship.ADD_AND_REMOVE, ValueType.COMMAND_CATEGORY, CommandManagementCommand::class.java),
+        CHANNEL_WHITELIST(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL, WhiteListCommand::class.java),
         COMMAND_PERMISSIONS_TRANSFER,
-        FISHERY_STATUS(ValuesRelationship.OLD_AND_NEW, ValueType.TEXT_KEY),
+        FISHERY_STATUS(ValuesRelationship.OLD_AND_NEW, ValueType.TEXT_KEY, FisheryCommand::class.java, "fishery_state0_mstatus"),
         FISHERY_DATA_RESET,
-        FISHERY_TREASURE_CHESTS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        FISHERY_POWER_UPS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        FISHERY_FISH_REMINDERS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        FISHERY_COIN_GIFT_LIMIT(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        FISHERY_TREASURE_CHEST_PROBABILITY(ValuesRelationship.OLD_AND_NEW, ValueType.DOUBLE),
-        FISHERY_POWER_UP_PROBABILITY(ValuesRelationship.OLD_AND_NEW, ValueType.DOUBLE),
-        FISHERY_EXCLUDED_CHANNELS(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL),
-        FISHERY_VOICE_HOURS_LIMIT(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER),
-        FISHERY_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE),
-        FISHERY_ROLES_UPGRADE_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL),
-        FISHERY_ROLES_PRICE_MIN(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER),
-        FISHERY_ROLES_PRICE_MAX(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER),
-        FISHERY_ROLES_SINGLE_ROLES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        FISHERY_MANAGE_FISH(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_COINS(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_DAILY_STREAK(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_ROD(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_ROBOT(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_NET(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_METAL_DETECTOR(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_ROLE(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_SURVEYS(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
-        FISHERY_MANAGE_WORK(ValuesRelationship.OLD_AND_NEW, ValueType.STRING),
+        FISHERY_TREASURE_CHESTS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryCommand::class.java, "fishery_dashboard_treasurechests"),
+        FISHERY_POWER_UPS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryCommand::class.java, "fishery_dashboard_powerups"),
+        FISHERY_FISH_REMINDERS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryCommand::class.java, "fishery_dashboard_reminders"),
+        FISHERY_COIN_GIFT_LIMIT(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryCommand::class.java, "fishery_dashboard_coingiftlimit"),
+        FISHERY_TREASURE_CHEST_PROBABILITY(ValuesRelationship.OLD_AND_NEW, ValueType.DOUBLE, FisheryCommand::class.java, "fishery_probabilities_treasure"),
+        FISHERY_POWER_UP_PROBABILITY(ValuesRelationship.OLD_AND_NEW, ValueType.DOUBLE, FisheryCommand::class.java, "fishery_probabilities_powerups"),
+        FISHERY_EXCLUDED_CHANNELS(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL, FisheryCommand::class.java, "fishery_state0_mchannels"),
+        FISHERY_VOICE_HOURS_LIMIT(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER, VCTimeCommand::class.java),
+        FISHERY_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, FisheryRolesCommand::class.java, "fisheryroles_state0_mroles"),
+        FISHERY_ROLES_UPGRADE_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, FisheryRolesCommand::class.java, "fisheryroles_state0_mannouncementchannel"),
+        FISHERY_ROLES_PRICE_MIN(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER, FisheryRolesCommand::class.java, "fisheryroles_firstprice"),
+        FISHERY_ROLES_PRICE_MAX(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER, FisheryRolesCommand::class.java, "fisheryroles_lastprice"),
+        FISHERY_ROLES_SINGLE_ROLES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryRolesCommand::class.java, "fisheryroles_state0_msinglerole_raw"),
+        FISHERY_MANAGE_FISH(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "fisherymanage_type_fish"),
+        FISHERY_MANAGE_COINS(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "fisherymanage_type_coins"),
+        FISHERY_MANAGE_DAILY_STREAK(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "fisherymanage_type_dailystreak"),
+        FISHERY_MANAGE_ROD(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "buy_product_0_0", Category.FISHERY),
+        FISHERY_MANAGE_ROBOT(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "buy_product_1_0", Category.FISHERY),
+        FISHERY_MANAGE_NET(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "buy_product_2_0", Category.FISHERY),
+        FISHERY_MANAGE_METAL_DETECTOR(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "buy_product_3_0", Category.FISHERY),
+        FISHERY_MANAGE_ROLE(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "buy_product_4_0", Category.FISHERY),
+        FISHERY_MANAGE_SURVEYS(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "buy_product_5_0", Category.FISHERY),
+        FISHERY_MANAGE_WORK(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "buy_product_6_0", Category.FISHERY),
         FISHERY_MANAGE_RESET,
-        ALERTS(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING),
-        NSFW_FILTER(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING),
-        MOD_NOTIFICATION_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL),
-        MOD_CONFIRMATION_MESSAGES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        MOD_JAIL_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE),
-        MOD_BAN_APPEAL_LOG_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL),
+        ALERTS(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING, AlertsCommand::class.java),
+        NSFW_FILTER(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING, NSFWFilterCommand::class.java),
+        MOD_NOTIFICATION_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, ModSettingsCommand::class.java, "mod_state0_mchannel"),
+        MOD_CONFIRMATION_MESSAGES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, ModSettingsCommand::class.java, "mod_state0_mquestion"),
+        MOD_JAIL_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, ModSettingsCommand::class.java, "mod_state0_mjailroles"),
+        MOD_BAN_APPEAL_LOG_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, ModSettingsCommand::class.java, "mod_state0_mbanappeallogchannel"),
         MOD_AUTO_MUTE_DISABLE,
         MOD_AUTO_MUTE_WARNS(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER),
         MOD_AUTO_MUTE_WARN_DAYS(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER),
@@ -98,19 +112,19 @@ class BotLogEntity(
         BAN_APPEAL_UNBAN,
         BAN_APPEAL_DECLINE,
         BAN_APPEAL_DECLINE_PERMANENTLY,
-        INVITE_FILTER_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        INVITE_FILTER_EXCLUDED_MEMBERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER),
-        INVITE_FILTER_EXCLUDED_CHANNELS(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL),
-        INVITE_FILTER_LOG_RECEIVERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER),
-        INVITE_FILTER_ACTION(ValuesRelationship.OLD_AND_NEW, ValueType.TEXT_KEY),
-        WORD_FILTER_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        WORD_FILTER_EXCLUDED_MEMBERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER),
-        WORD_FILTER_LOG_RECEIVERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER),
-        WORD_FILTER_WORDS(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING),
-        INVITE_TRACKING_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        INVITE_TRACKING_LOG_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL),
-        INVITE_TRACKING_PING_MEMBERS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
-        INVITE_TRACKING_ADVANCED_STATISTICS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN),
+        INVITE_FILTER_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, InviteFilterCommand::class.java, "invitefilter_state0_menabled"),
+        INVITE_FILTER_EXCLUDED_MEMBERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER, InviteFilterCommand::class.java, "invitefilter_state0_mignoredusers"),
+        INVITE_FILTER_EXCLUDED_CHANNELS(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL, InviteFilterCommand::class.java, "invitefilter_state0_mignoredchannels"),
+        INVITE_FILTER_LOG_RECEIVERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER, InviteFilterCommand::class.java, "invitefilter_state0_mlogreciever"),
+        INVITE_FILTER_ACTION(ValuesRelationship.OLD_AND_NEW, ValueType.TEXT_KEY, InviteFilterCommand::class.java, "invitefilter_state0_maction"),
+        WORD_FILTER_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WordFilterCommand::class.java, "wordfilter_state0_menabled"),
+        WORD_FILTER_EXCLUDED_MEMBERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER, WordFilterCommand::class.java, "wordfilter_state0_mignoredusers"),
+        WORD_FILTER_LOG_RECEIVERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER, WordFilterCommand::class.java, "wordfilter_state0_mlogreciever"),
+        WORD_FILTER_WORDS(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING, WordFilterCommand::class.java, "wordfilter_state0_mwords"),
+        INVITE_TRACKING_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, InviteTrackingCommand::class.java, "invitetracking_state0_mactive"),
+        INVITE_TRACKING_LOG_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, InviteTrackingCommand::class.java, "invitetracking_state0_mchannel"),
+        INVITE_TRACKING_PING_MEMBERS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, InviteTrackingCommand::class.java, "invitetracking_state0_mping"),
+        INVITE_TRACKING_ADVANCED_STATISTICS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, InviteTrackingCommand::class.java, "invitetracking_state0_madvanced"),
         INVITE_TRACKING_FAKE_INVITES(ValuesRelationship.ADD_AND_REMOVE, ValueType.MEMBER),
         INVITE_TRACKING_FAKE_INVITES_RESET,
         INVITE_TRACKING_RESET,
@@ -121,9 +135,9 @@ class BotLogEntity(
         GIVEAWAYS_REROLL(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
         REACTION_ROLES_ADD(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
         REACTION_ROLES_EDIT(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
-        AUTO_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE),
+        AUTO_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, AutoRolesCommand::class.java),
         AUTO_ROLES_SYNC,
-        STICKY_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE),
+        STICKY_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, StickyRolesCommand::class.java),
     }
 
 
@@ -179,6 +193,11 @@ class BotLogEntity(
         fun log(entityManager: EntityManagerWrapper, event: Event, guildId: Long, memberId: Long,
                 values0: Any? = null, values1: Any? = null, targetMemberIds: List<Long>? = null
         ) {
+            if (!entityManager.transaction.isActive) {
+                MainLogger.get().error("Bot log failed due to no active transaction for event {}", event.name)
+                return
+            }
+
             val newValues0 = anyValueToMutableStringList(values0)
             val newValues1 = anyValueToMutableStringList(values1)
             val newTargetMemberIds: List<Long> = targetMemberIds?.subList(0, min(6, targetMemberIds.size))
@@ -194,7 +213,6 @@ class BotLogEntity(
             if (lastLog != null && event == lastLog.event && memberId == lastLog.memberId && newTargetMemberIds == lastLog.targetMemberIds) {
                 val logEntity = entityManager.find(BotLogEntity::class.java, lastLog.id)
                 if (logEntity != null) {
-                    entityManager.transaction.begin()
                     logEntity.timestampUpdate = Instant.now().epochSecond
 
                     when (event.valuesRelationship) {
@@ -220,19 +238,15 @@ class BotLogEntity(
                             }
                         }
                     }
-
-                    entityManager.transaction.commit()
                     return
                 }
             }
 
             val log = BotLogEntity(UUID.randomUUID(), guildId, event, memberId, newTargetMemberIds,
                     Instant.now().epochSecond, null, newValues0.toMutableList(), newValues1)
-            entityManager.transaction.begin()
             entityManager.persist(log)
-            entityManager.transaction.commit()
-
             entityManager.detach(log)
+
             lastLogCache.put(guildId, log)
         }
 

@@ -68,7 +68,11 @@ public class InviteTrackingCommand extends NavigationAbstract {
             TextChannel channel = channelList.get(0);
             if (BotPermissionUtil.canWriteEmbed(channel)) {
                 long newChannelId = channelList.get(0).getIdLong();
+
+                getEntityManager().getTransaction().begin();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, event.getMember(), inviteTrackingData.getTextChannelId().orElse(null), newChannelId);
+                getEntityManager().getTransaction().commit();
+
                 inviteTrackingData.setChannelId(channelList.get(0).getIdLong());
                 setLog(LogStatus.SUCCESS, getString("channelset"));
                 setState(0);
@@ -89,7 +93,11 @@ public class InviteTrackingCommand extends NavigationAbstract {
             }
             case 0 -> {
                 inviteTrackingData.toggleActive();
+
+                getEntityManager().getTransaction().begin();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_ACTIVE, event.getMember(), null, inviteTrackingData.isActive());
+                getEntityManager().getTransaction().commit();
+
                 setLog(LogStatus.SUCCESS, getString("activeset", inviteTrackingData.isActive()));
                 if (inviteTrackingData.isActive()) {
                     InviteTracking.synchronizeGuildInvites(event.getGuild(), getLocale());
@@ -104,14 +112,22 @@ public class InviteTrackingCommand extends NavigationAbstract {
             }
             case 2 -> {
                 inviteTrackingData.togglePing();
+
+                getEntityManager().getTransaction().begin();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_PING_MEMBERS, event.getMember(), null, inviteTrackingData.getPing());
+                getEntityManager().getTransaction().commit();
+
                 setLog(LogStatus.SUCCESS, getString("pingset", inviteTrackingData.getPing()));
                 resetLog = true;
                 return true;
             }
             case 3 -> {
                 inviteTrackingData.toggleAdvanced();
+
+                getEntityManager().getTransaction().begin();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_ADVANCED_STATISTICS, event.getMember(), null, inviteTrackingData.isAdvanced());
+                getEntityManager().getTransaction().commit();
+
                 setLog(LogStatus.SUCCESS, getString("advancedset", inviteTrackingData.isAdvanced()));
                 resetLog = true;
                 return true;
@@ -122,7 +138,11 @@ public class InviteTrackingCommand extends NavigationAbstract {
                     setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                 } else {
                     DBInviteTracking.getInstance().resetInviteTrackerSlots(event.getGuild().getIdLong());
+
+                    getEntityManager().getTransaction().begin();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_RESET, event.getMember());
+                    getEntityManager().getTransaction().commit();
+
                     inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
                     resetLog = true;
                     setLog(LogStatus.SUCCESS, getString("reset"));
@@ -140,7 +160,10 @@ public class InviteTrackingCommand extends NavigationAbstract {
             setState(0);
             return true;
         } else if (i == 0) {
+            getEntityManager().getTransaction().begin();
             BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, event.getMember(), inviteTrackingData.getTextChannelId().orElse(null), null);
+            getEntityManager().getTransaction().commit();
+
             inviteTrackingData.setChannelId(null);
             setLog(LogStatus.SUCCESS, getString("channelset"));
             setState(0);

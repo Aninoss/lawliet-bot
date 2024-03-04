@@ -89,8 +89,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
                             roleIds.add(role.getId());
                         }
                     }
-                    fishery.commitTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), roleIds, null);
+                    fishery.commitTransaction();
 
                     int rolesAdded = roleIds.size();
                     setLog(LogStatus.SUCCESS, getString("roleadd", (rolesAdded - existingRoles) != 1, String.valueOf(rolesAdded)));
@@ -106,8 +106,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 } else {
                     TextChannel channel = channelList.get(0);
                     if (checkWriteEmbedInChannelWithLog(channel)) {
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), channel.getIdLong());
                         fishery.beginTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), channel.getIdLong());
                         fishery.setRoleUpgradeChannelId(channel.getIdLong());
                         fishery.commitTransaction();
 
@@ -129,9 +129,9 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         if (priceMin == -1) priceMin = fishery.getRolePriceMin();
                         if (priceMax == -1) priceMax = fishery.getRolePriceMax();
 
+                        fishery.beginTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_PRICE_MIN, event.getMember(), fishery.getRolePriceMin(), priceMin);
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_PRICE_MAX, event.getMember(), fishery.getRolePriceMax(), priceMax);
-                        fishery.beginTransaction();
                         fishery.setRolePriceMin(priceMin);
                         fishery.setRolePriceMax(priceMax);
                         fishery.commitTransaction();
@@ -185,8 +185,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     case 2:
                         fishery.beginTransaction();
                         fishery.setSingleRoles(!fishery.getSingleRoles());
-                        fishery.commitTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_SINGLE_ROLES, event.getMember(), null, fishery.getSingleRoles());
+                        fishery.commitTransaction();
 
                         setLog(LogStatus.SUCCESS, getString("singleroleset", fishery.getSingleRoles()));
                         return true;
@@ -220,8 +220,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 } else if (i < roles.size()) {
                     fishery.beginTransaction();
                     fishery.getRoleIds().remove(roles.get(i).getIdLong());
-                    fishery.commitTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), null, roles.get(i).getId());
+                    fishery.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
                     if (getRoles().isEmpty()) {
@@ -236,8 +236,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), null);
                     fishery.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), null);
                     fishery.setRoleUpgradeChannelId(null);
                     fishery.commitTransaction();
 

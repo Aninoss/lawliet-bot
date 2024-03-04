@@ -83,7 +83,11 @@ public class CommandManagementCommand extends NavigationAbstract {
         }
 
         commandManagementData.getSwitchedOffElements().addAll(newCommands);
+
+        getEntityManager().getTransaction().begin();
         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), newCommands, null);
+        getEntityManager().getTransaction().commit();
+
         setLog(LogStatus.SUCCESS, getString("addcommands_set", newCommands.size() != 1, StringUtil.numToString(newCommands.size())));
         setState(MAIN);
         return MessageInputResponse.SUCCESS;
@@ -147,7 +151,10 @@ public class CommandManagementCommand extends NavigationAbstract {
             String trigger = event.getButton().getLabel();
             if (switchedOffElements.contains(trigger)) {
                 switchedOffElements.remove(trigger);
+
+                getEntityManager().getTransaction().begin();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), null, trigger);
+                getEntityManager().getTransaction().commit();
             }
 
             setLog(LogStatus.SUCCESS, getString("commandremoved", trigger));
@@ -177,7 +184,10 @@ public class CommandManagementCommand extends NavigationAbstract {
             }
         }
 
+        getEntityManager().getTransaction().begin();
         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), added, removed);
+        getEntityManager().getTransaction().commit();
+
         setLog(LogStatus.SUCCESS, getString("categoryset_set"));
         setState(MAIN);
         return true;
