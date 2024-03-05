@@ -153,6 +153,17 @@ class BotLogEntity(
         WELCOME_LEAVE_TEXT(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, WelcomeCommand::class.java, "welcome_logs_leave_text"),
         WELCOME_LEAVE_EMBEDS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, WelcomeCommand::class.java, "welcome_logs_leave_embed"),
         WELCOME_LEAVE_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, WelcomeCommand::class.java, "welcome_logs_leave_channel"),
+        TICKETS_CREATE_TICKET_MESSAGE(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
+        TICKETS_LOG_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, TicketCommand::class.java, "ticket_state0_mannouncement"),
+        TICKETS_STAFF_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, TicketCommand::class.java, "ticket_state0_mstaffroles"),
+        TICKETS_ASSIGNMENT_MODE(ValuesRelationship.OLD_AND_NEW, ValueType.TEXT_KEY, TicketCommand::class.java, "ticket_state0_massign"),
+        TICKETS_PING_STAFF_ROLES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, TicketCommand::class.java, "ticket_state0_mping"),
+        TICKETS_ENFORCE_MODAL(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, TicketCommand::class.java, "ticket_state0_mtextinput"),
+        TICKETS_GREETING_TEXT(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, TicketCommand::class.java, "ticket_state0_mcreatemessage"),
+        TICKETS_MEMBERS_CAN_CLOSE_TICKETS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, TicketCommand::class.java, "ticket_state0_mmembercanclose"),
+        TICKETS_PROTOCOLS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, TicketCommand::class.java, "ticket_state0_mprotocol"),
+        TICKETS_DELETE_CHANNELS_ON_CLOSE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, TicketCommand::class.java, "ticket_state0_mdeletechannel"),
+        TICKETS_AUTO_CLOSE(ValuesRelationship.OLD_AND_NEW, ValueType.DURATION, TicketCommand::class.java, "ticket_state0_mcloseoninactivity"),
     }
 
 

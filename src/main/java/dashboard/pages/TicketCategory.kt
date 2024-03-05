@@ -16,6 +16,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.Ticket
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.hibernate.entity.guild.TicketsEntity
 import net.dv8tion.jda.api.Permission
@@ -74,6 +75,10 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val sendButton = DashboardButton(getString(category = Category.CONFIGURATION, "ticket_state4_title")) {
             val error = Ticket.sendTicketMessage(locale, atomicGuild.get().get().getTextChannelById(createMessageChannelId!!))
             if (error == null) {
+                entityManager.transaction.begin()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, atomicMember, createMessageChannelId!!)
+                entityManager.transaction.commit()
+
                 return@DashboardButton ActionResult()
                         .withSuccessMessage(getString(Category.CONFIGURATION, "ticket_message_sent"))
             } else {
@@ -118,6 +123,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
             }
 
             ticketsEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_LOG_CHANNEL, atomicMember, ticketsEntity.logChannelId, channel.idLong)
             ticketsEntity.logChannelId = channel.idLong
             ticketsEntity.commitTransaction()
             return@DashboardTextChannelComboBox ActionResult()
@@ -133,7 +139,9 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 { it.tickets.staffRoleIds },
                 true,
                 TicketCommand.MAX_STAFF_ROLES,
-                false
+                false,
+                null,
+                BotLogEntity.Event.TICKETS_STAFF_ROLES
         )
         staffContainer.add(staffRoles)
 
@@ -147,6 +155,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 1
         ) {
             ticketsEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_ASSIGNMENT_MODE, atomicMember, ticketsEntity.assignmentMode, TicketsEntity.AssignmentMode.values()[it.data.toInt()])
             ticketsEntity.assignmentMode = TicketsEntity.AssignmentMode.values()[it.data.toInt()]
             ticketsEntity.commitTransaction()
             return@DashboardComboBox ActionResult()
@@ -154,8 +163,6 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         assignmentMode.selectedValues = listOf(assignmentValues[ticketsEntity.assignmentMode.ordinal])
         staffContainer.add(assignmentMode)
         container.add(staffContainer)
-
-
 
         return container
     }
@@ -167,8 +174,10 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val active = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_dashboard_active")) {
             ticketsEntity.beginTransaction()
             if (it.data) {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_AUTO_CLOSE, atomicMember, ticketsEntity.autoCloseHoursEffectively?.times(60), 60)
                 ticketsEntity.autoCloseHours = 1
             } else {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_AUTO_CLOSE, atomicMember, ticketsEntity.autoCloseHoursEffectively?.times(60), null)
                 ticketsEntity.autoCloseHours = null
             }
             ticketsEntity.commitTransaction()
@@ -182,6 +191,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
         val duration = DashboardDurationField(getString(Category.CONFIGURATION, "ticket_dashboard_autoclose_duration")) {
             ticketsEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_AUTO_CLOSE, atomicMember, ticketsEntity.autoCloseHoursEffectively?.times(60), it.data.toInt())
             ticketsEntity.autoCloseHours = it.data.toInt() / 60
             ticketsEntity.commitTransaction()
 
@@ -212,6 +222,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val pingStaff = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mping")) {
             ticketsEntity.beginTransaction()
             ticketsEntity.pingStaffRoles = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_PING_STAFF_ROLES, atomicMember, null, it.data)
             ticketsEntity.commitTransaction()
 
             return@DashboardSwitch ActionResult()
@@ -222,6 +233,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val enforceTextInputs = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mtextinput")) {
             ticketsEntity.beginTransaction()
             ticketsEntity.enforceModal = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_ENFORCE_MODAL, atomicMember, null, it.data)
             ticketsEntity.commitTransaction()
 
             return@DashboardSwitch ActionResult()
@@ -234,8 +246,11 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 0,
                 TicketCommand.MAX_GREETING_TEXT_LENGTH
         ) {
+            val newGreetingText = it.data.ifEmpty { null }
+
             ticketsEntity.beginTransaction()
-            ticketsEntity.greetingText = it.data.ifEmpty { null }
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_GREETING_TEXT, atomicMember, ticketsEntity.greetingText, newGreetingText)
+            ticketsEntity.greetingText = newGreetingText
             ticketsEntity.commitTransaction()
 
             return@DashboardMultiLineTextField ActionResult()
@@ -253,6 +268,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val membersCanCloseTickets = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mmembercanclose")) {
             ticketsEntity.beginTransaction()
             ticketsEntity.membersCanCloseTickets = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_MEMBERS_CAN_CLOSE_TICKETS, atomicMember, null, it.data)
             ticketsEntity.commitTransaction()
 
             return@DashboardSwitch ActionResult()
@@ -263,6 +279,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val saveProtocols = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_dashboard_protocols")) {
             ticketsEntity.beginTransaction()
             ticketsEntity.protocols = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_PROTOCOLS, atomicMember, null, it.data)
             ticketsEntity.commitTransaction()
 
             return@DashboardSwitch ActionResult()
@@ -274,6 +291,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         val deleteChannels = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mdeletechannel")) {
             ticketsEntity.beginTransaction()
             ticketsEntity.deleteChannelsOnClose = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_DELETE_CHANNELS_ON_CLOSE, atomicMember, null, it.data)
             ticketsEntity.commitTransaction()
 
             return@DashboardSwitch ActionResult()

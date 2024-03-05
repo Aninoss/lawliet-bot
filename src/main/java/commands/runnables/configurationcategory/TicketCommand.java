@@ -20,6 +20,7 @@ import core.utils.*;
 import events.discordevents.modalinteraction.ModalInteractionTicket;
 import kotlin.Pair;
 import modules.Ticket;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.TicketChannelEntity;
 import mysql.hibernate.entity.guild.TicketsEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -92,7 +93,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     @ControllerMessage(state = ADD_STAFF_ROLE)
     public MessageInputResponse onMessageAddStaffRole(MessageReceivedEvent event, String input) {
         List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-        return staffRoleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), MAIN);
+        return staffRoleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), MAIN, BotLogEntity.Event.TICKETS_STAFF_ROLES);
     }
 
     @ControllerMessage(state = ANNOUNCEMENT_CHANNEL)
@@ -112,6 +113,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
             TicketsEntity tickets = getGuildEntity().getTickets();
             tickets.beginTransaction();
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_LOG_CHANNEL, event.getMember(), tickets.getLogChannelId(), textChannel.getIdLong());
             tickets.setLogChannelId(textChannel.getIdLong());
             tickets.commitTransaction();
 
@@ -125,9 +127,16 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public MessageInputResponse onMessageCloseOnInactivity(MessageReceivedEvent event, String input) {
         int hours = (int) (MentionUtil.getTimeMinutes(input).getValue() / 60);
         if (hours > 0) {
-            getGuildEntity().beginTransaction();
-            getGuildEntity().getTickets().setAutoCloseHours(hours);
-            getGuildEntity().commitTransaction();
+            TicketsEntity tickets = getGuildEntity().getTickets();
+            Integer autoCloseMinutes = tickets.getAutoCloseHoursEffectively();
+            if (autoCloseMinutes != null) {
+                autoCloseMinutes *= 60;
+            }
+
+            tickets.beginTransaction();
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_AUTO_CLOSE, event.getMember(), autoCloseMinutes, hours * 60);
+            tickets.setAutoCloseHours(hours);
+            tickets.commitTransaction();
 
             setLog(LogStatus.SUCCESS, getString("autoclose_set"));
             setState(MAIN);
@@ -154,9 +163,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public MessageInputResponse onMessageGreetingText(MessageReceivedEvent event, String input) {
         if (!input.isEmpty()) {
             if (input.length() <= MAX_GREETING_TEXT_LENGTH) {
-                getGuildEntity().beginTransaction();
-                getGuildEntity().getTickets().setGreetingText(input);
-                getGuildEntity().commitTransaction();
+                TicketsEntity tickets = getGuildEntity().getTickets();
+                tickets.beginTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_GREETING_TEXT, event.getMember(), tickets.getGreetingText(), input);
+                tickets.setGreetingText(input);
+                tickets.commitTransaction();
 
                 setLog(LogStatus.SUCCESS, getString("greetingset"));
                 setState(0);
@@ -210,6 +221,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             case 6 -> {
                 tickets.beginTransaction();
                 tickets.setPingStaffRoles(!tickets.getPingStaffRoles());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_PING_STAFF_ROLES, event.getMember(), null, tickets.getPingStaffRoles());
                 tickets.commitTransaction();
                 setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getPingStaffRoles(), getString("state0_mping")));
                 return true;
@@ -217,6 +229,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             case 7 -> {
                 tickets.beginTransaction();
                 tickets.setEnforceModal(!tickets.getEnforceModal());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_ENFORCE_MODAL, event.getMember(), null, tickets.getEnforceModal());
                 tickets.commitTransaction();
                 setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getEnforceModal(), getString("state0_mtextinput")));
                 return true;
@@ -224,6 +237,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             case 8 -> {
                 tickets.beginTransaction();
                 tickets.setMembersCanCloseTickets(!tickets.getMembersCanCloseTickets());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_MEMBERS_CAN_CLOSE_TICKETS, event.getMember(), null, tickets.getMembersCanCloseTickets());
                 tickets.commitTransaction();
                 setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getMembersCanCloseTickets(), getString("state0_mmembercanclose")));
                 return true;
@@ -232,6 +246,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     tickets.beginTransaction();
                     tickets.setProtocols(!tickets.getProtocols());
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_PROTOCOLS, event.getMember(), null, tickets.getProtocolsEffectively());
                     tickets.commitTransaction();
                     setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getProtocolsEffectively(), getString("state0_mprotocol")));
                 } else {
@@ -242,6 +257,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             case 10 -> {
                 tickets.beginTransaction();
                 tickets.setDeleteChannelsOnClose(!tickets.getDeleteChannelsOnClose());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_DELETE_CHANNELS_ON_CLOSE, event.getMember(), null, tickets.getDeleteChannelsOnClose());
                 tickets.commitTransaction();
                 setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getDeleteChannelsOnClose(), getString("state0_mdeletechannel")));
                 return true;
@@ -266,6 +282,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             case 0 -> {
                 TicketsEntity tickets = getGuildEntity().getTickets();
                 tickets.beginTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_LOG_CHANNEL, event.getMember(), tickets.getLogChannelId(), null);
                 tickets.setLogChannelId(null);
                 tickets.commitTransaction();
 
@@ -288,7 +305,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @ControllerButton(state = REMOVE_STAFF_ROLE)
     public boolean onButtonRemoveStaffRole(ButtonInteractionEvent event, int i) {
-        return staffRoleNavigationHelper.removeData(i, MAIN);
+        return staffRoleNavigationHelper.removeData(i, event.getMember(), MAIN, BotLogEntity.Event.TICKETS_STAFF_ROLES);
     }
 
     @ControllerButton(state = ASSIGNMENT_MODE)
@@ -297,9 +314,12 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             setState(MAIN);
             return true;
         }
-        getGuildEntity().beginTransaction();
-        getGuildEntity().getTickets().setAssignmentMode(TicketsEntity.AssignmentMode.values()[i]);
-        getGuildEntity().commitTransaction();
+
+        TicketsEntity tickets = getGuildEntity().getTickets();
+        tickets.beginTransaction();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_ASSIGNMENT_MODE, event.getMember(), tickets.getAssignmentMode(), TicketsEntity.AssignmentMode.values()[i]);
+        tickets.setAssignmentMode(TicketsEntity.AssignmentMode.values()[i]);
+        tickets.commitTransaction();
 
         setLog(LogStatus.SUCCESS, getString("assignment_set", getString("assignment_modes").split("\n")[i]));
         setState(MAIN);
@@ -312,9 +332,16 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             setState(MAIN);
             return true;
         } else if (i == 0) {
-            getGuildEntity().beginTransaction();
-            getGuildEntity().getTickets().setAutoCloseHours(null);
-            getGuildEntity().commitTransaction();
+            TicketsEntity tickets = getGuildEntity().getTickets();
+            Integer autoCloseMinutes = tickets.getAutoCloseHoursEffectively();
+            if (autoCloseMinutes != null) {
+                autoCloseMinutes *= 60;
+            }
+
+            tickets.beginTransaction();
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_AUTO_CLOSE, event.getMember(), autoCloseMinutes, null);
+            tickets.setAutoCloseHours(null);
+            tickets.commitTransaction();
 
             setLog(LogStatus.SUCCESS, getString("autoclose_set"));
             setState(MAIN);
@@ -333,6 +360,10 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             if (tempPostChannel != null) {
                 String error = Ticket.sendTicketMessage(getLocale(), tempPostChannel);
                 if (error == null) {
+                    getEntityManager().getTransaction().begin();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, event.getMember(), tempPostChannel.getId());
+                    getEntityManager().getTransaction().commit();
+
                     setLog(LogStatus.SUCCESS, getString("message_sent"));
                     setState(MAIN);
                 } else {
@@ -350,9 +381,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             setState(0);
             return true;
         } else if (i == 0) {
-            getGuildEntity().beginTransaction();
-            getGuildEntity().getTickets().setGreetingText(null);
-            getGuildEntity().commitTransaction();
+            TicketsEntity tickets = getGuildEntity().getTickets();
+            tickets.beginTransaction();
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_GREETING_TEXT, event.getMember(), tickets.getGreetingText(), null);
+            tickets.setGreetingText(null);
+            tickets.commitTransaction();
 
             setLog(LogStatus.SUCCESS, getString("greetingset"));
             setState(0);
