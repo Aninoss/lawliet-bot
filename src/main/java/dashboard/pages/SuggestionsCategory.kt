@@ -11,6 +11,8 @@ import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardSwitch
 import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.VerticalContainer
+import mysql.hibernate.entity.BotLogEntity
+import mysql.hibernate.entity.BotLogEntity.Companion.log
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.suggestions.DBSuggestions
 import net.dv8tion.jda.api.Permission
@@ -30,8 +32,13 @@ class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "suggconfig_state0_mactive")) {
-            if (it.data != DBSuggestions.getInstance().retrieve(guild.idLong).isActive) {
-                DBSuggestions.getInstance().retrieve(guild.idLong).toggleActive()
+            val suggestionsData = DBSuggestions.getInstance().retrieve(guild.idLong)
+            if (it.data != suggestionsData.isActive) {
+                suggestionsData.toggleActive()
+
+                entityManager.transaction.begin()
+                log(entityManager, BotLogEntity.Event.SERVER_SUGGESTIONS_ACTIVE, atomicMember, null, suggestionsData.isActive)
+                entityManager.transaction.commit()
             }
             ActionResult()
         }
@@ -57,7 +64,13 @@ class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
                         .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_history", "#${channel.getName()}"))
             }
 
-            DBSuggestions.getInstance().retrieve(guild.idLong).setChannelId(it.data.toLong())
+            val suggestionsData = DBSuggestions.getInstance().retrieve(guild.idLong)
+
+            entityManager.transaction.begin()
+            log(entityManager, BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, atomicMember, suggestionsData.textChannelId.orElse(null), it.data.toLong())
+            entityManager.transaction.commit()
+
+            suggestionsData.setChannelId(it.data.toLong())
             return@DashboardTextChannelComboBox ActionResult()
         }
         mainContainer.add(channelComboBox)

@@ -12,6 +12,7 @@ import core.atomicassets.AtomicVoiceChannel;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.MemberCountDisplay;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountData;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
@@ -143,6 +144,10 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                         memberCountBean.getMemberCountBeanSlots().put(voiceChannel.getIdLong(), new MemberCountDisplaySlot(event.getGuild().getIdLong(), voiceChannel.getIdLong(), currentName));
                         MemberCountDisplay.manage(getLocale(), event.getGuild());
 
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MEMBER_COUNT_DISPLAYS_ADD, event.getMember(), voiceChannel.getIdLong());
+                        getEntityManager().getTransaction().commit();
+
                         setLog(LogStatus.SUCCESS, getString("displayadd"));
                         setState(0);
                         return true;
@@ -158,7 +163,14 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i < memberCountBean.getMemberCountBeanSlots().size()) {
-                    memberCountBean.getMemberCountBeanSlots().remove(new ArrayList<>(memberCountBean.getMemberCountBeanSlots().keySet()).get(i));
+                    MemberCountDisplaySlot slot = memberCountBean.getMemberCountBeanSlots().remove(new ArrayList<>(memberCountBean.getMemberCountBeanSlots().keySet()).get(i));
+
+                    if (slot != null) {
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MEMBER_COUNT_DISPLAYS_DISCONNECT, event.getMember(), slot.getVoiceChannelId());
+                        getEntityManager().getTransaction().commit();
+                    }
+
                     setLog(LogStatus.SUCCESS, getString("displayremove"));
                     if (memberCountBean.getMemberCountBeanSlots().isEmpty()) {
                         setState(0);

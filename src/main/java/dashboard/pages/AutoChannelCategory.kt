@@ -13,6 +13,7 @@ import dashboard.component.DashboardText
 import dashboard.component.DashboardTextField
 import dashboard.components.DashboardVoiceChannelComboBox
 import dashboard.container.VerticalContainer
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.autochannel.DBAutoChannel
 import net.dv8tion.jda.api.Permission
@@ -34,7 +35,12 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "autochannel_state0_mactive")) {
             if (it.data != DBAutoChannel.getInstance().retrieve(guild.idLong).isActive) {
-                DBAutoChannel.getInstance().retrieve(guild.idLong).toggleActive()
+                val autoChannelData = DBAutoChannel.getInstance().retrieve(guild.idLong)
+                autoChannelData.toggleActive()
+
+                entityManager.transaction.begin()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_ACTIVE, atomicMember, null, autoChannelData.isActive)
+                entityManager.transaction.commit()
             }
             return@DashboardSwitch ActionResult()
         }
@@ -71,13 +77,24 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
                 }
             }
 
-            DBAutoChannel.getInstance().retrieve(guild.idLong).setParentChannelId(it.data.toLong())
+            val autoChannelData = DBAutoChannel.getInstance().retrieve(guild.idLong)
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_INITIAL_VOICE_CHANNEL, atomicMember, autoChannelData.parentChannelId.orElse(null), it.data.toLong())
+            entityManager.transaction.commit()
+
+            autoChannelData.setParentChannelId(it.data.toLong())
             return@DashboardVoiceChannelComboBox ActionResult()
         }
         mainContainer.add(channelComboBox, DashboardSeparator())
 
         val nameField = DashboardTextField(getString(Category.CONFIGURATION, "autochannel_state0_mchannelname"), 1, AutoChannelCommand.MAX_CHANNEL_NAME_LENGTH) {
-            DBAutoChannel.getInstance().retrieve(atomicGuild.idLong).nameMask = it.data
+            val autoChannelData = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong)
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_NEW_CHANNEL_NAME, atomicMember, autoChannelData.nameMask, it.data)
+            entityManager.transaction.commit()
+
+            autoChannelData.nameMask = it.data
             return@DashboardTextField ActionResult()
         }
         nameField.value = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong).nameMask
@@ -85,7 +102,12 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
 
         val lockedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "autochannel_state0_mlocked")) {
             if (it.data != DBAutoChannel.getInstance().retrieve(guild.idLong).isLocked) {
-                DBAutoChannel.getInstance().retrieve(guild.idLong).toggleLocked()
+                val autoChannelData = DBAutoChannel.getInstance().retrieve(guild.idLong)
+                autoChannelData.toggleLocked()
+
+                entityManager.transaction.begin()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_BEGIN_LOCKED, atomicMember, null, autoChannelData.isLocked)
+                entityManager.transaction.commit()
             }
             return@DashboardSwitch ActionResult()
         }

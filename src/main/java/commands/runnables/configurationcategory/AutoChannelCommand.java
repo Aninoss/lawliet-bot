@@ -12,6 +12,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.AutoChannel;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.autochannel.AutoChannelData;
 import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,7 +41,7 @@ public class AutoChannelCommand extends NavigationAbstract {
 
     public static final int MAX_CHANNEL_NAME_LENGTH = 50;
 
-    private AutoChannelData autoChannelBean;
+    private AutoChannelData autoChannelData;
 
     public AutoChannelCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -48,7 +49,7 @@ public class AutoChannelCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
+        autoChannelData = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -78,7 +79,11 @@ public class AutoChannelCommand extends NavigationAbstract {
                         }
                     }
 
-                    autoChannelBean.setParentChannelId(voiceChannel.getIdLong());
+                    getEntityManager().getTransaction().begin();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_CHANNEL_INITIAL_VOICE_CHANNEL, event.getMember(), autoChannelData.getParentChannelId().orElse(null), voiceChannel.getIdLong());
+                    getEntityManager().getTransaction().commit();
+
+                    autoChannelData.setParentChannelId(voiceChannel.getIdLong());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -86,7 +91,11 @@ public class AutoChannelCommand extends NavigationAbstract {
 
             case 2:
                 if (!input.isEmpty() && input.length() < MAX_CHANNEL_NAME_LENGTH) {
-                    autoChannelBean.setNameMask(input);
+                    getEntityManager().getTransaction().begin();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_CHANNEL_NEW_CHANNEL_NAME, event.getMember(), autoChannelData.getNameMask(), input);
+                    getEntityManager().getTransaction().commit();
+
+                    autoChannelData.setNameMask(input);
                     setLog(LogStatus.SUCCESS, getString("channelnameset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -110,8 +119,13 @@ public class AutoChannelCommand extends NavigationAbstract {
                         return false;
 
                     case 0:
-                        autoChannelBean.toggleActive();
-                        setLog(LogStatus.SUCCESS, getString("activeset", autoChannelBean.isActive()));
+                        autoChannelData.toggleActive();
+
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_CHANNEL_ACTIVE, event.getMember(), null, autoChannelData.isActive());
+                        getEntityManager().getTransaction().commit();
+
+                        setLog(LogStatus.SUCCESS, getString("activeset", autoChannelData.isActive()));
                         return true;
 
                     case 1:
@@ -123,8 +137,13 @@ public class AutoChannelCommand extends NavigationAbstract {
                         return true;
 
                     case 3:
-                        autoChannelBean.toggleLocked();
-                        setLog(LogStatus.SUCCESS, getString("lockedset", autoChannelBean.isLocked()));
+                        autoChannelData.toggleLocked();
+
+                        getEntityManager().getTransaction().begin();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_CHANNEL_BEGIN_LOCKED, event.getMember(), null, autoChannelData.isLocked());
+                        getEntityManager().getTransaction().commit();
+
+                        setLog(LogStatus.SUCCESS, getString("lockedset", autoChannelData.isLocked()));
                         return true;
 
                     default:
@@ -156,15 +175,15 @@ public class AutoChannelCommand extends NavigationAbstract {
                 setComponents(getString("state0_options").split("\n"));
                 TextChannel textChannel = getTextChannel().get();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), autoChannelBean.isActive()), true)
-                        .addField(getString("state0_mchannel"), autoChannelBean.getParentChannel().map(c -> new AtomicVoiceChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
+                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), autoChannelData.isActive()), true)
+                        .addField(getString("state0_mchannel"), autoChannelData.getParentChannel().map(c -> new AtomicVoiceChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
                         .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(
-                                StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
+                                StringUtil.escapeMarkdown(autoChannelData.getNameMask()),
                                 "`%VCNAME`",
                                 "`%INDEX`",
                                 "`%CREATOR`"
                         ), true)
-                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), autoChannelBean.isLocked())), true);
+                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), autoChannelData.isLocked())), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));

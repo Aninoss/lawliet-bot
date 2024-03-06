@@ -13,6 +13,7 @@ import core.atomicassets.AtomicTextChannel;
 import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -101,6 +102,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
 
         guildEntity.beginTransaction();
         guildEntity.getCommandChannelShortcuts().remove(channelId);
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_DELETE, event.getMember(), channelId);
         guildEntity.commitTransaction();
 
         setLog(LogStatus.SUCCESS, getString("log_deleted", StringUtil.escapeMarkdownInField(atomicTextChannel.getPrefixedName(getLocale()))));
@@ -169,6 +171,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
 
                 guildEntity.beginTransaction();
                 shortcuts.put(channel.getIdLong(), trigger);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_ADD, event.getMember(), channel.getIdLong());
                 guildEntity.commitTransaction();
 
                 setLog(LogStatus.SUCCESS, getString("log_add", StringUtil.escapeMarkdownInField(channel.getPrefixedName(getLocale()))));

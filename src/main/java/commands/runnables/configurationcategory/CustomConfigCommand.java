@@ -11,6 +11,7 @@ import core.TextManager;
 import core.cache.ServerPatreonBoostCache;
 import core.modals.ModalMediator;
 import core.utils.StringUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.CustomCommandEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -176,6 +177,11 @@ public class CustomConfigCommand extends NavigationAbstract {
                 if (oldTrigger != null && !trigger.equals(oldTrigger)) {
                     customCommands.remove(oldTrigger);
                 }
+                if (updateMode) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CUSTOM_COMMANDS_EDIT, event.getMember(), oldTrigger);
+                } else {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CUSTOM_COMMANDS_ADD, event.getMember(), trigger);
+                }
                 guildEntity.commitTransaction();
 
                 if (updateMode) {
@@ -192,6 +198,7 @@ public class CustomConfigCommand extends NavigationAbstract {
 
                 guildEntity.beginTransaction();
                 customCommands.remove(oldTrigger);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CUSTOM_COMMANDS_DELETE, event.getMember(), oldTrigger);
                 guildEntity.commitTransaction();
 
                 setLog(LogStatus.SUCCESS, getString("log_deleted", oldTrigger));

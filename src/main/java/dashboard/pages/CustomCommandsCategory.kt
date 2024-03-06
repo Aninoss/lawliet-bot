@@ -13,6 +13,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.GridRow
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.CustomCommandEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
@@ -137,6 +138,11 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
             if (oldTrigger != null && trigger != oldTrigger) {
                 customCommands.remove(oldTrigger)
             }
+            if (updateMode) {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.CUSTOM_COMMANDS_EDIT, atomicMember, oldTrigger)
+            } else {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.CUSTOM_COMMANDS_ADD, atomicMember, trigger)
+            }
             guildEntity.commitTransaction()
 
             val successMessage = getString(Category.CONFIGURATION, if (updateMode) "customconfig_log_update" else "customconfig_log_add", trigger!!)
@@ -153,6 +159,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
             val deleteButton = DashboardButton(getString(Category.CONFIGURATION, "customconfig_dashboard_button_delete")) {
                 guildEntity.beginTransaction()
                 customCommands.remove(oldTrigger)
+                BotLogEntity.log(entityManager, BotLogEntity.Event.CUSTOM_COMMANDS_DELETE, atomicMember, oldTrigger)
                 guildEntity.commitTransaction()
 
                 val successMessage = getString(Category.CONFIGURATION, "customconfig_log_deleted", trigger!!)

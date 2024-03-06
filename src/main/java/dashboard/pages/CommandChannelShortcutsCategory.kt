@@ -17,6 +17,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -59,6 +60,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         val grid = DashboardGrid(headers, rows) {
             guildEntity.beginTransaction()
             commandChannelShortcuts.remove(it.data.toLong())
+            BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_DELETE, atomicMember, it.data.toLong())
             guildEntity.commitTransaction()
 
             ActionResult()
@@ -66,7 +68,6 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         }
         grid.isEnabled = isPremium
         grid.rowButton = getString(Category.CONFIGURATION, "ccshortcuts_dashboard_remove")
-        grid.enableConfirmationMessage(getString(Category.CONFIGURATION, "ccshortcuts_dashboard_gridconfirm"))
 
         return grid
     }
@@ -134,6 +135,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
 
             guildEntity.beginTransaction()
             commandChannelShortcuts.put(channelId!!, trigger!!)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_ADD, atomicMember, channelId!!)
             guildEntity.commitTransaction()
 
             channelId = null

@@ -15,6 +15,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.MemberCountDisplay
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.membercountdisplays.DBMemberCountDisplays
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot
@@ -54,7 +55,14 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
 
         val headers = getString(Category.CONFIGURATION, "mcdisplays_dashboard_gridheader").split('\n').toTypedArray()
         val grid = DashboardGrid(headers, rows) {
-            DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountBeanSlots.remove(it.data.toLong())
+            val slot = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountBeanSlots.remove(it.data.toLong())
+
+            if (slot != null) {
+                entityManager.transaction.begin()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.MEMBER_COUNT_DISPLAYS_DISCONNECT, atomicMember, slot.voiceChannelId)
+                entityManager.transaction.commit()
+            }
+
             ActionResult()
                     .withRedraw()
         }
@@ -92,6 +100,11 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
                     MemberCountDisplaySlot(atomicGuild.idLong, voiceChannel.idLong, nameMask!!)
             )
             MemberCountDisplay.manage(locale, atomicGuild.get().get())
+
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MEMBER_COUNT_DISPLAYS_ADD, atomicMember, voiceChannel.idLong)
+            entityManager.transaction.commit()
+
             clearAttributes()
             ActionResult()
                     .withRedraw()

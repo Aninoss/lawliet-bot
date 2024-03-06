@@ -11,6 +11,7 @@ import core.atomicassets.AtomicTextChannel;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.suggestions.DBSuggestions;
 import mysql.modules.suggestions.SuggestionsData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,7 +36,7 @@ import java.util.Locale;
 )
 public class SuggestionConfigCommand extends NavigationAbstract {
 
-    private SuggestionsData suggestionsBean;
+    private SuggestionsData suggestionsData;
 
     public SuggestionConfigCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -43,7 +44,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
+        suggestionsData = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -58,7 +59,11 @@ public class SuggestionConfigCommand extends NavigationAbstract {
             } else {
                 TextChannel channel = channelList.get(0);
                 if (BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
-                    suggestionsBean.setChannelId(channelList.get(0).getIdLong());
+                    getEntityManager().getTransaction().begin();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getTextChannelId().orElse(null), channelList.get(0).getIdLong());
+                    getEntityManager().getTransaction().commit();
+
+                    suggestionsData.setChannelId(channelList.get(0).getIdLong());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -81,9 +86,14 @@ public class SuggestionConfigCommand extends NavigationAbstract {
                         return false;
                     }
                     case 0 -> {
-                        if (suggestionsBean.isActive() || suggestionsBean.getTextChannel().isPresent()) {
-                            suggestionsBean.toggleActive();
-                            setLog(LogStatus.SUCCESS, getString("activeset", suggestionsBean.isActive()));
+                        if (suggestionsData.isActive() || suggestionsData.getTextChannel().isPresent()) {
+                            suggestionsData.toggleActive();
+
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_ACTIVE, event.getMember(), null, suggestionsData.isActive());
+                            getEntityManager().getTransaction().commit();
+
+                            setLog(LogStatus.SUCCESS, getString("activeset", suggestionsData.isActive()));
                         } else {
                             setLog(LogStatus.FAILURE, getString("active_nochannel"));
                         }
@@ -113,8 +123,8 @@ public class SuggestionConfigCommand extends NavigationAbstract {
             case 0:
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), suggestionsBean.isActive()), true)
-                        .addField(getString("state0_mchannel"), suggestionsBean.getTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
+                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), suggestionsData.isActive()), true)
+                        .addField(getString("state0_mchannel"), suggestionsData.getTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));

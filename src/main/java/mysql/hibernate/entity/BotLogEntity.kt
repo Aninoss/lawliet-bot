@@ -164,6 +164,19 @@ class BotLogEntity(
         TICKETS_PROTOCOLS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, TicketCommand::class.java, "ticket_state0_mprotocol"),
         TICKETS_DELETE_CHANNELS_ON_CLOSE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, TicketCommand::class.java, "ticket_state0_mdeletechannel"),
         TICKETS_AUTO_CLOSE(ValuesRelationship.OLD_AND_NEW, ValueType.DURATION, TicketCommand::class.java, "ticket_state0_mcloseoninactivity"),
+        SERVER_SUGGESTIONS_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, SuggestionConfigCommand::class.java, "suggconfig_state0_mactive"),
+        SERVER_SUGGESTIONS_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, SuggestionConfigCommand::class.java, "suggconfig_state0_mchannel"),
+        AUTO_CHANNEL_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, AutoChannelCommand::class.java, "autochannel_state0_mactive"),
+        AUTO_CHANNEL_INITIAL_VOICE_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, AutoChannelCommand::class.java, "autochannel_state0_mchannel"),
+        AUTO_CHANNEL_NEW_CHANNEL_NAME(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, AutoChannelCommand::class.java, "autochannel_state0_mchannelname"),
+        AUTO_CHANNEL_BEGIN_LOCKED(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, AutoChannelCommand::class.java, "autochannel_state0_mlocked"),
+        MEMBER_COUNT_DISPLAYS_ADD(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
+        MEMBER_COUNT_DISPLAYS_DISCONNECT(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
+        CUSTOM_COMMANDS_ADD(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
+        CUSTOM_COMMANDS_EDIT(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
+        CUSTOM_COMMANDS_DELETE(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
+        COMMAND_CHANNEL_SHORTCUTS_ADD(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
+        COMMAND_CHANNEL_SHORTCUTS_DELETE(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
     }
 
 
