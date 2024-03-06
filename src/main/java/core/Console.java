@@ -53,6 +53,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("discord_backup", Console::onDiscordBackup);
         tasks.put("discord_domain", Console::onDiscordDomain);
         tasks.put("bot_logs_cleanup", Console::onBotLogsCleanUp);
         tasks.put("fishery_copy", Console::onFisheryCopy);
@@ -105,6 +106,10 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onDiscordBackup(String[] args) {
+        DiscordResourcesBackup.execute();
     }
 
     private static void onDiscordDomain(String[] args) {

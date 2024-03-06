@@ -33,7 +33,8 @@ public class LocalFile extends File {
         WELCOME_BACKGROUNDS("/data/welcome_backgrounds"),
         EMOJIS("/data/emojis"),
         RESOURCES("/data/resources"),
-        TEMP("temp");
+        TEMP("temp"),
+        DISCORD_BACKUP("/data/discord_backup");
 
         private final String path;
 
