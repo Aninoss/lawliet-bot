@@ -69,7 +69,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
             }
         }
 
-        FeatureLogger.inc(PremiumFeature.FISHERY, event.getGuild().getIdLong());
+        FeatureLogger.inc(PremiumFeature.FISHERY_SPAWN, event.getGuild().getIdLong());
         for (int i = 0; i < amount; i++) {
             Fishery.spawnTreasureChest(channel, getGuildEntity());
         }

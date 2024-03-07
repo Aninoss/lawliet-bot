@@ -1216,14 +1216,14 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     private void checkUsesCustomLabels(ReactionRoleMessage reactionRoleMessage, boolean premium) {
         if (premium && reactionRoleMessage.getSlots().stream().anyMatch(slot -> slot.getCustomLabel() != null)) {
-            FeatureLogger.inc(PremiumFeature.REACTION_ROLES, reactionRoleMessage.getGuildId());
+            FeatureLogger.inc(PremiumFeature.REACTION_ROLES_CUSTOM_LABEL, reactionRoleMessage.getGuildId());
         }
     }
 
     private boolean usesRoleRequirementsWithoutPremium(ReactionRoleMessage reactionRoleMessage, boolean premium) {
         if (!reactionRoleMessage.getRoleRequirements().isEmpty()) {
             if (premium) {
-                FeatureLogger.inc(PremiumFeature.REACTION_ROLES, reactionRoleMessage.getGuildId());
+                FeatureLogger.inc(PremiumFeature.REACTION_ROLES_ROLE_REQUIREMENTS, reactionRoleMessage.getGuildId());
             } else {
                 return true;
             }
@@ -1241,7 +1241,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 .count();
         if (newComponentTypeMessages > ReactionRolesCommand.MAX_NEW_COMPONENTS_MESSAGES) {
             if (premium) {
-                FeatureLogger.inc(PremiumFeature.REACTION_ROLES, reactionRoleMessage.getGuildId());
+                FeatureLogger.inc(PremiumFeature.REACTION_ROLES_NEW_COMPONENTS_LIMIT, reactionRoleMessage.getGuildId());
             } else {
                 return true;
             }

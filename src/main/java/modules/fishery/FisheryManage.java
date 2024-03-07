@@ -39,7 +39,7 @@ public class FisheryManage {
                 continue;
             }
 
-            FeatureLogger.inc(PremiumFeature.FISHERY, guildEntity.getGuildId());
+            FeatureLogger.inc(PremiumFeature.FISHERY_MANAGE, guildEntity.getGuildId());
             newValue = calculateNewValue(guildEntity, baseValue, newValue, valueProcedure, type);
             setNewValues(fisheryMemberData, guildEntity, newValue, type);
             success = true;

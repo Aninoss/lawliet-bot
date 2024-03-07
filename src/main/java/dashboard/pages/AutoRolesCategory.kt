@@ -4,6 +4,8 @@ import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.AutoRolesCommand
 import core.TextManager
+import core.featurelogger.FeatureLogger
+import core.featurelogger.PremiumFeature
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
@@ -63,6 +65,7 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
             BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_ROLES_SYNC, atomicMember)
             entityManager.transaction.commit()
 
+            FeatureLogger.inc(PremiumFeature.AUTO_ROLES_SYNC, atomicGuild.idLong)
             return@DashboardButton ActionResult()
                     .withSuccessMessage(getString(Category.CONFIGURATION, "autoroles_syncstart"))
         }

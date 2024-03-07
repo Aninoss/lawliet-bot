@@ -484,7 +484,7 @@ public class FisheryMemberData implements MemberAsset {
 
             int limit = guildEntity.getFishery().getVoiceHoursLimitEffectively();
             if (limit != 5) {
-                FeatureLogger.inc(PremiumFeature.FISHERY, getGuildId());
+                FeatureLogger.inc(PremiumFeature.FISHERY_VOICE_HOURS_LIMIT, getGuildId());
             }
             if (limit != 24) {
                 cleanDailyValues();

@@ -285,7 +285,7 @@ public class Ticket {
             return;
         }
 
-        FeatureLogger.inc(PremiumFeature.TICKETS, guildEntity.getGuildId());
+        FeatureLogger.inc(PremiumFeature.TICKETS_LOGS, guildEntity.getGuildId());
         try (Lock lock = new Lock(TicketCommand.class)) {
             MessageHistory messageHistory = channel.getHistory();
             List<Message> messageLoadList;

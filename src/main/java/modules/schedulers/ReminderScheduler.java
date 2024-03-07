@@ -107,7 +107,7 @@ public class ReminderScheduler {
         }
 
         if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER && reminderEntity.getIntervalMinutesEffectively() != null) {
-            FeatureLogger.inc(PremiumFeature.REMINDERS, reminderEntity.getTargetId());
+            FeatureLogger.inc(PremiumFeature.REMINDERS_REPEAT, reminderEntity.getTargetId());
             ReminderEntity newReminderEntity = ReminderEntity.createGuildReminder(
                     reminderEntity.getTargetId(),
                     reminderEntity.getGuildChannelId(),

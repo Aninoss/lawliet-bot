@@ -12,6 +12,8 @@ import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
 import core.cache.ServerPatreonBoostCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
 import mysql.hibernate.entity.BotLogEntity;
@@ -107,6 +109,7 @@ public class AutoRolesCommand extends NavigationAbstract {
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_ROLES_SYNC, event.getMember());
                         getEntityManager().getTransaction().commit();
 
+                        FeatureLogger.inc(PremiumFeature.AUTO_ROLES_SYNC, event.getGuild().getIdLong());
                         setLog(LogStatus.SUCCESS, getString("syncstart"));
                         yield true;
                     }

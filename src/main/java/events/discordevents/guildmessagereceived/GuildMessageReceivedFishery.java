@@ -56,7 +56,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
             }
 
             if (ServerPatreonBoostCache.get(event.getGuild().getIdLong()) && (fisheryEntity.getTreasureChestProbabilityInPercentEffectively() != 0.25 || fisheryEntity.getPowerUpProbabilityInPercentEffectively() != 0.35)) {
-                FeatureLogger.inc(PremiumFeature.FISHERY, event.getGuild().getIdLong());
+                FeatureLogger.inc(PremiumFeature.FISHERY_PROBABILITIES, event.getGuild().getIdLong());
             }
         }
 

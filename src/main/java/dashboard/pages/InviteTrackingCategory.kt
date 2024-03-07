@@ -249,7 +249,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, null, it.data, listOf(manageMember!!))
                     entityManager.transaction.commit()
 
-                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
                     inviteTrackingData.inviteTrackingSlots.remove(it.data.toLong())
                     ActionResult()
                         .withRedraw()
@@ -268,7 +268,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES_RESET, atomicMember, null, null, listOf(manageMember!!))
                     entityManager.transaction.commit()
 
-                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
                     DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(atomicGuild.idLong, manageMember!!.toLong())
                     ActionResult()
                         .withRedraw()
@@ -311,7 +311,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, addInviteMember!!, null, listOf(manageMember!!))
                     entityManager.transaction.commit()
 
-                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
                     inviteTrackingData.inviteTrackingSlots[inviteTrackingSlot.memberId] = inviteTrackingSlot
                     addInviteMember = null
                     ActionResult()

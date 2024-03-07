@@ -159,7 +159,7 @@ public class AlertScheduler {
                             minIntervalInstant.isAfter(slot.getNextRequest()) &&
                             ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
                     ) {
-                        FeatureLogger.inc(PremiumFeature.ALERTS, slot.getGuildId());
+                        FeatureLogger.inc(PremiumFeature.ALERTS_MIN_TRIGGER_INTERVAL, slot.getGuildId());
                         slot.setNextRequest(minIntervalInstant);
                     }
                     slot.save();
@@ -215,7 +215,7 @@ public class AlertScheduler {
     private static boolean checkServerLimit(Locale locale, TrackerData slot, CustomObservableMap<Integer, TrackerData> alerts, boolean premium) throws InterruptedException {
         if (alerts.size() > AlertsCommand.LIMIT_SERVER) {
             if (premium) {
-                FeatureLogger.inc(PremiumFeature.ALERTS, slot.getGuildId());
+                FeatureLogger.inc(PremiumFeature.ALERTS_LIMIT, slot.getGuildId());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(locale, Category.CONFIGURATION, "alerts_scheduler_toomuch_title"))
@@ -237,7 +237,7 @@ public class AlertScheduler {
         long channelId = slot.getStandardGuildMessageChannelId();
         if (alerts.values().stream().filter(a -> a.getStandardGuildMessageChannelId() == channelId).count() > AlertsCommand.LIMIT_CHANNEL) {
             if (premium) {
-                FeatureLogger.inc(PremiumFeature.ALERTS, slot.getGuildId());
+                FeatureLogger.inc(PremiumFeature.ALERTS_LIMIT, slot.getGuildId());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(locale, Category.CONFIGURATION, "alerts_scheduler_toomuch_title"))

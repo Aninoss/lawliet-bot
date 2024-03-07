@@ -112,7 +112,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         Optional<String> userMessageOpt = getUserMessage()
                 .map(message -> TextManager.getString(locale, Category.CONFIGURATION, "alerts_action", StringUtil.shortenString(message, 1024)));
         if (userMessageOpt.isPresent()) {
-            FeatureLogger.inc(PremiumFeature.ALERTS, getGuildId());
+            FeatureLogger.inc(PremiumFeature.ALERTS_USER_MESSAGE, getGuildId());
         }
         return userMessageOpt;
     }

@@ -100,7 +100,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             if (type == -1) {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else if (type == 3 + FisheryGear.values().length) {
-                FeatureLogger.inc(PremiumFeature.FISHERY, event.getGuild().getIdLong());
+                FeatureLogger.inc(PremiumFeature.FISHERY_MANAGE, event.getGuild().getIdLong());
                 fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                 logReset(event.getMember());
                 drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale()))))

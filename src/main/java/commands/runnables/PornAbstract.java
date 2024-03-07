@@ -102,7 +102,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
             if (premium) {
                 if (amount > 20 && amount <= maxAmount) {
-                    FeatureLogger.inc(PremiumFeature.BOORUS, event.getGuild().getIdLong());
+                    FeatureLogger.inc(PremiumFeature.BOORUS_HIGHER_LIMIT, event.getGuild().getIdLong());
                 } else if (amount < 1 || amount > maxAmount) {
                     if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                         drawMessageNew(EmbedFactory.getEmbedError(
@@ -186,7 +186,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
 
             if (premium && !singleRequest && pornImages.stream().anyMatch(BooruImage::getVideo)) {
-                FeatureLogger.inc(PremiumFeature.BOORUS, event.getGuild().getIdLong());
+                FeatureLogger.inc(PremiumFeature.BOORUS_VIDEOS, event.getGuild().getIdLong());
+            }
+            if (getCommandProperties().patreonRequired()) {
+                FeatureLogger.inc(PremiumFeature.BOORUS_PREMIUM_ONLY, event.getGuild().getIdLong());
             }
 
             first = false;
@@ -311,7 +314,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        FeatureLogger.inc(PremiumFeature.BOORUS, event.getGuild().getIdLong());
+        FeatureLogger.inc(PremiumFeature.BOORUS_LOAD_MORE_BUTTON, event.getGuild().getIdLong());
         event.deferEdit().queue();
         deregisterListeners();
         onTrigger(getCommandEvent(), this.newAmount + " " + this.args);
@@ -377,7 +380,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         }
 
         if (premium && pornImages.stream().anyMatch(BooruImage::getVideo)) {
-            FeatureLogger.inc(PremiumFeature.BOORUS, slot.getGuildId());
+            FeatureLogger.inc(PremiumFeature.BOORUS_VIDEOS, slot.getGuildId());
+        }
+        if (getCommandProperties().patreonRequired()) {
+            FeatureLogger.inc(PremiumFeature.BOORUS_PREMIUM_ONLY, slot.getGuildId());
         }
 
         List<Button> messageButtons = generateButtons(pornImages);

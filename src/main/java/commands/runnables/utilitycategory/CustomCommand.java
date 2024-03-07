@@ -43,7 +43,7 @@ public class CustomCommand extends Command {
 
         if (customCommands.size() > CustomConfigCommand.MAX_COMMANDS_FREE) {
             if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                FeatureLogger.inc(PremiumFeature.CUSTOM_COMMANDS, event.getGuild().getIdLong());
+                FeatureLogger.inc(PremiumFeature.CUSTOM_COMMANDS_LIMIT, event.getGuild().getIdLong());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("nopro"));
                 drawMessageNew(eb).exceptionally(ExceptionLogger.get());

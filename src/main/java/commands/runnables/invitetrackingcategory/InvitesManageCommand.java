@@ -131,7 +131,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                     resetLog = false;
                     setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                 } else {
-                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, event.getGuild().getIdLong());
 
                     getEntityManager().getTransaction().begin();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES_RESET, event.getMember(), null, null, List.of(atomicMember.getIdLong()));
@@ -161,7 +161,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                             fakeInviteAtomicMember.getIdLong(), atomicMember.getIdLong(), LocalDate.now(),
                             LocalDate.now(), true
                     );
-                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, event.getGuild().getIdLong());
 
                     getEntityManager().getTransaction().begin();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, event.getMember(), inviteTrackingSlot.getMemberId(), null, List.of(atomicMember.getIdLong()));
@@ -184,7 +184,7 @@ public class InvitesManageCommand extends NavigationAbstract {
         } else {
             long userId = Long.parseLong(event.getComponentId());
             CustomObservableMap<Long, InviteTrackingSlot> slots = getInviteTrackingSlots();
-            FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
+            FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, event.getGuild().getIdLong());
 
             getEntityManager().getTransaction().begin();
             BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, event.getMember(), null, userId, List.of(atomicMember.getIdLong()));

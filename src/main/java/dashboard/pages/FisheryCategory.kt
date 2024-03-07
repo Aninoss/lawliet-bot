@@ -108,7 +108,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 }
 
                 if (manageMembers.size > 0 || manageRoles.size > 0) {
-                    FeatureLogger.inc(PremiumFeature.FISHERY, atomicGuild.idLong)
+                    FeatureLogger.inc(PremiumFeature.FISHERY_MANAGE, atomicGuild.idLong)
 
                     val fisheryMemberList = collectFisheryMemberList()
                     fisheryMemberList.forEach(FisheryMemberData::remove)

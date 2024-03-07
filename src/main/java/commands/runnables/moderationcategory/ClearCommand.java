@@ -163,7 +163,7 @@ public class ClearCommand extends Command implements OnButtonListener {
         }
 
         if (count > 0 && patreon) {
-            FeatureLogger.inc(PremiumFeature.CLEAR, channel.getGuild().getIdLong());
+            FeatureLogger.inc(PremiumFeature.CLEAR_OLD_MESSAGES, channel.getGuild().getIdLong());
             messageHistory = channel.getHistory();
             while (count > 0 && !interrupt) {
                 List<Message> messageList = messageHistory.retrievePast(100).complete();

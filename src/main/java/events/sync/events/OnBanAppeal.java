@@ -6,6 +6,8 @@ import commands.runnables.moderationcategory.ModSettingsCommand;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.TextManager;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import mysql.hibernate.HibernateManager;
@@ -41,7 +43,12 @@ public class OnBanAppeal implements SyncServerFunction {
         OnBanAppealInit.Response response = OnBanAppealInit.getResponse(guild, userId);
 
         JSONObject responseJson = new JSONObject();
-        responseJson.put("ok", response == OnBanAppealInit.Response.OK && submit(guild, userId, username, avatar, message));
+        boolean ok = response == OnBanAppealInit.Response.OK && submit(guild, userId, username, avatar, message);
+        responseJson.put("ok", ok);
+        if (ok) {
+            FeatureLogger.inc(PremiumFeature.BAN_APPEALS, guildId);
+        }
+
         return responseJson;
     }
 
