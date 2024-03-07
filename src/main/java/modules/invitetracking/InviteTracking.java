@@ -1,10 +1,5 @@
 package modules.invitetracking;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
 import core.*;
 import mysql.modules.invitetracking.DBInviteTracking;
@@ -17,6 +12,12 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class InviteTracking {
 
@@ -172,8 +173,7 @@ public class InviteTracking {
             }
 
             /* remove invalid invites from database */
-            GuildInvite[] invites = databaseInvites.values().toArray(new GuildInvite[0]);
-            for (GuildInvite guildInvite : invites) {
+            for (GuildInvite guildInvite : new ArrayList<>(databaseInvites.values())) {
                 if (guildInvite != null && !inviteCodes.contains(guildInvite.getCode())) {
                     databaseInvites.remove(guildInvite.getCode());
                 }
