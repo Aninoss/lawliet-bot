@@ -108,23 +108,25 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 ticketsEntity.logChannelId,
                 true
         ) { e ->
-            val channel = atomicGuild.get().map { it.getTextChannelById(e.data.toLong()) }
-                    .orElse(null)
-            if (channel == null) {
-                return@DashboardTextChannelComboBox ActionResult()
-                        .withRedraw()
+            val channel = if (e.data != null) {
+                atomicGuild.get().map { it.getTextChannelById(e.data.toLong()) }
+                        .orElse(null)
+            } else {
+                null
             }
 
-            val channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
-            if (channelMissingPerms != null) {
-                return@DashboardTextChannelComboBox ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(channelMissingPerms)
+            if (channel != null) {
+                val channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+                if (channelMissingPerms != null) {
+                    return@DashboardTextChannelComboBox ActionResult()
+                            .withRedraw()
+                            .withErrorMessage(channelMissingPerms)
+                }
             }
 
             ticketsEntity.beginTransaction()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_LOG_CHANNEL, atomicMember, ticketsEntity.logChannelId, channel.idLong)
-            ticketsEntity.logChannelId = channel.idLong
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_LOG_CHANNEL, atomicMember, ticketsEntity.logChannelId, channel?.idLong)
+            ticketsEntity.logChannelId = channel?.idLong
             ticketsEntity.commitTransaction()
             return@DashboardTextChannelComboBox ActionResult()
         }
