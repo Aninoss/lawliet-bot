@@ -480,6 +480,10 @@ public class Console {
     }
 
     private static void onBan(String[] args) {
+        if (!Program.isMainCluster() || !Program.publicInstance()) {
+            return;
+        }
+
         long userId = Long.parseLong(args[1]);
         String reason = collectArgs(args, 2).replace("\\n", "\n");
 
@@ -489,14 +493,12 @@ public class Console {
             userEntity.commitTransaction();
         }
 
-        if (Program.isMainCluster()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setDescription("⚠\uFE0F You have been permanently banned from interacting with Lawliet!")
-                    .addField("Reason", reason.isEmpty() ? "Unspecified" : reason, false);
-            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
-                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                    .queue();
-        }
+        EmbedBuilder eb = EmbedFactory.getEmbedError()
+                .setDescription("⚠\uFE0F You have been permanently banned from interacting with Lawliet!")
+                .addField("Reason", reason.isEmpty() ? "Unspecified" : reason, false);
+        JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
+                .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                .queue();
 
         MainLogger.get().info("User {} banned for reason \"{}\"", userId, reason);
     }
