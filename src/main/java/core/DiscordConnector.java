@@ -14,15 +14,7 @@ import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.hibernate.entity.guild.ModerationEntity;
-import mysql.hibernate.entity.guild.TicketChannelEntity;
-import mysql.hibernate.entity.guild.TicketsEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
-import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationData;
-import mysql.modules.ticket.DBTicket;
-import mysql.modules.ticket.TicketChannel;
-import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -98,9 +90,6 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
-
-        transferTicketsSqlToHibernate();
-        transferModerationSqlToHibernate();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -198,74 +187,6 @@ public class DiscordConnector {
         ShardManager.start();
         FeatureLogger.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
-    }
-
-    private static void transferTicketsSqlToHibernate() {
-        transferSqlToHibernate(
-                "Ticket",
-                GuildEntity::getTickets,
-                TicketsEntity::isUsed,
-                tickets -> {
-                    GuildEntity guildEntity = tickets.getHibernateEntity();
-                    TicketData ticketData = DBTicket.getInstance().retrieve(guildEntity.getGuildId());
-
-                    tickets.setLogChannelId(ticketData.getAnnouncementTextChannelId().orElse(null));
-                    tickets.setStaffRoleIds(ticketData.getStaffRoleIds());
-                    tickets.setAssignmentMode(TicketsEntity.AssignmentMode.values()[ticketData.getTicketAssignmentMode().ordinal()]);
-                    tickets.setAutoCloseHours(ticketData.getAutoCloseHours());
-                    tickets.setGreetingText(ticketData.getCreateMessage().orElse(null));
-                    tickets.setPingStaffRoles(ticketData.getPingStaff());
-                    tickets.setEnforceModal(ticketData.getUserMessages());
-                    tickets.setMembersCanCloseTickets(ticketData.memberCanClose());
-                    tickets.setProtocols(ticketData.getProtocol());
-                    tickets.setDeleteChannelsOnClose(ticketData.getDeleteChannelOnTicketClose());
-                    tickets.setTicketIndex(ticketData.getCounter());
-
-                    for (TicketChannel ticketChannel : ticketData.getTicketChannels().values()) {
-                        TicketChannelEntity ticketChannelEntity = new TicketChannelEntity(
-                                ticketChannel.getTextChannelId(),
-                                ticketChannel.getMemberId(),
-                                ticketChannel.getAnnouncementChannelId(),
-                                ticketChannel.getAnnouncementMessageId(),
-                                ticketChannel.isAssigned(),
-                                ticketChannel.getStarterMessageId(),
-                                TicketsEntity.AssignmentMode.values()[ticketChannel.getTicketAssignmentMode().ordinal()]
-                        );
-                        tickets.getTicketChannels().put(ticketChannelEntity.getChannelId(), ticketChannelEntity);
-                    }
-                }
-        );
-    }
-
-    private static void transferModerationSqlToHibernate() {
-        transferSqlToHibernate(
-                "Moderation",
-                GuildEntity::getModeration,
-                ModerationEntity::isUsed,
-                moderation -> {
-                    GuildEntity guildEntity = moderation.getHibernateEntity();
-                    ModerationData moderationData = DBModeration.getInstance().retrieve(guildEntity.getGuildId());
-
-                    moderation.setLogChannelId(moderationData.getAnnouncementChannelId().orElse(null));
-                    moderation.setConfirmationMessages(moderationData.getQuestion());
-                    moderation.setJailRoleIds(moderationData.getJailRoleIds());
-
-                    moderation.getAutoMute().setInfractions(moderationData.getAutoMute() != 0 ? moderationData.getAutoMute() : null);
-                    moderation.getAutoMute().setInfractionDays(moderationData.getAutoMuteDays() != 0 ? moderationData.getAutoMuteDays() : null);
-                    moderation.getAutoMute().setDurationMinutes(moderationData.getAutoMuteDuration() != 0 ? moderationData.getAutoMuteDuration() : null);
-
-                    moderation.getAutoJail().setInfractions(moderationData.getAutoJail() != 0 ? moderationData.getAutoJail() : null);
-                    moderation.getAutoJail().setInfractionDays(moderationData.getAutoJailDays() != 0 ? moderationData.getAutoJailDays() : null);
-                    moderation.getAutoJail().setDurationMinutes(moderationData.getAutoJailDuration() != 0 ? moderationData.getAutoJailDuration() : null);
-
-                    moderation.getAutoKick().setInfractions(moderationData.getAutoKick() != 0 ? moderationData.getAutoKick() : null);
-                    moderation.getAutoKick().setInfractionDays(moderationData.getAutoKickDays() != 0 ? moderationData.getAutoKickDays() : null);
-
-                    moderation.getAutoBan().setInfractions(moderationData.getAutoBan() != 0 ? moderationData.getAutoBan() : null);
-                    moderation.getAutoBan().setInfractionDays(moderationData.getAutoBanDays() != 0 ? moderationData.getAutoBanDays() : null);
-                    moderation.getAutoBan().setDurationMinutes(moderationData.getAutoBanDuration() != 0 ? moderationData.getAutoBanDuration() : null);
-                }
-        );
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(
