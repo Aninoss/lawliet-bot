@@ -1,17 +1,19 @@
 package events.scheduleevents.events;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.atomic.AtomicInteger;
 import constants.AssetIds;
-import core.Program;
-import core.MainLogger;
-import core.ShardManager;
 import constants.ExceptionRunnable;
-import events.scheduleevents.ScheduleEventHourly;
+import core.MainLogger;
+import core.Program;
+import core.ShardManager;
+import events.scheduleevents.ScheduleEventFixedRate;
 import net.dv8tion.jda.api.entities.Role;
 
-@ScheduleEventHourly
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+@ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.HOURS)
 public class AnicordKickOldUnverifiedMembers implements ExceptionRunnable {
 
     @Override

@@ -7,7 +7,7 @@ import core.MainLogger;
 import core.MemberCacheController;
 import core.Program;
 import core.utils.BotPermissionUtil;
-import events.scheduleevents.ScheduleEventDaily;
+import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.modules.servermute.DBServerMute;
@@ -16,17 +16,17 @@ import net.dv8tion.jda.api.entities.Member;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Calendar;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@ScheduleEventDaily
+@ScheduleEventFixedRate(rateValue = 7, rateUnit = ChronoUnit.DAYS)
 public class MuteRefresh implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY && Program.productionMode()) {
+        if (Program.productionMode()) {
             execute();
         }
     }
