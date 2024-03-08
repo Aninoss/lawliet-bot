@@ -147,7 +147,7 @@ public class Mod {
                     PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guild, Permission.MODERATE_MEMBERS) &&
                     BotPermissionUtil.canInteract(guild, target)
             ) {
-                Integer durationMinutes = moderationEntity.getAutoJail().getDurationMinutes();
+                Integer durationMinutes = moderationEntity.getAutoMute().getDurationMinutes();
                 String durationString = durationMinutes != null ? TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(durationMinutes)).toString() : "";
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_automute"))
