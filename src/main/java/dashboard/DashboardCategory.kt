@@ -21,11 +21,21 @@ import org.json.JSONObject
 import java.util.*
 import kotlin.reflect.KClass
 
-abstract class DashboardCategory(private val guildId: Long, private val userId: Long, val locale: Locale, var guildEntity: GuildEntity) {
+abstract class DashboardCategory(private val guildId: Long, private val userId: Long, val locale: Locale, guildEntity: GuildEntity) {
 
     val atomicGuild: AtomicGuild = AtomicGuild(guildId)
     val atomicMember: AtomicMember = AtomicMember(guildId, userId)
     val properties: DashboardProperties = this.javaClass.getAnnotation(DashboardProperties::class.java)
+
+    var guildEntity: GuildEntity = guildEntity
+        set(value) {
+            val currentEntityManager = guildEntity.entityManager
+            if (!currentEntityManager.isOpen) {
+                field = value
+            } else {
+                value.entityManager.extendOther(currentEntityManager)
+            }
+        }
     val prefix: String = guildEntity.prefix
     val entityManager: EntityManagerWrapper
         get() = guildEntity.entityManager

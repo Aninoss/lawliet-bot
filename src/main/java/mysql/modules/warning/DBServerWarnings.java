@@ -1,12 +1,13 @@
 package mysql.modules.warning;
 
-import java.sql.Types;
-import java.util.List;
-import java.util.Optional;
 import javafx.util.Pair;
 import mysql.DBDataLoad;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
+
+import java.sql.Types;
+import java.util.List;
+import java.util.Optional;
 
 public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, ServerWarningsData> {
 
@@ -21,17 +22,17 @@ public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, Serve
 
     @Override
     protected ServerWarningsData load(Pair<Long, Long> pair) throws Exception {
-        ServerWarningsData serverWarningsBean = new ServerWarningsData(
+        ServerWarningsData serverWarningsData = new ServerWarningsData(
                 pair.getKey(),
                 pair.getValue(),
                 getWarnings(pair.getKey(), pair.getValue())
         );
 
-        serverWarningsBean.getWarnings()
+        serverWarningsData.getWarnings()
                 .addListAddListener(list -> list.forEach(this::addWarning))
                 .addListRemoveListener(list -> list.forEach(this::removeWarning));
 
-        return serverWarningsBean;
+        return serverWarningsData;
     }
 
     @Override

@@ -609,16 +609,27 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public UserEntity getUserEntity() {
+        if (guildEntity == null) {
+            return null;
+        }
         return guildEntity.getEntityManager().findUserEntity(atomicMember.getIdLong());
     }
 
     public EntityManagerWrapper getEntityManager() {
+        if (guildEntity == null) {
+            return null;
+        }
         return guildEntity.getEntityManager();
     }
 
-    public void setGuildEntity(GuildEntity guildEntity) {
-        this.guildEntity = guildEntity;
-        setLocale(guildEntity.getLocale());
+    public void setGuildEntity(GuildEntity newGuildEntity) {
+        EntityManagerWrapper currentEntityManager = getEntityManager();
+        if (currentEntityManager == null || !currentEntityManager.isOpen()) {
+            guildEntity = newGuildEntity;
+        } else {
+            newGuildEntity.getEntityManager().extendOther(currentEntityManager);
+        }
+        setLocale(newGuildEntity.getLocale());
     }
 
     public GuildEntity refreshGuildEntity() {

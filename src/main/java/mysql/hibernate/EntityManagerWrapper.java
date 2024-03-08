@@ -24,6 +24,8 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     private final EntityManager entityManager;
     private final AsyncTimer asyncTimer;
     private ArrayList<String> parameters = new ArrayList<>();
+    private int uses = 1;
+    private EntityManagerWrapper other = null;
 
     public EntityManagerWrapper(EntityManager entityManager, Class<?> callingClass) {
         this.entityManager = entityManager;
@@ -379,7 +381,14 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
+        if (--uses > 0) {
+            return;
+        }
+
+        if (other != null) {
+            other.close();
+        }
         EntityTransaction transaction = entityManager.getTransaction();
         if (transaction.isActive()) {
             transaction.commit();
@@ -440,6 +449,11 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
     public void addParameters(Collection<String> parameters) {
         this.parameters.addAll(parameters);
+    }
+
+    public void extendOther(EntityManagerWrapper other) {
+        this.other = other;
+        other.uses++;
     }
 
 }
