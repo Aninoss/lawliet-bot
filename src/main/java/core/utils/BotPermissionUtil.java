@@ -197,11 +197,7 @@ public class BotPermissionUtil {
 
     public static boolean canInteract(Member member, long targetUserId) {
         Member target = MemberCacheController.getInstance().loadMember(member.getGuild(), targetUserId).join();
-        if (target != null) {
-            return member.canInteract(target);
-        } else {
-            return true;
-        }
+        return target == null || member.canInteract(target);
     }
 
     public static boolean canManage(GuildChannel channel, Permission permission) {

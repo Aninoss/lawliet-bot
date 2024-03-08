@@ -96,7 +96,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
                 val prefix = it.data
 
-                Prefix.changePrefix(guild.selfMember, locale, prefix, guildEntity)
+                Prefix.changePrefix(atomicMember.get().get(), locale, prefix, guildEntity)
                 ActionResult()
             }
             prefixField.value = guildEntity.prefix
