@@ -7,7 +7,7 @@ import core.EmbedFactory;
 import core.Program;
 import core.ShardManager;
 import core.TextManager;
-import events.scheduleevents.ScheduleEventEveryMinute;
+import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.user.FisheryDmReminderEntity;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ScheduleEventEveryMinute
+@ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
 public class ReminderUpvote implements ExceptionRunnable {
 
     @Override

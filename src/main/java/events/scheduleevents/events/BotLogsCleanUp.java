@@ -3,12 +3,14 @@ package events.scheduleevents.events;
 import constants.ExceptionRunnable;
 import core.MainLogger;
 import core.Program;
-import events.scheduleevents.ScheduleEventHourly;
+import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.BotLogEntity;
 
-@ScheduleEventHourly
+import java.time.temporal.ChronoUnit;
+
+@ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.HOURS)
 public class BotLogsCleanUp implements ExceptionRunnable {
 
     @Override

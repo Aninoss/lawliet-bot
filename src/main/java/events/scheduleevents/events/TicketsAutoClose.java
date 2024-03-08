@@ -5,7 +5,7 @@ import core.MainLogger;
 import core.ShardManager;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
-import events.scheduleevents.ScheduleEventHourly;
+import events.scheduleevents.ScheduleEventFixedRate;
 import modules.Ticket;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
@@ -16,12 +16,13 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@ScheduleEventHourly
+@ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.HOURS)
 public class TicketsAutoClose implements ExceptionRunnable {
 
     @Override

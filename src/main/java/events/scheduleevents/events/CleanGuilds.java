@@ -1,9 +1,11 @@
 package events.scheduleevents.events;
 
 import constants.ExceptionRunnable;
-import events.scheduleevents.ScheduleEventDaily;
+import events.scheduleevents.ScheduleEventFixedRate;
 
-@ScheduleEventDaily
+import java.time.temporal.ChronoUnit;
+
+@ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.DAYS)
 public class CleanGuilds implements ExceptionRunnable {
 
     @Override

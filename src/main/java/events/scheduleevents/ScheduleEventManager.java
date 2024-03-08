@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -57,7 +58,7 @@ public class ScheduleEventManager extends Startable {
         ScheduleEventFixedRate fixedRateAnnotation = listener.getClass().getAnnotation(ScheduleEventFixedRate.class);
         if (fixedRateAnnotation != null) {
             long millis = Duration.of(fixedRateAnnotation.rateValue(), fixedRateAnnotation.rateUnit()).toMillis();
-            scheduledExecutorService.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, millis, TimeUnit.MILLISECONDS);
+            scheduledExecutorService.scheduleAtFixedRate(new ScheduleAdapter(listener), ThreadLocalRandom.current().nextLong(millis) + DELAY, millis, TimeUnit.MILLISECONDS);
         }
     }
 
