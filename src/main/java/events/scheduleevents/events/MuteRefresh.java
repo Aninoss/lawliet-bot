@@ -44,7 +44,6 @@ public class MuteRefresh implements ExceptionRunnable {
                     )
                     .forEach(serverMuteData -> {
                         try {
-                            Locale locale = entityManager.findGuildEntity(serverMuteData.getGuildId()).getLocale();
                             Member member = MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).get();
                             if (member != null && member.getTimeOutEnd() != null) {
                                 Instant timeOutEnd = member.getTimeOutEnd().toInstant();
@@ -57,6 +56,7 @@ public class MuteRefresh implements ExceptionRunnable {
                                     Thread.sleep(2000 + r.nextInt(3000));
                                     counter.incrementAndGet();
                                     if (!BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
+                                        Locale locale = entityManager.findGuildEntity(serverMuteData.getGuildId()).getLocale();
                                         member.timeoutUntil(expiration)
                                                 .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
                                                 .complete();

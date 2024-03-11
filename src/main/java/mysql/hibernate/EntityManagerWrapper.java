@@ -166,10 +166,6 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
                 .executeUpdate();
     }
 
-    public <T extends HibernateEntity> Iterator<T> findAllForResponsibleGuildIds(Class<T> entityClass) {
-        return findAllForResponsibleIds(entityClass, "guildId");
-    }
-
     public <T extends HibernateEntity> Iterator<T> findAllForResponsibleIds(Class<T> entityClass, String fieldName) {
         if (Program.publicInstance()) {
             String queryString = """

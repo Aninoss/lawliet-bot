@@ -46,15 +46,15 @@ public class FisheryProcessors implements ExceptionRunnable {
         HashMap<Long, HashSet<Guild>> reminderGuildMap = new HashMap<>();
 
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(FisheryProcessors.class)) {
-            for (Guild guild : ShardManager.getLocalGuilds()) {
-                GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
-                if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {
+            entityManager.findAllForResponsibleIds(GuildEntity.class, "_id").forEachRemaining(guildEntity -> {
+                guildEntity.setEntityManager(entityManager);
+                Guild guild = ShardManager.getLocalGuildById(guildEntity.getGuildId()).orElse(null);
+                if (guild != null && guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {
                     processVoiceActivity(guild, guildEntity, voiceActivityActions);
                     processAutoSell(guild, autoSellActions);
                     processAutoWork(guild, autoWorkActions, reminderGuildMap);
                 }
-                entityManager.clear();
-            }
+            });
 
             MainLogger.get().info("Voice Channel - {} Actions", voiceActivityActions.get());
             MainLogger.get().info("Auto Sell - {} Actions", autoSellActions.get());

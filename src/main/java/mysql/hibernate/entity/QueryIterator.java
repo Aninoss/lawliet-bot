@@ -27,6 +27,7 @@ public class QueryIterator<T extends HibernateEntity> implements Iterator<T> {
     @Override
     public boolean hasNext() {
         if (objects.isEmpty()) {
+            entityManagerWrapper.clear();
             if (lastQuery) {
                 return false;
             }
