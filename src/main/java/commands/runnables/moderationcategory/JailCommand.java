@@ -16,6 +16,7 @@ import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Jail;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -147,6 +148,11 @@ public class JailCommand extends WarnCommand {
             EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), Category.MODERATION, "jail_warning_notallroles", jail));
         }
         return eb;
+    }
+
+    @Override
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_JAIL;
     }
 
 }

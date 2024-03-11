@@ -1,8 +1,10 @@
 package commands.runnables.moderationcategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.Permission;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "unjail",
@@ -17,6 +19,11 @@ public class UnjailCommand extends JailCommand {
 
     public UnjailCommand(Locale locale, String prefix) {
         super(locale, prefix, true, false);
+    }
+
+    @Override
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_UNJAIL;
     }
 
 }

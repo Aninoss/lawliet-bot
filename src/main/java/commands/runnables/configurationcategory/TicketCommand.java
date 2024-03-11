@@ -534,7 +534,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                     ticketsEntity.commitTransaction();
                 }
 
-                Ticket.closeTicket(getGuildEntity(), ticketChannelEntity, event.getChannel().asTextChannel());
+                Ticket.closeTicket(getGuildEntity(), ticketChannelEntity, event.getChannel().asTextChannel(), event.getMember());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                 event.getChannel().asTextChannel().sendMessageEmbeds(eb.build())
@@ -599,7 +599,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         ticketChannelEntity.setIntroductionMessageId(event.getMessageIdLong());
                         ticketsEntity.commitTransaction();
                     }
-                    Ticket.closeTicket(getGuildEntity(), ticketChannelEntity, channel);
+                    Ticket.closeTicket(getGuildEntity(), ticketChannelEntity, channel, event.getMember());
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                     event.replyEmbeds(eb.build())

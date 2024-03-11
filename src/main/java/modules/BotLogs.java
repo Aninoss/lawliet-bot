@@ -2,11 +2,11 @@ package modules;
 
 import commands.Category;
 import commands.Command;
-import constants.Emojis;
 import core.TextManager;
 import core.atomicassets.AtomicGuildChannel;
 import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicRole;
+import core.atomicassets.AtomicUser;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -125,12 +125,12 @@ public class BotLogs {
                         yield atomicRole.getPrefixedName(locale);
                     }
                 }
-                case MEMBER -> {
-                    AtomicMember atomicMember = new AtomicMember(guildId, Long.parseLong(value));
+                case USER -> {
+                    AtomicUser atomicUser = AtomicUser.fromOutsideCache(Long.parseLong(value));
                     if (inBlocks) {
-                        yield atomicMember.getPrefixedNameInField(locale);
+                        yield atomicUser.getPrefixedNameInField(locale);
                     } else {
-                        yield atomicMember.getPrefixedName(locale);
+                        yield atomicUser.getPrefixedName(locale);
                     }
                 }
             };
@@ -139,7 +139,6 @@ public class BotLogs {
                     .append("\n");
         }
 
-        sb.append(Emojis.ZERO_WIDTH_SPACE.getFormatted());
         return sb.toString();
     }
 

@@ -18,6 +18,8 @@ import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.ClearResults;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -97,6 +99,12 @@ public class ClearCommand extends Command implements OnButtonListener {
 
         long messageId = registerButtonListener(event.getMember()).get();
         TimeUnit.SECONDS.sleep(1);
+
+        EntityManagerWrapper entityManager = getEntityManager();
+        entityManager.getTransaction().begin();
+        BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_CLEAR, event.getMember(), channel.getId());
+        entityManager.getTransaction().commit();
+
         long authorMessageId = event.isMessageReceivedEvent() ? event.getMessageReceivedEvent().getMessage().getIdLong() : 0L;
         ClearResults clearResults = clear(channel, patreon, (int) amount, memberMention.getList(), authorMessageId, messageId);
 

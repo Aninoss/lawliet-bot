@@ -13,11 +13,14 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
+import java.util.List;
 import java.util.Locale;
 
 @CommandProperties(
@@ -66,6 +69,11 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
         }
 
         FeatureLogger.inc(PremiumFeature.FISHERY_SPAWN, event.getGuild().getIdLong());
+        EntityManagerWrapper entityManager = getEntityManager();
+        entityManager.getTransaction().begin();
+        BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_SPAWN_POWERUP, event.getMember(), channel.getIdLong(), null, List.of(member.getIdLong()));
+        entityManager.getTransaction().commit();
+
         for (int i = 0; i < amount; i++) {
             Fishery.spawnPowerUp(channel, member, getGuildEntity());
         }

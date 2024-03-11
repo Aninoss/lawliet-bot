@@ -56,7 +56,7 @@ public class TicketsAutoClose implements ExceptionRunnable {
                                     messages.get(0).getTimeCreated().toInstant().plus(Duration.ofHours(ticketsEntity.getAutoCloseHoursEffectively())).isBefore(Instant.now())
                             ) {
                                 FeatureLogger.inc(PremiumFeature.TICKETS_AUTO_CLOSE, guildEntity.getGuildId());
-                                Ticket.closeTicket(guildEntity, ticketChannelEntity, textChannel);
+                                Ticket.closeTicket(guildEntity, ticketChannelEntity, textChannel, null);
                                 counter.incrementAndGet();
                             }
                         }

@@ -15,6 +15,7 @@ import core.mention.MentionValue;
 import core.utils.*;
 import modules.schedulers.ReminderScheduler;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.ReminderEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -132,6 +133,9 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         EntityManagerWrapper entityManager = getEntityManager();
         entityManager.getTransaction().begin();
         entityManager.persist(reminderEntity);
+        if (targetChannel != null) {
+            BotLogEntity.log(entityManager, BotLogEntity.Event.REMINDERS_ADD, member, "\"" + StringUtil.shortenString(reminderEntity.getMessage(), 40) + "\"");
+        }
         entityManager.getTransaction().commit();
 
         ReminderScheduler.loadReminder(reminderEntity);

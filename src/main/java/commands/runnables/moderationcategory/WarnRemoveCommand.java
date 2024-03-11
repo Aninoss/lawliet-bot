@@ -8,6 +8,7 @@ import core.mention.Mention;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -85,6 +86,11 @@ public class WarnRemoveCommand extends WarnCommand {
     protected EmbedBuilder getSuccessEmbed() {
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString("success_description", n > 1, getAmountString(), mention.getMentionText()));
+    }
+
+    @Override
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_WARNREMOVE;
     }
 
     private String getAmountString() {

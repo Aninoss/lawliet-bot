@@ -12,6 +12,7 @@ import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.mention.MentionValue;
 import core.utils.MentionUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -79,6 +80,11 @@ public class NewKickCommand extends WarnCommand {
     @Override
     protected EmbedBuilder getNoMentionEmbed() {
         return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.MODERATION, "newkick_nomention"));
+    }
+
+    @Override
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_KICK;
     }
 
 }

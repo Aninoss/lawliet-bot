@@ -39,7 +39,7 @@ public class FisheryProcessors implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        MainLogger.get().info("Starting fishery processors...");
+        MainLogger.get().info("Starting fishery processors");
 
         AtomicInteger voiceActivityActions = new AtomicInteger(0);
         AtomicInteger autoSellActions = new AtomicInteger(0);

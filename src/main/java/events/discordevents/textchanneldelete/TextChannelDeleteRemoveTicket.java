@@ -18,7 +18,7 @@ public class TextChannelDeleteRemoveTicket extends TextChannelDeleteAbstract {
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
             TicketChannelEntity ticketChannelEntity = guildEntity.getTickets().getTicketChannels().get(event.getChannel().getIdLong());
             if (ticketChannelEntity != null) {
-                Ticket.removeTicket(event.getChannel().asTextChannel(), guildEntity, ticketChannelEntity);
+                Ticket.removeTicket(event.getChannel().asTextChannel(), guildEntity, ticketChannelEntity, null);
             }
         }
         return true;
