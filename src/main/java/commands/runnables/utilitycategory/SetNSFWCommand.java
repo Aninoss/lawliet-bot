@@ -6,6 +6,8 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.atomicassets.AtomicTextChannel;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -33,6 +35,11 @@ public class SetNSFWCommand extends Command {
                 .setNSFW(!channel.isNSFW())
                 .reason(getCommandLanguage().getTitle())
                 .complete();
+
+        EntityManagerWrapper entityManager = getEntityManager();
+        entityManager.getTransaction().begin();
+        BotLogEntity.log(entityManager, channel.isNSFW() ? BotLogEntity.Event.SET_NSFW : BotLogEntity.Event.SET_NOT_NSFW, event.getMember(), channel.getIdLong());
+        entityManager.getTransaction().commit();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(channel.isNSFW() ? "setnsfw" : "setnotnsfw", new AtomicTextChannel(channel).getPrefixedNameInField(getLocale())));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());

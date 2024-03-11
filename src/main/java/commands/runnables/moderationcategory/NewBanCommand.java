@@ -1,6 +1,7 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -33,6 +34,11 @@ public class NewBanCommand extends NewKickCommand {
                     guild.kick(target).queue();
                     return null;
                 });
+    }
+
+    @Override
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_BAN;
     }
 
 }

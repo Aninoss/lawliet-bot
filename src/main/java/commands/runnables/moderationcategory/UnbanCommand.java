@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import core.MemberCacheController;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -44,6 +45,11 @@ public class UnbanCommand extends WarnCommand {
                     guild.unban(target).queue();
                     return null;
                 });
+    }
+
+    @Override
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_UNBAN;
     }
 
 }

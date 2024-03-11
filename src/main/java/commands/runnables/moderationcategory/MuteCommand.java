@@ -10,6 +10,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mute;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -97,6 +98,11 @@ public class MuteCommand extends WarnCommand {
         String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "success_description" : "success_description_temp", mention.isMultiple(), mention.getMentionText(), remaining));
+    }
+
+    @Override
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_MUTE;
     }
 
 }

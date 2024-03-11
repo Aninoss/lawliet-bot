@@ -448,8 +448,10 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     }
 
     public void extendOther(EntityManagerWrapper other) {
-        this.other = other;
-        other.uses++;
+        if (this != other) {
+            this.other = other;
+            other.uses++;
+        }
     }
 
 }

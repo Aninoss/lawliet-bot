@@ -15,8 +15,11 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -94,6 +97,11 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
+
+        EntityManagerWrapper entityManager = getEntityManager();
+        entityManager.getTransaction().begin();
+        BotLogEntity.log(entityManager, addRole() ? BotLogEntity.Event.ASSIGN_ROLES : BotLogEntity.Event.REVOKE_ROLES, event.getMember(), roles.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+        entityManager.getTransaction().commit();
 
         FeatureLogger.inc(PremiumFeature.ROLE_ASSIGNMENTS, event.getGuild().getIdLong());
         setComponents(Button.of(ButtonStyle.SECONDARY, "quit", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));

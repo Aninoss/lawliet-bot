@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
         trigger = "botlogs",
         userGuildPermissions = Permission.VIEW_AUDIT_LOGS,
         emoji = "🔖",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        aliases = {"botlog"}
 )
 public class BotLogsCommand extends ListAbstract {
 
@@ -89,7 +90,7 @@ public class BotLogsCommand extends ListAbstract {
         }
 
         String message = BotLogs.getMessage(getLocale(), botLog, true);
-        return new Pair<>(title.toString(), getString("slot", message));
+        return new Pair<>(Emojis.ZERO_WIDTH_SPACE.getFormatted() + "\n" + title.toString(), getString("slot", message));
     }
 
     @Override
@@ -120,7 +121,7 @@ public class BotLogsCommand extends ListAbstract {
 
     @Override
     protected void postProcessEmbed(EmbedBuilder eb, int orderBy) {
-        eb.setDescription(getString("desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
+        eb.setDescription(getString("desc"));
     }
 
     private void addExpandedValueFields(BotLogEntity botLog) {

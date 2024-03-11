@@ -18,6 +18,7 @@ import core.lock.LockOccupiedException;
 import core.utils.*;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.guild.TicketChannelEntity;
 import mysql.hibernate.entity.guild.TicketsEntity;
@@ -270,7 +271,7 @@ public class Ticket {
         return null;
     }
 
-    public static void closeTicket(GuildEntity guildEntity, TicketChannelEntity ticketChannelEntity, TextChannel channel) {
+    public static void closeTicket(GuildEntity guildEntity, TicketChannelEntity ticketChannelEntity, TextChannel channel, Member closedByMember) {
         Locale locale = guildEntity.getLocale();
         TicketsEntity ticketsEntity = guildEntity.getTickets();
         AuditableRestAction<Void> channelDeleteRestAction = channel.delete()
@@ -279,8 +280,13 @@ public class Ticket {
         if (!ticketsEntity.getProtocolsEffectively()) {
             if (ticketsEntity.getDeleteChannelsOnClose()) {
                 channelDeleteRestAction.queue();
+                guildEntity.beginTransaction();
+                if (closedByMember != null && !ticketsEntity.getMembersCanCloseTickets()) {
+                    BotLogEntity.log(guildEntity.entityManager, BotLogEntity.Event.TICKETS_CLOSE, closedByMember, "`#" + channel.getName() + "`");
+                }
+                guildEntity.commitTransaction();
             } else {
-                closeChannelWithoutDeletion(locale, guildEntity, ticketChannelEntity, channel);
+                closeChannelWithoutDeletion(locale, guildEntity, ticketChannelEntity, channel, closedByMember);
             }
             return;
         }
@@ -346,17 +352,27 @@ public class Ticket {
 
             if (ticketsEntity.getDeleteChannelsOnClose()) {
                 channelDeleteRestAction.queue();
+                guildEntity.beginTransaction();
+                if (closedByMember != null && !ticketsEntity.getMembersCanCloseTickets()) {
+                    BotLogEntity.log(guildEntity.entityManager, BotLogEntity.Event.TICKETS_CLOSE, closedByMember, "`#" + channel.getName() + "`");
+                }
+                guildEntity.commitTransaction();
             } else {
-                closeChannelWithoutDeletion(locale, guildEntity, ticketChannelEntity, channel);
+                closeChannelWithoutDeletion(locale, guildEntity, ticketChannelEntity, channel, closedByMember);
             }
         } catch (LockOccupiedException e) {
             //Ignore
         }
     }
 
-    public static void removeTicket(TextChannel ticketTextChannel, GuildEntity guildEntity, TicketChannelEntity ticketChannelEntity) {
+    public static void removeTicket(TextChannel ticketTextChannel, GuildEntity guildEntity, TicketChannelEntity ticketChannelEntity, Member closedByMember) {
+        TicketsEntity ticketsEntity = guildEntity.getTickets();
+
         guildEntity.beginTransaction();
-        guildEntity.getTickets().getTicketChannels().remove(ticketChannelEntity.getChannelId());
+        ticketsEntity.getTicketChannels().remove(ticketChannelEntity.getChannelId());
+        if (closedByMember != null && !ticketsEntity.getMembersCanCloseTickets()) {
+            BotLogEntity.log(guildEntity.entityManager, BotLogEntity.Event.TICKETS_CLOSE, closedByMember, "`#" + ticketTextChannel.getName() + "`");
+        }
         guildEntity.commitTransaction();
 
         TextChannel announcementChannel = ticketTextChannel.getGuild().getTextChannelById(ticketChannelEntity.getLogChannelId());
@@ -410,6 +426,7 @@ public class Ticket {
         ) {
             guildEntity.beginTransaction();
             ticketChannelEntity.setAssigned(true);
+            BotLogEntity.log(guildEntity.entityManager, BotLogEntity.Event.TICKETS_ASSIGN, member, "`#" + channel.getName() + "`");
             guildEntity.commitTransaction();
 
             TextChannelManager channelManager = channel.getManager();
@@ -499,7 +516,9 @@ public class Ticket {
         return channelAction;
     }
 
-    private static void closeChannelWithoutDeletion(Locale locale, GuildEntity guildEntity, TicketChannelEntity ticketChannelEntity, TextChannel channel) {
+    private static void closeChannelWithoutDeletion(Locale locale, GuildEntity guildEntity,TicketChannelEntity ticketChannelEntity,
+                                                    TextChannel channel, Member closedByMember
+    ) {
         if (ticketChannelEntity.getIntroductionMessageId() != 0) {
             channel.editMessageComponentsById(ticketChannelEntity.getIntroductionMessageId())
                     .queue();
@@ -527,7 +546,7 @@ public class Ticket {
             channel.sendMessageEmbeds(eb.build()).queue();
         }
 
-        Ticket.removeTicket(channel, guildEntity, ticketChannelEntity);
+        Ticket.removeTicket(channel, guildEntity, ticketChannelEntity, closedByMember);
     }
 
     private static String extractContentFromMessage(Locale locale, Message message) {

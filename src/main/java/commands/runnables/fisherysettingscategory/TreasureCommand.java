@@ -15,6 +15,8 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
@@ -70,6 +72,11 @@ public class TreasureCommand extends Command implements FisheryInterface {
         }
 
         FeatureLogger.inc(PremiumFeature.FISHERY_SPAWN, event.getGuild().getIdLong());
+        EntityManagerWrapper entityManager = getEntityManager();
+        entityManager.getTransaction().begin();
+        BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_SPAWN_TREASURE_CHEST, event.getMember(), channel.getIdLong());
+        entityManager.getTransaction().commit();
+
         for (int i = 0; i < amount; i++) {
             Fishery.spawnTreasureChest(channel, getGuildEntity());
         }

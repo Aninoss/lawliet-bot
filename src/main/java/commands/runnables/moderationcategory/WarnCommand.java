@@ -15,9 +15,12 @@ import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mod;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -200,6 +203,11 @@ public class WarnCommand extends Command implements OnButtonListener {
             process(channel.getGuild(), user, reason);
         }
 
+        EntityManagerWrapper entityManager = getEntityManager();
+        entityManager.getTransaction().begin();
+        BotLogEntity.log(entityManager, getBotLogEvent(), executor, null, null, userList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+        entityManager.getTransaction().commit();
+
         status = Status.COMPLETED;
         return true;
     }
@@ -221,6 +229,10 @@ public class WarnCommand extends Command implements OnButtonListener {
 
     protected EmbedBuilder getNoMentionEmbed() {
         return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));
+    }
+
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_WARN;
     }
 
     @Override

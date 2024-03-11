@@ -1,6 +1,7 @@
 package commands.runnables.moderationcategory;
 
 import commands.listeners.CommandProperties;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.Permission;
 
 import java.util.Locale;
@@ -19,6 +20,11 @@ public class UnmuteCommand extends MuteCommand {
 
     public UnmuteCommand(Locale locale, String prefix) {
         super(locale, prefix, false);
+    }
+
+    @Override
+    protected BotLogEntity.Event getBotLogEvent() {
+        return BotLogEntity.Event.MOD_UNMUTE;
     }
 
 }

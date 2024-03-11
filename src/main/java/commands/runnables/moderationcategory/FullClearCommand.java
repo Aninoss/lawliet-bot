@@ -14,6 +14,8 @@ import core.mention.MentionList;
 import core.utils.*;
 import modules.ClearResults;
 import modules.schedulers.AlertResponse;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -35,12 +37,12 @@ import java.util.concurrent.TimeUnit;
 
 @CommandProperties(
         trigger = "fullclear",
-        botChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
-        userChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
+        botChannelPermissions = {Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY},
+        userChannelPermissions = {Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY},
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,
         maxCalculationTimeSec = 20 * 60,
-        aliases = { "fclear", "allclear", "clearall" }
+        aliases = {"fclear", "allclear", "clearall"}
 )
 public class FullClearCommand extends Command implements OnAlertListener, OnButtonListener {
 
@@ -60,7 +62,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         MentionList<StandardGuildMessageChannel> channelMention = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
         channel = event.getTextChannel();
-        if (channelMention.getList().size() > 0) {
+        if (!channelMention.getList().isEmpty()) {
             channel = channelMention.getList().get(0);
         }
         EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
@@ -68,9 +70,9 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 channel,
                 event.getMember(),
                 new Permission[0],
-                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
+                new Permission[]{Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY},
                 new Permission[0],
-                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY }
+                new Permission[]{Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY}
         );
         if (errEmbed != null) {
             drawMessageNew(errEmbed).exceptionally(ExceptionLogger.get());
@@ -82,35 +84,41 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         args = memberMention.getFilteredArgs();
         long hoursMin = Math.max(0, MentionUtil.getAmountExt(args));
 
-        if (hoursMin <= HOURS_MAX) {
-            long messageId = registerButtonListener(event.getMember()).get();
-            TimeUnit.SECONDS.sleep(1);
-            long authorMessageId = event.isMessageReceivedEvent() ? event.getMessageReceivedEvent().getMessage().getIdLong() : 0L;
-            ClearResults clearResults = fullClear(channel, (int) hoursMin, memberFilter, authorMessageId, messageId);
-
-            String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
-            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
-
-            if (!interrupt) {
-                deregisterListenersWithComponents();
-                drawMessage(eb).exceptionally(ExceptionLogger.get());
-            }
-
-            RestAction<Void> restAction;
-            if (event.isMessageReceivedEvent()) {
-                restAction = event.getTextChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
-            } else {
-                restAction = event.getTextChannel().deleteMessageById(messageId);
-            }
-            restAction.submitAfter(8, TimeUnit.SECONDS)
-                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
-            return true;
-        } else {
+        if (hoursMin > HOURS_MAX) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "0", StringUtil.numToString(HOURS_MAX))))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
+
+        long messageId = registerButtonListener(event.getMember()).get();
+        TimeUnit.SECONDS.sleep(1);
+
+        EntityManagerWrapper entityManager = getEntityManager();
+        entityManager.getTransaction().begin();
+        BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_FULLCLEAR, event.getMember(), channel.getId());
+        entityManager.getTransaction().commit();
+
+        long authorMessageId = event.isMessageReceivedEvent() ? event.getMessageReceivedEvent().getMessage().getIdLong() : 0L;
+        ClearResults clearResults = fullClear(channel, (int) hoursMin, memberFilter, authorMessageId, messageId);
+
+        String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
+
+        if (!interrupt) {
+            deregisterListenersWithComponents();
+            drawMessage(eb).exceptionally(ExceptionLogger.get());
+        }
+
+        RestAction<Void> restAction;
+        if (event.isMessageReceivedEvent()) {
+            restAction = event.getTextChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
+        } else {
+            restAction = event.getTextChannel().deleteMessageById(messageId);
+        }
+        restAction.submitAfter(8, TimeUnit.SECONDS)
+                .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
+        return true;
     }
 
     private void fullClear(StandardGuildMessageChannel channel, int hours) throws InterruptedException {
@@ -144,7 +152,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 }
             }
 
-            if (messagesDelete.size() >= 1) {
+            if (!messagesDelete.isEmpty()) {
                 if (messagesDelete.size() == 1) {
                     messagesDelete.get(0).delete().complete();
                 } else {

@@ -10,7 +10,6 @@ import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.DashboardButton
 import dashboard.component.DashboardButton.Style
-import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardText
 import dashboard.container.*
 import modules.BotLogs
@@ -50,10 +49,6 @@ class BotLogsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
 
         mainContainer.add(DashboardText(getString(Category.INFORMATION, "botlogs_delete")))
-
-        val disclaimerText = DashboardText(getString(Category.INFORMATION, "botlogs_disclaimer"))
-        disclaimerText.style = DashboardText.Style.WARNING
-        mainContainer.add(disclaimerText, DashboardSeparator())
 
         for (i in page * ENTRIES_PER_PAGE until min(entryIds.size, (page + 1) * ENTRIES_PER_PAGE)) {
             val botLogEntity: BotLogEntity? = if (entries != null) {

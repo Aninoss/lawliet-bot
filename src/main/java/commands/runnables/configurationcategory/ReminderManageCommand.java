@@ -17,6 +17,7 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.ReminderEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -240,6 +241,7 @@ public class ReminderManageCommand extends NavigationAbstract {
 
                 entityManager.getTransaction().begin();
                 if (type == ReminderEntity.Type.GUILD_REMINDER) {
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.REMINDERS_EDIT, event.getMember(), "\"" + StringUtil.shortenString(reminderEntity.getMessage(), 40) + "\"");
                     reminderEntity.setGuildChannelId(guildChannel.getIdLong());
                 }
                 reminderEntity.setMessage(message);
@@ -266,6 +268,9 @@ public class ReminderManageCommand extends NavigationAbstract {
 
                 if (reminderEntity != null) {
                     entityManager.getTransaction().begin();
+                    if (type == ReminderEntity.Type.GUILD_REMINDER) {
+                        BotLogEntity.log(entityManager, BotLogEntity.Event.REMINDERS_DELETE, event.getMember(), "\"" + StringUtil.shortenString(reminderEntity.getMessage(), 40) + "\"");
+                    }
                     entityManager.remove(reminderEntity);
                     entityManager.getTransaction().commit();
 
