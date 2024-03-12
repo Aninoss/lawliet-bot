@@ -18,7 +18,7 @@ class DashboardMemberComboBox(
     init {
         selectedValues = selectedMember?.let {
             val atomicMember = AtomicMember(guildId, it)
-            listOf(DiscordEntity(it.toString(), atomicMember.getTaggedName(locale)))
+            listOf(DiscordEntity(it.toString(), atomicMember.getUsername(locale)))
         } ?: emptyList<DiscordEntity>()
         setActionListener(action)
     }

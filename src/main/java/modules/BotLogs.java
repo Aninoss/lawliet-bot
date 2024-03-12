@@ -22,8 +22,8 @@ public class BotLogs {
 
     public static String getMessage(Locale locale, BotLogEntity botLog, boolean markdown) {
         List<User> targetedUserList = botLog.getTargetedUserList();
-        String memberString = (markdown ? "**" : "") + new AtomicMember(botLog.getGuildId(), botLog.getMemberId()).getTaggedName(locale) + (markdown ? "**" : "");
-        String targetedUserString = MentionUtil.getMentionedStringOfDiscriminatedUsers(locale, targetedUserList).getMentionText();
+        String memberString = (markdown ? "**" : "") + new AtomicMember(botLog.getGuildId(), botLog.getMemberId()).getUsername(locale) + (markdown ? "**" : "");
+        String targetedUserString = MentionUtil.getMentionedStringOfUsernames(locale, targetedUserList).getMentionText();
         if (!markdown) {
             targetedUserString = targetedUserString.replace("**", "");
         }

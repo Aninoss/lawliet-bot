@@ -63,7 +63,7 @@ public class JailScheduler {
             Jail.unjail(jailData, guild, member, TextManager.getString(locale, Category.MODERATION, "jail_expired_title"), guildEntity);
 
             Command command = CommandManager.createCommandByClass(JailCommand.class, locale, prefix);
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "jail_expired", StringUtil.escapeMarkdown(member.getUser().getAsTag())));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "jail_expired", StringUtil.escapeMarkdown(member.getUser().getName())));
             Mod.postLogMembers(command, eb, guildEntity.getModeration(), member, false);
         }
     }

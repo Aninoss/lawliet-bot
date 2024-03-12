@@ -76,21 +76,21 @@ public class BanCommand extends WarnCommand {
     @Override
     protected EmbedBuilder getActionEmbed(Member executor, GuildChannel channel) {
         String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
-        return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "action" : "action_temp", mention.isMultiple(), mention.getMentionText(), StringUtil.escapeMarkdown(executor.getUser().getAsTag()), StringUtil.escapeMarkdown(channel.getGuild().getName()), remaining));
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), getUserList());
+        return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "action" : "action_temp", mention.isMultiple(), mention.getMentionText(), StringUtil.escapeMarkdown(executor.getUser().getName()), StringUtil.escapeMarkdown(channel.getGuild().getName()), remaining));
     }
 
     @Override
     protected EmbedBuilder getConfirmationEmbed() {
         String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "confirmaion" : "confirmaion_temp", mention.getMentionText(), remaining));
     }
 
     @Override
     protected EmbedBuilder getSuccessEmbed() {
         String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "success_description" : "success_description_temp", mention.isMultiple(), mention.getMentionText(), remaining));
     }
 

@@ -1,8 +1,5 @@
 package events.sync;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
 import commands.Category;
 import commands.Command;
 import constants.AssetIds;
@@ -11,6 +8,10 @@ import core.ListGen;
 import core.TextManager;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 
 public class SyncLocaleUtil {
 
@@ -72,7 +73,7 @@ public class SyncLocaleUtil {
                 .replace("{MESSAGE_ID}", "557961653975515168")
                 .replace("{CHANNEL_ID}", "557953262305804310")
                 .replace("{GUILD_ID}", String.valueOf(AssetIds.SUPPORT_SERVER_ID))
-                .replace("{@USER}", "@Aninoss#7220")
+                .replace("{@USER}", "@aninoss")
                 .replace("{@BOT}", "@Lawliet#5480")
                 .replace("%Prefix", "L.");
     }

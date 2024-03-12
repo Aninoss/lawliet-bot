@@ -54,12 +54,12 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
         return get().map(Member::getEffectiveName);
     }
 
-    public Optional<String> getTaggedNameRaw() {
-        return get().map(member -> member.getUser().getAsTag());
+    public Optional<String> getUsernameRaw() {
+        return get().map(member -> member.getUser().getName());
     }
 
-    public String getTaggedName(Locale locale) {
-        return getTaggedNameRaw()
+    public String getUsername(Locale locale) {
+        return getUsernameRaw()
                 .orElseGet(() -> TextManager.getString(locale, TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
     }
 

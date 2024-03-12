@@ -17,7 +17,7 @@ public class GuildMemberRoleAddPatreonRole extends GuildMemberRoleAddAbstract {
         if (event.getGuild().getIdLong() == AssetIds.SUPPORT_SERVER_ID) {
             for (long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRoles().get(0).getIdLong() == roleId) {
-                    MainLogger.get().info("NEW PATREON {} ({})", event.getUser().getAsTag(), event.getUser().getId());
+                    MainLogger.get().info("NEW PATREON {} ({})", event.getUser().getName(), event.getUser().getId());
                     PatreonCache.getInstance().requestUpdate();
                     break;
                 }

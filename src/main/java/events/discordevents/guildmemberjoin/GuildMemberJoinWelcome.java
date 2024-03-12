@@ -1,8 +1,5 @@
 package events.discordevents.guildmemberjoin;
 
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Locale;
 import commands.runnables.configurationcategory.WelcomeCommand;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
@@ -25,6 +22,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
+
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Locale;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
@@ -58,14 +59,15 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         Member member = event.getMember();
         String text = welcomeMessageData.getDmText();
 
-        if (text.length() > 0) {
+        if (!text.isEmpty()) {
             String content = Welcome.resolveVariables(
                     welcomeMessageData.getDmText(),
                     StringUtil.escapeMarkdown(guild.getName()),
                     member.getAsMention(),
-                    StringUtil.escapeMarkdown(member.getEffectiveName()),
-                    StringUtil.escapeMarkdown(event.getUser().getAsTag()),
-                    StringUtil.numToString(guild.getMemberCount())
+                    StringUtil.escapeMarkdown(member.getUser().getName()),
+                    StringUtil.escapeMarkdown(member.getUser().getAsTag()),
+                    StringUtil.numToString(guild.getMemberCount()),
+                    StringUtil.escapeMarkdown(member.getUser().getEffectiveName())
             );
 
             if (welcomeMessageData.getDmEmbed()) {
@@ -106,9 +108,10 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                 welcomeMessageData.getWelcomeText(),
                 StringUtil.escapeMarkdown(guild.getName()),
                 member.getAsMention(),
-                StringUtil.escapeMarkdown(member.getEffectiveName()),
+                StringUtil.escapeMarkdown(member.getUser().getName()),
                 StringUtil.escapeMarkdown(member.getUser().getAsTag()),
-                StringUtil.numToString(guild.getMemberCount())
+                StringUtil.numToString(guild.getMemberCount()),
+                StringUtil.escapeMarkdown(member.getUser().getEffectiveName())
         );
 
         if (welcomeMessageData.getWelcomeEmbed()) {

@@ -213,17 +213,17 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     protected EmbedBuilder getActionEmbed(Member executor, GuildChannel channel) {
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-        return EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), StringUtil.escapeMarkdown(executor.getUser().getAsTag()), StringUtil.escapeMarkdown(channel.getGuild().getName())));
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), userList);
+        return EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), StringUtil.escapeMarkdown(executor.getUser().getName()), StringUtil.escapeMarkdown(channel.getGuild().getName())));
     }
 
     protected EmbedBuilder getConfirmationEmbed() {
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), userList);
         return EmbedFactory.getEmbedDefault(this, getString("confirmaion", mention.getMentionText()));
     }
 
     protected EmbedBuilder getSuccessEmbed() {
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), userList);
         return EmbedFactory.getEmbedDefault(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
     }
 
@@ -266,10 +266,10 @@ public class WarnCommand extends Command implements OnButtonListener {
                 int i;
                 if (!botMissingAccessList.isEmpty()) {
                     i = 0;
-                    mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), botMissingAccessList);
+                    mentionError = MentionUtil.getMentionedStringOfUsernames(getLocale(), botMissingAccessList);
                 } else {
                     i = 1;
-                    mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), memberMissingAccessList);
+                    mentionError = MentionUtil.getMentionedStringOfUsernames(getLocale(), memberMissingAccessList);
                 }
                 return EmbedFactory.getEmbedError(this,
                         TextManager.getString(getLocale(), Category.MODERATION, i == 0 ? "warn_rolepos_bot" : "warn_rolepos_user", mentionError.getMentionText()),

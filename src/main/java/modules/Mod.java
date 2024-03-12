@@ -97,7 +97,7 @@ public class Mod {
 
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
-                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getAsTag()), durationString));
+                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getName()), durationString));
 
                     postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, true).join();
 
@@ -118,7 +118,7 @@ public class Mod {
             ) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", StringUtil.escapeMarkdown(target.getAsTag())));
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", StringUtil.escapeMarkdown(target.getName())));
 
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, false).join();
                 guild.kick(target)
@@ -136,7 +136,7 @@ public class Mod {
                     String durationString = durationMinutes != null ? TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(durationMinutes)).toString() : "";
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autojail"))
-                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autojail_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getAsTag()), durationString));
+                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autojail_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getName()), durationString));
 
                     postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, false).join();
                     Jail.jail(guild, member, durationMinutes, TextManager.getString(locale, Category.MODERATION, "mod_autojail"), guildEntity);
@@ -151,7 +151,7 @@ public class Mod {
                 String durationString = durationMinutes != null ? TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(durationMinutes)).toString() : "";
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_automute"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_automute_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getAsTag()), durationString));
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_automute_template", durationMinutes != null, StringUtil.escapeMarkdown(target.getName()), durationString));
 
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, false).join();
                 Mute.mute(guild, target, durationMinutes, TextManager.getString(locale, Category.MODERATION, "mod_automute"));

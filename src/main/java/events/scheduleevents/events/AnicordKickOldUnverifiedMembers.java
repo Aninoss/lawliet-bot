@@ -28,7 +28,7 @@ public class AnicordKickOldUnverifiedMembers implements ExceptionRunnable {
                             member.hasTimeJoined() &&
                             member.getTimeJoined().toInstant().isBefore(Instant.now().minus(Duration.ofDays(3)))
                     ) {
-                        MainLogger.get().info("Kicked Unverified Member: " + member.getUser().getAsTag());
+                        MainLogger.get().info("Kicked Unverified Member: " + member.getUser().getName());
                         counter.incrementAndGet();
                         guild.kick(member).reason("Unverified").queue();
                     }

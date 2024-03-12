@@ -29,13 +29,13 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
         ShardManager.getLocalGuildById(guildId).ifPresent(guild -> {
             switch (type) {
                 case MEMBERS -> MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
-                        .filter(m -> m.getUser().getAsTag().toLowerCase().contains(filterText))
+                        .filter(m -> m.getUser().getName().toLowerCase().contains(filterText))
                         .skip(offset)
                         .limit(limit)
                         .forEach(m -> {
                             JSONObject json = new JSONObject();
                             json.put("id", m.getId());
-                            json.put("name", m.getUser().getAsTag());
+                            json.put("name", m.getUser().getName());
                             entitiesJson.put(json);
                         });
 

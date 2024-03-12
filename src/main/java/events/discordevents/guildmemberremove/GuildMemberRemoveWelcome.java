@@ -1,7 +1,5 @@
 package events.discordevents.guildmemberremove;
 
-import java.util.HashSet;
-import java.util.Locale;
 import commands.runnables.configurationcategory.WelcomeCommand;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
@@ -19,6 +17,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+
+import java.util.HashSet;
+import java.util.Locale;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
@@ -39,7 +40,8 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
                             user.getAsMention(),
                             StringUtil.escapeMarkdown(user.getName()),
                             StringUtil.escapeMarkdown(user.getAsTag()),
-                            StringUtil.numToString(guild.getMemberCount())
+                            StringUtil.numToString(guild.getMemberCount()),
+                            StringUtil.escapeMarkdown(user.getEffectiveName())
                     );
 
                     if (welcomeMessageData.getGoodbyeEmbed()) {

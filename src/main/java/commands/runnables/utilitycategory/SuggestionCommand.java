@@ -1,8 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.time.Duration;
-import java.util.Locale;
-import java.util.Optional;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -27,6 +24,10 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Duration;
+import java.util.Locale;
+import java.util.Optional;
 
 @CommandProperties(
         trigger = "suggestion",
@@ -53,7 +54,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     TextChannel channel = channelOpt.get();
                     String content = StringUtil.shortenString(args, 1024);
 
-                    EmbedBuilder eb = generateEmbed(event.getUser().getAsTag(), content, 0, 0);
+                    EmbedBuilder eb = generateEmbed(event.getUser().getName(), content, 0, 0);
                     MessageCreateAction messageAction = channel.sendMessageEmbeds(eb.build());
                     if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID) {
                         messageAction = messageAction.setContent("<@&762314049953988650>")
@@ -148,7 +149,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                         Long userId = suggestionMessage.getUserId();
                         if (userId != null) {
                             MemberCacheController.getInstance().loadMember(event.getGuild(), userId).join();
-                            author = new AtomicUser(userId).getTaggedName(getLocale());
+                            author = new AtomicUser(userId).getName(getLocale());
                         } else {
                             author = suggestionMessage.getAuthor();
                         }

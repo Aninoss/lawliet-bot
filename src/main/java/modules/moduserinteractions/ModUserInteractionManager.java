@@ -107,7 +107,7 @@ public class ModUserInteractionManager {
 
         return EmbedFactory.getEmbedError()
                 .setTitle(TextManager.getString(modCommand.getLocale(), TextManager.GENERAL, "wrong_args"))
-                .setDescription(TextManager.getString(modCommand.getLocale(), Category.MODERATION, "warn_rolepos_bot", "**" + StringUtil.escapeMarkdown(targetUser.getAsTag()) + "**"));
+                .setDescription(TextManager.getString(modCommand.getLocale(), Category.MODERATION, "warn_rolepos_bot", "**" + StringUtil.escapeMarkdown(targetUser.getName()) + "**"));
     }
 
     private static EmbedBuilder checkCanProcessMember(Member member, WarnCommand modCommand, User targetUser) throws Throwable {
@@ -117,7 +117,7 @@ public class ModUserInteractionManager {
 
         return EmbedFactory.getEmbedError()
                 .setTitle(TextManager.getString(modCommand.getLocale(), TextManager.GENERAL, "wrong_args"))
-                .setDescription(TextManager.getString(modCommand.getLocale(), Category.MODERATION, "warn_rolepos_user", "**" + StringUtil.escapeMarkdown(targetUser.getAsTag()) + "**"));
+                .setDescription(TextManager.getString(modCommand.getLocale(), Category.MODERATION, "warn_rolepos_user", "**" + StringUtil.escapeMarkdown(targetUser.getName()) + "**"));
     }
 
 }

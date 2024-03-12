@@ -415,9 +415,10 @@ public class WelcomeCommand extends NavigationAbstract {
                 StringUtil.escapeMarkdown(text),
                 "`%SERVER`",
                 "`%USER_MENTION`",
-                "`%USER_NAME`",
+                "`%USERNAME`",
                 "`%USER_DISCRIMINATED`",
-                "`%MEMBERS`"
+                "`%MEMBERS`",
+                "`%DISPLAY_NAME`"
         );
     }
 
@@ -429,7 +430,8 @@ public class WelcomeCommand extends NavigationAbstract {
                         member.getAsMention(),
                         StringUtil.escapeMarkdown(member.getUser().getName()),
                         StringUtil.escapeMarkdown(member.getUser().getAsTag()),
-                        StringUtil.numToString(member.getGuild().getMemberCount())
+                        StringUtil.numToString(member.getGuild().getMemberCount()),
+                        StringUtil.escapeMarkdown(member.getUser().getEffectiveName())
                 ));
 
         if (welcomeMessageData.getBanner()) {

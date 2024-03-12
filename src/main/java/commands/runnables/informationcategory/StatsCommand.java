@@ -1,7 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -19,6 +17,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "stats",
@@ -38,26 +39,26 @@ public class StatsCommand extends Command {
 
         String dephordName = "???";
         try {
-            dephordName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(303085910784737281L).get().getAsTag());
+            dephordName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(303085910784737281L).get().getName());
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
         String neverCookFirstName = "???";
         try {
-            neverCookFirstName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(298153126223937538L).get().getAsTag());
+            neverCookFirstName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(298153126223937538L).get().getName());
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
         String laleName = "???";
         try {
-            laleName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(774017093309431808L).get().getAsTag());
+            laleName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(774017093309431808L).get().getName());
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
-        String owner = StringUtil.escapeMarkdown(ShardManager.fetchUserById(AssetIds.OWNER_USER_ID).get().getAsTag());
+        String owner = StringUtil.escapeMarkdown(ShardManager.fetchUserById(AssetIds.OWNER_USER_ID).get().getName());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
                 getString(

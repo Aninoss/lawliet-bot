@@ -47,7 +47,7 @@ public class GuildMemberJoinAnicordAntiRaid extends GuildMemberJoinAbstract {
                     MainScheduler.schedule(Duration.ofMinutes(10), () -> {
                         event.getGuild().getMembers().stream()
                                 .filter(m -> m.hasTimeJoined() && m.getTimeJoined().plusMinutes(1).toInstant().isAfter(now))
-                                .forEach(m -> MainLogger.get().warn("Raid user: " + m.getUser().getAsTag()));
+                                .forEach(m -> MainLogger.get().warn("Raid user: " + m.getUser().getName()));
                         event.getGuild().getManager()
                                 .setInvitesDisabled(false)
                                 .reason("Raid Protection")

@@ -34,7 +34,7 @@ public class GuildUserContextInteractionModUserAction extends GuildUserContextIn
         GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "user_interaction_title"))
-                .setDescription(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "user_interaction_desc", StringUtil.escapeMarkdown(event.getTarget().getAsTag())));
+                .setDescription(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "user_interaction_desc", StringUtil.escapeMarkdown(event.getTarget().getName())));
 
         event.replyEmbeds(eb.build())
                 .addActionRow(generateSelectMenu(guildEntity.getLocale(), event.getTarget().getIdLong()))
