@@ -36,7 +36,7 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity(), LanguageAsse
 
     var intervalMinutes: Int? = null
     val intervalMinutesEffectively: Int?
-        get() = if (type == Type.GUILD_REMINDER && ServerPatreonBoostCache.get(targetId)) intervalMinutes else null
+        get() = if (type == Type.DM_REMINDER || ServerPatreonBoostCache.get(targetId)) intervalMinutes else null
 
     @Column(name = "language")
     @Enumerated(EnumType.STRING)
@@ -84,7 +84,13 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity(), LanguageAsse
     companion object {
         @JvmStatic
         @JvmOverloads
-        fun createGuildReminder(guildId: Long, channelId: Long, triggerTime: Instant, message: String, confirmationMessage: Message, intervalMinutes: Int? = null): ReminderEntity {
+        fun createGuildReminder(guildId: Long,
+                                channelId: Long,
+                                triggerTime: Instant,
+                                message: String,
+                                confirmationMessage: Message,
+                                intervalMinutes: Int? = null
+        ): ReminderEntity {
             return createGuildReminder(guildId, channelId, triggerTime, message, confirmationMessage.guildIdLong,
                     confirmationMessage.channelIdLong, confirmationMessage.idLong, intervalMinutes)
         }
@@ -115,17 +121,43 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity(), LanguageAsse
         }
 
         @JvmStatic
-        fun createDmReminder(userId: Long, triggerTime: Instant, message: String, language: Language, confirmationMessage: Message): ReminderEntity {
+        @JvmOverloads
+        fun createDmReminder(userId: Long,
+                             triggerTime: Instant,
+                             message: String,
+                             language: Language,
+                             confirmationMessage: Message,
+                             intervalMinutes: Int? = null
+        ): ReminderEntity {
+            return createDmReminder(userId, triggerTime, message, language, confirmationMessage.guildIdLong,
+                    confirmationMessage.channelIdLong, confirmationMessage.idLong, intervalMinutes)
+        }
+
+        @JvmStatic
+        @JvmOverloads
+        fun createDmReminder(userId: Long,
+                             triggerTime: Instant,
+                             message: String,
+                             language: Language,
+                             confirmationMessageGuildId: Long,
+                             confirmationMessageChannelId: Long,
+                             confirmationMessageMessageId: Long,
+                             intervalMinutes: Int? = null
+        ): ReminderEntity {
             val reminderEntity = ReminderEntity(UUID.randomUUID())
             reminderEntity.targetId = userId
             reminderEntity.triggerTime = triggerTime
             reminderEntity.message = message
+            if (intervalMinutes != null && intervalMinutes > 0) {
+                reminderEntity.intervalMinutes = intervalMinutes
+            }
             reminderEntity.language = language
-            reminderEntity.confirmationMessageGuildId = confirmationMessage.guildIdLong
-            reminderEntity.confirmationMessageChannelId = confirmationMessage.channelIdLong
-            reminderEntity.confirmationMessageMessageId = confirmationMessage.idLong
+            reminderEntity.confirmationMessageGuildId = confirmationMessageGuildId
+            reminderEntity.confirmationMessageChannelId = confirmationMessageChannelId
+            reminderEntity.confirmationMessageMessageId = confirmationMessageMessageId
             return reminderEntity
         }
+
     }
 
 }

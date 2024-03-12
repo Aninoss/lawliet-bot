@@ -39,10 +39,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -52,6 +49,9 @@ import java.util.stream.Collectors;
         aliases = {"reminderconfig"}
 )
 public class ReminderManageCommand extends NavigationAbstract {
+
+    public static int MAX_REPEATING_DM_REMINDERS = 3;
+    public static int REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES = 60;
 
     private static final int STATE_DM_REMINDERS = 1,
             STATE_GUILD_REMINDERS = 2,
@@ -147,8 +147,12 @@ public class ReminderManageCommand extends NavigationAbstract {
                 setState(STATE_SET_CHANNEL);
             }
             case 1 -> {
-                if (intervalMinutes == null && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                if (type == ReminderEntity.Type.GUILD_REMINDER && intervalMinutes == null && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     setLog(LogStatus.FAILURE, getString("err_nopremium"));
+                    return true;
+                }
+                if (type == ReminderEntity.Type.DM_REMINDER && intervalMinutes == null && getNumberOfRepeatingDmReminders(id) + 1 > MAX_REPEATING_DM_REMINDERS) {
+                    setLog(LogStatus.FAILURE, getString("err_toomanydmreminders", StringUtil.numToString(MAX_REPEATING_DM_REMINDERS)));
                     return true;
                 }
 
@@ -173,9 +177,20 @@ public class ReminderManageCommand extends NavigationAbstract {
                                 return null;
                             }
 
-                            if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                                setLog(LogStatus.FAILURE, getString("err_nopremium"));
-                                return null;
+                            if (type == ReminderEntity.Type.GUILD_REMINDER) {
+                                if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                                    setLog(LogStatus.FAILURE, getString("err_nopremium"));
+                                    return null;
+                                }
+                            } else {
+                                if (getNumberOfRepeatingDmReminders(id) + 1 > MAX_REPEATING_DM_REMINDERS) {
+                                    setLog(LogStatus.FAILURE, getString("err_toomanydmreminders", StringUtil.numToString(MAX_REPEATING_DM_REMINDERS)));
+                                    return null;
+                                }
+                                if (intervalMinutes < REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES) {
+                                    setLog(LogStatus.FAILURE, getString("err_dmrepetitiontooshort", StringUtil.numToString(REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES)));
+                                    return null;
+                                }
                             }
 
                             this.intervalMinutes = intervalMinutes;
@@ -226,8 +241,12 @@ public class ReminderManageCommand extends NavigationAbstract {
                     }
                 }
 
-                if (intervalMinutes != null && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                if (type == ReminderEntity.Type.GUILD_REMINDER && intervalMinutes != null && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     setLog(LogStatus.FAILURE, getString("err_nopremium"));
+                    return true;
+                }
+                if (type == ReminderEntity.Type.DM_REMINDER && intervalMinutes != null && getNumberOfRepeatingDmReminders(id) + 1 > MAX_REPEATING_DM_REMINDERS) {
+                    setLog(LogStatus.FAILURE, getString("err_toomanydmreminders", StringUtil.numToString(MAX_REPEATING_DM_REMINDERS)));
                     return true;
                 }
 
@@ -337,7 +356,7 @@ public class ReminderManageCommand extends NavigationAbstract {
     public EmbedBuilder onDrawManage(Member member) {
         String[] options = getString("manage_options").split("\n");
         ArrayList<Button> buttons = new ArrayList<>();
-        int iStart = type == ReminderEntity.Type.DM_REMINDER ? 2 : 0;
+        int iStart = type == ReminderEntity.Type.DM_REMINDER ? 1 : 0;
         for (int i = iStart; i < options.length; i++) {
             Button button = Button.of(i == 4 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY, String.valueOf(i), options[i]);
             buttons.add(button);
@@ -352,14 +371,15 @@ public class ReminderManageCommand extends NavigationAbstract {
             eb.addField(getString("manage_channel"), guildChannel.getPrefixedNameInField(getLocale()), true);
         }
         eb.addField(getString("manage_triggertime"), TimeFormat.DATE_TIME_SHORT.atInstant(triggerTime).toString(), true);
-        if (type == ReminderEntity.Type.GUILD_REMINDER) {
-            String intervalText = TextManager.getString(getLocale(), Category.UTILITY, "reminder_norep");
-            if (intervalMinutes != null && intervalMinutes > 0) {
-                intervalText = TimeUtil.getRemainingTimeString(getLocale(), Duration.ofMinutes(intervalMinutes).toMillis(), false);
-            }
-            eb.addField(getString("manage_interval") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), intervalText, true);
+
+        String intervalText = TextManager.getString(getLocale(), Category.UTILITY, "reminder_norep");
+        if (intervalMinutes != null && intervalMinutes > 0) {
+            intervalText = TimeUtil.getRemainingTimeString(getLocale(), Duration.ofMinutes(intervalMinutes).toMillis(), false);
         }
-        eb.addField(getString("manage_message"), StringUtil.shortenString(message, 1024), false);
+
+        String add = type == ReminderEntity.Type.GUILD_REMINDER ? " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted() : "";
+        eb.addField(getString("manage_interval") + add, intervalText, true)
+                .addField(getString("manage_message"), StringUtil.shortenString(message, 1024), false);
         return eb;
     }
 
@@ -387,6 +407,12 @@ public class ReminderManageCommand extends NavigationAbstract {
                 setState(STATE_GUILD_REMINDERS);
             }
         }
+    }
+
+    private int getNumberOfRepeatingDmReminders(UUID ignoreId) {
+        return (int) getUserEntity().getReminders().stream()
+                .filter(reminder -> reminder.getIntervalMinutesEffectively() != null && !Objects.equals(reminder.getId(), ignoreId))
+                .count();
     }
 
 }

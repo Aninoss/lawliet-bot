@@ -59,14 +59,14 @@ public class ReminderScheduler {
         entityManager.remove(reminderEntity);
         entityManager.getTransaction().commit();
 
+        GuildEntity guildEntity = entityManager.findGuildEntity(reminderEntity.getConfirmationMessageGuildId());
         if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER) {
-            GuildEntity guildEntity = entityManager.findGuildEntity(reminderEntity.getTargetId());
             ShardManager.getLocalGuildById(reminderEntity.getTargetId())
                     .map(guild -> guild.getChannelById(GuildMessageChannel.class, reminderEntity.getGuildChannelId()))
                     .ifPresent(channel -> sendReminder(guildEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, channel));
         } else {
             JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), reminderEntity.getTargetId())
-                    .queue(channel -> sendReminder(reminderEntity.getLocale(), null, entityManager, reminderEntity, channel));
+                    .queue(channel -> sendReminder(reminderEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, channel));
         }
     }
 
@@ -106,18 +106,32 @@ public class ReminderScheduler {
             }
         }
 
-        if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER && reminderEntity.getIntervalMinutesEffectively() != null) {
-            FeatureLogger.inc(PremiumFeature.REMINDERS_REPEAT, reminderEntity.getTargetId());
-            ReminderEntity newReminderEntity = ReminderEntity.createGuildReminder(
-                    reminderEntity.getTargetId(),
-                    reminderEntity.getGuildChannelId(),
-                    reminderEntity.getTriggerTime().plus(Duration.ofMinutes(reminderEntity.getIntervalMinutesEffectively())),
-                    reminderEntity.getMessage(),
-                    reminderEntity.getConfirmationMessageGuildId(),
-                    reminderEntity.getConfirmationMessageChannelId(),
-                    reminderEntity.getConfirmationMessageMessageId(),
-                    reminderEntity.getIntervalMinutes()
-            );
+        if (reminderEntity.getIntervalMinutesEffectively() != null) {
+            ReminderEntity newReminderEntity;
+            if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER) {
+                FeatureLogger.inc(PremiumFeature.REMINDERS_REPEAT, reminderEntity.getTargetId());
+                newReminderEntity = ReminderEntity.createGuildReminder(
+                        reminderEntity.getTargetId(),
+                        reminderEntity.getGuildChannelId(),
+                        reminderEntity.getTriggerTime().plus(Duration.ofMinutes(reminderEntity.getIntervalMinutesEffectively())),
+                        reminderEntity.getMessage(),
+                        reminderEntity.getConfirmationMessageGuildId(),
+                        reminderEntity.getConfirmationMessageChannelId(),
+                        reminderEntity.getConfirmationMessageMessageId(),
+                        reminderEntity.getIntervalMinutes()
+                );
+            } else {
+                newReminderEntity = ReminderEntity.createDmReminder(
+                        reminderEntity.getTargetId(),
+                        reminderEntity.getTriggerTime().plus(Duration.ofMinutes(reminderEntity.getIntervalMinutesEffectively())),
+                        reminderEntity.getMessage(),
+                        reminderEntity.getLanguage(),
+                        reminderEntity.getConfirmationMessageGuildId(),
+                        reminderEntity.getConfirmationMessageChannelId(),
+                        reminderEntity.getConfirmationMessageMessageId(),
+                        reminderEntity.getIntervalMinutes()
+                );
+            }
             newReminderEntity.setId(reminderEntity.getId());
 
             entityManager.getTransaction().begin();
@@ -129,7 +143,7 @@ public class ReminderScheduler {
             EmbedBuilder eb = ReminderCommand.generateEmbed(
                     locale,
                     prefix,
-                    (StandardGuildMessageChannel) channel,
+                    reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER ? (StandardGuildMessageChannel) channel : null,
                     newReminderEntity.getTriggerTime(),
                     newReminderEntity.getMessage(),
                     reminderEntity.getIntervalMinutesEffectively()
