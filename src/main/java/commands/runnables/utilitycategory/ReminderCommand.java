@@ -156,10 +156,9 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                 .addField(TextManager.getString(locale, Category.UTILITY, "reminder_channel"), channelStr, true)
                 .addField(TextManager.getString(locale, Category.UTILITY, "reminder_timespan"), TimeFormat.RELATIVE.atInstant(time).toString(), true);
 
-        if (channel != null) {
-            eb.addField(TextManager.getString(locale, Category.UTILITY, "reminder_repeatafter") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), intervalText, true);
-        }
-        eb.addField(TextManager.getString(locale, Category.UTILITY, "reminder_content"), StringUtil.shortenString(messageText, 1024), false);
+        String add = channel != null ? " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted() : "";
+        eb.addField(TextManager.getString(locale, Category.UTILITY, "reminder_repeatafter") + add, intervalText, true)
+                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_content"), StringUtil.shortenString(messageText, 1024), false);
 
         EmbedUtil.addLog(eb, TextManager.getString(locale, Category.UTILITY, "reminder_footer").replace("{PREFIX}", prefix));
         return eb;
