@@ -169,7 +169,7 @@ public class Ticket {
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
-                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getAsTag()), textChannel.getAsMention()));
+                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getName()), textChannel.getAsMention()));
 
                 logChannel.sendMessage(ticketsEntity.getPingStaffRoles() ? getRolePing(ticketsEntity) : " ")
                         .setEmbeds(ebAnnouncement.build())
@@ -323,7 +323,7 @@ public class Ticket {
                         message.getTimeCreated().toInstant().isAfter(lastMessageTime.plus(Duration.ofMinutes(15)))
                 ) {
                     row[0] = formatter.format(message.getTimeCreated());
-                    row[1] = message.getAuthor().getAsTag();
+                    row[1] = message.getAuthor().getName();
                 }
 
                 if (!message.getAttachments().isEmpty()) {
@@ -386,7 +386,7 @@ public class Ticket {
         String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
         String desc = TextManager.getString(locale, Category.CONFIGURATION, "ticket_announcement_closed",
                 StringUtil.escapeMarkdownInField(ticketTextChannel.getName()),
-                StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannelEntity.getMemberId()).getTaggedName(locale))
+                StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannelEntity.getMemberId()).getName(locale))
         );
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
@@ -461,8 +461,8 @@ public class Ticket {
                         Category.CONFIGURATION,
                         "ticket_announcement_assigned",
                         channel.getAsMention(),
-                        StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannelEntity.getMemberId()).getTaggedName(locale)),
-                        MentionUtil.getMentionedStringOfDiscriminatedUsers(locale, assignedUsers).getMentionText()
+                        StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannelEntity.getMemberId()).getName(locale)),
+                        MentionUtil.getMentionedStringOfUsernames(locale, assignedUsers).getMentionText()
                 );
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
@@ -474,7 +474,7 @@ public class Ticket {
 
             if (BotPermissionUtil.canWriteEmbed(channel)) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_assign", member.getUser().getAsTag()));
+                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_assign", member.getUser().getName()));
                 channel.sendMessageEmbeds(eb.build()).queue();
             }
         }

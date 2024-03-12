@@ -235,7 +235,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 .filter { it.inviterUserId == manageMember }
                 .map {
                     val atomicMember = AtomicMember(atomicGuild.idLong, it.memberId)
-                    GridRow(it.memberId.toString(), arrayOf(atomicMember.getTaggedName(locale)))
+                    GridRow(it.memberId.toString(), arrayOf(atomicMember.getUsername(locale)))
                 }
 
             if (!gridRows.isEmpty()) {

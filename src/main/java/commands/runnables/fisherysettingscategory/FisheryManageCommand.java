@@ -103,7 +103,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 FeatureLogger.inc(PremiumFeature.FISHERY_MANAGE, event.getGuild().getIdLong());
                 fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                 logReset(event.getMember());
-                drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale()))))
+                drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getUsernames(getLocale()))))
                         .exceptionally(ExceptionLogger.get());
                 return true;
             } else {
@@ -112,7 +112,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 if (FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), getGuildEntity(), type, amountString)) {
                     String valueNow = valueOfProperty(type);
                     logUpdate(type, event.getMember(), valueBefore, valueNow);
-                    drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(getLocale()), emojiOfProperty(type), valueBefore, valueNow)))
+                    drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getUsernames(getLocale()), emojiOfProperty(type), valueBefore, valueNow)))
                             .exceptionally(ExceptionLogger.get());
                     return true;
                 } else {
@@ -137,7 +137,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             }
             String valueNow = valueOfProperty(state - 1);
             logUpdate(state - 1, event.getMember(), valueBefore, valueNow);
-            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getAsTag(getLocale()), nameOfProperty(state - 1), valueBefore, valueNow));
+            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getUsernames(getLocale()), nameOfProperty(state - 1), valueBefore, valueNow));
             resetLog = true;
             setState(0);
 
@@ -166,7 +166,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                     fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                     logReset(event.getMember());
                     resetLog = true;
-                    setLog(LogStatus.SUCCESS, getString("reset_log", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale())));
+                    setLog(LogStatus.SUCCESS, getString("reset_log", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getUsernames(getLocale())));
                     setState(0);
                 }
                 return true;
@@ -181,7 +181,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     @Override
     public EmbedBuilder draw(Member member, int state) throws Throwable {
         if (state == 0) {
-            String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale()));
+            String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getUsernames(getLocale()));
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc);
 
             StringBuilder sb = new StringBuilder();

@@ -52,10 +52,11 @@ public class MentionUtil {
                 u -> " " + ((Member) u).getId() + " ",
                 u -> " @" + ((Member) u).getUser().getAsTag() + " ",
                 u -> " @" + ((Member) u).getUser().getName() + " ",
-                u -> " @" + ((Member) u).getEffectiveName() + "#" + ((Member) u).getUser().getDiscriminator() + " ",
+                u -> " @" + ((Member) u).getUser().getEffectiveName() + " ",
                 u -> " @" + ((Member) u).getEffectiveName() + " ",
                 u -> " " + ((Member) u).getUser().getAsTag() + " ",
                 u -> " " + ((Member) u).getUser().getName() + " ",
+                u -> " " + ((Member) u).getUser().getEffectiveName() + " ",
                 u -> " " + ((Member) u).getEffectiveName() + " "
         );
     }
@@ -75,8 +76,10 @@ public class MentionUtil {
                 u -> " " + ((User) u).getId() + " ",
                 u -> " @" + ((User) u).getAsTag() + " ",
                 u -> " @" + ((User) u).getName() + " ",
+                u -> " @" + ((User) u).getEffectiveName() + " ",
                 u -> " " + ((User) u).getAsTag() + " ",
-                u -> " " + ((User) u).getName() + " "
+                u -> " " + ((User) u).getName() + " ",
+                u -> " " + ((User) u).getEffectiveName() + " "
         );
     }
 
@@ -481,11 +484,11 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
     }
 
-    public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<User> userList) {
+    public static Mention getMentionedStringOfUsernames(Locale locale, List<User> userList) {
         ArrayList<String> mentions = new ArrayList<>();
         ArrayList<ISnowflake> elementList = new ArrayList<>();
         userList.forEach(user -> {
-            mentions.add(StringUtil.escapeMarkdown(user.getAsTag()));
+            mentions.add(StringUtil.escapeMarkdown(user.getName()));
             elementList.add(user);
         });
         return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);

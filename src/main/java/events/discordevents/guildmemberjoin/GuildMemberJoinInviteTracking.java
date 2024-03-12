@@ -1,8 +1,5 @@
 package events.discordevents.guildmemberjoin;
 
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Set;
 import commands.Category;
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
 import core.EmbedFactory;
@@ -27,6 +24,10 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Set;
+
 @DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
 
@@ -50,8 +51,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
     private void sendLog(InviteTrackingData inviteTrackingData, Locale locale, Member member, InviteTracking.TempInvite invite) {
         inviteTrackingData.getTextChannel().ifPresent(channel -> {
             if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
-                String invitedTag = StringUtil.escapeMarkdown(member.getUser().getAsTag());
-                String inviterTag = "";
+                String invitedName = StringUtil.escapeMarkdown(member.getUser().getName());
                 String inviterName = "";
                 String code = "";
                 String uses = "";
@@ -65,10 +65,8 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                         code = invite.getCode();
                         if (user != null) {
                             inviterName = StringUtil.escapeMarkdown(user.getName());
-                            inviterTag = StringUtil.escapeMarkdown(user.getAsTag());
                         } else {
                             inviterName = String.valueOf(invite.getInviter());
-                            inviterTag = String.valueOf(invite.getInviter());
                         }
                         n = 2;
                     } else {
@@ -77,12 +75,12 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                 }
 
                 String created = TimeFormat.RELATIVE.atInstant(member.getTimeCreated().toInstant()).toString();
-                String text = TextManager.getString(locale, Category.INVITE_TRACKING, "invitetracking_log", n, invitedTag, created, inviterTag, code, uses);
+                String text = TextManager.getString(locale, Category.INVITE_TRACKING, "invitetracking_log", n, invitedName, created, invitedName, code, uses);
 
                 MessageCreateAction messageAction;
                 if (inviteTrackingData.isAdvanced()) {
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setAuthor(member.getUser().getAsTag(), null, member.getEffectiveAvatarUrl())
+                            .setAuthor(member.getUser().getName(), null, member.getEffectiveAvatarUrl())
                             .setDescription(text);
 
                     if (invite != null) {

@@ -163,7 +163,7 @@ public class EmbedFactory {
 
     public static EmbedBuilder getWrittenByUserEmbed(User user, Locale locale) {
         return new EmbedBuilder()
-                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "user_text", StringUtil.escapeMarkdown(user.getAsTag())));
+                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "user_text", StringUtil.escapeMarkdown(user.getName())));
     }
 
 }

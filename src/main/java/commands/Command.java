@@ -71,7 +71,7 @@ public abstract class Command implements OnTriggerListener {
     private String memberEffectiveName;
     private String memberMention;
     private String memberEffectiveAvatarUrl;
-    private String memberTag;
+    private String username;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -585,7 +585,7 @@ public abstract class Command implements OnTriggerListener {
         memberEffectiveName = member.getEffectiveName();
         memberMention = member.getAsMention();
         memberEffectiveAvatarUrl = member.getEffectiveAvatarUrl();
-        memberTag = member.getUser().getAsTag();
+        username = member.getUser().getName();
     }
 
     public CommandEvent getCommandEvent() {
@@ -665,8 +665,8 @@ public abstract class Command implements OnTriggerListener {
         return Optional.ofNullable(memberEffectiveAvatarUrl);
     }
 
-    public Optional<String> getMemberAsTag() {
-        return Optional.ofNullable(memberTag);
+    public Optional<String> getUsername() {
+        return Optional.ofNullable(username);
     }
 
     public Optional<Long> getGuildId() {

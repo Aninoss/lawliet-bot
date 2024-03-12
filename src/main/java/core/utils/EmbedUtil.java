@@ -63,7 +63,7 @@ public class EmbedUtil {
     }
 
     public static EmbedBuilder setFooter(EmbedBuilder eb, Command command) {
-        Optional<String> userTagOpt = command.getMemberAsTag();
+        Optional<String> userTagOpt = command.getUsername();
         if (userTagOpt.isPresent()) {
             eb.setFooter(userTagOpt.get());
         } else {
@@ -78,7 +78,7 @@ public class EmbedUtil {
             return setFooter(eb, command);
         }
 
-        Optional<String> userTagOpt = command.getMemberAsTag();
+        Optional<String> userTagOpt = command.getUsername();
         if (userTagOpt.isPresent()) {
             eb = eb.setFooter(userTagOpt.get() + "｜" + footer);
         } else {

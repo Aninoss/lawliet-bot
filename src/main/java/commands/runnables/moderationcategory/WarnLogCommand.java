@@ -150,7 +150,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
             ServerWarningSlot serverWarningsSlot = warningSlots.get(i);
             Optional<Member> requestor = serverWarningsSlot.getRequesterMember();
             Optional<String> reason = serverWarningsSlot.getReason();
-            String userString = requestor.map(m -> StringUtil.escapeMarkdown(m.getUser().getAsTag())).orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user"));
+            String userString = requestor.map(m -> StringUtil.escapeMarkdown(m.getUser().getName())).orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user"));
             String timeDiffString = TimeFormat.DATE_TIME_SHORT.atInstant(serverWarningsSlot.getTime()).toString();
             sb.append(getString("latest_slot", reason.isPresent(), userString, timeDiffString, reason.orElse(getString("noreason"))));
         }

@@ -1,6 +1,5 @@
 package commands.runnables.invitetrackingcategory;
 
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
@@ -17,6 +16,8 @@ import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "invites",
@@ -69,7 +70,7 @@ public class InvitesCommand extends MemberAccountAbstract {
             eb.setAuthor(getString("template_title", member.getEffectiveName()), null, member.getEffectiveAvatarUrl());
             InviteTrackingSlot slot = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).getInviteTrackingSlots().get(member.getIdLong());
             if (slot != null) {
-                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("invitedby", slot.getInviterUserId() == 0, StringUtil.escapeMarkdown(new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getTaggedName(getLocale()))), false);
+                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("invitedby", slot.getInviterUserId() == 0, StringUtil.escapeMarkdown(new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getUsername(getLocale()))), false);
             }
         } else {
             String vanityInvite = TextManager.getString(getLocale(), TextManager.GENERAL, "invites_vanity");

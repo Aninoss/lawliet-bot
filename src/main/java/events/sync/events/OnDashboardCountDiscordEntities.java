@@ -24,7 +24,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
 
         long count = ShardManager.getLocalGuildById(guildId).map(guild -> switch (type) {
             case MEMBERS -> MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
-                    .filter(m -> m.getUser().getAsTag().toLowerCase().contains(filterText))
+                    .filter(m -> m.getUser().getName().toLowerCase().contains(filterText))
                     .count();
 
             case ROLES -> guild.getRoles().stream()

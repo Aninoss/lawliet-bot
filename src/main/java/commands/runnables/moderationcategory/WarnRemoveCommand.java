@@ -72,19 +72,19 @@ public class WarnRemoveCommand extends WarnCommand {
 
     @Override
     protected EmbedBuilder getActionEmbed(Member executor, GuildChannel channel) {
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
-        return EmbedFactory.getEmbedDefault(this, getString("action", n > 1, StringUtil.escapeMarkdown(executor.getUser().getAsTag()), getAmountString().toLowerCase(), mention.getMentionText()));
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), getUserList());
+        return EmbedFactory.getEmbedDefault(this, getString("action", n > 1, StringUtil.escapeMarkdown(executor.getUser().getName()), getAmountString().toLowerCase(), mention.getMentionText()));
     }
 
     @Override
     protected EmbedBuilder getConfirmationEmbed() {
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString("confirmaion", n > 1, getAmountString().toLowerCase(), mention.getMentionText()));
     }
 
     @Override
     protected EmbedBuilder getSuccessEmbed() {
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
+        Mention mention = MentionUtil.getMentionedStringOfUsernames(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString("success_description", n > 1, getAmountString(), mention.getMentionText()));
     }
 

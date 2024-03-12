@@ -29,7 +29,7 @@ class DashboardMultiMembersComboBox(
 
         selectedValues = selectedMembersSupplier(dashboardCategory.guildEntity).map {
             val atomicMember = AtomicMember(guildId, it)
-            DiscordEntity(it.toString(), atomicMember.getTaggedName(dashboardCategory.locale))
+            DiscordEntity(it.toString(), atomicMember.getUsername(dashboardCategory.locale))
         }
 
         setActionListener {

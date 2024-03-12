@@ -45,7 +45,7 @@ public class SayCommand extends Command {
                 : Collections.emptyList();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(StringUtil.shortenString(args, 4096))
-                .setFooter(getString("author", event.getMember().getUser().getAsTag()));
+                .setFooter(getString("author", event.getMember().getUser().getName()));
 
         Map<String, InputStream> fileAttachmentMap = new HashMap<>();
         if (attachments.size() > 0) {

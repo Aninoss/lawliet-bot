@@ -310,7 +310,7 @@ public class Console {
         ShardManager.fetchUserById(userId)
                 .exceptionally(ExceptionLogger.get())
                 .thenAccept(user -> {
-                    MainLogger.get().info("@{}: {}", user.getAsTag(), text);
+                    MainLogger.get().info("@{}: {}", user.getName(), text);
                     JDAUtil.openPrivateChannel(user)
                             .flatMap(messageChannel -> messageChannel.sendMessage(text))
                             .queue();
@@ -371,9 +371,9 @@ public class Console {
         for (int i = ShardManager.getShardIntervalMin(); i <= ShardManager.getShardIntervalMax(); i++) {
             ShardManager.getJDA(i).map(JDA::getUsers).ifPresent(users -> {
                 users.forEach(user -> {
-                    if (user.getAsTag().toLowerCase().contains(username.toLowerCase())) {
+                    if (user.getName().toLowerCase().contains(username.toLowerCase())) {
                         if (n.getAndIncrement() < 20) {
-                            MainLogger.get().info("{} => {}", user.getId(), user.getAsTag());
+                            MainLogger.get().info("{} => {}", user.getId(), user.getName());
                         }
                     }
                 });
@@ -388,7 +388,7 @@ public class Console {
                 .thenAccept(user -> MainLogger.get().info(
                         "{} => {} (Premium: {}; Old: {})",
                         user.getId(),
-                        user.getAsTag(),
+                        user.getName(),
                         PatreonCache.getInstance().hasPremium(user.getIdLong(), false),
                         PatreonCache.getInstance().hasPremium(user.getIdLong(), true)
                 ));
@@ -402,7 +402,7 @@ public class Console {
 
             String title = String.format("### VALID VC MEMBERS OF %s ###", guild.getName());
             System.out.println(title);
-            members.forEach(member -> System.out.println(member.getUser().getAsTag()));
+            members.forEach(member -> System.out.println(member.getUser().getName()));
             System.out.println("-".repeat(title.length()));
         });
     }
@@ -411,7 +411,7 @@ public class Console {
         long serverId = Long.parseLong(args[1]);
         ShardManager.getLocalGuildById(serverId).ifPresent(guild ->
                 MainLogger.get().info("{} | Members: {} | Owner: {} | Shard {} | Premium: {}", guild.getName(),
-                        guild.getMemberCount(), guild.getOwner().getUser().getAsTag(),
+                        guild.getMemberCount(), guild.getOwner().getUser().getName(),
                         guild.getJDA().getShardInfo().getShardId(), PatreonCache.getInstance().isUnlocked(serverId)
                 )
         );

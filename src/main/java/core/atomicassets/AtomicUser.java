@@ -1,16 +1,14 @@
 package core.atomicassets;
 
+import core.CustomObservableList;
+import core.ShardManager;
+import net.dv8tion.jda.api.entities.User;
+
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import core.CustomObservableList;
-import core.ShardManager;
-import core.TextManager;
-import core.utils.StringUtil;
-import net.dv8tion.jda.api.entities.User;
 
 public class AtomicUser implements MentionableAtomicAsset<User> {
 
@@ -42,15 +40,6 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
     @Override
     public Optional<String> getNameRaw() {
         return get().map(User::getName);
-    }
-
-    public Optional<String> getTaggedNameRaw() {
-        return get().map(User::getAsTag);
-    }
-
-    public String getTaggedName(Locale locale) {
-        return getTaggedNameRaw()
-                .orElseGet(() -> TextManager.getString(locale, TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
     }
 
     @Override

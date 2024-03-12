@@ -15,7 +15,7 @@ public class GuildMemberRemovePatreon extends GuildMemberRemoveAbstract {
     public boolean onGuildMemberRemove(GuildMemberRemoveEvent event, EntityManagerWrapper entityManager) {
         if (event.getGuild().getIdLong() == AssetIds.SUPPORT_SERVER_ID) {
             if (PatreonCache.getInstance().hasPremium(event.getUser().getIdLong(), false)) {
-                MainLogger.get().info("PATREON LEFT (LEFT SERVER) {} ({})", event.getUser().getAsTag(), event.getUser().getId());
+                MainLogger.get().info("PATREON LEFT (LEFT SERVER) {} ({})", event.getUser().getName(), event.getUser().getId());
             }
         }
 

@@ -1,8 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -16,6 +13,10 @@ import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Objects;
 
 @CommandProperties(
         trigger = "premium",
@@ -70,7 +71,7 @@ public class PremiumCommand extends Command {
                 .filter(Objects::nonNull)
                 .forEach(user -> {
                     String value = getString("slot_value", patreonTier);
-                    patreonUsers.append(getString("slot", StringUtil.escapeMarkdown(user.getAsTag()), value))
+                    patreonUsers.append(getString("slot", StringUtil.escapeMarkdown(user.getName()), value))
                             .append("\n");
                 });
 

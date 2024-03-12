@@ -1,6 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
@@ -12,6 +11,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.TimeFormat;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "userinfo",
@@ -39,15 +40,15 @@ public class UserInfoCommand extends MemberAccountAbstract {
         String avatarUrl = member != null ? member.getEffectiveAvatarUrl() : user.getEffectiveAvatarUrl();
 
         String[] argsArray = {
+                StringUtil.escapeMarkdown(user.getDiscriminator().equals("0000") ? user.getName() : user.getAsTag()),
+                user.getGlobalName() != null ? StringUtil.escapeMarkdown(user.getGlobalName()) : "-",
                 type[typeN],
-                StringUtil.escapeMarkdown(user.getName()),
-                member != null && member.getNickname() != null ? member.getNickname() : "-",
-                user.getDiscriminator(),
+                TextManager.getString(getLocale(), TextManager.GENERAL, "noyes", member != null),
+                member != null && member.getNickname() != null ? StringUtil.escapeMarkdown(member.getNickname()) : "-",
                 user.getId(),
                 avatarUrl + "?size=1024",
                 member != null && member.hasTimeJoined() ? TimeFormat.DATE_TIME_SHORT.atInstant(member.getTimeJoined().toInstant()).toString() : "-",
                 TimeFormat.DATE_TIME_SHORT.atInstant(user.getTimeCreated().toInstant()).toString(),
-                TextManager.getString(getLocale(), TextManager.GENERAL, "noyes", member != null)
         };
 
         return EmbedFactory.getEmbedDefault(this, getString("template", argsArray)).

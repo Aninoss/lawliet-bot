@@ -113,10 +113,10 @@ public class GiveawayScheduler {
                 .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "giveaway_results", winners.size() != 1))
                 .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
         giveawayData.getImageUrl().ifPresent(eb::setImage);
-        if (winners.size() > 0) {
+        if (!winners.isEmpty()) {
             eb.addField(
                     Emojis.ZERO_WIDTH_SPACE.getFormatted(),
-                    new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getAsTag()) + "**"),
+                    new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getName()) + "**"),
                     false
             );
         } else {
@@ -127,17 +127,17 @@ public class GiveawayScheduler {
         if (PermissionCheckRuntime.botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             if (!reroll) {
                 message.editMessageEmbeds(eb.build())
-                        .setContent(winners.size() > 0 ? mentions.toString() : null)
+                        .setContent(!winners.isEmpty() ? mentions.toString() : null)
                         .queue();
 
-                if (winners.size() > 0) {
+                if (!winners.isEmpty()) {
                     channel.sendMessage(mentions.toString())
                             .flatMap(Message::delete)
                             .queue();
                 }
             } else {
                 channel.sendMessageEmbeds(eb.build())
-                        .setContent(winners.size() > 0 ? mentions.toString() : null)
+                        .setContent(!winners.isEmpty() ? mentions.toString() : null)
                         .queue();
             }
         }
