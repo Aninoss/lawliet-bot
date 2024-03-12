@@ -3,10 +3,8 @@ package modules.automod;
 import commands.Category;
 import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
-import constants.AssetIds;
 import core.PermissionCheckRuntime;
 import core.TextManager;
-import core.cache.InviteCache;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
@@ -16,10 +14,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 
-import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class InviteFilter extends AutoModAbstract {
@@ -88,32 +83,11 @@ public class InviteFilter extends AutoModAbstract {
 
     @Override
     protected boolean checkCondition(Message message) {
-        if (inviteFilterEntity.getActive() &&
+        return inviteFilterEntity.getActive() &&
                 !inviteFilterEntity.getExcludedMemberIds().contains(message.getAuthor().getIdLong()) &&
                 !inviteFilterEntity.getExcludedChannelIds().contains(message.getChannel().getIdLong()) &&
-                !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR)
-        ) {
-            List<String> inviteLinks = message.getInvites();
-            if (!inviteLinks.isEmpty()) {
-                return inviteLinks.stream()
-                        .map(InviteCache::getInviteByCode)
-                        .map(future -> {
-                            try {
-                                return future.get();
-                            } catch (InterruptedException | ExecutionException e) {
-                                //Ignore
-                                return null;
-                            }
-                        })
-                        .filter(Objects::nonNull)
-                        .anyMatch(invite -> invite.getGuild() != null &&
-                                invite.getGuild().getIdLong() != message.getGuild().getIdLong() &&
-                                invite.getGuild().getIdLong() != AssetIds.SUPPORT_SERVER_ID
-                        );
-            }
-        }
-
-        return false;
+                !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR) &&
+                !message.getInvites().isEmpty();
     }
 
 }
