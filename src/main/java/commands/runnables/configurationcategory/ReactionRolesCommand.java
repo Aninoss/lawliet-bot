@@ -351,10 +351,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @ControllerButton(state = CONFIGURE_MESSAGE)
     public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) throws ExecutionException, InterruptedException, TimeoutException {
-        if (i >= 11 && newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
-            i++;
-        }
-
         switch (i) {
             case -1:
                 if (!editMode) {
@@ -629,8 +625,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public EmbedBuilder onDrawConfigureMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setComponents(
-                getString(newComponents == ReactionRoleMessage.ComponentType.REACTIONS ? "state3_options" : "state3_options_newcomponents")
-                        .split("\n")
+                getString(newComponents == ReactionRoleMessage.ComponentType.REACTIONS ? "state3_options" : "state3_options_newcomponents").split("\n"),
+                new int[]{13},
+                new int[0]
         );
 
         TextChannel textChannel = getTextChannel().get();

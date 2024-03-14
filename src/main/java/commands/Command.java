@@ -44,6 +44,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class Command implements OnTriggerListener {
 
@@ -125,19 +126,45 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public void setComponents(String... options) {
+        setComponents(options, new int[0], new int[0]);
+    }
+
+    public void setComponents(String[] options, int[] successIndexes, int[] dangerIndexes) {
         if (options != null) {
-            setComponents(optionsToButtons(options));
+            setComponents(optionsToButtons(options, successIndexes, dangerIndexes));
         } else {
             setActionRows();
         }
     }
 
-    public List<Button> optionsToButtons(String... options) {
+    public List<Button> optionsToButtons(String[] options, int[] successIndexes, int[] dangerIndexes) {
+        HashSet<Integer> successSet = Arrays.stream(successIndexes)
+                .boxed()
+                .collect(Collectors.toCollection(HashSet::new));
+        HashSet<Integer> dangerSet = Arrays.stream(dangerIndexes)
+                .boxed()
+                .collect(Collectors.toCollection(HashSet::new));
+
         ArrayList<Button> buttonList = new ArrayList<>();
         if (options != null) {
             for (int i = 0; i < options.length; i++) {
+                if (options[i].isEmpty()) {
+                    continue;
+                }
+
+                ButtonStyle buttonStyle = ButtonStyle.PRIMARY;
+                if (successSet.contains(i)) {
+                    buttonStyle = ButtonStyle.SUCCESS;
+                } else if (dangerSet.contains(i)) {
+                    buttonStyle = ButtonStyle.DANGER;
+                }
+
                 buttonList.add(
-                        Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(options[i], Button.LABEL_MAX_LENGTH))
+                        Button.of(
+                                buttonStyle,
+                                String.valueOf(i),
+                                StringUtil.shortenString(options[i], Button.LABEL_MAX_LENGTH)
+                        )
                 );
             }
         }
