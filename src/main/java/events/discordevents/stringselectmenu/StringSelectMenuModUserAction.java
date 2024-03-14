@@ -47,7 +47,7 @@ public class StringSelectMenuModUserAction extends StringSelectMenuAbstract impl
         WarnCommand modCommand = (WarnCommand) CommandManager.createCommandByTrigger(trigger, guildEntity.getLocale(), guildEntity.getPrefix()).get();
         modCommand.setGuildEntity(guildEntity);
 
-        EmbedBuilder errorEmbed = ModUserInteractionManager.checkAccess(event.getMember(), event.getGuildChannel(), modCommand, targetUserId);
+        EmbedBuilder errorEmbed = ModUserInteractionManager.checkAccess(guildEntity, event.getMember(), event.getGuildChannel(), modCommand, targetUserId);
         if (errorEmbed != null) {
             if (event.isAcknowledged()) {
                 event.getHook().sendMessageEmbeds(errorEmbed.build())
@@ -110,7 +110,7 @@ public class StringSelectMenuModUserAction extends StringSelectMenuAbstract impl
     private static Modal generateModal(Locale locale, WarnCommand modCommand, long targetUserId, ArrayList<ActionRow> actionRowList) {
         return ModalMediator.createModal(TextManager.getString(locale, Category.MODERATION, "user_interaction"), (event, guildEntity) -> {
                     try {
-                        EmbedBuilder modalErrorEmbed = ModUserInteractionManager.checkAccess(event.getMember(), event.getGuildChannel(), modCommand, targetUserId);
+                        EmbedBuilder modalErrorEmbed = ModUserInteractionManager.checkAccess(guildEntity, event.getMember(), event.getGuildChannel(), modCommand, targetUserId);
                         if (modalErrorEmbed != null) {
                             if (event.isAcknowledged()) {
                                 event.getHook().sendMessageEmbeds(modalErrorEmbed.build())

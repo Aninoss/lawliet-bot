@@ -4,13 +4,10 @@ import commands.Category;
 import commands.Command;
 import commands.runnables.moderationcategory.*;
 import constants.Language;
-import core.CommandPermissions;
-import core.EmbedFactory;
-import core.ShardManager;
-import core.TextManager;
+import core.*;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
-import mysql.modules.commandmanagement.DBCommandManagement;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -48,9 +45,9 @@ public class ModUserInteractionManager {
         return Collections.singletonList(commandData);
     }
 
-    public static EmbedBuilder checkAccess(Member member, GuildChannel channel, WarnCommand modCommand, long targetUserId) throws Throwable {
+    public static EmbedBuilder checkAccess(GuildEntity guildEntity, Member member, GuildChannel channel, WarnCommand modCommand, long targetUserId) throws Throwable {
         EmbedBuilder errorEmbed;
-        if ((errorEmbed = checkCommandTurnedOn(member, modCommand)) != null ||
+        if ((errorEmbed = checkCommandTurnedOn(guildEntity, member, modCommand)) != null ||
                 (errorEmbed = checkCommandPermissions(member, channel, modCommand)) != null ||
                 (errorEmbed = checkPermissions(member, modCommand)) != null
         ) {
@@ -67,10 +64,8 @@ public class ModUserInteractionManager {
         return modCommand.userActionCheckGeneralError();
     }
 
-    private static EmbedBuilder checkCommandTurnedOn(Member member, Command command) {
-        if (DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong())
-                .commandIsTurnedOnEffectively(command, member)
-        ) {
+    private static EmbedBuilder checkCommandTurnedOn(GuildEntity guildEntity, Member member, Command command) {
+        if (DisabledCommands.commandIsEnabledEffectively(guildEntity, command, member)) {
             return null;
         }
 

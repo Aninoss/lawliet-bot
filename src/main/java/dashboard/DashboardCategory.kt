@@ -96,7 +96,7 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
         val member = atomicMember.get().get()
         return properties.commandAccessRequirements
                 .any {
-                    CommandManager.commandIsTurnedOnEffectively(it.java, member, null)
+                    CommandManager.commandIsEnabledEffectively(guildEntity, it.java, member, null)
                 }
     }
 
@@ -108,7 +108,7 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
         val member = atomicMember.get().get()
         return classes
                 .any {
-                    CommandManager.commandIsTurnedOnEffectively(it.java, member, null)
+                    CommandManager.commandIsEnabledEffectively(guildEntity, it.java, member, null)
                 }
     }
 

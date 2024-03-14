@@ -42,7 +42,7 @@ class HelpAdapter : SlashAdapter() {
         return SlashMeta(HelpCommand::class.java, args)
     }
 
-    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
+    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
         val userText = event.focusedOption.value
         val choiceList = ArrayList<Command.Choice>()
         for (clazz in CommandContainer.getFullCommandList()) {
@@ -50,7 +50,7 @@ class HelpAdapter : SlashAdapter() {
             val commandTrigger = commandProperties.trigger
             val triggers = mutableListOf(commandTrigger)
             if ((!commandProperties.nsfw || event.channel!!.asTextChannel().isNSFW) &&
-                CommandManager.commandIsTurnedOnEffectively(clazz, event.member, event.channel!!.asTextChannel())
+                CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.channel!!.asTextChannel())
             ) {
                 triggers.addAll(commandProperties.aliases)
                 if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {

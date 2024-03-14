@@ -113,7 +113,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                 Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                 if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
                     Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
-                    if (event.getChannel() instanceof TextChannel && CommandManager.commandIsTurnedOnEffectively(helpCommand, event.getMember(), event.getChannel().asTextChannel())) {
+                    if (event.getChannel() instanceof TextChannel && CommandManager.commandIsEnabledEffectively(guildEntity, helpCommand, event.getMember(), event.getChannel().asTextChannel())) {
                         args = command.getTrigger();
                         command = helpCommand;
                         command.getAttachments().put("noargs", true);

@@ -8,13 +8,12 @@ import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import core.CustomObservableList;
+import core.DisabledCommands;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
-import mysql.modules.commandmanagement.CommandManagementData;
-import mysql.modules.commandmanagement.DBCommandManagement;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -41,15 +40,12 @@ public class CommandManagementCommand extends NavigationAbstract {
             ADD_COMMANDS = 2,
             REMOVE_COMMANDS = 3;
 
-    private CommandManagementData commandManagementData;
-
     public CommandManagementCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        commandManagementData = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -72,9 +68,10 @@ public class CommandManagementCommand extends NavigationAbstract {
             return MessageInputResponse.FAILED;
         }
 
-        List<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
+        GuildEntity guildEntity = getGuildEntity();
+        Set<String> disabledCommands = guildEntity.getDisabledCommandsAndCategories();
         List<String> newCommands = commands.stream()
-                .filter(trigger -> !switchedOffElements.contains(trigger))
+                .filter(trigger -> !disabledCommands.contains(trigger))
                 .collect(Collectors.toList());
 
         if (newCommands.isEmpty()) {
@@ -82,11 +79,10 @@ public class CommandManagementCommand extends NavigationAbstract {
             return MessageInputResponse.FAILED;
         }
 
-        commandManagementData.getSwitchedOffElements().addAll(newCommands);
-
-        getEntityManager().getTransaction().begin();
-        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), newCommands, null);
-        getEntityManager().getTransaction().commit();
+        guildEntity.beginTransaction();
+        guildEntity.getDisabledCommandsAndCategories().addAll(newCommands);
+        BotLogEntity.log(guildEntity.getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), newCommands, null);
+        guildEntity.commitTransaction();
 
         setLog(LogStatus.SUCCESS, getString("addcommands_set", newCommands.size() != 1, StringUtil.numToString(newCommands.size())));
         setState(MAIN);
@@ -109,7 +105,7 @@ public class CommandManagementCommand extends NavigationAbstract {
                 return true;
             }
             case 2 -> {
-                if (!commandManagementData.getSwitchedOffCommands().isEmpty()) {
+                if (!DisabledCommands.getDisabledCommands(getGuildEntity()).isEmpty()) {
                     setState(REMOVE_COMMANDS);
                     return true;
                 } else {
@@ -147,18 +143,19 @@ public class CommandManagementCommand extends NavigationAbstract {
             setState(MAIN);
             return true;
         } else {
-            CustomObservableList<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
+            GuildEntity guildEntity = getGuildEntity();
+            Set<String> disabledCommandsAndCateogories = guildEntity.getDisabledCommandsAndCategories();
             String trigger = event.getButton().getLabel();
-            if (switchedOffElements.contains(trigger)) {
-                switchedOffElements.remove(trigger);
 
-                getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), null, trigger);
-                getEntityManager().getTransaction().commit();
+            if (disabledCommandsAndCateogories.contains(trigger)) {
+                guildEntity.beginTransaction();
+                disabledCommandsAndCateogories.remove(trigger);
+                BotLogEntity.log(guildEntity.getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), null, trigger);
+                guildEntity.commitTransaction();
             }
 
             setLog(LogStatus.SUCCESS, getString("commandremoved", trigger));
-            if (commandManagementData.getSwitchedOffCommands().isEmpty()) {
+            if (DisabledCommands.getDisabledCommands(guildEntity).isEmpty()) {
                 setState(MAIN);
             }
             return true;
@@ -167,26 +164,23 @@ public class CommandManagementCommand extends NavigationAbstract {
 
     @ControllerStringSelectMenu(state = SET_CATEGORIES)
     public boolean onSelectMenu(StringSelectInteractionEvent event, int i) {
-        CustomObservableList<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
+        GuildEntity guildEntity = getGuildEntity();
+        Set<String> disabledCommandsAndCategories = guildEntity.getDisabledCommandsAndCategories();
 
-        ArrayList<String> added = new ArrayList<>();
+        guildEntity.beginTransaction();
         for (String value : event.getValues()) {
-            if (!switchedOffElements.contains(value)) {
-                switchedOffElements.add(value);
-                added.add(value);
+            if (!disabledCommandsAndCategories.contains(value)) {
+                disabledCommandsAndCategories.add(value);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), value, null);
             }
         }
-        ArrayList<String> removed = new ArrayList<>();
         for (Category category : Category.independentValues()) {
-            if (switchedOffElements.contains(category.getId()) && !event.getValues().contains(category.getId())) {
-                switchedOffElements.remove(category.getId());
-                removed.add(category.getId());
+            if (disabledCommandsAndCategories.contains(category.getId()) && !event.getValues().contains(category.getId())) {
+                disabledCommandsAndCategories.remove(category.getId());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), null, category.getId());
             }
         }
-
-        getEntityManager().getTransaction().begin();
-        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), added, removed);
-        getEntityManager().getTransaction().commit();
+        guildEntity.commitTransaction();
 
         setLog(LogStatus.SUCCESS, getString("categoryset_set"));
         setState(MAIN);
@@ -196,17 +190,17 @@ public class CommandManagementCommand extends NavigationAbstract {
     @Draw(state = MAIN)
     public EmbedBuilder onDrawMain(Member member) {
         setComponents(getString("state0_options").split("\n"));
-        List<String> categoryNameList = commandManagementData.getSwitchedOffCategories().stream()
+        List<String> categoryNameList = DisabledCommands.getDisabledCommandCategories(getGuildEntity()).stream()
                 .map(category -> TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()))
                 .collect(Collectors.toList());
         return EmbedFactory.getEmbedDefault(this, getString("state0_desc"))
                 .addField(getString("state0_mcategories"), StringUtil.shortenString(generateList(categoryNameList), 1024), false)
-                .addField(getString("state0_mcommands"), StringUtil.shortenString(generateList(commandManagementData.getSwitchedOffCommands()), 1024), false);
+                .addField(getString("state0_mcommands"), StringUtil.shortenString(generateList(DisabledCommands.getDisabledCommands(getGuildEntity())), 1024), false);
     }
 
     @Draw(state = SET_CATEGORIES)
     public EmbedBuilder onDrawSetCategory(Member member) {
-        List<String> categoryIdList = commandManagementData.getSwitchedOffCategories().stream()
+        List<String> categoryIdList = DisabledCommands.getDisabledCommandCategories(getGuildEntity()).stream()
                 .map(Category::getId)
                 .collect(Collectors.toList());
 
@@ -227,11 +221,11 @@ public class CommandManagementCommand extends NavigationAbstract {
 
     @Draw(state = REMOVE_COMMANDS)
     public EmbedBuilder onDrawRemoveCommands(Member member) {
-        setComponents(commandManagementData.getSwitchedOffCommands().toArray(new String[0]));
+        setComponents(DisabledCommands.getDisabledCommands(getGuildEntity()).toArray(new String[0]));
         return EmbedFactory.getEmbedDefault(this, getString("state3_desc"), getString("state3_title"));
     }
 
-    private String generateList(List<String> elements) {
+    private String generateList(Collection<String> elements) {
         StringBuilder sb = new StringBuilder();
         for (String element : elements) {
             if (!sb.isEmpty()) {

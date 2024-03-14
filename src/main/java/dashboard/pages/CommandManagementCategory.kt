@@ -20,8 +20,6 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
-import mysql.modules.commandmanagement.CommandManagementData
-import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -41,7 +39,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         if (anyCommandsAreAccessible(CommandManagementCommand::class)) {
-            mainContainer.add(generateCommandManagementField(guild))
+            mainContainer.add(generateCommandManagementField())
         }
 
         if (anyCommandsAreAccessible(WhiteListCommand::class)) {
@@ -113,13 +111,12 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         return container
     }
 
-    private fun generateCommandManagementField(guild: Guild): DashboardComponent {
-        val commandManagementData = DBCommandManagement.getInstance().retrieve(guild.idLong)
+    private fun generateCommandManagementField(): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardText(getString(Category.CONFIGURATION, "cman_state0_desc")))
 
         val commandCategoryValues = Category.independentValues().map { DiscordEntity(it.id, getString(TextManager.COMMANDS, it.id)) }
-        container.add(generateBlacklistComboBox(commandManagementData, getString(Category.CONFIGURATION, "cman_state0_mcategories"), commandCategoryValues))
+        container.add(generateBlacklistComboBox(getString(Category.CONFIGURATION, "cman_state0_mcategories"), commandCategoryValues))
 
         val commandValues = CommandContainer.getFullCommandList()
                 .map {
@@ -127,11 +124,11 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
                     DiscordEntity(trigger, trigger)
                 }
                 .sortedBy { it.id }
-        container.add(generateBlacklistComboBox(commandManagementData, getString(Category.CONFIGURATION, "cman_state0_mcommands"), commandValues))
+        container.add(generateBlacklistComboBox(getString(Category.CONFIGURATION, "cman_state0_mcommands"), commandValues))
         return container
     }
 
-    private fun generateBlacklistComboBox(commandManagementData: CommandManagementData, label: String, values: List<DiscordEntity>
+    private fun generateBlacklistComboBox(label: String, values: List<DiscordEntity>
     ): DashboardComponent {
         val comboBox = DashboardComboBox(label, values, true, Int.MAX_VALUE) {
             if (!anyCommandsAreAccessible(CommandManagementCommand::class)) {
@@ -140,21 +137,19 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
             }
 
             if (it.type == "add") {
-                commandManagementData.switchedOffElements += it.data
-
                 entityManager.transaction.begin()
+                guildEntity.disabledCommandsAndCategories += it.data
                 BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_MANAGEMENT, atomicMember, it.data, null)
                 entityManager.transaction.commit()
             } else if (it.type == "remove") {
-                commandManagementData.switchedOffElements -= it.data
-
                 entityManager.transaction.begin()
+                guildEntity.disabledCommandsAndCategories -= it.data
                 BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_MANAGEMENT, atomicMember, null, it.data)
                 entityManager.transaction.commit()
             }
             ActionResult()
         }
-        comboBox.selectedValues = values.filter { commandManagementData.switchedOffElements.contains(it.id) }
+        comboBox.selectedValues = values.filter { guildEntity.disabledCommandsAndCategories.contains(it.id) }
         return comboBox
     }
 

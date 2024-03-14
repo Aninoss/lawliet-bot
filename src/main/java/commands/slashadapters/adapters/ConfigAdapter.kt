@@ -48,13 +48,13 @@ class ConfigAdapter : SlashAdapter() {
         )
     }
 
-    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
-        return retrieveChoices(event.focusedOption.value, event.member!!, event.channel!!.asTextChannel())
+    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
+        return retrieveChoices(event.focusedOption.value, event.member!!, event.channel!!.asTextChannel(), guildEntity)
     }
 
     override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         val userText = event.getOption("command")!!.asString
-        val choices = retrieveChoices(userText, event.member!!, event.channel.asTextChannel())
+        val choices = retrieveChoices(userText, event.member!!, event.channel.asTextChannel(), guildEntity)
         return if (choices.isNotEmpty()) {
             val clazz = CommandContainer.getCommandMap()[choices[0].asString]
             SlashMeta(clazz!!, collectArgs(event, "command"))
@@ -63,10 +63,10 @@ class ConfigAdapter : SlashAdapter() {
         }
     }
 
-    private fun retrieveChoices(userText: String, member: Member, textChannel: TextChannel): List<Command.Choice> {
+    private fun retrieveChoices(userText: String, member: Member, textChannel: TextChannel, guildEntity: GuildEntity): List<Command.Choice> {
         val choiceList = ArrayList<Command.Choice>()
         for (clazz in commandAssociations()) {
-            if (!CommandManager.commandIsTurnedOnEffectively(clazz.java, member, textChannel)) {
+            if (!CommandManager.commandIsEnabledEffectively(guildEntity, clazz.java, member, textChannel)) {
                 continue
             }
 

@@ -41,7 +41,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
         return SlashMeta(commandClass().java, argsBuilder.toString())
     }
 
-    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
+    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
         if (event.channel!!.asTextChannel().isNSFW || (this is SafeBooruAdapter)) {
             val nsfwAdditionalFiltersList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
             val nsfwAdditionalFilters = HashSet<String>()

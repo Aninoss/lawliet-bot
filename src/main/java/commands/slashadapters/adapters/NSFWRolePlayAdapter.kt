@@ -42,7 +42,7 @@ class NSFWRolePlayAdapter : SlashAdapter() {
         return SlashMeta(HelpCommand::class.java, Category.NSFW_INTERACTIONS.id) { locale: Locale -> TextManager.getString(locale, TextManager.COMMANDS, "slash_error_invalidgesture", name) }
     }
 
-    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {
+    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {
         val userText = event.focusedOption.value
         val triggerSet = HashSet<Pair<String, String>>()
         for (clazz in CommandContainer.getFullCommandList()) {
@@ -51,7 +51,7 @@ class NSFWRolePlayAdapter : SlashAdapter() {
             val commandCategory = Command.getCategory(clazz);
             if (commandCategory == Category.NSFW_INTERACTIONS &&
                 event.channel!!.asTextChannel().isNSFW &&
-                CommandManager.commandIsTurnedOnEffectively(clazz, event.member, event.channel!!.asTextChannel())
+                CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.channel!!.asTextChannel())
             ) {
                 val triggers = mutableListOf(commandTrigger)
                 triggers.addAll(commandProperties.aliases)

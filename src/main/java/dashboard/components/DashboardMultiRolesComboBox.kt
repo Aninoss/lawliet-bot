@@ -45,16 +45,15 @@ class DashboardMultiRolesComboBox(
             val member: Member = MemberCacheController.getInstance().loadMember(guild, memberId).get() ?: return@setActionListener ActionResult()
 
             if (role == null || !checkManageable || (BotPermissionUtil.canManage(member, role) && BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
-                if ((commandAccessRequirement != null && !CommandManager.commandIsTurnedOnEffectively(commandAccessRequirement.java, member, null)) ||
+                val guildEntity = dashboardCategory.guildEntity
+                if ((commandAccessRequirement != null && !CommandManager.commandIsEnabledEffectively(guildEntity, commandAccessRequirement.java, member, null)) ||
                     (role == null && event.type != "remove")
                 ) {
                     return@setActionListener ActionResult()
                         .withRedraw()
                 }
 
-                val guildEntity = dashboardCategory.guildEntity
                 val selectedRoles = selectedRolesSupplier(guildEntity)
-
                 if (event.type == "add") {
                     if (!checkManageable || (BotPermissionUtil.canManage(role) && BotPermissionUtil.can(guild.selfMember, Permission.MANAGE_ROLES))) {
                         guildEntity.beginTransaction()

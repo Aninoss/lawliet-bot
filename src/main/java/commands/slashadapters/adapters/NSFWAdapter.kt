@@ -46,7 +46,7 @@ class NSFWAdapter : SlashAdapter() {
         return SlashMeta(HelpCommand::class.java, "nsfw") { locale: Locale -> TextManager.getString(locale, TextManager.COMMANDS, "slash_error_invalidcommand", name) }
     }
 
-    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
+    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
         if (event.channel!!.asTextChannel().isNSFW) {
             val userText = event.focusedOption.value
             val choiceList = ArrayList<Command.Choice>()
@@ -55,7 +55,7 @@ class NSFWAdapter : SlashAdapter() {
                 val commandTrigger = commandProperties.trigger
                 val triggers = mutableListOf(commandTrigger)
                 if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commandProperties.nsfw &&
-                    CommandManager.commandIsTurnedOnEffectively(clazz, event.member, event.channel!!.asTextChannel())
+                    CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.channel!!.asTextChannel())
                 ) {
                     triggers.addAll(commandProperties.aliases)
                     if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {

@@ -200,7 +200,7 @@ abstract class SlashAdapter {
         return subcommandData
     }
 
-    open fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {
+    open fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Choice> {
         return emptyList()
     }
 

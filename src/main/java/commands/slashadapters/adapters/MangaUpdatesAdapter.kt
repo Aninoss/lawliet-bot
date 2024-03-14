@@ -25,7 +25,7 @@ class MangaUpdatesAdapter : SlashAdapter() {
         return SlashMeta(MangaUpdatesCommand::class.java, collectArgs(event).replace("…", ""))
     }
 
-    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
+    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
         val name = event.focusedOption.value
         if (name.length >= 3) {
             return MangaUpdatesDownloader.searchSeries(name)
