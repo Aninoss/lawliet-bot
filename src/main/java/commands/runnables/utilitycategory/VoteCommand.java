@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "vote",
         emoji = "\uD83D\uDDF3",
         executableWithoutArgs = false,
-        aliases = { "poll" }
+        aliases = {"poll"}
 )
 public class VoteCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
@@ -48,7 +48,6 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        args = args.replace("\n", "");
         if (args.startsWith("|")) {
             args = args.substring(1).trim();
         }
@@ -67,40 +66,44 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
             argsParts[i] = argsParts[i].replace("\\|", "|");
         }
 
-        if (argsParts.length >= 3 && argsParts.length <= 13) {
-            String topic = argsParts[0].trim();
-            if (topic.isEmpty()) {
-                drawMessageNew(EmbedFactory.getEmbedError(this, getString("no_topic")))
-                        .exceptionally(ExceptionLogger.get());
-                return false;
-            } else {
-                String[] answers = new String[argsParts.length - 1];
-                System.arraycopy(argsParts, 1, answers, 0, answers.length);
-                ArrayList<HashSet<Long>> userVotes = new ArrayList<>();
-                for (int i = 0; i < answers.length; i++) {
-                    userVotes.add(new HashSet<>());
-                }
-
-                VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
-                EmbedBuilder eb = getEmbed(voteInfo, true);
-                Message message = CommandUtil.differentChannelSendMessage(this, event, channel, eb, Collections.emptyMap()).get();
-                registerStaticReactionMessage(message);
-                VoteCache.put(message.getIdLong(), voteInfo);
-
-                RestActionQueue restActionQueue = new RestActionQueue();
-                for (int i = 0; i < answers.length; i++) {
-                    restActionQueue.attach(message.addReaction(Emojis.LETTERS[i]));
-                }
-                restActionQueue.attach(message.addReaction(EMOJI_CANCEL))
-                        .getCurrentRestAction()
-                        .queue();
-                return true;
-            }
-        } else {
+        if (argsParts.length < 3 || argsParts.length > 13) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args")))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
+
+        String topic = argsParts[0].trim();
+        if (topic.isEmpty()) {
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("no_topic")))
+                    .exceptionally(ExceptionLogger.get());
+            return false;
+        }
+
+        String[] answers = new String[argsParts.length - 1];
+        System.arraycopy(argsParts, 1, answers, 0, answers.length);
+        for (int i = 0; i < answers.length; i++) {
+            answers[i] = answers[i].replace("\n", "");
+        }
+
+        ArrayList<HashSet<Long>> userVotes = new ArrayList<>();
+        for (int i = 0; i < answers.length; i++) {
+            userVotes.add(new HashSet<>());
+        }
+
+        VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
+        EmbedBuilder eb = getEmbed(voteInfo, true);
+        Message message = CommandUtil.differentChannelSendMessage(this, event, channel, eb, Collections.emptyMap()).get();
+        registerStaticReactionMessage(message);
+        VoteCache.put(message.getIdLong(), voteInfo);
+
+        RestActionQueue restActionQueue = new RestActionQueue();
+        for (int i = 0; i < answers.length; i++) {
+            restActionQueue.attach(message.addReaction(Emojis.LETTERS[i]));
+        }
+        restActionQueue.attach(message.addReaction(EMOJI_CANCEL))
+                .getCurrentRestAction()
+                .queue();
+        return true;
     }
 
     public EmbedBuilder getEmbed(VoteInfo voteInfo, boolean open) {
