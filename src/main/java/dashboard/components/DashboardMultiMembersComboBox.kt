@@ -33,18 +33,18 @@ class DashboardMultiMembersComboBox(
         }
 
         setActionListener {
+            val guildEntity = dashboardCategory.guildEntity
+
             if (commandAccessRequirement != null) {
                 val guild = ShardManager.getLocalGuildById(guildId).get()
                 val member = MemberCacheController.getInstance().loadMember(guild, memberId).get()
-                if (!CommandManager.commandIsTurnedOnEffectively(commandAccessRequirement.java, member, null)) {
+                if (!CommandManager.commandIsEnabledEffectively(guildEntity, commandAccessRequirement.java, member, null)) {
                     return@setActionListener ActionResult()
                         .withRedraw()
                 }
             }
 
-            val guildEntity = dashboardCategory.guildEntity
             val selectedMembers = selectedMembersSupplier(guildEntity)
-
             if (it.type == "add") {
                 guildEntity.beginTransaction()
                 selectedMembers += it.data.toLong()

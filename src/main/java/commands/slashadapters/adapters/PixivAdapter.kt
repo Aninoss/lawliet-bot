@@ -38,7 +38,7 @@ class PixivAdapter : SlashAdapter() {
         return SlashMeta(PixivCommand::class.java, argsBuilder.toString())
     }
 
-    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
+    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
         val filterList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
         val filterSet = HashSet<String>()
         filterList.forEach { filterSet.add(it.lowercase()) }

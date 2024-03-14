@@ -9,6 +9,7 @@ import core.Program;
 import core.ShardManager;
 import core.SlashAssociations;
 import modules.moduserinteractions.ModUserInteractionManager;
+import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -99,8 +100,10 @@ public class SlashCommandManager {
     public static List<Command.Choice> retrieveChoices(CommandAutoCompleteInteractionEvent event) {
         SlashAdapter slashAdapter = slashAdapterMap.get(event.getName());
         if (slashAdapter != null) {
-            List<Command.Choice> choiceList = slashAdapter.retrieveChoices(event);
-            return choiceList.subList(0, Math.min(25, choiceList.size()));
+            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(event.getGuild().getIdLong(), SlashCommandManager.class)) {
+                List<Command.Choice> choiceList = slashAdapter.retrieveChoices(event, guildEntity);
+                return choiceList.subList(0, Math.min(25, choiceList.size()));
+            }
         }
         return Collections.emptyList();
     }

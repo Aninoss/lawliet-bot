@@ -279,7 +279,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get())) {
+            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getTextChannel().get())) {
                 buttonMap.put(counter.getAndIncrement(), command.getTrigger());
                 stringBuilder
                         .append("- `")
@@ -318,7 +318,7 @@ public class HelpCommand extends NavigationAbstract {
                 String commandTrigger = command.getTrigger();
                 if (command.getCommandProperties().patreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
-                        CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get()) &&
+                        CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getTextChannel().get()) &&
                         (!command.getCommandProperties().nsfw() || channel.isNSFW())
                 ) {
                     StringBuilder title = new StringBuilder();
@@ -375,7 +375,7 @@ public class HelpCommand extends NavigationAbstract {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) &&
-                    CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get())
+                    CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getTextChannel().get())
             ) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getCommandProperties().emoji())
@@ -422,7 +422,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
-            if (CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get())) {
+            if (CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getTextChannel().get())) {
                 buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
@@ -521,7 +521,7 @@ public class HelpCommand extends NavigationAbstract {
         StringSelectMenu.Builder builder = StringSelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
-            if (CommandManager.categoryIsTurnedOnEffectively(category, member, channel) &&
+            if (CommandManager.commandCategoryIsEnabledEffectively(getGuildEntity(), category, member, channel) &&
                     (!category.isNSFW() || channel.isNSFW())
             ) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());

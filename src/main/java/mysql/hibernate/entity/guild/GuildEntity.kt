@@ -82,6 +82,9 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @ElementCollection
     val commandChannelShortcuts = mutableMapOf<Long, String>()
 
+    @ElementCollection
+    val disabledCommandsAndCategories = mutableSetOf<String>()
+
     val reminders: List<ReminderEntity>
         get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", guildId.toLong())
 

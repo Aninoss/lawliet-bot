@@ -15,6 +15,7 @@ import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -90,6 +91,8 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
+
+        transferCommandManagementSqlToHibernate();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -187,6 +190,18 @@ public class DiscordConnector {
         ShardManager.start();
         FeatureLogger.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
+    }
+
+    private static void transferCommandManagementSqlToHibernate() {
+        transferSqlToHibernate(
+                "CMOff",
+                guildEntity -> guildEntity,
+                guildEntity -> !guildEntity.getDisabledCommandsAndCategories().isEmpty(),
+                guildEntity -> {
+                    List<String> switchedOffElements = DBCommandManagement.getInstance().retrieve(guildEntity.getGuildId()).getSwitchedOffElements();
+                    guildEntity.getDisabledCommandsAndCategories().addAll(switchedOffElements);
+                }
+        );
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(

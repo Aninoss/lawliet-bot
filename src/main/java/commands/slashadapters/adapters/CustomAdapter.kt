@@ -4,7 +4,6 @@ import commands.runnables.utilitycategory.CustomCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
-import mysql.hibernate.HibernateManager
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -21,13 +20,11 @@ class CustomAdapter : SlashAdapter() {
         )
     }
 
-    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
-        HibernateManager.findGuildEntity(event.guild!!.idLong, CustomAdapter::class.java).use { guildEntity ->
-            val userText = event.focusedOption.value
-            return guildEntity.customCommands.keys
-                    .filter { it.lowercase().contains(userText.lowercase()) }
-                    .map { Command.Choice(it, it) }
-        }
+    override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
+        val userText = event.focusedOption.value
+        return guildEntity.customCommands.keys
+                .filter { it.lowercase().contains(userText.lowercase()) }
+                .map { Command.Choice(it, it) }
     }
 
     override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
