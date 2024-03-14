@@ -358,7 +358,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         } else if (i == 0 && tempPostChannel != null) {
             tempPostChannel = tempPostChannel.getGuild().getTextChannelById(tempPostChannel.getIdLong());
             if (tempPostChannel != null) {
-                String error = Ticket.sendTicketMessage(getLocale(), tempPostChannel);
+                String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), tempPostChannel);
                 if (error == null) {
                     getEntityManager().getTransaction().begin();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, event.getMember(), tempPostChannel.getId());

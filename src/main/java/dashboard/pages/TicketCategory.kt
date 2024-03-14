@@ -73,7 +73,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         channelComboBox.putCssProperties("margin-top", "0.5em")
 
         val sendButton = DashboardButton(getString(category = Category.CONFIGURATION, "ticket_state4_title")) {
-            val error = Ticket.sendTicketMessage(locale, atomicGuild.get().get().getTextChannelById(createMessageChannelId!!))
+            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getTextChannelById(createMessageChannelId!!))
             if (error == null) {
                 entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, atomicMember, createMessageChannelId!!)

@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 
 public class Ticket {
 
-    public static String sendTicketMessage(Locale locale, TextChannel textChannel) {
+    public static String sendTicketMessage(GuildEntity guildEntity, Locale locale, TextChannel textChannel) {
         String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, textChannel,
                 Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY
         );
@@ -67,11 +67,11 @@ public class Ticket {
 
         String emoji = Command.getCommandProperties(TicketCommand.class).emoji();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(emoji + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle())
-                .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_message_content"));
+                .setTitle(emoji + " " + Command.getCommandLanguage(TicketCommand.class, guildEntity.getLocale()).getTitle())
+                .setDescription(TextManager.getString(guildEntity.getLocale(), Category.CONFIGURATION, "ticket_message_content"));
 
         textChannel.sendMessageEmbeds(eb.build())
-                .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_CREATE, TextManager.getString(locale, Category.CONFIGURATION, "ticket_button_create"))))
+                .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_CREATE, TextManager.getString(guildEntity.getLocale(), Category.CONFIGURATION, "ticket_button_create"))))
                 .queue(message -> {
                     DBStaticReactionMessages.getInstance()
                             .retrieve(message.getGuild().getIdLong())
