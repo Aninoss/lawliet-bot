@@ -90,13 +90,15 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                     page = 0;
                 }
             } else {
+                int i;
                 if (event.getComponentId().equals(BUTTON_ID_BACK)) {
-                    changed = controllerButton(event, -1, state);
+                    i = -1;
                 } else if (StringUtil.stringIsInt(event.getComponentId())) {
-                    changed = controllerButton(event, Integer.parseInt(event.getComponentId()), state);
+                    i = Integer.parseInt(event.getComponentId());
                 } else {
-                    changed = controllerButton(event, -2, state);
+                    i = -2;
                 }
+                changed = controllerButton(event, i, state);
             }
 
             if (changed) {
