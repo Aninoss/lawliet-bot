@@ -33,7 +33,7 @@ public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract 
                 (listener, entityManager) -> {
                     if (!event.isWebhookMessage() || listener.isAllowingBots()) {
                         ((GuildMessageReceivedAbstract) listener).setStartTime(startTime);
-                        if (event.getAuthor().getIdLong() == AssetIds.OWNER_USER_ID && event.getMessage().getContentRaw().equals("processing_time_test")) {
+                        if (event.getAuthor().getIdLong() == AssetIds.OWNER_USER_ID && event.getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
                             MainLogger.get().info("{}: {}", listener.getClass().getSimpleName(), Instant.now());
                         }
 

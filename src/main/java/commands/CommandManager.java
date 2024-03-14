@@ -6,10 +6,7 @@ import commands.listeners.*;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
-import constants.Emojis;
-import constants.ExceptionIds;
-import constants.ExternalLinks;
-import constants.Settings;
+import constants.*;
 import core.*;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
@@ -81,6 +78,9 @@ public class CommandManager {
                 checkReleased(event, guildEntity, command) &&
                 checkArgsProvided(event, guildEntity, command, args)
         ) {
+            if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+                MainLogger.get().info("CommandManager: ServerPatreonBoostCache.setTrue(...)"); //TODO
+            }
             if (command.getCommandProperties().patreonRequired() &&
                     (Arrays.stream(command.getCommandProperties().userGuildPermissions()).anyMatch(p -> p == Permission.MANAGE_SERVER))
             ) {
@@ -88,9 +88,18 @@ public class CommandManager {
             }
 
             try {
+                if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+                    MainLogger.get().info("CommandManager: cleanPreviousListeners()"); //TODO
+                }
                 cleanPreviousListeners(command, event.getMember());
+                if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+                    MainLogger.get().info("CommandManager: sendOverwrittenSignals()"); //TODO
+                }
                 sendOverwrittenSignals(command, event.getMember());
 
+                if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+                    MainLogger.get().info("CommandManager: command.processTrigger(...)"); //TODO
+                }
                 boolean success = command.processTrigger(event, args, guildEntity, freshCommand);
                 if (success && Program.publicInstance()) {
                     maybeSendBotInvite(event, command.getLocale());
@@ -121,6 +130,10 @@ public class CommandManager {
     }
 
     private static boolean checkRunningCommands(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkRunningCommands"); //TODO
+        }
+
         if (RunningCheckerManager.canUserRunCommand(
                 command,
                 event.getGuild().getIdLong(),
@@ -148,6 +161,10 @@ public class CommandManager {
     }
 
     private static boolean checkCorrectChannelType(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkCorrectChannelType"); //TODO
+        }
+
         if (event.getChannel() instanceof TextChannel) {
             return true;
         }
@@ -166,6 +183,10 @@ public class CommandManager {
     }
 
     private static boolean checkCoolDown(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkCoolDown"); //TODO
+        }
+
         if (PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) || PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())) {
             return true;
         }
@@ -193,6 +214,10 @@ public class CommandManager {
     }
 
     private static boolean checkArgsProvided(CommandEvent event, GuildEntity guildEntity, Command command, String args) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkArgsProvided"); //TODO
+        }
+
         if (command.getCommandProperties().executableWithoutArgs() || !args.isEmpty()) {
             return true;
         }
@@ -210,6 +235,10 @@ public class CommandManager {
     }
 
     private static boolean checkReleased(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkReleased"); //TODO
+        }
+
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
         if (!releaseDate.isAfter(LocalDate.now()) ||
                 PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
@@ -236,6 +265,10 @@ public class CommandManager {
     }
 
     private static boolean checkPatreon(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkPatreon"); //TODO
+        }
+
         if (!command.getCommandProperties().patreonRequired() ||
                 PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())
@@ -253,6 +286,10 @@ public class CommandManager {
     }
 
     private static boolean checkPermissions(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkPermissions"); //TODO
+        }
+
         EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                 command.getLocale(),
                 event.getTextChannel(),
@@ -271,6 +308,10 @@ public class CommandManager {
     }
 
     private static boolean checkCommandPermissions(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkCommandPermissions"); //TODO
+        }
+
         if (CommandPermissions.hasAccess(command.getClass(), event.getMember(), event.getTextChannel(), false)) {
             return true;
         }
@@ -288,6 +329,10 @@ public class CommandManager {
     }
 
     private static boolean checkTurnedOn(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: checkTurnedOn"); //TODO
+        }
+
         if (DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong())
                 .commandIsTurnedOnEffectively(command, event.getMember())
         ) {
@@ -307,10 +352,18 @@ public class CommandManager {
     }
 
     private static boolean canRunOnGuild(CommandEvent event, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: canRunOnGuild"); //TODO
+        }
+
         return command.canRunOnGuild(event.getGuild().getIdLong(), event.getMember().getIdLong());
     }
 
     private static boolean botCanUseEmbeds(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: botCanUseEmbeds"); //TODO
+        }
+
         if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || !command.getCommandProperties().requiresEmbeds() || event.isSlashCommandInteractionEvent()) {
             return true;
         }
@@ -321,6 +374,10 @@ public class CommandManager {
     }
 
     private static boolean isNSFWCompliant(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: isNSFWCompliant"); //TODO
+        }
+
         if (!command.getCommandProperties().nsfw() || event.getTextChannel().isNSFW()) {
             return true;
         }
@@ -380,6 +437,10 @@ public class CommandManager {
     }
 
     private static boolean isWhiteListed(CommandEvent event, GuildEntity guildEntity, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: isWhiteListed"); //TODO
+        }
+
         if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
                 DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getTextChannel().getIdLong())
         ) {
@@ -400,6 +461,10 @@ public class CommandManager {
     }
 
     private static boolean botCanPost(CommandEvent event, Command command) {
+        if (event.getMember().getIdLong() == AssetIds.OWNER_USER_ID && event.isMessageReceivedEvent() && event.getMessageReceivedEvent().getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
+            MainLogger.get().info("CommandManager: botCanPost"); //TODO
+        }
+
         if (BotPermissionUtil.canWrite(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
             return true;
         }
