@@ -1,7 +1,5 @@
 package events.discordevents.eventtypeabstracts;
 
-import constants.AssetIds;
-import core.MainLogger;
 import events.discordevents.DiscordEventAbstract;
 import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -33,10 +31,6 @@ public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract 
                 (listener, entityManager) -> {
                     if (!event.isWebhookMessage() || listener.isAllowingBots()) {
                         ((GuildMessageReceivedAbstract) listener).setStartTime(startTime);
-                        if (event.getAuthor().getIdLong() == AssetIds.OWNER_USER_ID && event.getMessage().getContentRaw().equalsIgnoreCase("L.ping")) {
-                            MainLogger.get().info("{}: {}", listener.getClass().getSimpleName(), Instant.now());
-                        }
-
                         return ((GuildMessageReceivedAbstract) listener).onGuildMessageReceived(event, entityManager);
                     } else {
                         return true;
