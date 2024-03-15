@@ -289,7 +289,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             val convertedSlots = slots
                     .map { ReactionRoleMessageSlot(guild.idLong, it.emoji, it.roleId, it.customLabel) }
 
-            val error = ReactionRoles.checkForErrors(locale, textChannel, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, newComponents)
+            val error = ReactionRoles.checkForErrors(locale, textChannel, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, newComponents, messageId ?: 0L)
             if (error != null) {
                 return@DashboardButton ActionResult()
                         .withErrorMessage(error)

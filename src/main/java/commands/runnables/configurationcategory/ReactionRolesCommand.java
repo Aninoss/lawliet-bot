@@ -275,6 +275,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             case 0 -> {
                 setState(ADD_MESSAGE);
                 editMode = false;
+                editMessageId = 0L;
                 return true;
             }
             case 1 -> {
@@ -429,7 +430,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
             case 12:
                 TextChannel textChannel = atomicTextChannel.get().orElse(null);
-                String error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, roleRequirements, newComponents);
+                String error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, roleRequirements, newComponents, editMessageId);
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;
@@ -440,7 +441,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
             case 13:
                 textChannel = atomicTextChannel.get().orElse(null);
-                error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, roleRequirements, newComponents);
+                error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, roleRequirements, newComponents, editMessageId);
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;

@@ -263,7 +263,8 @@ public class ReactionRoles {
     }
 
     public static String checkForErrors(Locale locale, TextChannel channel, List<ReactionRoleMessageSlot> slots,
-                                        List<AtomicRole> roleRequirements, ReactionRoleMessage.ComponentType newComponents
+                                        List<AtomicRole> roleRequirements, ReactionRoleMessage.ComponentType newComponents,
+                                        long editMessageId
     ) {
         boolean isPro = ServerPatreonBoostCache.get(channel.getGuild().getIdLong());
         if (slots.isEmpty()) {
@@ -297,7 +298,7 @@ public class ReactionRoles {
             }
         } else {
             int newComponentTypeMessages = (int) DBReactionRoles.getInstance().retrieve(channel.getGuild().getIdLong()).values().stream()
-                    .filter(r -> r.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS)
+                    .filter(r -> r.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS && r.getMessageId() != editMessageId)
                     .count();
             if (newComponentTypeMessages >= ReactionRolesCommand.MAX_NEW_COMPONENTS_MESSAGES && !isPro) {
                 return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_limitexceeded");
