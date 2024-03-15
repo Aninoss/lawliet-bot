@@ -1,8 +1,15 @@
 package events.scheduleevents.events;
 
 import constants.ExceptionRunnable;
+import core.MainLogger;
+import core.ShardManager;
 import events.scheduleevents.ScheduleEventFixedRate;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.guild.GuildEntity;
+import net.dv8tion.jda.api.entities.Guild;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.DAYS)
@@ -10,57 +17,35 @@ public class CleanGuilds implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        //execute(); TODO: Deactivate temporarily until de-coupling of general guild database table is complete
+        execute();
     }
 
     public static void execute() throws InterruptedException {
-        /*if (!Program.publicVersion()) {
-            for (Guild guild : ShardManager.getLocalGuilds()) {
-                MainLogger.get().info("Guild {} has been set to \"not kicked\"", guild.getIdLong());
-                DBGuild.getInstance().setKicked(guild.getIdLong(), null);
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(CleanGuilds.class)) {
+            MainLogger.get().info("Starting guild cleaner");
+            updateGuilds(entityManager);
+
+            if (!ShardManager.isEverythingConnected()) {
+                MainLogger.get().error("Guild cleaner failed due to missing connections");
+                return;
             }
+
+            //TODO: Implement cleanup
             MainLogger.get().info("Guild cleaner completed");
-            return;
         }
+    }
 
-        if (!ShardManager.isEverythingConnected()) {
-            MainLogger.get().error("Guild cleaner failed due to missing connections");
-            return;
+    private static void updateGuilds(EntityManagerWrapper entityManager) {
+        for (Guild guild : ShardManager.getLocalGuilds()) {
+            GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
+            if (guildEntity.getLatestPresentDate() == null || !guildEntity.getLatestPresentDate().equals(LocalDate.now())) {
+                guildEntity.beginTransaction();
+                guildEntity.setLatestPresentDate(LocalDate.now());
+                guildEntity.commitTransaction();
+                MainLogger.get().info("Guild {} latest present date has been updated", guild.getIdLong());
+            }
+            entityManager.clear();
         }
-
-        List<GuildKickedData> guildKickedDataList;
-        int limit = 1000;
-        long guildIdOffset = 0;
-        do {
-            Thread.sleep(50);
-            guildKickedDataList = DBGuild.getInstance().retrieveKickedData(guildIdOffset, limit);
-            for (GuildKickedData guildKickedData : guildKickedDataList) {
-                try {
-                    long guildId = guildKickedData.getGuildId();
-                    LocalDate kicked = guildKickedData.getKicked();
-                    if (ShardManager.getLocalGuildById(guildId).isPresent()) {
-                        if (kicked != null) {
-                            MainLogger.get().info("Guild {} has been set to \"not kicked\"", guildId);
-                            DBGuild.getInstance().setKicked(guildId, null);
-                        }
-                    } else {
-                        if (kicked == null) {
-                            MainLogger.get().info("Guild {} has been set to \"kicked\"", guildId);
-                            DBGuild.getInstance().setKicked(guildId, LocalDate.now());
-                        } else if (LocalDate.now().isAfter(kicked.plusDays(6)) && Program.productionMode()) {
-                            MainLogger.get().info("Guild data for {} has been removed", guildId);
-                            DBGuild.getInstance().remove(guildId);
-                        }
-                    }
-                } catch (Throwable e) {
-                    MainLogger.get().error("Error in guild cleaner", e);
-                }
-            }
-            if (guildKickedDataList.size() > 0) {
-                guildIdOffset = guildKickedDataList.get(guildKickedDataList.size() - 1).getGuildId();
-            }
-        } while (guildKickedDataList.size() == limit);
-        MainLogger.get().info("Guild cleaner completed");*/
     }
 
 }

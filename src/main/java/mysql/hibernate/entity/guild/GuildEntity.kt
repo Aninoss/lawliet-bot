@@ -7,6 +7,7 @@ import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.template.HibernateEntity
 import org.hibernate.annotations.SortNatural
+import java.time.LocalDate
 import javax.persistence.*
 
 
@@ -50,6 +51,8 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
         set(value) {
             _txt2imgBanned = value
         }
+
+    var latestPresentDate: LocalDate? = LocalDate.now()
 
     @Embedded
     @Column(name = FISHERY)
