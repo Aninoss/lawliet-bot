@@ -34,8 +34,10 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
+@ScheduleEventFixedRate(rateValue = FisheryProcessors.RATE_MINUTES, rateUnit = ChronoUnit.MINUTES)
 public class FisheryProcessors implements ExceptionRunnable {
+
+    public static final int RATE_MINUTES = 2;
 
     @Override
     public void run() throws Throwable {
@@ -68,7 +70,7 @@ public class FisheryProcessors implements ExceptionRunnable {
 
     private void processVoiceActivity(Guild guild, GuildEntity guildEntity, AtomicInteger actions) {
         try {
-            FisheryGuildData serverBean = FisheryUserManager.getGuildData(guild.getIdLong());
+            FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guild.getIdLong());
             for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
                 try {
                     List<Member> validMembers = Fishery.getValidVoiceMembers(voiceChannel);
@@ -76,7 +78,7 @@ public class FisheryProcessors implements ExceptionRunnable {
                     if (afkVoice == null || voiceChannel.getIdLong() != afkVoice.getIdLong()) {
                         validMembers.forEach(member -> {
                             try {
-                                serverBean.getMemberData(member.getIdLong()).registerVoice(guildEntity, 1);
+                                fisheryGuildData.getMemberData(member.getIdLong()).registerVoice(guildEntity, RATE_MINUTES);
                                 actions.incrementAndGet();
                             } catch (ExecutionException e) {
                                 MainLogger.get().error("Exception when registering vc", e);
