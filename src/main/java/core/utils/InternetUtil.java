@@ -33,6 +33,7 @@ public final class InternetUtil {
     }
 
     public static boolean uriIsImage(String url) {
+        url = url.toLowerCase();
         int index = url.indexOf('?');
         if (index != -1) {
             url = url.substring(0, index);
