@@ -85,7 +85,7 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
     private void addReactionRoleMessage(ReactionRoleMessage reactionRoleMessage) {
         MySQLManager.asyncUpdate("REPLACE INTO ReactionRolesMessage (serverId, channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents, showRoleNumbers, showRoleConnections) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, reactionRoleMessage.getGuildId());
-            preparedStatement.setLong(2, reactionRoleMessage.getStandardGuildMessageChannelId());
+            preparedStatement.setLong(2, reactionRoleMessage.getGuildMessageChannelId());
             preparedStatement.setLong(3, reactionRoleMessage.getMessageId());
 
             if (reactionRoleMessage.getTitle() != null) {

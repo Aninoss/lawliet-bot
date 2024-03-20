@@ -19,7 +19,7 @@ import constants.Language
 import core.TextManager
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
@@ -49,12 +49,12 @@ class ConfigAdapter : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
-        return retrieveChoices(event.focusedOption.value, event.member!!, event.channel!!.asTextChannel(), guildEntity)
+        return retrieveChoices(event.focusedOption.value, event.member!!, event.guildChannel, guildEntity)
     }
 
     override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         val userText = event.getOption("command")!!.asString
-        val choices = retrieveChoices(userText, event.member!!, event.channel.asTextChannel(), guildEntity)
+        val choices = retrieveChoices(userText, event.member!!, event.guildChannel, guildEntity)
         return if (choices.isNotEmpty()) {
             val clazz = CommandContainer.getCommandMap()[choices[0].asString]
             SlashMeta(clazz!!, collectArgs(event, "command"))
@@ -63,10 +63,10 @@ class ConfigAdapter : SlashAdapter() {
         }
     }
 
-    private fun retrieveChoices(userText: String, member: Member, textChannel: TextChannel, guildEntity: GuildEntity): List<Command.Choice> {
+    private fun retrieveChoices(userText: String, member: Member, channel: GuildMessageChannel, guildEntity: GuildEntity): List<Command.Choice> {
         val choiceList = ArrayList<Command.Choice>()
         for (clazz in commandAssociations()) {
-            if (!CommandManager.commandIsEnabledEffectively(guildEntity, clazz.java, member, textChannel)) {
+            if (!CommandManager.commandIsEnabledEffectively(guildEntity, clazz.java, member, channel)) {
                 continue
             }
 

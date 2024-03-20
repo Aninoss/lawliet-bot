@@ -11,17 +11,14 @@ import core.*;
 import core.cache.ServerPatreonBoostCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
-import core.utils.EmbedUtil;
-import core.utils.ExceptionUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 import java.time.Duration;
@@ -116,9 +113,9 @@ public class AlertScheduler {
         command.setGuildEntity(guildEntity);
 
         OnAlertListener alertCommand = (OnAlertListener) command;
-        Optional<StandardGuildMessageChannel> channelOpt = slot.getStandardGuildMessageChannel();
+        Optional<GuildMessageChannel> channelOpt = slot.getGuildMessageChannel();
         if (channelOpt.isPresent()) {
-            StandardGuildMessageChannel channel = channelOpt.get();
+            GuildMessageChannel channel = channelOpt.get();
             if (channel.getGuild().getMember(channel.getJDA().getSelfUser()) == null) {
                 MainLogger.get().warn("Guild {} does not have a self member", channel.getGuild().getIdLong());
                 return;
@@ -174,8 +171,8 @@ public class AlertScheduler {
         }
     }
 
-    private static boolean checkNSFW(TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
-        if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
+    private static boolean checkNSFW(TrackerData slot, GuildMessageChannel channel, Command command) throws InterruptedException {
+        if (command.getCommandProperties().nsfw() && !JDAUtil.channelIsNsfw(channel)) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale(), command.getPrefix());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
             slot.sendMessage(command.getLocale(), false, eb.build());
@@ -234,8 +231,8 @@ public class AlertScheduler {
     }
 
     private static boolean checkChannelLimit(Locale locale, TrackerData slot, CustomObservableMap<Integer, TrackerData> alerts, boolean premium) throws InterruptedException {
-        long channelId = slot.getStandardGuildMessageChannelId();
-        if (alerts.values().stream().filter(a -> a.getStandardGuildMessageChannelId() == channelId).count() > AlertsCommand.LIMIT_CHANNEL) {
+        long channelId = slot.getGuildMessageChannelId();
+        if (alerts.values().stream().filter(a -> a.getGuildMessageChannelId() == channelId).count() > AlertsCommand.LIMIT_CHANNEL) {
             if (premium) {
                 FeatureLogger.inc(PremiumFeature.ALERTS_LIMIT, slot.getGuildId());
             } else {

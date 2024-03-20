@@ -42,8 +42,8 @@ public class PremiumCommand extends Command {
         patreonData = PatreonCache.getInstance().getAsync();
 
         String content = getString("info",
-                StringUtil.getOnOffForBoolean(event.getTextChannel(), getLocale(), PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), false)),
-                StringUtil.getOnOffForBoolean(event.getTextChannel(), getLocale(), PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
+                StringUtil.getOnOffForBoolean(event.getMessageChannel(), getLocale(), PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), false)),
+                StringUtil.getOnOffForBoolean(event.getMessageChannel(), getLocale(), PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
         ) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, content)

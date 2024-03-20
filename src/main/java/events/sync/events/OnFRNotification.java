@@ -7,6 +7,7 @@ import core.components.ActionRows;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.json.JSONObject;
@@ -26,7 +27,7 @@ public class OnFRNotification implements SyncServerFunction {
                 .setFooter(String.format("%d", id));
 
         ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get()
-                .getTextChannelById(1031135108033429534L)
+                .getChannelById(GuildMessageChannel.class, 1031135108033429534L)
                 .sendMessageEmbeds(eb.build())
                 .setComponents(ActionRows.of(
                         Button.of(ButtonStyle.PRIMARY, "true", "Accept"),

@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -143,7 +142,7 @@ public class ReminderScheduler {
             EmbedBuilder eb = ReminderCommand.generateEmbed(
                     locale,
                     prefix,
-                    reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER ? (StandardGuildMessageChannel) channel : null,
+                    reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER ? (GuildMessageChannel) channel : null,
                     newReminderEntity.getTriggerTime(),
                     newReminderEntity.getMessage(),
                     reminderEntity.getIntervalMinutesEffectively()

@@ -6,7 +6,10 @@ import commands.listeners.*;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
-import constants.*;
+import constants.Emojis;
+import constants.ExceptionIds;
+import constants.ExternalLinks;
+import constants.Settings;
 import core.*;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
@@ -19,7 +22,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -49,7 +52,6 @@ public class CommandManager {
         }
 
         if (checkCoolDown(event, guildEntity, command) &&
-                checkCorrectChannelType(event, guildEntity, command) &&
                 checkRunningCommands(event, guildEntity, command)
         ) {
             process(event, command, args, guildEntity, freshCommand);
@@ -103,14 +105,15 @@ public class CommandManager {
         if (Program.publicInstance() &&
                 random.nextInt(180) == 0 &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER, Permission.MESSAGE_MANAGE) &&
-                BotPermissionUtil.canWriteEmbed(event.getTextChannel())
+                BotPermissionUtil.canWriteEmbed(event.getMessageChannel())
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setThumbnail(ShardManager.getSelf().getAvatarUrl())
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite"));
 
             Button button = Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_REMINDER_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"));
-            event.getTextChannel().sendMessageEmbeds(eb.build())
+            event.getMessageChannel()
+                    .sendMessageEmbeds(eb.build())
                     .setComponents(ActionRows.of(button))
                     .queue();
         }
@@ -130,32 +133,14 @@ public class CommandManager {
         if (CoolDownManager.getCoolDownData(event.getMember().getIdLong()).canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
 
-            if (BotPermissionUtil.canWriteEmbed(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                         .setDescription(desc);
                 sendError(event, guildEntity, eb, true);
-            } else if (BotPermissionUtil.canWrite(event.getGuildMessageChannel())) {
+            } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
                 sendErrorNoEmbed(event, guildEntity, desc, true);
             }
-        }
-
-        return false;
-    }
-
-    private static boolean checkCorrectChannelType(CommandEvent event, GuildEntity guildEntity, Command command) {
-        if (event.getChannel() instanceof TextChannel) {
-            return true;
-        }
-
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "wrongchanneltype_desc");
-        if (BotPermissionUtil.canWriteEmbed(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "wrongchanneltype_title"))
-                    .setDescription(desc);
-            sendError(event, guildEntity, eb, true);
-        } else if (BotPermissionUtil.canWrite(event.getGuildMessageChannel())) {
-            sendErrorNoEmbed(event, guildEntity, desc, true);
         }
 
         return false;
@@ -173,14 +158,14 @@ public class CommandManager {
         }
 
         if (cooldownUserData.canPostCoolDownMessage()) {
-            String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, String.valueOf(waitingSec.get()));
+            String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", TimeFormat.RELATIVE.after(Duration.ofSeconds(waitingSec.get())).toString());
 
-            if (BotPermissionUtil.canWriteEmbed(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
                 sendError(event, guildEntity, eb, false);
-            } else if (BotPermissionUtil.canWrite(event.getGuildMessageChannel())) {
+            } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
                 sendErrorNoEmbed(event, guildEntity, desc, false);
             }
         }
@@ -194,12 +179,12 @@ public class CommandManager {
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_args");
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "wrong_args"))
                     .setDescription(desc);
             sendError(event, guildEntity, eb, true);
-        } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+        } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
             sendErrorNoEmbed(event, guildEntity, desc, true);
         }
         return false;
@@ -217,14 +202,14 @@ public class CommandManager {
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description");
         String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_releaseday", TimeFormat.DATE_TIME_SHORT.atInstant(TimeUtil.localDateToInstant(releaseDate)).toString());
 
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PREMIUM_COLOR)
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"))
                     .setDescription(desc);
             eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), waitTime, false);
             sendError(event, guildEntity, eb, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
-        } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+        } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
             sendErrorNoEmbed(event, guildEntity, desc + "\n\n" + waitTime, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         }
 
@@ -239,9 +224,9 @@ public class CommandManager {
             return true;
         }
 
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             sendError(event, guildEntity, EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
-        } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+        } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
             sendErrorNoEmbed(event, guildEntity, TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         }
 
@@ -251,7 +236,7 @@ public class CommandManager {
     private static boolean checkPermissions(CommandEvent event, GuildEntity guildEntity, Command command) {
         EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                 command.getLocale(),
-                event.getTextChannel(),
+                event.getMessageChannel(),
                 event.getMember(),
                 command.getAdjustedUserGuildPermissions(),
                 command.getAdjustedUserChannelPermissions(),
@@ -267,17 +252,17 @@ public class CommandManager {
     }
 
     private static boolean checkCommandPermissions(CommandEvent event, GuildEntity guildEntity, Command command) {
-        if (CommandPermissions.hasAccess(command.getClass(), event.getMember(), event.getTextChannel(), false)) {
+        if (CommandPermissions.hasAccess(command.getClass(), event.getMember(), event.getMessageChannel(), false)) {
             return true;
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_description", command.getPrefix());
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_title", command.getPrefix()))
                     .setDescription(desc);
             sendError(event, guildEntity, eb, true);
-        } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+        } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
             sendErrorNoEmbed(event, guildEntity, desc, true);
         }
         return false;
@@ -289,12 +274,12 @@ public class CommandManager {
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description");
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title", command.getPrefix()))
                     .setDescription(desc);
             sendError(event, guildEntity, eb, true);
-        } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+        } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
             sendErrorNoEmbed(event, guildEntity, desc, true);
         }
         return false;
@@ -305,7 +290,7 @@ public class CommandManager {
     }
 
     private static boolean botCanUseEmbeds(CommandEvent event, GuildEntity guildEntity, Command command) {
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || !command.getCommandProperties().requiresEmbeds() || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || !command.getCommandProperties().requiresEmbeds() || event.isSlashCommandInteractionEvent()) {
             return true;
         }
 
@@ -315,7 +300,7 @@ public class CommandManager {
     }
 
     private static boolean isNSFWCompliant(CommandEvent event, GuildEntity guildEntity, Command command) {
-        if (!command.getCommandProperties().nsfw() || event.getTextChannel().isNSFW()) {
+        if (!command.getCommandProperties().nsfw() || JDAUtil.channelIsNsfw(event.getMessageChannel())) {
             return true;
         }
 
@@ -325,7 +310,7 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(CommandEvent event, GuildEntity guildEntity, String text, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWrite(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWrite(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             RestAction<Message> messageAction = event.replyMessage(guildEntity, TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "command_block", text))
                     .setComponents(ActionRows.of(buttons));
             if (autoDelete) {
@@ -337,7 +322,7 @@ public class CommandManager {
     }
 
     private static void sendError(CommandEvent event, GuildEntity guildEntity, EmbedBuilder eb, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWriteEmbed(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             if (autoDelete) {
                 eb.setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
@@ -354,19 +339,19 @@ public class CommandManager {
 
     private static void autoRemoveMessageAfterCountdown(CommandEvent event, Message message) {
         MainScheduler.schedule(Duration.ofSeconds(SEC_UNTIL_REMOVAL), () -> {
-            if (BotPermissionUtil.can(event.getGuildMessageChannel())) {
+            if (BotPermissionUtil.can(event.getMessageChannel())) {
                 ArrayList<Message> messageList = new ArrayList<>();
                 if (message != null) {
                     messageList.add(message);
                 }
-                if (event.isMessageReceivedEvent() && BotPermissionUtil.can(event.getGuildMessageChannel(), Permission.MESSAGE_MANAGE)) {
+                if (event.isMessageReceivedEvent() && BotPermissionUtil.can(event.getMessageChannel(), Permission.MESSAGE_MANAGE)) {
                     messageList.add(event.getMessageReceivedEvent().getMessage());
                 }
                 if (messageList.size() >= 2) {
-                    event.getGuildMessageChannel().deleteMessages(messageList).submit()
+                    event.getMessageChannel().deleteMessages(messageList).submit()
                             .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.MISSING_ACCESS));
-                } else if (messageList.size() >= 1) {
-                    event.getGuildMessageChannel().deleteMessageById(messageList.get(0).getId()).submit()
+                } else if (!messageList.isEmpty()) {
+                    event.getMessageChannel().deleteMessageById(messageList.get(0).getId()).submit()
                             .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.MISSING_ACCESS));
                 }
             }
@@ -375,31 +360,31 @@ public class CommandManager {
 
     private static boolean isWhiteListed(CommandEvent event, GuildEntity guildEntity, Command command) {
         if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
-                DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getTextChannel().getIdLong())
+                DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getMessageChannel())
         ) {
             return true;
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_description");
 
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_title", command.getPrefix()))
                     .setDescription(desc);
             sendError(event, guildEntity, eb, true);
-        } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+        } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
             sendErrorNoEmbed(event, guildEntity, desc, true);
         }
         return false;
     }
 
     private static boolean botCanPost(CommandEvent event, Command command) {
-        if (BotPermissionUtil.canWrite(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWrite(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             return true;
         }
 
         if (event.isMessageReceivedEvent() &&
-                BotPermissionUtil.canReadHistory(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION)
+                BotPermissionUtil.canReadHistory(event.getMessageChannel(), Permission.MESSAGE_ADD_REACTION)
         ) {
             Message message = event.getMessageReceivedEvent().getMessage();
             RestActionQueue restActionQueue = new RestActionQueue();
@@ -411,7 +396,7 @@ public class CommandManager {
 
         if (!sendHelpDm(event.getMember(), command)) {
             if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR)) {
-                String text = TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getTextChannel().getName()));
+                String text = TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getMessageChannel().getName()));
                 JDAUtil.openPrivateChannel(event.getMember())
                         .flatMap(messageChannel -> messageChannel.sendMessage(text))
                         .queue();
@@ -502,34 +487,34 @@ public class CommandManager {
         throw new RuntimeException("Invalid class");
     }
 
-    public static boolean commandIsEnabledIgnoreAdmin(GuildEntity guildEntity, Command command, Member member, TextChannel channel) {
+    public static boolean commandIsEnabledIgnoreAdmin(GuildEntity guildEntity, Command command, Member member, GuildMessageChannel channel) {
         return CommandPermissions.hasAccess(command.getClass(), member, channel, true) &&
                 DisabledCommands.commandIsEnabled(guildEntity, command);
     }
 
-    public static boolean commandIsEnabledEffectively(GuildEntity guildEntity, Command command, Member member, TextChannel channel) {
+    public static boolean commandIsEnabledEffectively(GuildEntity guildEntity, Command command, Member member, GuildMessageChannel channel) {
         return CommandPermissions.hasAccess(command.getClass(), member, channel, false) &&
                 DisabledCommands.commandIsEnabledEffectively(guildEntity, command, member);
     }
 
-    public static boolean commandIsEnabledIgnoreAdmin(GuildEntity guildEntity, Class<? extends Command> clazz, Member member, TextChannel channel) {
+    public static boolean commandIsEnabledIgnoreAdmin(GuildEntity guildEntity, Class<? extends Command> clazz, Member member, GuildMessageChannel channel) {
         return CommandPermissions.hasAccess(clazz, member, channel, true) &&
                 DisabledCommands.elementIsEnabled(guildEntity, Command.getCommandProperties(clazz).trigger()) &&
                 DisabledCommands.elementIsEnabled(guildEntity, Command.getCategory(clazz).getId());
     }
 
-    public static boolean commandIsEnabledEffectively(GuildEntity guildEntity, Class<? extends Command> clazz, Member member, TextChannel channel) {
+    public static boolean commandIsEnabledEffectively(GuildEntity guildEntity, Class<? extends Command> clazz, Member member, GuildMessageChannel channel) {
         return CommandPermissions.hasAccess(clazz, member, channel, false) &&
                 DisabledCommands.elementIsEnabledEffectively(guildEntity, Command.getCommandProperties(clazz).trigger(), member) &&
                 DisabledCommands.elementIsEnabledEffectively(guildEntity, Command.getCategory(clazz).getId(), member);
     }
 
-    public static boolean commandCategoryIsEnabledIgnoreAdmin(GuildEntity guildEntity, Category category, Member member, TextChannel channel) {
+    public static boolean commandCategoryIsEnabledIgnoreAdmin(GuildEntity guildEntity, Category category, Member member, GuildMessageChannel channel) {
         return CommandPermissions.hasAccess(category, member, channel, true) &&
                 DisabledCommands.commandCategoryIsEnabled(guildEntity, category);
     }
 
-    public static boolean commandCategoryIsEnabledEffectively(GuildEntity guildEntity, Category category, Member member, TextChannel channel) {
+    public static boolean commandCategoryIsEnabledEffectively(GuildEntity guildEntity, Category category, Member member, GuildMessageChannel channel) {
         return CommandPermissions.hasAccess(category, member, channel, false) &&
                 DisabledCommands.commandCategoryIsEnabledEffectively(guildEntity, category, member);
     }

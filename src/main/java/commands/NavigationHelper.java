@@ -5,10 +5,7 @@ import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicMember;
-import core.atomicassets.AtomicRole;
-import core.atomicassets.AtomicTextChannel;
-import core.atomicassets.MentionableAtomicAsset;
+import core.atomicassets.*;
 import core.utils.JDAUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
@@ -23,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class NavigationHelper<T> {
 
-    private enum Type {Unknown, Role, TextChannel, Member}
+    private enum Type {Unknown, Role, Channel, Member}
 
     private final NavigationAbstract command;
     private final Function<GuildEntity, List<T>> srcListSupplier;
@@ -45,8 +42,8 @@ public class NavigationHelper<T> {
         if (typeClass == AtomicRole.class) {
             this.type = Type.Role;
             this.typeString = "_role";
-        } else if (typeClass == AtomicTextChannel.class) {
-            this.type = Type.TextChannel;
+        } else if (typeClass == AtomicGuildMessageChannel.class || typeClass == AtomicStandardGuildMessageChannel.class || typeClass == AtomicGuildChannel.class) {
+            this.type = Type.Channel;
             this.typeString = "_channel";
         } else if (typeClass == AtomicMember.class) {
             this.type = Type.Member;

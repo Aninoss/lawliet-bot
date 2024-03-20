@@ -7,7 +7,6 @@ import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import net.dv8tion.jda.api.events.channel.GenericChannelEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -23,15 +22,7 @@ class CommandEvent : GenericChannelEvent {
         get() = member.user
     val repliedMember: Member?
         get() = messageReceivedEvent?.message?.messageReference?.message?.member
-    val textChannel: TextChannel
-        get() {
-            val channel = getChannel()
-            if (channel is TextChannel) {
-                return channel
-            }
-            throw IllegalStateException("Cannot convert channel of type $channelType to TextChannel")
-        }
-    val guildMessageChannel: GuildMessageChannel
+    val messageChannel: GuildMessageChannel
         get() {
             val channel = getChannel()
             if (channel is GuildMessageChannel) {
@@ -101,7 +92,7 @@ class CommandEvent : GenericChannelEvent {
                 it.deferReply().queue()
             }
         }
-        messageReceivedEvent?.channel?.asTextChannel()?.sendTyping()?.queue()
+        messageReceivedEvent?.guildChannel?.sendTyping()?.queue()
     }
 
 }

@@ -48,7 +48,7 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
         Guild guild = ShardManager.getLocalGuildById(guildId).get();
         for (long messageId : map.keySet()) {
             StaticReactionMessageData staticReactionMessageData = map.get(messageId);
-            if (guild.getGuildChannelById(staticReactionMessageData.getStandardGuildMessageChannelId()) == null) {
+            if (guild.getGuildChannelById(staticReactionMessageData.getGuildMessageChannelId()) == null) {
                 staticReactionMap.remove(messageId);
             }
         }
@@ -59,7 +59,7 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
     private void addStaticReaction(StaticReactionMessageData staticReactionMessageData) {
         MySQLManager.asyncUpdate("INSERT IGNORE INTO StaticReactionMessages (serverId, channelId, messageId, command, secondaryId) VALUES (?,?,?,?,?);", preparedStatement -> {
             preparedStatement.setLong(1, staticReactionMessageData.getGuildId());
-            preparedStatement.setLong(2, staticReactionMessageData.getStandardGuildMessageChannelId());
+            preparedStatement.setLong(2, staticReactionMessageData.getGuildMessageChannelId());
             preparedStatement.setLong(3, staticReactionMessageData.getMessageId());
             preparedStatement.setString(4, staticReactionMessageData.getCommand());
 

@@ -13,7 +13,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
-import dashboard.components.DashboardMultiTextChannelsComboBox
+import dashboard.components.DashboardMultiChannelsComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -97,9 +97,10 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         container.add(obsoleteWarning)
 
         container.add(
-                DashboardMultiTextChannelsComboBox(
+                DashboardMultiChannelsComboBox(
                         this,
                         "",
+                        DashboardComboBox.DataType.GUILD_CHANNELS,
                         { DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds },
                         true,
                         WhiteListCommand.MAX_CHANNELS,

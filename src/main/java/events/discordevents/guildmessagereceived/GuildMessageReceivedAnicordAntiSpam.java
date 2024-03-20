@@ -7,6 +7,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import mysql.hibernate.EntityManagerWrapper;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Duration;
@@ -30,7 +31,7 @@ public class GuildMessageReceivedAnicordAntiSpam extends GuildMessageReceivedAbs
         ) {
             if (ratelimitManager.checkAndSet(event.getMember().getIdLong(), 5, Duration.ofSeconds(3)).isPresent()) {
                 event.getGuild().ban(event.getMember(), 1, TimeUnit.DAYS).reason("Anti Raid (Spam)").queue();
-                event.getGuild().getTextChannelById(462420339364724751L).sendMessage("ANTI RAID (SPAM) FOR " + StringUtil.escapeMarkdown(event.getMember().getUser().getName()) + " IN " + event.getChannel().getAsMention()).queue();
+                event.getGuild().getChannelById(GuildMessageChannel.class, 462420339364724751L).sendMessage("ANTI RAID (SPAM) FOR " + StringUtil.escapeMarkdown(event.getMember().getUser().getName()) + " IN " + event.getChannel().getAsMention()).queue();
                 return false;
             }
         }

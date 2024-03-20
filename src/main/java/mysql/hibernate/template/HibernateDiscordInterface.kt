@@ -1,24 +1,24 @@
 package mysql.hibernate.template
 
 import core.assets.GuildAsset
+import core.atomicassets.AtomicGuildChannel
 import core.atomicassets.AtomicGuildMessageChannel
 import core.atomicassets.AtomicMember
 import core.atomicassets.AtomicRole
-import core.atomicassets.AtomicTextChannel
 import core.collectionadapters.ListAdapter
 
 interface HibernateDiscordInterface : GuildAsset {
 
-    fun getGuildMessageChannel(channelId: Long?): AtomicGuildMessageChannel {
+    fun getAtomicGuildChannelList(channelIdList: List<Long>): MutableList<AtomicGuildChannel> {
+        return ListAdapter(channelIdList, { AtomicGuildChannel(guildId, it) }, { it.idLong })
+    }
+
+    fun getAtomicGuildMessageChannel(channelId: Long?): AtomicGuildMessageChannel {
         return AtomicGuildMessageChannel(guildId, channelId ?: 0L)
     }
 
-    fun getAtomicTextChannel(channelId: Long?): AtomicTextChannel {
-        return AtomicTextChannel(guildId, channelId ?: 0L)
-    }
-
-    fun getAtomicTextChannelList(channelIdList: List<Long>): MutableList<AtomicTextChannel> {
-        return ListAdapter(channelIdList, { AtomicTextChannel(guildId, it) }, { it.idLong })
+    fun getAtomicGuildMessageChannelList(channelIdList: List<Long>): MutableList<AtomicGuildMessageChannel> {
+        return ListAdapter(channelIdList, { AtomicGuildMessageChannel(guildId, it) }, { it.idLong })
     }
 
     fun getAtomicMemberList(userIdList: List<Long>): MutableList<AtomicMember> {

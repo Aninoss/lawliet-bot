@@ -19,7 +19,7 @@ import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -56,7 +56,7 @@ public class OnBanAppeal implements SyncServerFunction {
         try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong(), OnBanAppeal.class)) {
             ModerationEntity moderationEntity = guildEntity.getModeration();
 
-            TextChannel channel = guild.getTextChannelById(moderationEntity.getBanAppealLogChannelIdEffectively());
+            GuildMessageChannel channel = guild.getChannelById(GuildMessageChannel.class, moderationEntity.getBanAppealLogChannelIdEffectively());
             if (channel == null) {
                 return false;
             }

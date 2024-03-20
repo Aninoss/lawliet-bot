@@ -1,8 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -10,14 +7,19 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "channelinfo",
@@ -36,14 +38,14 @@ public class ChannelInfoCommand extends Command {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         boolean noMention = false;
         Guild guild = event.getGuild();
-        ArrayList<StandardGuildMessageChannel> list = new ArrayList<>(MentionUtil.getStandardGuildMessageChannels(event.getGuild(), args).getList());
-        if (list.size() == 0) {
-            list.add(event.getTextChannel());
+        ArrayList<GuildMessageChannel> list = new ArrayList<>(MentionUtil.getGuildMessageChannels(event.getGuild(), args).getList());
+        if (list.isEmpty()) {
+            list.add(event.getMessageChannel());
             noMention = true;
         }
 
-        StandardGuildMessageChannel channel = list.get(0);
-        List<Member> members = channel.getMembers();
+        GuildMessageChannel channel = list.get(0);
+        List<Member> members = JDAUtil.getChannelMembers(channel);
 
         String[] argsArray = {
                 StringUtil.escapeMarkdown(channel.getName()),
@@ -61,7 +63,7 @@ public class ChannelInfoCommand extends Command {
 
         if (noMention) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "channel_mention_optional"));
-            if (args.length() > 0) {
+            if (!args.isEmpty()) {
                 EmbedUtil.addNoResultsLog(eb, getLocale(), args);
             }
         }

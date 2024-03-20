@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.json.JSONObject;
 
@@ -297,7 +298,7 @@ public class Console {
         String text = collectArgs(args, 3).replace("\\n", "\n");
 
         ShardManager.getLocalGuildById(serverId)
-                .map(guild -> guild.getTextChannelById(channelId))
+                .map(guild -> guild.getChannelById(GuildMessageChannel.class, channelId))
                 .ifPresent(channel -> {
                     MainLogger.get().info("#{}: {}", channel.getName(), text);
                     channel.sendMessage(text).queue();

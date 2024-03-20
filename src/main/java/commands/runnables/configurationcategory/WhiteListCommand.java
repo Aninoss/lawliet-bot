@@ -11,7 +11,7 @@ import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
-import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.AtomicGuildChannel;
 import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import mysql.hibernate.entity.BotLogEntity;
@@ -20,7 +20,7 @@ import mysql.modules.whitelistedchannels.WhiteListedChannelsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -40,8 +40,8 @@ public class WhiteListCommand extends NavigationAbstract {
 
     public static final int MAX_CHANNELS = 100;
 
-    private NavigationHelper<AtomicTextChannel> channelNavigationHelper;
-    private CustomObservableList<AtomicTextChannel> whiteListedChannels;
+    private NavigationHelper<AtomicGuildChannel> channelNavigationHelper;
+    private CustomObservableList<AtomicGuildChannel> whiteListedChannels;
 
     public WhiteListCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -49,9 +49,9 @@ public class WhiteListCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        WhiteListedChannelsData whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
-        whiteListedChannels = AtomicTextChannel.transformIdList(event.getGuild(), whiteListedChannelsBean.getChannelIds());
-        channelNavigationHelper = new NavigationHelper<>(this, guildEntity -> whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
+        WhiteListedChannelsData whiteListedChannelsData = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
+        whiteListedChannels = AtomicGuildChannel.transformIdList(event.getGuild(), whiteListedChannelsData.getChannelIds());
+        channelNavigationHelper = new NavigationHelper<>(this, guildEntity -> whiteListedChannels, AtomicGuildChannel.class, MAX_CHANNELS);
         setLog(LogStatus.WARNING, TextManager.getString(getLocale(), Category.CONFIGURATION, "cperms_obsolete", getPrefix()));
         registerNavigationListener(event.getMember());
         return true;
@@ -60,8 +60,8 @@ public class WhiteListCommand extends NavigationAbstract {
     @Override
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-            return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMember(), 0, BotLogEntity.Event.CHANNEL_WHITELIST);
+            List<GuildChannel> channelList = MentionUtil.getGuildChannels(event.getGuild(), input).getList();
+            return channelNavigationHelper.addData(AtomicGuildChannel.from(channelList), input, event.getMember(), 0, BotLogEntity.Event.CHANNEL_WHITELIST);
         }
 
         return null;
@@ -122,7 +122,7 @@ public class WhiteListCommand extends NavigationAbstract {
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(
                                 getString("state0_mchannel"),
-                                new ListGen<AtomicTextChannel>().getList(whiteListedChannels, everyChannel, m -> m.getPrefixedNameInField(getLocale())),
+                                new ListGen<AtomicGuildChannel>().getList(whiteListedChannels, everyChannel, m -> m.getPrefixedNameInField(getLocale())),
                                 true
                         );
             }

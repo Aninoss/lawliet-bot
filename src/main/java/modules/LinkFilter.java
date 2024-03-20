@@ -8,6 +8,7 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 public class LinkFilter {
 
@@ -24,7 +25,7 @@ public class LinkFilter {
                 JDAUtil.openPrivateChannel(message.getMember())
                         .flatMap(messageChannel -> messageChannel.sendMessage(text))
                         .queue();
-                message.getGuild().getTextChannelById(819350890263085097L)
+                message.getGuild().getChannelById(GuildMessageChannel.class, 819350890263085097L)
                         .sendMessage("LINK BLOCK FOR " + StringUtil.escapeMarkdown(message.getAuthor().getName()) + " IN " + message.getChannel().getAsMention() + ": " + message.getContentRaw())
                         .queue();
             }

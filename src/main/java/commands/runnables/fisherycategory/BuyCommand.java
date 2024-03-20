@@ -17,15 +17,15 @@ import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
 import mysql.hibernate.entity.guild.FisheryEntity;
-import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryMemberGearData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -164,7 +164,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         if (slot.getGear() == FisheryGear.ROLE) {
             Fishery.synchronizeRoles(member, getGuildEntity());
-            TextChannel roleUpgradeChannel = getGuildEntity().getFishery().getRoleUpgradeChannel().get().orElse(null);
+            GuildMessageChannel roleUpgradeChannel = getGuildEntity().getFishery().getRoleUpgradeChannel().get().orElse(null);
             if (roleUpgradeChannel != null && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), roleUpgradeChannel, Permission.MESSAGE_SEND)) {
                 String announcementText = getString("newrole", StringUtil.escapeMarkdown(member.getEffectiveName()), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
                 roleUpgradeChannel.sendMessage(announcementText).queue();

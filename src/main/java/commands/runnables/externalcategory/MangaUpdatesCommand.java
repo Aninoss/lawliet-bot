@@ -8,6 +8,7 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.ListGen;
 import core.utils.EmbedUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.mandaupdates.MangaUpdatesDownloader;
 import modules.mandaupdates.MangaUpdatesRelease;
@@ -43,7 +44,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
         List<MangaUpdatesSeries> seriesList = MangaUpdatesDownloader.searchSeries(args);
         if (!seriesList.isEmpty()) {
             MangaUpdatesSeries series = seriesList.get(0);
-            if (series.isNsfw() && !event.getTextChannel().isNSFW()) {
+            if (series.isNsfw() && !JDAUtil.channelIsNsfw(event.getChannel())) {
                 drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
                 return false;
             } else {
@@ -89,7 +90,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
             series = new MangaUpdatesSeries(seriesId, title, image, url, nsfw);
         }
 
-        if (series.isNsfw() && !slot.getStandardGuildMessageChannel().get().isNSFW()) {
+        if (series.isNsfw() && !JDAUtil.channelIsNsfw(slot.getGuildMessageChannel().get())) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale(), getPrefix());
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             slot.sendMessage(getLocale(), false, eb.build());

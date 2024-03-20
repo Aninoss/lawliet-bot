@@ -15,11 +15,12 @@ import core.Program;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -110,7 +111,7 @@ public class HelpCommand extends NavigationAbstract {
         String arg = searchTerm.trim();
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length() - 1);
 
-        TextChannel channel = getTextChannel().get();
+        GuildMessageChannel channel = getGuildMessageChannel().get();
         setActionRows();
 
         setState(STATE_NOT_DEFAULT);
@@ -133,7 +134,7 @@ public class HelpCommand extends NavigationAbstract {
         return eb;
     }
 
-    private EmbedBuilder checkCommand(Member member, TextChannel channel, String arg) {
+    private EmbedBuilder checkCommand(Member member, GuildMessageChannel channel, String arg) {
         boolean noArgs = false;
         if (getAttachments().has("noargs")) {
             getAttachments().remove("noargs");
@@ -152,7 +153,7 @@ public class HelpCommand extends NavigationAbstract {
                 }
 
                 buttonMap.clear();
-                if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
+                if (command.getCommandProperties().nsfw() && !JDAUtil.channelIsNsfw(channel)) {
                     buttonMap.put(-1, "");
                     return EmbedFactory.getNSFWBlockEmbed(this);
                 }
@@ -166,7 +167,7 @@ public class HelpCommand extends NavigationAbstract {
                 StringBuilder examples = new StringBuilder();
                 int exampleNumber = 0;
                 for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_examples").split("\n")) {
-                    line = StringUtil.solveVariablesOfCommandText(line, getTextChannel().get(), member, getPrefix());
+                    line = StringUtil.solveVariablesOfCommandText(line, getGuildMessageChannel().get(), member, getPrefix());
                     examples.append("- ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                     exampleNumber++;
                 }
@@ -207,7 +208,7 @@ public class HelpCommand extends NavigationAbstract {
         return null;
     }
 
-    private EmbedBuilder checkCategory(Member member, TextChannel channel, String arg) {
+    private EmbedBuilder checkCategory(Member member, GuildMessageChannel channel, String arg) {
         if (arg.startsWith("cat:")) {
             arg = arg.substring(4);
         }
@@ -232,7 +233,7 @@ public class HelpCommand extends NavigationAbstract {
                 buttonMap.clear();
                 buttonMap.put(-1, "");
 
-                if (category.isNSFW() && !channel.isNSFW()) {
+                if (category.isNSFW() && !JDAUtil.channelIsNsfw(channel)) {
                     return EmbedFactory.getNSFWBlockEmbed(this);
                 }
 
@@ -279,7 +280,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getTextChannel().get())) {
+            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())) {
                 buttonMap.put(counter.getAndIncrement(), command.getTrigger());
                 stringBuilder
                         .append("- `")
@@ -305,7 +306,7 @@ public class HelpCommand extends NavigationAbstract {
         }
     }
 
-    private void categoryPatreon(Member member, TextChannel channel, EmbedBuilder eb) {
+    private void categoryPatreon(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
         boolean includeLocked = false;
         boolean includeAlerts = false;
         boolean includeNSFW = false;
@@ -318,8 +319,8 @@ public class HelpCommand extends NavigationAbstract {
                 String commandTrigger = command.getTrigger();
                 if (command.getCommandProperties().patreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
-                        CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getTextChannel().get()) &&
-                        (!command.getCommandProperties().nsfw() || channel.isNSFW())
+                        CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get()) &&
+                        (!command.getCommandProperties().nsfw() || JDAUtil.channelIsNsfw(channel))
                 ) {
                     StringBuilder title = new StringBuilder();
                     title.append(command.getCommandProperties().emoji())
@@ -364,7 +365,7 @@ public class HelpCommand extends NavigationAbstract {
         addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, false);
     }
 
-    private void categoryDefault(Member member, TextChannel channel, EmbedBuilder eb, Category category) {
+    private void categoryDefault(Member member, GuildMessageChannel channel, EmbedBuilder eb, Category category) {
         boolean includeLocked = false;
         boolean includeAlerts = false;
         boolean includeNSFW = false;
@@ -375,7 +376,7 @@ public class HelpCommand extends NavigationAbstract {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) &&
-                    CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getTextChannel().get())
+                    CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())
             ) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getCommandProperties().emoji())
@@ -410,7 +411,7 @@ public class HelpCommand extends NavigationAbstract {
         addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, includePatreon);
     }
 
-    private void categoryNSFW(Member member, TextChannel channel, EmbedBuilder eb) {
+    private void categoryNSFW(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
         eb.setDescription(getString("nsfw"));
 
         StringBuilder withSearchKey = new StringBuilder();
@@ -422,7 +423,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
-            if (CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getTextChannel().get())) {
+            if (CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())) {
                 buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
@@ -458,7 +459,7 @@ public class HelpCommand extends NavigationAbstract {
         addIconDescriptions(channel, eb, false, false, false, true);
     }
 
-    private String generateCommandIcons(TextChannel channel, Command command, boolean includeAlert, boolean includeNsfw, boolean includePatreon) {
+    private String generateCommandIcons(GuildMessageChannel channel, Command command, boolean includeAlert, boolean includeNsfw, boolean includePatreon) {
         StringBuilder sb = new StringBuilder();
 
         if (command.isModCommand()) sb.append(CommandIcon.LOCKED.get(channel));
@@ -471,7 +472,7 @@ public class HelpCommand extends NavigationAbstract {
         return sb.isEmpty() ? "" : "┊" + sb;
     }
 
-    private void addIconDescriptions(TextChannel channel, EmbedBuilder eb, boolean includeLocked, boolean includeAlerts, boolean includeNSFW, boolean includePatreon) {
+    private void addIconDescriptions(GuildMessageChannel channel, EmbedBuilder eb, boolean includeLocked, boolean includeAlerts, boolean includeNSFW, boolean includePatreon) {
         StringBuilder sb = new StringBuilder(getString("commandproperties")).append("\n\n");
         if (includeLocked) {
             sb.append(getString("commandproperties_LOCKED", CommandIcon.LOCKED.get(channel))).append("\n");
@@ -487,7 +488,7 @@ public class HelpCommand extends NavigationAbstract {
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), sb.toString(), false);
     }
 
-    private EmbedBuilder checkMainPage(Member member, TextChannel channel) {
+    private EmbedBuilder checkMainPage(Member member, GuildMessageChannel channel) {
         String banner = Program.publicInstance()
                 ? "https://cdn.discordapp.com/attachments/499629904380297226/850825690399899658/help_banner.png"
                 : "https://cdn.discordapp.com/attachments/499629904380297226/1106609492256370779/help_banner_custom.png";
@@ -517,12 +518,12 @@ public class HelpCommand extends NavigationAbstract {
         return eb;
     }
 
-    private SelectMenu generateSelectMenu(Member member, TextChannel channel, Category currentCategory) {
+    private SelectMenu generateSelectMenu(Member member, GuildMessageChannel channel, Category currentCategory) {
         StringSelectMenu.Builder builder = StringSelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
             if (CommandManager.commandCategoryIsEnabledEffectively(getGuildEntity(), category, member, channel) &&
-                    (!category.isNSFW() || channel.isNSFW())
+                    (!category.isNSFW() || JDAUtil.channelIsNsfw(channel))
             ) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
                 String value = "cat:" + category.getId();
@@ -551,7 +552,7 @@ public class HelpCommand extends NavigationAbstract {
             this.unicodeAlternative = unicodeAlternative;
         }
 
-        public String get(TextChannel channel) {
+        public String get(GuildMessageChannel channel) {
             if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
                 return customEmoji.getFormatted();
             } else {

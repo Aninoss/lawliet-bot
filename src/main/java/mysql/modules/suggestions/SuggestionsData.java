@@ -1,11 +1,12 @@
 package mysql.modules.suggestions;
 
-import java.util.Map;
-import java.util.Optional;
 import core.CustomObservableMap;
 import modules.suggestions.SuggestionMessage;
 import mysql.DataWithGuild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+
+import java.util.Map;
+import java.util.Optional;
 
 public class SuggestionsData extends DataWithGuild {
 
@@ -28,12 +29,12 @@ public class SuggestionsData extends DataWithGuild {
         return messages;
     }
 
-    public Optional<Long> getTextChannelId() {
+    public Optional<Long> getChannelId() {
         return Optional.ofNullable(channelId);
     }
 
-    public Optional<TextChannel> getTextChannel() {
-        return getGuild().map(guild -> guild.getTextChannelById(channelId != null ? channelId : 0L));
+    public Optional<GuildMessageChannel> getChannel() {
+        return getGuild().map(guild -> guild.getChannelById(GuildMessageChannel.class, channelId != null ? channelId : 0L));
     }
 
     public void toggleActive() {

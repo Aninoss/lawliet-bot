@@ -2,11 +2,15 @@ package events.sync.events;
 
 import core.MemberCacheController;
 import core.ShardManager;
+import core.atomicassets.AtomicGuildChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
+import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.utils.BotPermissionUtil;
 import dashboard.component.DashboardComboBox;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import org.json.JSONObject;
 
@@ -31,17 +35,28 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
                     .filter(r -> r.getName().toLowerCase().contains(filterText) && !r.isPublicRole())
                     .count();
 
-            case TEXT_CHANNELS -> {
+            case GUILD_CHANNELS -> {
                 Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
-                yield guild.getTextChannels().stream()
-                        .filter(c -> ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
+                yield guild.getChannelCache().stream()
+                        .filter(c -> new AtomicGuildChannel(c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c))
                         .count();
             }
 
-            case BASE_GUILD_MESSAGE_CHANNELS -> {
+            case GUILD_MESSAGE_CHANNELS -> {
                 Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
-                yield guild.getChannels().stream()
-                        .filter(c -> c instanceof StandardGuildMessageChannel && ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
+                yield guild.getChannelCache().stream()
+                        .filter(c -> c instanceof GuildMessageChannel &&
+                                new AtomicGuildMessageChannel((GuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c)
+                        )
+                        .count();
+            }
+
+            case STANDARD_GUILD_MESSAGE_CHANNELS -> {
+                Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
+                yield guild.getChannelCache().stream()
+                        .filter(c -> c instanceof StandardGuildMessageChannel &&
+                                new AtomicStandardGuildMessageChannel((StandardGuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c)
+                        )
                         .count();
             }
 

@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -92,7 +92,7 @@ public class Fishery {
         return Math.round(userBean.getMemberGear(FisheryGear.DAILY).getEffect() * 0.25);
     }
 
-    public static void spawnTreasureChest(StandardGuildMessageChannel channel, GuildEntity guildEntity) {
+    public static void spawnTreasureChest(GuildMessageChannel channel, GuildEntity guildEntity) {
         Locale locale = guildEntity.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title"))
@@ -109,7 +109,7 @@ public class Fishery {
                 });
     }
 
-    public static void spawnPowerUp(StandardGuildMessageChannel channel, Member member, GuildEntity guildEntity) {
+    public static void spawnPowerUp(GuildMessageChannel channel, Member member, GuildEntity guildEntity) {
         Locale locale = guildEntity.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_POWERUP + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_title"))

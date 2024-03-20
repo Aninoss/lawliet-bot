@@ -17,7 +17,7 @@ import mysql.modules.warning.ServerWarningsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -77,7 +77,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     }
 
     @Override
-    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
+    protected void sendMessage(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
         if (warningSlots.size() > ENTRIES_PER_PAGE) {
             ebCache = eb;
             registerButtonListener(member);

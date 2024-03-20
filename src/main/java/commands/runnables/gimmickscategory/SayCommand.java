@@ -10,7 +10,7 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -31,8 +31,8 @@ public class SayCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        StandardGuildMessageChannel channel;
-        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, event.getTextChannel(), args, Permission.MESSAGE_ATTACH_FILES);
+        GuildMessageChannel channel;
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, event.getMessageChannel(), args, Permission.MESSAGE_ATTACH_FILES);
         if (response != null) {
             args = response.getArgs();
             channel = response.getChannel();
@@ -48,7 +48,7 @@ public class SayCommand extends Command {
                 .setFooter(getString("author", event.getMember().getUser().getName()));
 
         Map<String, InputStream> fileAttachmentMap = new HashMap<>();
-        if (attachments.size() > 0) {
+        if (!attachments.isEmpty()) {
             event.deferReply();
             Message.Attachment attachment = attachments.get(0);
             if (attachment.isImage() && attachment.getSize() <= 8_000_000) {

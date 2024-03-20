@@ -13,7 +13,7 @@ import constants.ExceptionIds;
 import constants.LogStatus;
 import constants.Settings;
 import core.*;
-import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.AtomicGuildChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
@@ -33,8 +33,8 @@ import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -74,7 +74,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     public static final String ENTITY_SELECT_MENU_ID_COLLABORATION = "member";
 
     private boolean stopLock = true;
-    private NavigationHelper<AtomicTextChannel> channelNavigationHelper;
+    private NavigationHelper<AtomicGuildChannel> channelNavigationHelper;
 
     public static final String EMOJI_TREASURE = "💰";
     public static final String EMOJI_KEY = "🔑";
@@ -86,7 +86,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
-        channelNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getFishery().getExcludedChannels(), AtomicTextChannel.class, MAX_CHANNELS);
+        channelNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getFishery().getExcludedChannels(), AtomicGuildChannel.class, MAX_CHANNELS);
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -94,8 +94,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     @Override
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-            return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0, BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS);
+            List<GuildChannel> channelList = MentionUtil.getGuildChannels(event.getGuild(), input).getList();
+            return channelNavigationHelper.addData(AtomicGuildChannel.from(channelList), input, event.getMessage().getMember(), 0, BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS);
         }
 
         return null;
@@ -306,7 +306,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 }
                 setComponents(buttons);
 
-                TextChannel channel = getTextChannel().get();
+                GuildMessageChannel channel = getGuildMessageChannel().get();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[fishery.getFisheryStatus().ordinal()] + "**\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
                         .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, fishery.getTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
@@ -314,7 +314,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
                         .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
                         .addField(getString("state0_mprobs", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), generateProbabilitiesTextValue(fishery) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
-                        .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
+                        .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
 
             case 1:
                 return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
@@ -328,10 +328,6 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public void onStaticButton(ButtonInteractionEvent event, String secondaryId) {
-        if (!(event.getChannel() instanceof TextChannel)) {
-            return;
-        }
-
         if (event.getComponent().getId().equals(BUTTON_ID_TREASURE)) {
             processTreasureChest(event);
         } else if (event.getComponent().getId().equals(BUTTON_ID_POWERUP)) {
@@ -388,7 +384,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setImage(treasureImage)
                 .setFooter(getString("treasure_footer"));
 
-        StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
+        GuildMessageChannel channel = event.getGuildChannel();
         if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
             event.getMessage().editMessageEmbeds(eb.build(), memberData.changeValuesEmbed(event.getMember(), 0, won, getGuildEntity()).build()).submit()
                     .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
@@ -447,7 +443,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
             );
         }
 
-        StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
+        GuildMessageChannel channel = event.getGuildChannel();
         if (powerUp == FisheryPowerUp.TEAM) {
             EntitySelectMenu memberSelectMenu = EntitySelectMenu.create(ENTITY_SELECT_MENU_ID_COLLABORATION, EntitySelectMenu.SelectTarget.USER)
                     .setRequiredRange(1, 1)
@@ -478,9 +474,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public void onStaticEntitySelectMenu(EntitySelectInteractionEvent event, String secondaryId) {
-        if (!(event.getChannel() instanceof TextChannel) ||
-                !event.getComponent().getId().equals(ENTITY_SELECT_MENU_ID_COLLABORATION)
-        ) {
+        if (!event.getComponent().getId().equals(ENTITY_SELECT_MENU_ID_COLLABORATION)) {
             return;
         }
 

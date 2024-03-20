@@ -1,7 +1,7 @@
 package mysql.hibernate.entity.guild
 
+import core.atomicassets.AtomicGuildMessageChannel
 import core.atomicassets.AtomicRole
-import core.atomicassets.AtomicTextChannel
 import core.cache.ServerPatreonBoostCache
 import mysql.hibernate.EntityManagerWrapper
 import mysql.hibernate.template.HibernateDiscordInterface
@@ -16,8 +16,8 @@ class TicketsEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     enum class AssignmentMode { FIRST, EVERYONE, MANUAL }
 
     var logChannelId: Long? = null
-    val logChannel: AtomicTextChannel
-        get() = getAtomicTextChannel(logChannelId)
+    val logChannel: AtomicGuildMessageChannel
+        get() = getAtomicGuildMessageChannel(logChannelId)
 
     @ElementCollection
     var staffRoleIds = mutableListOf<Long>()

@@ -2,15 +2,15 @@ package events.discordevents.guildusercontextinteraction;
 
 import constants.AnicordVerificationIds;
 import core.EmbedFactory;
-import core.modals.ModalMediator;
 import core.ShardManager;
+import core.modals.ModalMediator;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUserContextInteractionAbstract;
 import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -31,7 +31,7 @@ public class GuildUserContextInteractionVerification extends GuildUserContextInt
         }
 
         Role verificationRole = guild.getRoleById(AnicordVerificationIds.ROLE_ID);
-        TextChannel verificationChannel = guild.getTextChannelById(AnicordVerificationIds.CHANNEL_ID);
+        GuildMessageChannel verificationChannel = guild.getChannelById(GuildMessageChannel.class, AnicordVerificationIds.CHANNEL_ID);
 
         if (event.getTargetMember().getRoles().contains(verificationRole)) {
             sendErrorEmbed(event, String.format("%s ist bereits verifiziert!", event.getTargetMember().getAsMention()));

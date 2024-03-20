@@ -40,7 +40,7 @@ public class GiveawayData extends Observable implements MessageAsset {
     }
 
     @Override
-    public long getStandardGuildMessageChannelId() {
+    public long getGuildMessageChannelId() {
         return channelId;
     }
 

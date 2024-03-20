@@ -6,7 +6,7 @@ import core.ShardManager;
 import core.TextManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
@@ -211,7 +211,7 @@ public final class StringUtil {
         return str.substring(0, Math.min(str.length(), limit - postfix.length())) + postfix;
     }
 
-    public static Emoji getEmojiForBoolean(TextChannel channel, boolean bool) {
+    public static Emoji getEmojiForBoolean(GuildMessageChannel channel, boolean bool) {
         if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
             return Emojis.SWITCHES_DOT[bool ? 1 : 0];
         } else {
@@ -219,16 +219,16 @@ public final class StringUtil {
         }
     }
 
-    public static String getOnOffForBoolean(TextChannel channel, Locale locale, boolean bool) {
+    public static String getOnOffForBoolean(GuildMessageChannel channel, Locale locale, boolean bool) {
         return "**" + getEmojiForBoolean(channel, bool).getFormatted() + " " + TextManager.getString(locale, TextManager.GENERAL, "onoff", bool) + "**";
     }
 
-    public static String solveVariablesOfCommandText(String string, TextChannel textChannel, Member member, String prefix) {
+    public static String solveVariablesOfCommandText(String string, GuildMessageChannel channel, Member member, String prefix) {
         return string
-                .replace("{#CHANNEL}", textChannel.getAsMention())
+                .replace("{#CHANNEL}", channel.getAsMention())
                 .replace("{MESSAGE_ID}", "708943085144506418")
-                .replace("{CHANNEL_ID}", textChannel.getId())
-                .replace("{GUILD_ID}", textChannel.getGuild().getId())
+                .replace("{CHANNEL_ID}", channel.getId())
+                .replace("{GUILD_ID}", channel.getGuild().getId())
                 .replace("{@USER}", member.getAsMention())
                 .replace("{@BOT}", ShardManager.getSelf().getAsMention())
                 .replace("%Prefix", prefix);

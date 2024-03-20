@@ -1,8 +1,11 @@
 package mysql.modules.whitelistedchannels;
 
-import java.util.List;
 import core.CustomObservableList;
+import core.utils.JDAUtil;
 import mysql.DataWithGuild;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+
+import java.util.List;
 
 public class WhiteListedChannelsData extends DataWithGuild {
 
@@ -17,8 +20,8 @@ public class WhiteListedChannelsData extends DataWithGuild {
         return channelIds;
     }
 
-    public boolean isWhiteListed(long channelId) {
-        return channelIds.size() == 0 || channelIds.contains(channelId);
+    public boolean isWhiteListed(GuildMessageChannel channel) {
+        return channelIds.isEmpty() || JDAUtil.collectionContainsChannelOrParent(channelIds, channel);
     }
 
 }

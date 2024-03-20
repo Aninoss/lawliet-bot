@@ -7,7 +7,7 @@ import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.*;
-import core.atomicassets.AtomicStandardGuildMessageChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.utils.*;
 import modules.Giveaway;
 import modules.schedulers.GiveawayScheduler;
@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
@@ -81,7 +81,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     private Emoji emoji = Emoji.fromUnicode("🎉");
     private String imageLink;
     private LocalFile imageCdn;
-    private AtomicStandardGuildMessageChannel channel;
+    private AtomicGuildMessageChannel channel;
     private Instant instant;
     private boolean editMode = false;
     private GiveawayData rerollGiveawayData;
@@ -101,10 +101,10 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @ControllerMessage(state = ADD_MESSAGE)
     public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
-        List<StandardGuildMessageChannel> channel = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), input).getList();
+        List<GuildMessageChannel> channel = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
         if (!channel.isEmpty()) {
             if (checkWriteEmbedInChannelWithLog(channel.get(0))) {
-                this.channel = new AtomicStandardGuildMessageChannel(channel.get(0));
+                this.channel = new AtomicGuildMessageChannel(channel.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
                 return MessageInputResponse.SUCCESS;
             } else {
@@ -300,7 +300,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             durationMinutes = giveaway.getDurationMinutes();
             amountOfWinners = giveaway.getWinners();
             imageLink = giveaway.getImageUrl().orElse(null);
-            channel = new AtomicStandardGuildMessageChannel(event.getGuild().getIdLong(), giveaway.getStandardGuildMessageChannelId());
+            channel = new AtomicGuildMessageChannel(event.getGuild().getIdLong(), giveaway.getGuildMessageChannelId());
             instant = giveaway.getStart();
             emoji = Emoji.fromFormatted(giveaway.getEmoji());
             setState(CONFIGURE_MESSAGE);
@@ -557,8 +557,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public EmbedBuilder onDrawEditMessage(Member member) {
         String[] options = getActiveGiveawaySlots().stream()
                 .map(giveawayData -> {
-                    AtomicStandardGuildMessageChannel atomicStandardGuildMessageChannel = new AtomicStandardGuildMessageChannel(giveawayData.getGuildId(), giveawayData.getStandardGuildMessageChannelId());
-                    return getString("state2_slot", giveawayData.getTitle(), atomicStandardGuildMessageChannel.getName(getLocale()));
+                    AtomicGuildMessageChannel atomicGuildMessageChannel = new AtomicGuildMessageChannel(giveawayData.getGuildId(), giveawayData.getGuildMessageChannelId());
+                    return getString("state2_slot", giveawayData.getTitle(), atomicGuildMessageChannel.getName(getLocale()));
                 })
                 .toArray(String[]::new);
         setComponents(options);
@@ -568,7 +568,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = REROLL_MESSAGE)
     public EmbedBuilder onDrawRerollMessage(Member member) {
         String[] options = getCompletedGiveawaySlots().stream()
-                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), giveawayData.getStandardGuildMessageChannelId()).getName(getLocale())))
+                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicGuildMessageChannel(member.getGuild().getIdLong(), giveawayData.getGuildMessageChannelId()).getName(getLocale())))
                 .toArray(String[]::new);
         setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state12_description"), getString("state12_title"));
@@ -589,7 +589,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 .addField(getString("state3_mduration"), TimeUtil.getRemainingTimeString(getLocale(), durationMinutes * 60_000, false), true)
                 .addField(getString("state3_mwinners"), String.valueOf(amountOfWinners), true)
                 .addField(getString("state3_memoji"), emoji.getFormatted(), true)
-                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), imageLink != null), true);
+                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), imageLink != null), true);
     }
 
     @Draw(state = UPDATE_TITLE)
@@ -673,7 +673,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     private Optional<Long> sendMessage() {
         Message message;
         if (checkWriteEmbedInChannelWithLog(channel.get().orElse(null))) {
-            StandardGuildMessageChannel channel = this.channel.get().get();
+            GuildMessageChannel channel = this.channel.get().get();
             if (!editMode) {
                 instant = Instant.now();
                 EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,

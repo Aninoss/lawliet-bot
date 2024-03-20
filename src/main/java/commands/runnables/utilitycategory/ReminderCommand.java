@@ -10,7 +10,7 @@ import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.atomicassets.AtomicStandardGuildMessageChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.mention.MentionValue;
 import core.utils.*;
 import modules.schedulers.ReminderScheduler;
@@ -22,7 +22,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +48,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        StandardGuildMessageChannel channel = null;
+        GuildMessageChannel channel = null;
         CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, channel, args);
         if (response != null) {
             args = response.getArgs();
@@ -141,14 +140,14 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         ReminderScheduler.loadReminder(reminderEntity);
     }
 
-    public static EmbedBuilder generateEmbed(Locale locale, String prefix, StandardGuildMessageChannel channel, Instant time, String messageText, Integer interval) {
+    public static EmbedBuilder generateEmbed(Locale locale, String prefix, GuildMessageChannel channel, Instant time, String messageText, Integer interval) {
         String intervalText = TextManager.getString(locale, Category.UTILITY, "reminder_norep");
         if (interval != null && interval > 0) {
             intervalText = TimeUtil.getRemainingTimeString(locale, Duration.ofMinutes(interval).toMillis(), false);
         }
 
         String channelStr = channel != null
-                ? new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(locale)
+                ? new AtomicGuildMessageChannel(channel).getPrefixedNameInField(locale)
                 : TextManager.getString(locale, Category.UTILITY, "reminder_channel_dms");
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()

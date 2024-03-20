@@ -144,7 +144,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             registerButtonListener(event.getMember());
         } else {
             event.deferReply();
-            boolean success = checkAndExecute(event.getTextChannel(), event.getMember());
+            boolean success = checkAndExecute(event.getMessageChannel(), event.getMember());
             drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
             return success;
         }
@@ -241,7 +241,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         boolean confirm = Boolean.parseBoolean(event.getComponentId());
         if (confirm) {
             event.deferEdit().queue();
-            checkAndExecute(event.getChannel().asTextChannel(), event.getMember());
+            checkAndExecute(event.getGuildChannel(), event.getMember());
         } else {
             status = Status.CANCELED;
         }

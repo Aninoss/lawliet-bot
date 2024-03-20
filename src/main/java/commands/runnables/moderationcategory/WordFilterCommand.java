@@ -218,7 +218,7 @@ public class WordFilterCommand extends NavigationAbstract {
             case 0:
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), wordFilter.getActive()), true)
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), wordFilter.getActive()), true)
                         .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(wordFilter.getExcludedMembers(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
                         .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(wordFilter.getLogReceivers(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
                         .addField(getString("state0_mwords"), getWordsString(wordFilter.getWords()), true);

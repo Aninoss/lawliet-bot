@@ -3,6 +3,7 @@ package events.sync.events;
 import constants.AssetIds;
 import core.ShardManager;
 import core.components.ActionRows;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.json.JSONObject;
@@ -23,7 +24,7 @@ public class OnReport implements SyncServerFunction {
         }
 
         ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get()
-                .getTextChannelById(896872855248183316L)
+                .getChannelById(GuildMessageChannel.class, 896872855248183316L)
                 .sendMessage(content)
                 .setComponents(ActionRows.of(
                         Button.of(ButtonStyle.PRIMARY, "allow", "Allow"),

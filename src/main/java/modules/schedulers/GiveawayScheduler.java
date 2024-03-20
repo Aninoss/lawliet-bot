@@ -18,7 +18,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class GiveawayScheduler {
     private static void onGiveawayDue(GiveawayData giveawayData) {
         if (giveawayData.isActive()) {
             ShardManager.getLocalGuildById(giveawayData.getGuildId())
-                    .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, giveawayData.getStandardGuildMessageChannelId()))
+                    .map(guild -> guild.getChannelById(GuildMessageChannel.class, giveawayData.getGuildMessageChannelId()))
                     .ifPresent(channel -> {
                         try {
                             processGiveawayUsers(giveawayData, giveawayData.getWinners(), false);

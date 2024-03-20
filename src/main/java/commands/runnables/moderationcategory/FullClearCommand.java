@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -51,7 +51,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     private boolean interrupt = false;
     private List<Member> memberFilter;
-    StandardGuildMessageChannel channel;
+    GuildMessageChannel channel;
 
     public FullClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -59,9 +59,9 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
-        MentionList<StandardGuildMessageChannel> channelMention = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), args);
+        MentionList<GuildMessageChannel> channelMention = MentionUtil.getGuildMessageChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
-        channel = event.getTextChannel();
+        channel = event.getMessageChannel();
         if (!channelMention.getList().isEmpty()) {
             channel = channelMention.getList().get(0);
         }
@@ -112,20 +112,20 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
         RestAction<Void> restAction;
         if (event.isMessageReceivedEvent()) {
-            restAction = event.getTextChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
+            restAction = event.getMessageChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
         } else {
-            restAction = event.getTextChannel().deleteMessageById(messageId);
+            restAction = event.getMessageChannel().deleteMessageById(messageId);
         }
         restAction.submitAfter(8, TimeUnit.SECONDS)
                 .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
         return true;
     }
 
-    private void fullClear(StandardGuildMessageChannel channel, int hours) throws InterruptedException {
+    private void fullClear(GuildMessageChannel channel, int hours) throws InterruptedException {
         fullClear(channel, hours, Collections.emptyList(), 0L);
     }
 
-    private ClearResults fullClear(StandardGuildMessageChannel channel, int hours, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
+    private ClearResults fullClear(GuildMessageChannel channel, int hours, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean tooOld = false;
 
@@ -168,7 +168,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
-        StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
+        GuildMessageChannel channel = slot.getGuildMessageChannel().get();
         if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             long hoursMin = Math.max(0, MentionUtil.getAmountExt(slot.getCommandKey()));
             if (hoursMin <= HOURS_MAX) {
@@ -208,9 +208,9 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         if (!interrupt) {
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             if (memberFilter.isEmpty()) {
-                return EmbedFactory.getEmbedDefault(this, getString("progress", channel.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+                return EmbedFactory.getEmbedDefault(this, getString("progress", channel.getAsMention(), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().get())));
             } else {
-                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), channel.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), channel.getAsMention(), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().get())));
             }
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));

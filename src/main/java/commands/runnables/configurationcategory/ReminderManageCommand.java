@@ -9,7 +9,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicStandardGuildMessageChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -59,7 +59,7 @@ public class ReminderManageCommand extends NavigationAbstract {
             STATE_SET_CHANNEL = 4;
 
     private UUID id;
-    private AtomicStandardGuildMessageChannel guildChannel;
+    private AtomicGuildMessageChannel guildChannel;
     private Instant triggerTime;
     private String message;
     private Integer intervalMinutes;
@@ -122,7 +122,7 @@ public class ReminderManageCommand extends NavigationAbstract {
         }
 
         id = reminderEntity.getId();
-        guildChannel = reminderEntity.getGuildChannelId() != null ? new AtomicStandardGuildMessageChannel(event.getGuild(), reminderEntity.getGuildChannelId()) : null;
+        guildChannel = reminderEntity.getGuildChannelId() != null ? new AtomicGuildMessageChannel(event.getGuild().getIdLong(), reminderEntity.getGuildChannelId()) : null;
         triggerTime = reminderEntity.getTriggerTime();
         message = reminderEntity.getMessage();
         intervalMinutes = reminderEntity.getIntervalMinutes();
@@ -221,7 +221,7 @@ public class ReminderManageCommand extends NavigationAbstract {
                 return false;
             }
             case 3 -> {
-                StandardGuildMessageChannel channel = null;
+                GuildMessageChannel channel = null;
                 if (guildChannel != null) {
                     channel = guildChannel.get().orElse(null);
                     if (channel == null) {
@@ -316,13 +316,13 @@ public class ReminderManageCommand extends NavigationAbstract {
 
     @ControllerEntitySelectMenu(state = STATE_SET_CHANNEL)
     public boolean onEntitySelectMenuSetChannel(EntitySelectInteractionEvent event) {
-        StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getMentions().getChannels().get(0);
+        GuildMessageChannel channel = (GuildMessageChannel) event.getMentions().getChannels().get(0);
         if (!BotPermissionUtil.canWrite(channel)) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_send", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
             return true;
         }
 
-        this.guildChannel = new AtomicStandardGuildMessageChannel(channel);
+        this.guildChannel = new AtomicGuildMessageChannel(channel);
         setLog(LogStatus.SUCCESS, getString("set_channel"));
         setState(STATE_MANAGE);
         return true;
@@ -386,8 +386,9 @@ public class ReminderManageCommand extends NavigationAbstract {
     @Draw(state = STATE_SET_CHANNEL)
     public EmbedBuilder onDrawSetChannel(Member member) {
         EntitySelectMenu selectMenu = EntitySelectMenu.create("channel", EntitySelectMenu.SelectTarget.CHANNEL)
-                .setChannelTypes(ChannelType.TEXT, ChannelType.NEWS)
+                .setChannelTypes(ChannelType.TEXT, ChannelType.VOICE, ChannelType.NEWS, ChannelType.STAGE, ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD)
                 .setDefaultValues(EntitySelectMenu.DefaultValue.channel(guildChannel.getIdLong()))
+                .setRequiredRange(1, 1)
                 .build();
         setComponents(selectMenu);
         return EmbedFactory.getEmbedDefault(this, getString("channel_desc"), getString("channel_title"));

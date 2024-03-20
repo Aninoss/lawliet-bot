@@ -4,7 +4,7 @@ import constants.Emojis;
 import core.assets.GuildAsset;
 import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 public class SuggestionMessage implements GuildAsset {
 
@@ -69,7 +69,7 @@ public class SuggestionMessage implements GuildAsset {
         downvotes += offset;
     }
 
-    public void loadVoteValuesifAbsent(TextChannel channel) {
+    public void loadVoteValuesifAbsent(GuildMessageChannel channel) {
         if (!loaded) {
             loaded = true;
             Message message = channel.retrieveMessageById(messageId).complete();

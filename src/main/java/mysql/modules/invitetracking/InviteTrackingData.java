@@ -1,10 +1,11 @@
 package mysql.modules.invitetracking;
 
-import java.util.Map;
-import java.util.Optional;
 import core.CustomObservableMap;
 import mysql.DataWithGuild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+
+import java.util.Map;
+import java.util.Optional;
 
 public class InviteTrackingData extends DataWithGuild {
 
@@ -54,12 +55,12 @@ public class InviteTrackingData extends DataWithGuild {
         notifyObservers();
     }
 
-    public Optional<Long> getTextChannelId() {
+    public Optional<Long> getChannelId() {
         return Optional.ofNullable(channelId);
     }
 
-    public Optional<TextChannel> getTextChannel() {
-        return getGuild().map(guild -> guild.getTextChannelById(channelId != null ? channelId : 0L));
+    public Optional<GuildMessageChannel> getChannel() {
+        return getGuild().map(guild -> guild.getChannelById(GuildMessageChannel.class, channelId != null ? channelId : 0L));
     }
 
     public void setChannelId(Long channelId) {

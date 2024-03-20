@@ -10,8 +10,8 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardChannelComboBox
 import dashboard.components.DashboardMultiRolesComboBox
-import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
@@ -21,6 +21,8 @@ import mysql.hibernate.entity.guild.GuildEntity
 import mysql.hibernate.entity.guild.TicketsEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel
 import java.util.*
 
 @DashboardProperties(
@@ -59,10 +61,10 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         innerContainer.alignment = HorizontalContainer.Alignment.CENTER
         innerContainer.allowWrap = true
 
-        val channelComboBox = DashboardTextChannelComboBox(
+        val channelComboBox = DashboardChannelComboBox(
+                this,
                 "",
-                locale,
-                atomicGuild.idLong,
+                DashboardComboBox.DataType.STANDARD_GUILD_MESSAGE_CHANNELS,
                 createMessageChannelId,
                 false
         ) {
@@ -73,7 +75,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         channelComboBox.putCssProperties("margin-top", "0.5em")
 
         val sendButton = DashboardButton(getString(category = Category.CONFIGURATION, "ticket_state4_title")) {
-            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getTextChannelById(createMessageChannelId!!))
+            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getChannelById(StandardGuildMessageChannel::class.java, createMessageChannelId!!))
             if (error == null) {
                 entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, atomicMember, createMessageChannelId!!)
@@ -101,15 +103,15 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
     private fun generateGeneralField(): DashboardComponent {
         val container = VerticalContainer()
 
-        val logChannel = DashboardTextChannelComboBox(
+        val logChannel = DashboardChannelComboBox(
+                this,
                 getString(Category.CONFIGURATION, "ticket_state0_mannouncement"),
-                locale,
-                atomicGuild.idLong,
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 ticketsEntity.logChannelId,
                 true
         ) { e ->
             val channel = if (e.data != null) {
-                atomicGuild.get().map { it.getTextChannelById(e.data.toLong()) }
+                atomicGuild.get().map { it.getChannelById(GuildMessageChannel::class.java, e.data.toLong()) }
                         .orElse(null)
             } else {
                 null
@@ -118,7 +120,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
             if (channel != null) {
                 val channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
                 if (channelMissingPerms != null) {
-                    return@DashboardTextChannelComboBox ActionResult()
+                    return@DashboardChannelComboBox ActionResult()
                             .withRedraw()
                             .withErrorMessage(channelMissingPerms)
                 }
@@ -128,7 +130,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
             BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_LOG_CHANNEL, atomicMember, ticketsEntity.logChannelId, channel?.idLong)
             ticketsEntity.logChannelId = channel?.idLong
             ticketsEntity.commitTransaction()
-            return@DashboardTextChannelComboBox ActionResult()
+            return@DashboardChannelComboBox ActionResult()
         }
         container.add(logChannel)
 

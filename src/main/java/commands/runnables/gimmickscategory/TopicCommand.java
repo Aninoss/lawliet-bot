@@ -1,11 +1,5 @@
 package commands.runnables.gimmickscategory;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -16,8 +10,15 @@ import core.utils.StringUtil;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "topic",
@@ -33,11 +34,11 @@ public class TopicCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws IOException, ExecutionException, InterruptedException {
-        drawMessage(getEmbed(event.getTextChannel())).exceptionally(ExceptionLogger.get());
+        drawMessage(getEmbed(event.getMessageChannel())).exceptionally(ExceptionLogger.get());
         return true;
     }
 
-    private EmbedBuilder getEmbed(StandardGuildMessageChannel channel) throws IOException, ExecutionException, InterruptedException {
+    private EmbedBuilder getEmbed(GuildMessageChannel channel) throws IOException, ExecutionException, InterruptedException {
         List<String> topicList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "topics_" + getLocale().getDisplayName() + ".txt"));
         int n = RandomPicker.pick(getTrigger(), channel.getGuild().getIdLong(), topicList.size()).get();
         String topic = topicList.get(n);
@@ -63,7 +64,7 @@ public class TopicCommand extends Command implements OnAlertListener {
             return AlertResponse.STOP_AND_DELETE;
         }
 
-        slot.sendMessage(getLocale(), true, getEmbed(slot.getStandardGuildMessageChannel().get()).build());
+        slot.sendMessage(getLocale(), true, getEmbed(slot.getGuildMessageChannel().get()).build());
         slot.setNextRequest(Instant.now().plus(minutes, ChronoUnit.MINUTES));
         return AlertResponse.CONTINUE_AND_SAVE;
     }

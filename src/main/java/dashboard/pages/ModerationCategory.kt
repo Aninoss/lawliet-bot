@@ -12,10 +12,10 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardChannelComboBox
 import dashboard.components.DashboardMultiMembersComboBox
+import dashboard.components.DashboardMultiChannelsComboBox
 import dashboard.components.DashboardMultiRolesComboBox
-import dashboard.components.DashboardMultiTextChannelsComboBox
-import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -25,6 +25,7 @@ import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.*
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import java.util.*
 
 @DashboardProperties(
@@ -102,30 +103,30 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     }
 
     fun generateNotificationChannelComponent(): DashboardComponent {
-        val channelComboBox = DashboardTextChannelComboBox(
+        val channelComboBox = DashboardChannelComboBox(
+                this,
                 getString(Category.MODERATION, "mod_state0_mchannel"),
-                locale,
-                atomicGuild.idLong,
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 moderationEntity.logChannelId,
                 true
         ) { e ->
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
-                return@DashboardTextChannelComboBox ActionResult()
+                return@DashboardChannelComboBox ActionResult()
                         .withRedraw()
             }
 
             if (e.data != null) {
                 val channel = atomicGuild.get()
-                        .map { it.getTextChannelById(e.data) }
+                        .map { it.getChannelById(GuildMessageChannel::class.java, e.data) }
                         .orElse(null)
 
                 if (channel == null) {
-                    return@DashboardTextChannelComboBox ActionResult()
+                    return@DashboardChannelComboBox ActionResult()
                             .withRedraw()
                 }
 
                 if (!BotPermissionUtil.canWriteEmbed(channel)) {
-                    return@DashboardTextChannelComboBox ActionResult()
+                    return@DashboardChannelComboBox ActionResult()
                             .withRedraw()
                             .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
                 }
@@ -172,30 +173,30 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
     fun generateBanAppealLogChannelComponent(): DashboardComponent {
         val container = VerticalContainer()
-        val channelComboBox = DashboardTextChannelComboBox(
+        val channelComboBox = DashboardChannelComboBox(
+                this,
                 getString(Category.MODERATION, "mod_dashboard_banappeallogchannel"),
-                locale,
-                atomicGuild.idLong,
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 moderationEntity.banAppealLogChannelIdEffectively,
                 true
         ) { e ->
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
-                return@DashboardTextChannelComboBox ActionResult()
+                return@DashboardChannelComboBox ActionResult()
                         .withRedraw()
             }
 
             if (e.data != null) {
                 val channel = atomicGuild.get()
-                        .map { it.getTextChannelById(e.data) }
+                        .map { it.getChannelById(GuildMessageChannel::class.java, e.data) }
                         .orElse(null)
 
                 if (channel == null) {
-                    return@DashboardTextChannelComboBox ActionResult()
+                    return@DashboardChannelComboBox ActionResult()
                             .withRedraw()
                 }
 
                 if (!BotPermissionUtil.canWriteEmbed(channel)) {
-                    return@DashboardTextChannelComboBox ActionResult()
+                    return@DashboardChannelComboBox ActionResult()
                             .withRedraw()
                             .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
                 }
@@ -365,9 +366,10 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         )
         container.add(ignoredUsers)
 
-        val ignoredChannels = DashboardMultiTextChannelsComboBox(
+        val ignoredChannels = DashboardMultiChannelsComboBox(
                 this,
                 getString(Category.MODERATION, "invitefilter_state0_mignoredchannels"),
+                DashboardComboBox.DataType.GUILD_CHANNELS,
                 { it.inviteFilter.excludedChannelIds },
                 true,
                 InviteFilterCommand.MAX_IGNORED_CHANNELS,

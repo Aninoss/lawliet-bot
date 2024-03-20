@@ -7,11 +7,8 @@ import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
-import dashboard.component.DashboardSeparator
-import dashboard.component.DashboardSwitch
-import dashboard.component.DashboardText
-import dashboard.component.DashboardTextField
-import dashboard.components.DashboardVoiceChannelComboBox
+import dashboard.component.*
+import dashboard.components.DashboardChannelComboBox
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
@@ -47,22 +44,22 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         activeSwitch.isChecked = DBAutoChannel.getInstance().retrieve(guild.idLong).isActive
         mainContainer.add(activeSwitch, DashboardSeparator())
 
-        val channelComboBox = DashboardVoiceChannelComboBox(
+        val channelComboBox = DashboardChannelComboBox(
+                this,
                 getString(Category.CONFIGURATION, "autochannel_state0_mchannel"),
-                locale,
-                atomicGuild.idLong,
+                DashboardComboBox.DataType.VOICE_CHANNELS,
                 DBAutoChannel.getInstance().retrieve(guild.idLong).parentChannelId.orElse(null),
                 false,
         ) {
             val channel = atomicGuild.get().get().getVoiceChannelById(it.data)
             if (channel == null) {
-                return@DashboardVoiceChannelComboBox ActionResult()
+                return@DashboardChannelComboBox ActionResult()
                         .withRedraw()
             }
 
             val channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
             if (channelMissingPerms != null) {
-                return@DashboardVoiceChannelComboBox ActionResult()
+                return@DashboardChannelComboBox ActionResult()
                         .withErrorMessage(channelMissingPerms)
                         .withRedraw()
             }
@@ -71,7 +68,7 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
             if (parent != null) {
                 val categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, parent, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)
                 if (categoryMissingPerms != null) {
-                    return@DashboardVoiceChannelComboBox ActionResult()
+                    return@DashboardChannelComboBox ActionResult()
                             .withErrorMessage(categoryMissingPerms)
                             .withRedraw()
                 }
@@ -83,7 +80,7 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
             entityManager.transaction.commit()
 
             autoChannelData.setParentChannelId(it.data.toLong())
-            return@DashboardVoiceChannelComboBox ActionResult()
+            return@DashboardChannelComboBox ActionResult()
         }
         mainContainer.add(channelComboBox, DashboardSeparator())
 

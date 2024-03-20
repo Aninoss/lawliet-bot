@@ -24,7 +24,7 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -241,7 +241,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             return AlertResponse.CONTINUE;
         }
 
-        StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
+        GuildMessageChannel channel = slot.getGuildMessageChannel().get();
         if (BotPermissionUtil.canReadHistory(channel)) {
             slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).submit().exceptionally(ExceptionLogger.get(ExceptionIds.MISSING_PERMISSIONS)));
         }
@@ -249,7 +249,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
         slot.sendMessage(getLocale(), true, surveyEmbeds.resultEmbed.build()).get();
         long messageId = slot.sendMessage(getLocale(), false, surveyEmbeds.newEmbed.build(), surveyEmbeds.actionRows).get();
-        registerStaticReactionMessage(slot.getStandardGuildMessageChannel().get(), messageId);
+        registerStaticReactionMessage(slot.getGuildMessageChannel().get(), messageId);
 
         slot.setMessageId(messageId);
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));

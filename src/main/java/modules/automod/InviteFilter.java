@@ -85,7 +85,7 @@ public class InviteFilter extends AutoModAbstract {
     protected boolean checkCondition(Message message) {
         return inviteFilterEntity.getActive() &&
                 !inviteFilterEntity.getExcludedMemberIds().contains(message.getAuthor().getIdLong()) &&
-                !inviteFilterEntity.getExcludedChannelIds().contains(message.getChannel().getIdLong()) &&
+                !JDAUtil.collectionContainsChannelOrParent(inviteFilterEntity.getExcludedChannelIds(), message.getChannel()) &&
                 !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR) &&
                 !message.getInvites().isEmpty();
     }

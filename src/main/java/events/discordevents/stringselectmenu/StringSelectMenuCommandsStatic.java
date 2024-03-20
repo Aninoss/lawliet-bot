@@ -12,7 +12,6 @@ import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 
 @DiscordEvent
@@ -20,7 +19,7 @@ public class StringSelectMenuCommandsStatic extends StringSelectMenuAbstract {
 
     @Override
     public boolean onStringSelectMenu(StringSelectInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
-        if (!(event.getChannel() instanceof StandardGuildMessageChannel) || !BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
+        if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
             return true;
         }
 

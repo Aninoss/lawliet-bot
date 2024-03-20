@@ -6,8 +6,8 @@ import commands.Command.getCommandLanguage
 import commands.runnables.configurationcategory.ReactionRolesCommand
 import core.ShardManager
 import core.TextManager
+import core.atomicassets.AtomicGuildMessageChannel
 import core.atomicassets.AtomicRole
-import core.atomicassets.AtomicStandardGuildMessageChannel
 import core.cache.MessageCache
 import core.utils.BotPermissionUtil
 import core.utils.MentionUtil
@@ -17,9 +17,9 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardChannelComboBox
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.components.DashboardRoleComboBox
-import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -35,6 +35,7 @@ import mysql.modules.staticreactionmessages.DBStaticReactionMessages
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import java.util.*
@@ -92,8 +93,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
 
         val rows = reactionMessages
                 .map {
-                    val atomicChannel =
-                            AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
+                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.guildMessageChannelId)
                     val values = arrayOf(it.title, atomicChannel.getPrefixedName(locale))
                     GridRow(it.messageId.toString(), values)
                 }
@@ -105,7 +105,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                     .firstOrNull() ?: return@DashboardGrid ActionResult()
                     .withRedraw()
 
-            val channel = reactionRoleMessage.standardGuildMessageChannel.get()
+            val channel = reactionRoleMessage.guildMessageChannel.get()
             if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
                 val error = TextManager.getString(locale, TextManager.GENERAL, "permission_channel_history", "#" + channel.name)
                 return@DashboardGrid ActionResult()
@@ -151,9 +151,15 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         channelTitleContainer.allowWrap = true
 
         val channelLabel = getString(Category.CONFIGURATION, "reactionroles_dashboard_channel")
-        val channelComboBox = DashboardTextChannelComboBox(channelLabel, locale, guild.idLong, channelId, false) {
+        val channelComboBox = DashboardChannelComboBox(
+                this,
+                channelLabel,
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
+                channelId,
+                false
+        ) {
             if (editMode) {
-                return@DashboardTextChannelComboBox ActionResult()
+                return@DashboardChannelComboBox ActionResult()
             }
 
             channelId = it.data.toLong()
@@ -285,19 +291,24 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                         .withErrorMessage(getString(Category.CONFIGURATION, "reactionroles_dashboard_nochannel"))
             }
 
-            val textChannel = guild.getTextChannelById(channelId!!)
+            val channel = guild.getChannelById(GuildMessageChannel::class.java, channelId!!)
             val convertedSlots = slots
                     .map { ReactionRoleMessageSlot(guild.idLong, it.emoji, it.roleId, it.customLabel) }
 
-            val error = ReactionRoles.checkForErrors(locale, textChannel, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, newComponents, messageId ?: 0L)
+            val error = ReactionRoles.checkForErrors(locale, channel, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, newComponents, messageId
+                    ?: 0L)
             if (error != null) {
                 return@DashboardButton ActionResult()
                         .withErrorMessage(error)
             }
 
-            val newTitle = if (title.isEmpty()) { getCommandLanguage(ReactionRolesCommand::class.java, locale).title } else { title }
+            val newTitle = if (title.isEmpty()) {
+                getCommandLanguage(ReactionRolesCommand::class.java, locale).title
+            } else {
+                title
+            }
             ReactionRoles.sendMessage(
-                    guildEntity.locale, textChannel, newTitle, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
+                    guildEntity.locale, channel, newTitle, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
                     multipleRoles, showRoleConnections, newComponents, showRoleNumbers, image, editMode, messageId ?: 0L
             ).get(5, TimeUnit.SECONDS)
 
@@ -437,7 +448,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
     }
 
     private fun readValuesFromReactionMessage(guild: Guild, reactionRoleMessage: ReactionRoleMessage) {
-        this.channelId = reactionRoleMessage.standardGuildMessageChannelId
+        this.channelId = reactionRoleMessage.guildMessageChannelId
         this.title = reactionRoleMessage.title
         this.previousTitle = title
         this.desc = reactionRoleMessage.desc ?: ""

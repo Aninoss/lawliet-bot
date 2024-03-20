@@ -1,62 +1,21 @@
 package core.atomicassets;
 
 import core.CustomObservableList;
-import core.ShardManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AtomicGuildMessageChannel implements MentionableAtomicAsset<GuildMessageChannel> {
-
-    private final long guildId;
-    private final long channelId;
+public class AtomicGuildMessageChannel extends AbstractAtomicGuildChannel<GuildMessageChannel> {
 
     public AtomicGuildMessageChannel(long guildId, long channelId) {
-        this.guildId = guildId;
-        this.channelId = channelId;
+        super(GuildMessageChannel.class, guildId, channelId);
     }
 
     public AtomicGuildMessageChannel(GuildMessageChannel channel) {
-        channelId = channel.getIdLong();
-        guildId = channel.getGuild().getIdLong();
-    }
-
-    @Override
-    public long getIdLong() {
-        return channelId;
-    }
-
-    @Override
-    public Optional<GuildMessageChannel> get() {
-        return ShardManager.getLocalGuildById(guildId)
-                .map(guild -> guild.getChannelById(GuildMessageChannel.class, channelId));
-    }
-
-    @Override
-    public Optional<String> getPrefixedNameRaw() {
-        return get().map(c -> "#" + c.getName());
-    }
-
-    @Override
-    public Optional<String> getNameRaw() {
-        return get().map(GuildMessageChannel::getName);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AtomicGuildMessageChannel that = (AtomicGuildMessageChannel) o;
-        return channelId == that.channelId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(channelId);
+        super(GuildMessageChannel.class, channel.getGuild().getIdLong(), channel.getIdLong());
     }
 
     public static List<AtomicGuildMessageChannel> from(List<GuildMessageChannel> channels) {

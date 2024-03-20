@@ -13,7 +13,7 @@ import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -66,8 +66,8 @@ public class CoinFlipCommand extends CasinoAbstract {
     @Override
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
-        eb.addField(getString("yourbet"), getChoiceString(getTextChannel().get(), 0) + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true);
-        eb.addField(getString("yourthrow"), getChoiceString(getTextChannel().get(), 1) + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true);
+        eb.addField(getString("yourbet"), getChoiceString(getGuildMessageChannel().get(), 0) + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true);
+        eb.addField(getString("yourthrow"), getChoiceString(getGuildMessageChannel().get(), 1) + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true);
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("template", StringUtil.escapeMarkdown(playerName), StringUtil.numToString(coinsInput)), false);
 
         if (selection[0] == -1) {
@@ -92,7 +92,7 @@ public class CoinFlipCommand extends CasinoAbstract {
         return -1;
     }
 
-    private String getChoiceString(TextChannel channel, int pos) {
+    private String getChoiceString(GuildMessageChannel channel, int pos) {
         if (pos == 1 && selection[0] == -1) {
             return "";
         }

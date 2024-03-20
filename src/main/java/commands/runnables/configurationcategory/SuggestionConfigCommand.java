@@ -7,7 +7,7 @@ import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -17,7 +17,7 @@ import mysql.modules.suggestions.SuggestionsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -52,15 +52,15 @@ public class SuggestionConfigCommand extends NavigationAbstract {
     @Override
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
+            List<GuildMessageChannel> channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
             if (channelList.isEmpty()) {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                 return MessageInputResponse.FAILED;
             } else {
-                TextChannel channel = channelList.get(0);
+                GuildMessageChannel channel = channelList.get(0);
                 if (BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
                     getEntityManager().getTransaction().begin();
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getTextChannelId().orElse(null), channelList.get(0).getIdLong());
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getChannelId().orElse(null), channelList.get(0).getIdLong());
                     getEntityManager().getTransaction().commit();
 
                     suggestionsData.setChannelId(channelList.get(0).getIdLong());
@@ -86,7 +86,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
                         return false;
                     }
                     case 0 -> {
-                        if (suggestionsData.isActive() || suggestionsData.getTextChannel().isPresent()) {
+                        if (suggestionsData.isActive() || suggestionsData.getChannel().isPresent()) {
                             suggestionsData.toggleActive();
 
                             getEntityManager().getTransaction().begin();
@@ -123,8 +123,8 @@ public class SuggestionConfigCommand extends NavigationAbstract {
             case 0:
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), suggestionsData.isActive()), true)
-                        .addField(getString("state0_mchannel"), suggestionsData.getTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
+                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), suggestionsData.isActive()), true)
+                        .addField(getString("state0_mchannel"), suggestionsData.getChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));

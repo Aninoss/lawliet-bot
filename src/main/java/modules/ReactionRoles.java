@@ -10,6 +10,7 @@ import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.modules.reactionroles.DBReactionRoles;
 import mysql.modules.reactionroles.ReactionRoleMessage;
@@ -19,9 +20,7 @@ import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.attribute.IPositionableChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
@@ -47,20 +46,20 @@ public class ReactionRoles {
         return guildReactions.stream()
                 .sorted((md0, md1) -> {
                     int channelComp = Integer.compare(
-                            md0.getStandardGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0),
-                            md1.getStandardGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0)
+                            md0.getGuildMessageChannel().map(JDAUtil::getChannelPositionRaw).orElse(0),
+                            md1.getGuildMessageChannel().map(JDAUtil::getChannelPositionRaw).orElse(0)
                     );
                     if (channelComp == 0) {
                         return Long.compare(md0.getMessageId(), md1.getMessageId());
                     }
                     return channelComp;
                 })
-                .map(m -> m.getStandardGuildMessageChannel().map(ch -> getReactionRoleMessage(ch, m.getMessageId())).orElse(null))
+                .map(m -> m.getGuildMessageChannel().map(ch -> getReactionRoleMessage(ch, m.getMessageId())).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public static ReactionRoleMessage getReactionRoleMessage(StandardGuildMessageChannel channel, long messageId) {
+    public static ReactionRoleMessage getReactionRoleMessage(GuildMessageChannel channel, long messageId) {
         CustomObservableMap<Long, ReactionRoleMessage> reactionRolesMap = DBReactionRoles.getInstance().retrieve(channel.getGuild().getIdLong());
         if (reactionRolesMap.containsKey(messageId)) {
             return reactionRolesMap.get(messageId);
@@ -262,7 +261,7 @@ public class ReactionRoles {
         }
     }
 
-    public static String checkForErrors(Locale locale, TextChannel channel, List<ReactionRoleMessageSlot> slots,
+    public static String checkForErrors(Locale locale, GuildMessageChannel channel, List<ReactionRoleMessageSlot> slots,
                                         List<AtomicRole> roleRequirements, ReactionRoleMessage.ComponentType newComponents,
                                         long editMessageId
     ) {
@@ -323,7 +322,7 @@ public class ReactionRoles {
         return null;
     }
 
-    public static CompletableFuture<Void> sendMessage(Locale locale, TextChannel channel, String title, String description,
+    public static CompletableFuture<Void> sendMessage(Locale locale, GuildMessageChannel channel, String title, String description,
                                                       List<ReactionRoleMessageSlot> slots, List<AtomicRole> roleRequirements,
                                                       boolean removeRole, boolean multipleRoles, boolean showRoleConnections,
                                                       ReactionRoleMessage.ComponentType newComponents,

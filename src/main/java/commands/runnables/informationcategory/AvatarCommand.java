@@ -1,6 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
@@ -10,9 +9,11 @@ import core.TextManager;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "avatar",
@@ -37,7 +38,7 @@ public class AvatarCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
+    protected void sendMessage(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
         setComponents(Button.of(ButtonStyle.LINK, avatarUrl, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image")));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
     }

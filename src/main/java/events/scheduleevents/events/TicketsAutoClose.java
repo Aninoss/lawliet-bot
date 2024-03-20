@@ -12,7 +12,7 @@ import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.TicketChannelEntity;
 import mysql.hibernate.entity.guild.TicketsEntity;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -42,12 +42,13 @@ public class TicketsAutoClose implements ExceptionRunnable {
                         TicketsEntity ticketsEntity = guildEntity.getTickets();
 
                         for (TicketChannelEntity ticketChannelEntity : new ArrayList<>(ticketsEntity.getTicketChannels().values())) {
-                            TextChannel textChannel = ShardManager.getLocalGuildById(guildEntity.getGuildId()).get().getTextChannelById(ticketChannelEntity.getChannelId());
-                            if (textChannel == null) {
+                            StandardGuildMessageChannel channel = ShardManager.getLocalGuildById(guildEntity.getGuildId()).get()
+                                    .getChannelById(StandardGuildMessageChannel.class, ticketChannelEntity.getChannelId());
+                            if (channel == null) {
                                 continue;
                             }
 
-                        List<Message> messages = textChannel.getHistory().retrievePast(25).complete().stream()
+                        List<Message> messages = channel.getHistory().retrievePast(25).complete().stream()
                                 .filter(m -> !m.isWebhookMessage() && !m.getAuthor().isBot())
                                 .collect(Collectors.toList());
 
@@ -56,7 +57,7 @@ public class TicketsAutoClose implements ExceptionRunnable {
                                     messages.get(0).getTimeCreated().toInstant().plus(Duration.ofHours(ticketsEntity.getAutoCloseHoursEffectively())).isBefore(Instant.now())
                             ) {
                                 FeatureLogger.inc(PremiumFeature.TICKETS_AUTO_CLOSE, guildEntity.getGuildId());
-                                Ticket.closeTicket(guildEntity, ticketChannelEntity, textChannel, null);
+                                Ticket.closeTicket(guildEntity, ticketChannelEntity, channel, null);
                                 counter.incrementAndGet();
                             }
                         }

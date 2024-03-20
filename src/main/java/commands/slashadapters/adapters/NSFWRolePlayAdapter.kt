@@ -9,6 +9,7 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
+import core.utils.JDAUtil
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -17,18 +18,18 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import java.util.*
 
 @Slash(
-    name = "nsfw_rp",
-    descriptionCategory = [Category.NSFW_INTERACTIONS],
-    descriptionKey = "nsfwroleplay_desc",
-    commandAssociationCategories = [Category.NSFW_INTERACTIONS],
-    nsfw = true
+        name = "nsfw_rp",
+        descriptionCategory = [Category.NSFW_INTERACTIONS],
+        descriptionKey = "nsfwroleplay_desc",
+        commandAssociationCategories = [Category.NSFW_INTERACTIONS],
+        nsfw = true
 )
 class NSFWRolePlayAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData.addOptions(
-            generateOptionData(OptionType.STRING, "gesture", "nsfwroleplay_gesture", true, true),
-            generateOptionData(OptionType.STRING, "members", "nsfwroleplay_members", false)
+                generateOptionData(OptionType.STRING, "gesture", "nsfwroleplay_gesture", true, true),
+                generateOptionData(OptionType.STRING, "members", "nsfwroleplay_members", false)
         )
     }
 
@@ -50,8 +51,8 @@ class NSFWRolePlayAdapter : SlashAdapter() {
             val commandTrigger = commandProperties.trigger
             val commandCategory = Command.getCategory(clazz);
             if (commandCategory == Category.NSFW_INTERACTIONS &&
-                event.channel!!.asTextChannel().isNSFW &&
-                CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.channel!!.asTextChannel())
+                    JDAUtil.channelIsNsfw(event.channel) &&
+                    CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.guildChannel)
             ) {
                 val triggers = mutableListOf(commandTrigger)
                 triggers.addAll(commandProperties.aliases)
@@ -62,8 +63,8 @@ class NSFWRolePlayAdapter : SlashAdapter() {
         }
 
         return triggerSet.toList()
-            .sortedBy { it.first }
-            .map { generateChoice(it.first, it.second) }
+                .sortedBy { it.first }
+                .map { generateChoice(it.first, it.second) }
     }
 
 }

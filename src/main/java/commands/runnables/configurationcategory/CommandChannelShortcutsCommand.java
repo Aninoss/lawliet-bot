@@ -9,7 +9,7 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
-import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -49,7 +49,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
             STATE_ADJUST_CHANNEL = 2,
             STATE_DELETE = 3;
 
-    private AtomicTextChannel channel;
+    private AtomicGuildMessageChannel atomicChannel;
     private String trigger;
 
     public CommandChannelShortcutsCommand(Locale locale, String prefix) {
@@ -70,7 +70,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
                 return false;
             }
             case 0 -> {
-                channel = null;
+                atomicChannel = null;
                 trigger = null;
                 setState(STATE_ADD);
                 return true;
@@ -98,14 +98,14 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
 
         GuildEntity guildEntity = getGuildEntity();
         long channelId = new ArrayList<>(guildEntity.getCommandChannelShortcuts().keySet()).get(i);
-        AtomicTextChannel atomicTextChannel = new AtomicTextChannel(event.getGuild().getIdLong(), channelId);
+        AtomicGuildMessageChannel atomicChannel = new AtomicGuildMessageChannel(event.getGuild().getIdLong(), channelId);
 
         guildEntity.beginTransaction();
         guildEntity.getCommandChannelShortcuts().remove(channelId);
         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_DELETE, event.getMember(), channelId);
         guildEntity.commitTransaction();
 
-        setLog(LogStatus.SUCCESS, getString("log_deleted", StringUtil.escapeMarkdownInField(atomicTextChannel.getPrefixedName(getLocale()))));
+        setLog(LogStatus.SUCCESS, getString("log_deleted", StringUtil.escapeMarkdownInField(atomicChannel.getPrefixedName(getLocale()))));
         if (guildEntity.getCommandChannelShortcuts().isEmpty()) {
             setState(DEFAULT_STATE);
         }
@@ -151,30 +151,30 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
                 return false;
             }
             case 2 -> {
-                if (trigger == null || channel == null) {
+                if (trigger == null || atomicChannel == null) {
                     return true;
                 }
 
                 GuildEntity guildEntity = getGuildEntity();
                 Map<Long, String> shortcuts = guildEntity.getCommandChannelShortcuts();
 
-                if (shortcuts.containsKey(channel.getIdLong())) {
+                if (shortcuts.containsKey(atomicChannel.getIdLong())) {
                     setLog(LogStatus.FAILURE, getString("log_channel_exist"));
                     return true;
                 }
 
-                TextChannel textChannel = channel.get().orElse(null);
-                if (textChannel == null) {
-                    channel = null;
+                GuildMessageChannel channel = atomicChannel.get().orElse(null);
+                if (channel == null) {
+                    atomicChannel = null;
                     return true;
                 }
 
                 guildEntity.beginTransaction();
-                shortcuts.put(channel.getIdLong(), trigger);
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_ADD, event.getMember(), channel.getIdLong());
+                shortcuts.put(atomicChannel.getIdLong(), trigger);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_ADD, event.getMember(), atomicChannel.getIdLong());
                 guildEntity.commitTransaction();
 
-                setLog(LogStatus.SUCCESS, getString("log_add", StringUtil.escapeMarkdownInField(channel.getPrefixedName(getLocale()))));
+                setLog(LogStatus.SUCCESS, getString("log_add", StringUtil.escapeMarkdownInField(atomicChannel.getPrefixedName(getLocale()))));
                 setState(DEFAULT_STATE);
                 return true;
             }
@@ -191,13 +191,13 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
 
     @ControllerEntitySelectMenu(state = STATE_ADJUST_CHANNEL)
     public boolean onEntitySelectMenuAdjustChannel(EntitySelectInteractionEvent event) {
-        TextChannel channel = (TextChannel) event.getMentions().getChannels().get(0);
+        GuildMessageChannel channel = (GuildMessageChannel) event.getMentions().getChannels().get(0);
         if (!BotPermissionUtil.canWrite(channel)) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_send", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
             return true;
         }
 
-        this.channel = new AtomicTextChannel(channel);
+        this.atomicChannel = new AtomicGuildMessageChannel(channel);
         setState(STATE_ADD);
         return true;
     }
@@ -215,7 +215,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
     public EmbedBuilder onDrawAdd(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
-        String[] options = channel == null || trigger == null
+        String[] options = atomicChannel == null || trigger == null
                 ? getString("add_options").split("\n")
                 : getString("add_options2").split("\n");
         setComponents(options);
@@ -224,7 +224,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
                 this,
                 getString("add_desc"), getString("add_title")
         );
-        eb.addField(getString("add_channel"), channel != null ? channel.getPrefixedNameInField(getLocale()) : notSet, true);
+        eb.addField(getString("add_channel"), atomicChannel != null ? atomicChannel.getPrefixedNameInField(getLocale()) : notSet, true);
         eb.addField(getString("add_command"), trigger != null ? "`" + trigger + "`" : notSet, true);
         return eb;
     }
@@ -232,7 +232,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
     @Draw(state = STATE_ADJUST_CHANNEL)
     public EmbedBuilder onDrawSetChannel(Member member) {
         EntitySelectMenu memberSelectMenu = EntitySelectMenu.create("add_channel", EntitySelectMenu.SelectTarget.CHANNEL)
-                .setChannelTypes(ChannelType.TEXT)
+                .setChannelTypes(ChannelType.TEXT, ChannelType.VOICE, ChannelType.NEWS, ChannelType.STAGE, ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD)
                 .setRequiredRange(1, 1)
                 .build();
 
@@ -247,7 +247,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
                 .getCommandChannelShortcuts()
                 .keySet()
                 .stream()
-                .map(channelId -> new AtomicTextChannel(member.getGuild().getIdLong(), channelId).getPrefixedName(getLocale()))
+                .map(channelId -> new AtomicGuildMessageChannel(member.getGuild().getIdLong(), channelId).getPrefixedName(getLocale()))
                 .toArray(String[]::new);
         setComponents(options);
 
@@ -259,7 +259,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
 
     private String generateShortcutList(long guildId) {
         return new ListGen<Map.Entry<Long, String>>().getList(getGuildEntity().getCommandChannelShortcuts().entrySet(), getLocale(), set -> {
-            return new AtomicTextChannel(guildId, set.getKey()).getPrefixedNameInField(getLocale()) + " → `" + set.getValue() + "`";
+            return new AtomicGuildMessageChannel(guildId, set.getKey()).getPrefixedNameInField(getLocale()) + " → `" + set.getValue() + "`";
         });
     }
 

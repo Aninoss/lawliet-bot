@@ -3,6 +3,7 @@ package modules;
 import constants.Language;
 import core.EmbedFactory;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.attribute.ICategorizableChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -53,7 +54,7 @@ public class SupportTemplates {
     }
 
     public static void process(MessageContextInteractionEvent event) {
-        Language language = findLanguage(event.getChannel().asTextChannel().getParentCategory());
+        Language language = findLanguage(event.getChannel() instanceof ICategorizableChannel ? ((ICategorizableChannel) event.getChannel()).getParentCategory() : null);
         String text;
         switch (findCommandIndex(event.getName())) {
             case 0 -> text = TEXT_WRONG_CHANNEL[language.ordinal()];
@@ -77,6 +78,10 @@ public class SupportTemplates {
     }
 
     private static Language findLanguage(Category parentCategory) {
+        if (parentCategory == null) {
+            return Language.EN;
+        }
+
         return switch (parentCategory.getId()) {
             case "630524285689004032" -> Language.DE;
             case "840725763815899146" -> Language.ES;
