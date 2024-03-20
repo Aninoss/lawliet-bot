@@ -16,7 +16,7 @@ import core.utils.ExceptionUtil
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent
 import java.util.concurrent.CompletableFuture
 
@@ -31,7 +31,7 @@ interface OnInteractionListener : Drawable {
     fun deregisterListenersWithComponentMessage() {
         val command = this as Command
         command.drawMessageId.ifPresent { messageId: Long ->
-            command.textChannel.ifPresent { channel: TextChannel ->
+            command.guildMessageChannel.ifPresent { channel: GuildMessageChannel ->
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.commandEvent.isMessageReceivedEvent()) {
                     val messageIds = listOf(messageId.toString(), command.commandEvent.messageReceivedEvent!!.messageId)
                     channel.deleteMessagesByIds(messageIds).queue()
@@ -97,7 +97,7 @@ interface OnInteractionListener : Drawable {
                     return CompletableFuture.completedFuture(command.drawMessageId.get())
                 }
             } catch (e: Throwable) {
-                command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
+                command.guildMessageChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
             }
         }
         return CompletableFuture.failedFuture(NoSuchElementException("No message sent"))

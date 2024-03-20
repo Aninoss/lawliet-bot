@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
         patreonRequired = true,
         enableCacheWipe = false,
         requiresFullMemberCache = true,
-        aliases = { "impersonate" }
+        aliases = {"impersonate"}
 )
 public class ImitateCommand extends Command {
 
@@ -62,7 +62,7 @@ public class ImitateCommand extends Command {
 
         String search = member != null ? StringUtil.escapeMarkdown(member.getEffectiveName()) : "**" + StringUtil.escapeMarkdown(event.getGuild().getName()) + "**";
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, EmojiUtil.getLoadingEmojiMention(event.getTextChannel())));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, EmojiUtil.getLoadingEmojiMention(event.getMessageChannel())));
         drawMessage(eb).get();
 
         eb = getEmbed(event, member, 2, tempMessageCache);
@@ -126,8 +126,11 @@ public class ImitateCommand extends Command {
     private void fetchMessages(Guild guild, Member member, ArrayList<Message> tempMessageCache) {
         final int REQUESTS = 80;
 
-        ArrayList<TextChannel> channels = guild.getTextChannels().stream()
-                .filter(channel -> !channel.isNSFW() &&
+        ArrayList<GuildMessageChannel> channels = guild.getChannelCache().stream()
+                .filter(channel -> channel instanceof GuildMessageChannel)
+                .map(channel -> (GuildMessageChannel) channel)
+                .sorted()
+                .filter(channel -> !JDAUtil.channelIsNsfw(channel) &&
                         BotPermissionUtil.canReadHistory(channel) &&
                         (member == null || BotPermissionUtil.canWrite(member, channel)) &&
                         BotPermissionUtil.channelIsPublic(channel)
@@ -136,7 +139,7 @@ public class ImitateCommand extends Command {
 
         int requestsPerPage = (int) Math.ceil(REQUESTS / (double) channels.size());
 
-        for (TextChannel channel : channels) {
+        for (GuildMessageChannel channel : channels) {
             MessageHistory messageHistory = channel.getHistory();
             for (int i = 0; i < requestsPerPage; i++) {
                 List<Message> messages = messageHistory.retrievePast(100).complete();

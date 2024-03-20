@@ -4,6 +4,7 @@ import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
 import mysql.modules.slashpermissions.DBSlashPermissions;
 import mysql.modules.slashpermissions.SlashPermissionsSlot;
 import net.dv8tion.jda.api.Permission;
@@ -110,7 +111,7 @@ public class CommandPermissions {
                 if (commandPermission.isDefaultObject()) {
                     allowed = commandPermission.isAllowed();
                 } else {
-                    if (commandPermission.getStandardGuildMessageChannelId() == channel.getIdLong()) {
+                    if (JDAUtil.channelOrParentEqualsId(channel, commandPermission.getGuildChannelId())) {
                         return commandPermission.isAllowed();
                     }
                 }

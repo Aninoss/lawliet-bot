@@ -1,7 +1,7 @@
 package mysql.hibernate.entity.guild
 
+import core.atomicassets.AtomicGuildMessageChannel
 import core.atomicassets.AtomicRole
-import core.atomicassets.AtomicTextChannel
 import core.cache.ServerPatreonBoostCache
 import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEmbeddedEntity
@@ -15,8 +15,8 @@ const val MODERATION = "moderation"
 class ModerationEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordInterface {
 
     var logChannelId: Long? = null
-    val logChannel: AtomicTextChannel
-        get() = getAtomicTextChannel(logChannelId)
+    val logChannel: AtomicGuildMessageChannel
+        get() = getAtomicGuildMessageChannel(logChannelId)
 
     @Column(name = "$MODERATION.confirmationMessages")
     private var _confirmationMessages: Boolean? = null
@@ -29,8 +29,8 @@ class ModerationEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscor
     var banAppealLogChannelId: Long? = null
     val banAppealLogChannelIdEffectively: Long?
         get() = if (ServerPatreonBoostCache.get(guildId)) banAppealLogChannelId else null
-    val banAppealLogChannelEffectively: AtomicTextChannel
-        get() = getAtomicTextChannel(banAppealLogChannelIdEffectively)
+    val banAppealLogChannelEffectively: AtomicGuildMessageChannel
+        get() = getAtomicGuildMessageChannel(banAppealLogChannelIdEffectively)
 
     @ElementCollection
     var jailRoleIds: MutableList<Long> = mutableListOf()

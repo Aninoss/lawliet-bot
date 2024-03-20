@@ -13,6 +13,7 @@ import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -44,7 +45,7 @@ public class AnicordEventObserver implements ExceptionRunnable {
                         FisheryUserManager.getGuildData(guild.getIdLong())
                                 .getMemberData(member.getIdLong())
                                 .increaseDiamonds();
-                        guild.getTextChannelById(623630982641352724L)
+                        guild.getChannelById(GuildMessageChannel.class, 623630982641352724L)
                                 .sendMessage("**" + StringUtil.escapeMarkdown(member.getEffectiveName()) + "** hat durch die Teilnahme an dem Event einen **💎 Diamanten** erhalten!")
                                 .queue();
                     }

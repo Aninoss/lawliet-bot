@@ -1,7 +1,7 @@
 package mysql.hibernate.entity.guild
 
+import core.atomicassets.AtomicGuildChannel
 import core.atomicassets.AtomicMember
-import core.atomicassets.AtomicTextChannel
 import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import javax.persistence.*
@@ -37,8 +37,8 @@ class InviteFilterEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDisc
 
     @ElementCollection
     var excludedChannelIds: MutableList<Long> = mutableListOf()
-    val excludedChannels: MutableList<AtomicTextChannel>
-        get() = getAtomicTextChannelList(excludedChannelIds)
+    val excludedChannels: MutableList<AtomicGuildChannel>
+        get() = getAtomicGuildChannelList(excludedChannelIds)
 
     @ElementCollection
     var logReceiverUserIds: MutableList<Long> = mutableListOf()

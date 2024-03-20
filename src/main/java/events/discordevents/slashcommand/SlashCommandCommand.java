@@ -14,7 +14,6 @@ import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.time.Duration;
@@ -27,10 +26,6 @@ public class SlashCommandCommand extends SlashCommandAbstract {
 
     @Override
     public boolean onSlashCommand(SlashCommandInteractionEvent event, EntityManagerWrapper entityManager) {
-        if (!(event.getChannel() instanceof TextChannel)) {
-            return true;
-        }
-
         GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
         String prefix = guildEntity.getPrefix();
         Locale locale = guildEntity.getLocale();

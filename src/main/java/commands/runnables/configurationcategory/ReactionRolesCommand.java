@@ -11,8 +11,8 @@ import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.*;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.atomicassets.AtomicRole;
-import core.atomicassets.AtomicTextChannel;
 import core.cache.MessageCache;
 import core.cache.ServerPatreonBoostCache;
 import core.featurelogger.FeatureLogger;
@@ -29,8 +29,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
@@ -101,7 +100,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private String banner;
     private AtomicRole roleTemp;
     private String customLabelTemp;
-    private AtomicTextChannel atomicTextChannel;
+    private AtomicGuildMessageChannel atomicChannel;
     private boolean removeRole = true;
     private boolean editMode = false;
     private boolean multipleRoles = true;
@@ -132,10 +131,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @ControllerMessage(state = ADD_MESSAGE)
     public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
-        List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-        if (!serverTextChannel.isEmpty()) {
-            if (checkWriteEmbedInChannelWithLog(serverTextChannel.get(0))) {
-                atomicTextChannel = new AtomicTextChannel(serverTextChannel.get(0));
+        List<GuildMessageChannel> channels = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
+        if (!channels.isEmpty()) {
+            if (checkWriteEmbedInChannelWithLog(channels.get(0))) {
+                atomicChannel = new AtomicGuildMessageChannel(channels.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
                 return MessageInputResponse.SUCCESS;
             } else {
@@ -302,7 +301,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 0:
-                if (atomicTextChannel != null) {
+                if (atomicChannel != null) {
                     setState(CONFIGURE_MESSAGE);
                     return true;
                 }
@@ -321,7 +320,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             List<ReactionRoleMessage> reactionRoleMessages = ReactionRoles.getReactionMessagesInGuild(event.getGuild().getIdLong());
             if (i < reactionRoleMessages.size()) {
                 ReactionRoleMessage reactionRoleMessage = reactionRoleMessages.get(i);
-                StandardGuildMessageChannel channel = reactionRoleMessage.getStandardGuildMessageChannel().get();
+                GuildMessageChannel channel = reactionRoleMessage.getGuildMessageChannel().get();
 
                 if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
                     String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_history", "#" + StringUtil.escapeMarkdownInField(channel.getName()));
@@ -425,8 +424,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 12:
-                TextChannel textChannel = atomicTextChannel.get().orElse(null);
-                String error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, roleRequirements, newComponents, editMessageId);
+                GuildMessageChannel channel = atomicChannel.get().orElse(null);
+                String error = ReactionRoles.checkForErrors(getLocale(), channel, slots, roleRequirements, newComponents, editMessageId);
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;
@@ -436,8 +435,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 13:
-                textChannel = atomicTextChannel.get().orElse(null);
-                error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, roleRequirements, newComponents, editMessageId);
+                channel = atomicChannel.get().orElse(null);
+                error = ReactionRoles.checkForErrors(getLocale(), channel, slots, roleRequirements, newComponents, editMessageId);
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;
@@ -451,7 +450,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 }
                 getEntityManager().getTransaction().commit();
 
-                ReactionRoles.sendMessage(getLocale(), textChannel, title, description, slots, roleRequirements, removeRole,
+                ReactionRoles.sendMessage(getLocale(), channel, title, description, slots, roleRequirements, removeRole,
                         multipleRoles, showRoleConnections, newComponents, showRoleNumbers, banner, editMode, editMessageId
                 ).get(5, TimeUnit.SECONDS);
 
@@ -601,10 +600,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Draw(state = ADD_MESSAGE)
     public EmbedBuilder onDrawAddMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (atomicTextChannel != null) {
+        if (atomicChannel != null) {
             setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         }
-        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicTextChannel).map(m -> m.getPrefixedNameInField(getLocale())).orElse(notSet)), getString("state1_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicChannel).map(m -> m.getPrefixedNameInField(getLocale())).orElse(notSet)), getString("state1_title"));
     }
 
     @Draw(state = EDIT_MESSAGE)
@@ -613,7 +612,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         String[] options = new String[reactionRoleMessages.size()];
         for (int i = 0; i < reactionRoleMessages.size(); i++) {
             ReactionRoleMessage reactionRoleMessage = reactionRoleMessages.get(i);
-            AtomicTextChannel channel = new AtomicTextChannel(reactionRoleMessage.getGuildId(), reactionRoleMessage.getStandardGuildMessageChannelId());
+            AtomicGuildMessageChannel channel = new AtomicGuildMessageChannel(reactionRoleMessage.getGuildId(), reactionRoleMessage.getGuildMessageChannelId());
             options[i] = getString("state2_template", reactionRoleMessage.getTitle(), channel.getPrefixedName(getLocale()));
         }
 
@@ -630,21 +629,21 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 new int[0]
         );
 
-        TextChannel textChannel = getTextChannel().get();
+        GuildMessageChannel channel = getGuildMessageChannel().get();
         String linkString = ReactionRoles.generateSlotOverview(slots, true, true);
         return EmbedFactory.getEmbedDefault(this, getString("state3_description", StringUtil.numToString(MAX_NEW_COMPONENTS_MESSAGES), ExternalLinks.PREMIUM_WEBSITE), getString("state3_title_" + (editMode ? "edit" : "new")))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
                 .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), SLOTS_TEXT_LENGTH_MAX), true)
-                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), banner != null), true)
+                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(channel, getLocale(), banner != null), true)
                 .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(linkString).orElse(notSet), SLOTS_TEXT_LENGTH_MAX), true)
                 .addField(getString("state3_mrolerequirements") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), new ListGen<AtomicRole>().getList(roleRequirements, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
                 .addField(getString("state3_mproperties"), getString(
                                 newComponents == ReactionRoleMessage.ComponentType.REACTIONS ? "state3_mproperties_desc" : "state3_mproperties_desc_newcomponents",
-                                StringUtil.getOnOffForBoolean(textChannel, getLocale(), removeRole),
-                                StringUtil.getOnOffForBoolean(textChannel, getLocale(), multipleRoles),
-                                StringUtil.getOnOffForBoolean(textChannel, getLocale(), showRoleConnections),
+                                StringUtil.getOnOffForBoolean(channel, getLocale(), removeRole),
+                                StringUtil.getOnOffForBoolean(channel, getLocale(), multipleRoles),
+                                StringUtil.getOnOffForBoolean(channel, getLocale(), showRoleConnections),
                                 getString("componenttypes", newComponents.ordinal()),
-                                StringUtil.getOnOffForBoolean(textChannel, getLocale(), showRoleNumbers)
+                                StringUtil.getOnOffForBoolean(channel, getLocale(), showRoleNumbers)
                         ), false
                 );
     }
@@ -745,13 +744,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Override
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
-        if (!(event.getChannel() instanceof TextChannel)) {
-            return;
-        }
-
         boolean premium = ServerPatreonBoostCache.get(event.getGuild().getIdLong());
         Member member = event.getMember();
-        ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel().asStandardGuildMessageChannel(), message.getIdLong());
+        ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel(), message.getIdLong());
         if (reactionRoleMessage == null ||
                 reactionRoleMessage.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS ||
                 BLOCK_CACHE.asMap().containsKey(member.getIdLong())
@@ -808,12 +803,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Override
     public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
-        if (!(event.getChannel() instanceof TextChannel)) {
-            return;
-        }
         boolean premium = ServerPatreonBoostCache.get(event.getGuild().getIdLong());
 
-        ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel().asStandardGuildMessageChannel(), message.getIdLong());
+        ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel(), message.getIdLong());
         if (reactionRoleMessage == null ||
                 reactionRoleMessage.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS
         ) {
@@ -858,13 +850,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Override
     public void onStaticButton(@NotNull ButtonInteractionEvent event, @Nullable String secondaryId) {
-        if (!(event.getChannel() instanceof TextChannel)) {
-            return;
-        }
         boolean premium = ServerPatreonBoostCache.get(event.getGuild().getIdLong());
 
         Member member = event.getMember();
-        ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(event.getGuildChannel().asStandardGuildMessageChannel(), event.getMessageIdLong());
+        ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(event.getGuildChannel(), event.getMessageIdLong());
         if (reactionRoleMessage == null ||
                 BLOCK_CACHE.asMap().containsKey(member.getIdLong())
         ) {
@@ -987,13 +976,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Override
     public void onStaticStringSelectMenu(@NotNull StringSelectInteractionEvent event, @Nullable String secondaryId) {
-        if (!(event.getChannel() instanceof TextChannel)) {
-            return;
-        }
         boolean premium = ServerPatreonBoostCache.get(event.getGuild().getIdLong());
 
         Member member = event.getMember();
-        ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(event.getGuildChannel().asStandardGuildMessageChannel(), event.getMessageIdLong());
+        ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(event.getGuildChannel(), event.getMessageIdLong());
         if (reactionRoleMessage == null ||
                 BLOCK_CACHE.asMap().containsKey(member.getIdLong())
         ) {
@@ -1133,7 +1119,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         this.showRoleNumbers = message.getShowRoleNumbers();
         this.slots = new ArrayList<>(message.getSlots());
         this.roleRequirements = new ArrayList<>(message.getRoleRequirements());
-        this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getStandardGuildMessageChannelId());
+        this.atomicChannel = new AtomicGuildMessageChannel(message.getGuildId(), message.getGuildMessageChannelId());
     }
 
     private boolean removeMultipleRoles(Member member, ReactionRoleMessage reactionRoleMessage,

@@ -15,7 +15,7 @@ import mysql.hibernate.EntityManagerWrapper
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent
@@ -35,7 +35,7 @@ interface OnReactionListener : Drawable {
                     (emojis.size == 0 || Arrays.stream(emojis).anyMatch { emoji -> EmojiUtil.equals(event.emoji, emoji) })
             if (ok) CheckResponse.ACCEPT else CheckResponse.IGNORE
         }.thenApply { messageId: Long ->
-            command.textChannel.ifPresent { channel: TextChannel ->
+            command.guildMessageChannel.ifPresent { channel: GuildMessageChannel ->
                 val restActionQueue = RestActionQueue()
                 Arrays.stream(emojis).forEach { emoji -> restActionQueue.attach(channel.addReactionById(messageId, emoji)) }
                 if (restActionQueue.isSet) {
@@ -81,7 +81,7 @@ interface OnReactionListener : Drawable {
                 return CompletableFuture.completedFuture(command.drawMessageId.get())
             }
         } catch (e: Throwable) {
-            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
+            command.guildMessageChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
         }
         return CompletableFuture.failedFuture(NoSuchElementException("No message sent"))
     }
@@ -89,7 +89,7 @@ interface OnReactionListener : Drawable {
     fun deregisterListenersWithReactionMessage() {
         val command = this as Command
         command.drawMessageId.ifPresent { messageId: Long ->
-            command.textChannel.ifPresent { channel: TextChannel ->
+            command.guildMessageChannel.ifPresent { channel: GuildMessageChannel ->
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.commandEvent.isMessageReceivedEvent()) {
                     val messageIds: Collection<String> = listOf(messageId.toString(), command.commandEvent!!.messageReceivedEvent!!.messageId)
                     channel.deleteMessagesByIds(messageIds).queue()
@@ -105,7 +105,7 @@ interface OnReactionListener : Drawable {
         val future = CompletableFuture<Void?>()
         val command = this as Command
         command.drawMessageId.ifPresentOrElse({ messageId: Long ->
-            command.textChannel.ifPresentOrElse({ channel: TextChannel ->
+            command.guildMessageChannel.ifPresentOrElse({ channel: GuildMessageChannel ->
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE)) {
                     channel.clearReactionsById(messageId)
                         .queue({ future.complete(null) }) { ex: Throwable -> future.completeExceptionally(ex) }

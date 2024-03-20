@@ -6,6 +6,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import mysql.hibernate.EntityManagerWrapper;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
@@ -23,7 +24,7 @@ public class GuildMessageReceivedAnicordAntiMassPing extends GuildMessageReceive
                 event.getMessage().getMember().getTimeJoined().toInstant().plus(30, ChronoUnit.MINUTES).isAfter(Instant.now())
         ) {
             event.getGuild().ban(event.getMember(), 1, TimeUnit.DAYS).reason("Anti Raid (Mass Ping)").queue();
-            event.getGuild().getTextChannelById(462420339364724751L).sendMessage("ANTI RAID (MASS PING) FOR " + StringUtil.escapeMarkdown(event.getMember().getUser().getName())).queue();
+            event.getGuild().getChannelById(GuildMessageChannel.class, 462420339364724751L).sendMessage("ANTI RAID (MASS PING) FOR " + StringUtil.escapeMarkdown(event.getMember().getUser().getName())).queue();
             return false;
         }
 

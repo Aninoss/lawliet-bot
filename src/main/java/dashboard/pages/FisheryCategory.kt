@@ -21,10 +21,10 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardChannelComboBox
 import dashboard.components.DashboardMultiMembersComboBox
+import dashboard.components.DashboardMultiChannelsComboBox
 import dashboard.components.DashboardMultiRolesComboBox
-import dashboard.components.DashboardMultiTextChannelsComboBox
-import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -297,15 +297,15 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         )
         container.add(rolesComboBox)
 
-        val announcementChannelComboBox = DashboardTextChannelComboBox(
+        val announcementChannelComboBox = DashboardChannelComboBox(
+                this,
                 getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_mannouncementchannel"),
-                locale,
-                atomicGuild.idLong,
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 fisheryEntity.roleUpgradeChannelId,
                 true
         ) {
             if (!anyCommandsAreAccessible(FisheryRolesCommand::class)) {
-                return@DashboardTextChannelComboBox ActionResult()
+                return@DashboardChannelComboBox ActionResult()
                         .withRedraw()
             }
 
@@ -435,9 +435,10 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     private fun generateExcludeChannelsField(): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels")))
-        val comboBox = DashboardMultiTextChannelsComboBox(
+        val comboBox = DashboardMultiChannelsComboBox(
                 this,
                 "",
+                DashboardComboBox.DataType.GUILD_CHANNELS,
                 { it.fishery.excludedChannelIds },
                 true,
                 FisheryCommand.MAX_CHANNELS,

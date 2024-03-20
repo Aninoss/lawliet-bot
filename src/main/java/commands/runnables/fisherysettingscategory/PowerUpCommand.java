@@ -5,7 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryMemberAccountInterface;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
@@ -18,7 +18,7 @@ import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 import java.util.List;
 import java.util.Locale;
@@ -38,15 +38,15 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
 
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
-        TextChannel channel = event.getTextChannel();
-        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
+        GuildMessageChannel channel = event.getMessageChannel();
+        MentionList<GuildMessageChannel> channelMention = MentionUtil.getGuildMessageChannels(event.getGuild(), args);
         if (!channelMention.getList().isEmpty()) {
             channel = channelMention.getList().get(0);
             args = channelMention.getFilteredArgs().trim();
         }
 
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
-            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicTextChannel(channel).getPrefixedNameInField(getLocale()));
+            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()));
             return EmbedFactory.getEmbedError(this, error);
         }
 
@@ -83,7 +83,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
                 amount != 1,
                 StringUtil.numToString(amount),
                 member.getEffectiveName(),
-                new AtomicTextChannel(channel).getPrefixedNameInField(getLocale())
+                new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale())
         );
         return EmbedFactory.getEmbedDefault(this, successText);
     }

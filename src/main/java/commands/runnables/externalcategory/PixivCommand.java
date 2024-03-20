@@ -15,10 +15,7 @@ import core.TextManager;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.internet.HttpRequest;
-import core.utils.EmbedUtil;
-import core.utils.FileUtil;
-import core.utils.NSFWUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.PostBundle;
 import modules.pixiv.PixivDownloader;
 import modules.pixiv.PixivImage;
@@ -28,7 +25,7 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -88,9 +85,9 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
             FeatureLogger.inc(PremiumFeature.PIXIV, event.getGuild().getIdLong());
             event.deferReply();
             try {
-                return pixivDownloader.retrieveImage(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW(), filterSet).get()
+                return pixivDownloader.retrieveImage(event.getGuild().getIdLong(), args, JDAUtil.channelIsNsfw(event.getChannel()), filterSet).get()
                         .map(image -> {
-                            if (image.isNsfw() && !event.getTextChannel().isNSFW()) {
+                            if (image.isNsfw() && !JDAUtil.channelIsNsfw(event.getChannel())) {
                                 drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
                                 return false;
                             }
@@ -143,7 +140,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                 return AlertResponse.CONTINUE;
             }
 
-            StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
+            GuildMessageChannel channel = slot.getGuildMessageChannel().get();
             boolean containsOnlyNsfw = true;
 
             if (postBundleOpt.isPresent()) {
@@ -154,7 +151,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
 
                 for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     PixivImage image = postBundle.getPosts().get(i);
-                    if (!image.isNsfw() || channel.isNSFW()) {
+                    if (!image.isNsfw() || JDAUtil.channelIsNsfw(channel)) {
                         String proxyImageUrl = downloadAndProxyImage(image.getId(), image.getImageUrls().get(0), 0);
                         MessageEmbed messageEmbed = getEmbed(image, proxyImageUrl, true).build();
                         embedList.add(0, messageEmbed);

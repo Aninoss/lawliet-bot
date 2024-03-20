@@ -71,7 +71,7 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
         MySQLManager.asyncUpdate("REPLACE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getMessageId());
-            preparedStatement.setLong(3, slot.getStandardGuildMessageChannelId());
+            preparedStatement.setLong(3, slot.getGuildMessageChannelId());
             preparedStatement.setString(4, slot.getEmoji());
             preparedStatement.setInt(5, slot.getWinners());
             preparedStatement.setString(6, MySQLManager.instantToDateTimeString(slot.getStart()));

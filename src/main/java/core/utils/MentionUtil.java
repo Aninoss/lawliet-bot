@@ -12,8 +12,8 @@ import core.mention.MentionValue;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
@@ -136,24 +136,9 @@ public class MentionUtil {
         );
     }
 
-    public static MentionList<TextChannel> getTextChannels(Guild guild, String input) {
-        return generateMentionList(
-                guild.getTextChannels(),
-                new ArrayList<>(),
-                input,
-                c -> ((TextChannel) c).getAsMention(),
-                c -> " " + ((TextChannel) c).getId() + " ",
-                c -> " #" + ((TextChannel) c).getName() + " ",
-                c -> " " + ((TextChannel) c).getName() + " "
-        );
-    }
-
     public static MentionList<StandardGuildMessageChannel> getStandardGuildMessageChannels(Guild guild, String input) {
-        ArrayList<StandardGuildMessageChannel> channels = new ArrayList<>();
-        channels.addAll(guild.getTextChannels());
-        channels.addAll(guild.getNewsChannels());
         return generateMentionList(
-                channels,
+                guild.getChannelCache().stream().filter(c -> c instanceof StandardGuildMessageChannel).map(c -> (StandardGuildMessageChannel) c).collect(Collectors.toList()),
                 new ArrayList<>(),
                 input,
                 c -> ((StandardGuildMessageChannel) c).getAsMention(),
@@ -164,18 +149,26 @@ public class MentionUtil {
     }
 
     public static MentionList<GuildMessageChannel> getGuildMessageChannels(Guild guild, String input) {
-        ArrayList<GuildMessageChannel> channels = new ArrayList<>();
-        channels.addAll(guild.getTextChannels());
-        channels.addAll(guild.getNewsChannels());
-        channels.addAll(guild.getThreadChannels());
         return generateMentionList(
-                channels,
+                guild.getChannelCache().stream().filter(c -> c instanceof GuildMessageChannel).map(c -> (GuildMessageChannel) c).collect(Collectors.toList()),
                 new ArrayList<>(),
                 input,
                 c -> ((GuildMessageChannel) c).getAsMention(),
                 c -> " " + ((GuildMessageChannel) c).getId() + " ",
                 c -> " #" + ((GuildMessageChannel) c).getName() + " ",
                 c -> " " + ((GuildMessageChannel) c).getName() + " "
+        );
+    }
+
+    public static MentionList<GuildChannel> getGuildChannels(Guild guild, String input) {
+        return generateMentionList(
+                guild.getChannelCache().stream().collect(Collectors.toList()),
+                new ArrayList<>(),
+                input,
+                c -> ((GuildChannel) c).getAsMention(),
+                c -> " " + ((GuildChannel) c).getId() + " ",
+                c -> " #" + ((GuildChannel) c).getName() + " ",
+                c -> " " + ((GuildChannel) c).getName() + " "
         );
     }
 
@@ -311,7 +304,7 @@ public class MentionUtil {
             while (m.find()) {
                 String groupString = m.group("guild");
                 if (groupString != null && groupString.equals(guildId)) {
-                    Optional.ofNullable(guild.getChannelById(StandardGuildMessageChannel.class, m.group("channel"))).ifPresent(channel -> {
+                    Optional.ofNullable(guild.getChannelById(GuildMessageChannel.class, m.group("channel"))).ifPresent(channel -> {
                         try {
                             if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_HISTORY)) {
                                 Message message = channel.retrieveMessageById(m.group("message")).complete();

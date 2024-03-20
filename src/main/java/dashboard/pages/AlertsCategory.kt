@@ -8,9 +8,9 @@ import commands.listeners.OnAlertListener
 import commands.runnables.configurationcategory.AlertsCommand
 import core.CustomObservableMap
 import core.TextManager
-import core.atomicassets.AtomicStandardGuildMessageChannel
-import core.atomicassets.AtomicTextChannel
+import core.atomicassets.AtomicGuildMessageChannel
 import core.utils.BotPermissionUtil
+import core.utils.JDAUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -28,7 +28,7 @@ import mysql.modules.tracker.DBTracker
 import mysql.modules.tracker.TrackerData
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -61,10 +61,10 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     fun generateAlertGrid(guild: Guild, alertMap: CustomObservableMap<Int, TrackerData>): DashboardComponent {
         val rows = alertMap.values
-                .filter { it.standardGuildMessageChannel.isPresent }
+                .filter { it.guildMessageChannel.isPresent }
                 .sortedWith { a0, a1 ->
-                    val channelO: Long = a0.standardGuildMessageChannelId
-                    val channel1: Long = a1.standardGuildMessageChannelId
+                    val channelO: Long = a0.guildMessageChannelId
+                    val channel1: Long = a1.guildMessageChannelId
                     if (channelO == channel1) {
                         a0.creationTime.compareTo(a1.creationTime)
                     } else {
@@ -72,8 +72,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                     }
                 }
                 .map {
-                    val atomicChannel =
-                            AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
+                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.guildMessageChannelId)
                     val values = arrayOf(it.commandTrigger, atomicChannel.getPrefixedName(locale), it.commandKey)
                     GridRow(it.hashCode().toString(), values)
                 }
@@ -136,7 +135,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                         .withErrorMessage(getString(Category.CONFIGURATION, "alerts_toomuch_server", AlertsCommand.LIMIT_SERVER.toString()))
             }
 
-            val channel = channelId?.let { guild.getChannelById(StandardGuildMessageChannel::class.java, it.toString()) }
+            val channel = channelId?.let { guild.getChannelById(GuildMessageChannel::class.java, it.toString()) }
             if (channel == null) { /* invalid channel */
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.CONFIGURATION, "alerts_invalidchannel"))
@@ -145,7 +144,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
             }
-            if (alertMap.values.filter { it.standardGuildMessageChannelId == channelId }.size >= AlertsCommand.LIMIT_CHANNEL && !premium) { /* channel alert limit */
+            if (alertMap.values.filter { it.guildMessageChannelId == channelId }.size >= AlertsCommand.LIMIT_CHANNEL && !premium) { /* channel alert limit */
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.CONFIGURATION, "alerts_toomuch_channel", AlertsCommand.LIMIT_CHANNEL.toString()))
             }
@@ -158,7 +157,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(TextManager.GENERAL, "patreon_unlock"))
             }
-            if (command!!.commandProperties.nsfw && !channel.isNSFW) { /* command requires nsfw */
+            if (command!!.commandProperties.nsfw && !JDAUtil.channelIsNsfw(channel)) { /* command requires nsfw */
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(TextManager.GENERAL, "nsfw_block_description", prefix).replace("`", "\""))
             }
@@ -178,7 +177,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
             val alreadyExists = alertMap.values.any {
                 it.commandTrigger == command?.trigger &&
-                        it.standardGuildMessageChannelId == channelId &&
+                        it.guildMessageChannelId == channelId &&
                         it.commandKey == commandKey
             }
             if (alreadyExists) { /* alert already exists */
@@ -221,12 +220,12 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         container.allowWrap = true
 
         val channelLabel = getString(Category.CONFIGURATION, "alerts_dashboard_channel")
-        val channelComboBox = DashboardComboBox(channelLabel, DashboardComboBox.DataType.BASE_GUILD_MESSAGE_CHANNELS, false, 1) {
+        val channelComboBox = DashboardComboBox(channelLabel, DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS, false, 1) {
             channelId = it.data.toLong()
             ActionResult()
         }
         if (channelId != null) {
-            val atomicChannel = AtomicTextChannel(atomicGuild.idLong, channelId!!)
+            val atomicChannel = AtomicGuildMessageChannel(atomicGuild.idLong, channelId!!)
             channelComboBox.selectedValues = listOf(DiscordEntity(channelId.toString(), atomicChannel.getPrefixedName(locale)))
         }
         container.add(channelComboBox)

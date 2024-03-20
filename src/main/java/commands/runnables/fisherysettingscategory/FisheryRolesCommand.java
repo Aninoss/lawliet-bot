@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -99,12 +99,12 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 }
 
             case 3:
-                List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
+                List<GuildMessageChannel> channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
                 if (channelList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
-                    TextChannel channel = channelList.get(0);
+                    GuildMessageChannel channel = channelList.get(0);
                     if (checkWriteEmbedInChannelWithLog(channel)) {
                         fishery.beginTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), channel.getIdLong());
@@ -284,7 +284,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(getRoles(), getLocale(), this::getRoleString), false)
-                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), fishery.getSingleRoles())), getString("state0_msinglerole_desc"), false)
+                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), fishery.getSingleRoles())), getString("state0_msinglerole_desc"), false)
                         .addField(getString("state0_mannouncementchannel"), fishery.getRoleUpgradeChannel().getPrefixedNameInFieldOrElse(notSet), true)
                         .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(fishery.getRolePriceMin()), StringUtil.numToString(fishery.getRolePriceMax())), true);
 

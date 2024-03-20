@@ -4,7 +4,7 @@ import constants.Emojis;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
@@ -36,7 +36,7 @@ public class EmojiUtil {
                 .findFirst();
     }
 
-    public static String getLoadingEmojiMention(TextChannel channel) {
+    public static String getLoadingEmojiMention(GuildMessageChannel channel) {
         if (channel != null && BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_EXT_EMOJI)) {
             return Emojis.LOADING.getFormatted();
         } else {

@@ -8,7 +8,8 @@ import core.ExceptionLogger;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.*;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,9 +46,14 @@ public class ServerInfoCommand extends Command {
                 StringUtil.numToString(bots),
                 StringUtil.numToString(guild.getBoostCount()),
                 StringUtil.numToString(guild.getRoles().size()),
-                StringUtil.numToString(guild.getChannels().stream().filter(channel -> channel.getType() == ChannelType.TEXT || channel.getType() == ChannelType.VOICE).count()),
-                StringUtil.numToString(guild.getChannels().stream().filter(channel -> channel.getType() == ChannelType.TEXT).count()),
-                StringUtil.numToString(guild.getChannels().stream().filter(channel -> channel.getType() == ChannelType.VOICE).count())
+                StringUtil.numToString(guild.getChannelCache().stream().count()),
+                StringUtil.numToString(guild.getChannelCache().stream().filter(channel -> channel instanceof TextChannel || channel instanceof NewsChannel).count()),
+                StringUtil.numToString(guild.getChannelCache().stream().filter(channel -> channel instanceof VoiceChannel).count()),
+                StringUtil.numToString(guild.getChannelCache().stream().filter(channel -> channel instanceof StageChannel).count()),
+                StringUtil.numToString(guild.getChannelCache().stream().filter(channel -> channel instanceof ThreadChannel && ((ThreadChannel) channel).getParentChannel() instanceof StandardGuildMessageChannel).count()),
+                StringUtil.numToString(guild.getChannelCache().stream().filter(channel -> channel instanceof ForumChannel).count()),
+                StringUtil.numToString(guild.getChannelCache().stream().filter(channel -> channel instanceof ThreadChannel && ((ThreadChannel) channel).getParentChannel() instanceof ForumChannel).count()),
+                StringUtil.numToString(guild.getChannelCache().stream().filter(channel -> channel instanceof MediaChannel).count())
         };
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", argsArray));

@@ -5,7 +5,7 @@ import core.DiscordDomain;
 import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
-import core.assets.StandardGuildMessageChannelAsset;
+import core.assets.GuildMessageChannelAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
@@ -14,7 +14,8 @@ import core.utils.StringUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
@@ -25,7 +26,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TrackerData extends DataWithGuild implements StandardGuildMessageChannelAsset {
+public class TrackerData extends DataWithGuild implements GuildMessageChannelAsset {
 
     private final long channelId;
     private Long messageId;
@@ -69,7 +70,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
     }
 
     @Override
-    public long getStandardGuildMessageChannelId() {
+    public long getGuildMessageChannelId() {
         return channelId;
     }
 
@@ -178,12 +179,13 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
 
     private Optional<Long> processMessage(Locale locale, boolean newMessage, boolean acceptUserMessage, String content,
                                           List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
-        Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
+        Optional<GuildMessageChannel> channelOpt = getGuildMessageChannel();
         if (channelOpt.isPresent()) {
-            StandardGuildMessageChannel channel = channelOpt.get();
-            if (preferWebhook && webhookUrl == null && BotPermissionUtil.can(channel, Permission.MANAGE_WEBHOOKS)) {
+            GuildMessageChannel channel = channelOpt.get();
+            if (preferWebhook && webhookUrl == null && BotPermissionUtil.can(channel, Permission.MANAGE_WEBHOOKS) && channel instanceof IWebhookContainer) {
                 try {
-                    List<Webhook> webhooks = channel.retrieveWebhooks().complete();
+                    IWebhookContainer webhookContainer = (IWebhookContainer) channel;
+                    List<Webhook> webhooks = webhookContainer.retrieveWebhooks().complete();
                     for (Webhook webhook : webhooks) {
                         Member webhookOwner = webhook.getOwner();
                         if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getSelfId()) {
@@ -193,20 +195,20 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                     }
                     if (webhooks.size() < 10) {
                         Member self = channel.getGuild().getSelfMember();
-                        Webhook webhook = channel.createWebhook(self.getUser().getName())
+                        Webhook webhook = webhookContainer.createWebhook(self.getUser().getName())
                                 .complete();
 
                         webhookUrl = webhook.getUrl();
                         return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
                     } else {
                         preferWebhook = false;
-                        getStandardGuildMessageChannel().map(textChannel -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows));
+                        getGuildMessageChannel().map(c -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows));
                     }
                 } catch (InterruptedException e) {
                     throw e;
                 } catch (Throwable e) {
                     MainLogger.get().error("Could not process webhooks", e);
-                    getStandardGuildMessageChannel().map(textChannel -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows));
+                    getGuildMessageChannel().map(c -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows));
                 }
             }
 
@@ -224,10 +226,10 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
     private Optional<Long> processMessageViaWebhook(Locale locale, boolean newMessage, boolean acceptUserMessage,
                                                     String content, List<MessageEmbed> embeds, ActionRow... actionRows
     ) throws InterruptedException {
-        Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
+        Optional<GuildMessageChannel> channelOpt = getGuildMessageChannel();
         if (channelOpt.isPresent()) {
             try {
-                StandardGuildMessageChannel channel = channelOpt.get();
+                GuildMessageChannel channel = channelOpt.get();
                 IncomingWebhookClient webhookClient = WebhookClient.createClient(
                         channel.getJDA(),
                         webhookUrl.replace("https://discord.com", "https://" + DiscordDomain.get())
@@ -289,11 +291,11 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
 
     private Optional<Long> processMessageViaRest(Locale locale, boolean newMessage, boolean acceptUserMessage, String content,
                                                  List<MessageEmbed> embeds, ActionRow... actionRows) {
-        Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
+        Optional<GuildMessageChannel> channelOpt = getGuildMessageChannel();
         if (channelOpt.isPresent()) {
-            StandardGuildMessageChannel channel = channelOpt.get();
+            GuildMessageChannel channel = channelOpt.get();
             try {
-                if (embeds.size() > 0) {
+                if (!embeds.isEmpty()) {
                     if (newMessage) {
                         MessageCreateAction messageAction = channel.sendMessageEmbeds(embeds)
                                 .setComponents(actionRows);

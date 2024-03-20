@@ -1,63 +1,21 @@
 package core.atomicassets;
 
 import core.CustomObservableList;
-import core.ShardManager;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AtomicVoiceChannel implements MentionableAtomicAsset<VoiceChannel> {
-
-    private final long guildId;
-    private final long channelId;
+public class AtomicVoiceChannel extends AbstractAtomicGuildChannel<VoiceChannel> {
 
     public AtomicVoiceChannel(long guildId, long channelId) {
-        this.guildId = guildId;
-        this.channelId = channelId;
+        super(VoiceChannel.class, guildId, channelId);
     }
 
     public AtomicVoiceChannel(VoiceChannel channel) {
-        channelId = channel.getIdLong();
-        guildId = channel.getGuild().getIdLong();
-    }
-
-    @Override
-    public long getIdLong() {
-        return channelId;
-    }
-
-    @Override
-    public Optional<VoiceChannel> get() {
-        return ShardManager.getLocalGuildById(guildId)
-                .map(guild -> guild.getVoiceChannelById(channelId));
-    }
-
-    @Override
-    public Optional<String> getPrefixedNameRaw() {
-        return get().map(v -> "🔊" + v.getName());
-    }
-
-    @Override
-    public Optional<String> getNameRaw() {
-        return get().map(Channel::getName);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AtomicVoiceChannel that = (AtomicVoiceChannel) o;
-        return channelId == that.channelId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(channelId);
+        super(VoiceChannel.class, channel.getGuild().getIdLong(), channel.getIdLong());
     }
 
     public static List<AtomicVoiceChannel> from(List<VoiceChannel> channels) {

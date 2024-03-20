@@ -18,7 +18,7 @@ import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
@@ -52,8 +52,8 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
             args = args.substring(1).trim();
         }
 
-        StandardGuildMessageChannel channel;
-        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, event.getTextChannel(), args, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY);
+        GuildMessageChannel channel;
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, event.getMessageChannel(), args, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY);
         if (response != null) {
             args = response.getArgs();
             channel = response.getChannel();

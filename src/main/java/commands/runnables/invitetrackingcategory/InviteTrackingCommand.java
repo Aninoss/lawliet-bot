@@ -7,7 +7,7 @@ import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -18,7 +18,7 @@ import mysql.modules.invitetracking.InviteTrackingData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -60,17 +60,17 @@ public class InviteTrackingCommand extends NavigationAbstract {
 
     @ControllerMessage(state = SET_LOGCHANNEL)
     public MessageInputResponse onMessageSetLogChannel(MessageReceivedEvent event, String input) {
-        List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
+        List<GuildMessageChannel> channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
         if (channelList.isEmpty()) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
             return MessageInputResponse.FAILED;
         } else {
-            TextChannel channel = channelList.get(0);
+            GuildMessageChannel channel = channelList.get(0);
             if (BotPermissionUtil.canWriteEmbed(channel)) {
                 long newChannelId = channelList.get(0).getIdLong();
 
                 getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, event.getMember(), inviteTrackingData.getTextChannelId().orElse(null), newChannelId);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, event.getMember(), inviteTrackingData.getChannelId().orElse(null), newChannelId);
                 getEntityManager().getTransaction().commit();
 
                 inviteTrackingData.setChannelId(channelList.get(0).getIdLong());
@@ -161,7 +161,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
             return true;
         } else if (i == 0) {
             getEntityManager().getTransaction().begin();
-            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, event.getMember(), inviteTrackingData.getTextChannelId().orElse(null), null);
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, event.getMember(), inviteTrackingData.getChannelId().orElse(null), null);
             getEntityManager().getTransaction().commit();
 
             inviteTrackingData.setChannelId(null);
@@ -187,10 +187,10 @@ public class InviteTrackingCommand extends NavigationAbstract {
         setComponents(buttons);
 
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.isActive()), true)
-                .addField(getString("state0_mchannel"), inviteTrackingData.getTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
-                .addField(getString("state0_mping"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.getPing()), true)
-                .addField(getString("state0_madvanced"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.isAdvanced()), true);
+                .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), inviteTrackingData.isActive()), true)
+                .addField(getString("state0_mchannel"), inviteTrackingData.getChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
+                .addField(getString("state0_mping"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), inviteTrackingData.getPing()), true)
+                .addField(getString("state0_madvanced"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), inviteTrackingData.isAdvanced()), true);
     }
 
     @Draw(state = SET_LOGCHANNEL)

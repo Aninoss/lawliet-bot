@@ -138,7 +138,7 @@ public class NewCommand extends Command implements OnAlertListener {
             VersionSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
             long messageId = slot.sendMessage(getLocale(), true, getVersionsEmbed(newestSlot).build()).orElse(0L);
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID && messageId != 0) {
-                ((NewsChannel) slot.getStandardGuildMessageChannel().get()).crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
+                ((NewsChannel) slot.getGuildMessageChannel().get()).crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
             }
 
             slot.setArgs(BotUtil.getCurrentVersion());

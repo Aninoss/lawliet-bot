@@ -132,7 +132,7 @@ public class CasinoStatsCommand extends Command implements OnButtonListener, OnS
                     StringUtil.numToString(statsData.getCoinsLost(selectedGame)),
                     StringUtil.numToString(statsData.getAverageCoinsPerGame(selectedGame))
             );
-            eb.setDescription(getString("tracking", StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), enabled)))
+            eb.setDescription(getString("tracking", StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), enabled)))
                     .addField(gameName, description, false);
             actionRows.add(ActionRow.of(generateSelectMenu()));
         } else {

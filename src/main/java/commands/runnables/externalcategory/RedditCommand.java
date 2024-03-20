@@ -11,6 +11,7 @@ import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.InternetUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.PostBundle;
 import modules.reddit.RedditDownloader;
@@ -19,7 +20,7 @@ import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -64,9 +65,9 @@ public class RedditCommand extends Command implements OnAlertListener {
             String finalArgs = args;
             event.deferReply();
             try {
-                return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW()).get()
+                return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, JDAUtil.channelIsNsfw(event.getChannel())).get()
                         .map(post -> {
-                            if (post.isNsfw() && !event.getTextChannel().isNSFW()) {
+                            if (post.isNsfw() && !JDAUtil.channelIsNsfw(event.getChannel())) {
                                 drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
                                 return false;
                             }
@@ -149,7 +150,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 return AlertResponse.CONTINUE;
             }
 
-            StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
+            GuildMessageChannel channel = slot.getGuildMessageChannel().get();
             boolean containsOnlyNsfw = true;
 
             if (postBundleOpt.isPresent()) {
@@ -158,7 +159,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 ArrayList<MessageEmbed> embedList = new ArrayList<>();
                 for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
-                    if (!post.isNsfw() || channel.isNSFW()) {
+                    if (!post.isNsfw() || JDAUtil.channelIsNsfw(channel)) {
                         MessageEmbed messageEmbed = getEmbed(post).build();
                         totalEmbedSize += messageEmbed.getLength();
                         embedList.add(0, messageEmbed);

@@ -91,7 +91,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
                 return generateErrorEmbed();
 
             default:
-                String onOffText = StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), isActive(member));
+                String onOffText = StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), isActive(member));
                 String status = TextManager.getString(getLocale(), TextManager.GENERAL, "function_status", onOffText);
                 return EmbedFactory.getEmbedDefault(this, getCommandLanguage().getDescLong() + status);
         }

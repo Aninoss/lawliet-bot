@@ -1,6 +1,7 @@
 package mysql.hibernate.entity.guild
 
-import core.atomicassets.AtomicTextChannel
+import core.atomicassets.AtomicGuildChannel
+import core.atomicassets.AtomicGuildMessageChannel
 import core.cache.ServerPatreonBoostCache
 import modules.fishery.FisheryStatus
 import mysql.hibernate.template.HibernateDiscordInterface
@@ -76,8 +77,8 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
 
     @ElementCollection
     var excludedChannelIds: MutableList<Long> = mutableListOf()
-    val excludedChannels: MutableList<AtomicTextChannel>
-        get() = getAtomicTextChannelList(excludedChannelIds)
+    val excludedChannels: MutableList<AtomicGuildChannel>
+        get() = getAtomicGuildChannelList(excludedChannelIds)
 
     @ElementCollection
     var roleIds: MutableList<Long> = mutableListOf()
@@ -111,8 +112,8 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
         }
 
     var roleUpgradeChannelId: Long? = null
-    val roleUpgradeChannel: AtomicTextChannel
-        get() = getAtomicTextChannel(roleUpgradeChannelId)
+    val roleUpgradeChannel: AtomicGuildMessageChannel
+        get() = getAtomicGuildMessageChannel(roleUpgradeChannelId)
 
     @Column(name = "$FISHERY.rolePriceMin")
     private var _rolePriceMin: Long? = null

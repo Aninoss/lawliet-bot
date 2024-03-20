@@ -5,12 +5,12 @@ import commands.CommandEvent;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.atomicassets.AtomicStandardGuildMessageChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.mention.MentionList;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 
@@ -23,15 +23,15 @@ import java.util.concurrent.CompletableFuture;
 
 public class CommandUtil {
 
-    public static ChannelResponse differentChannelExtract(Command command, CommandEvent event, StandardGuildMessageChannel defaultChannel, String args, Permission... permissions) {
+    public static ChannelResponse differentChannelExtract(Command command, CommandEvent event, GuildMessageChannel defaultChannel, String args, Permission... permissions) {
         String[] words = args.split(" ");
-        StandardGuildMessageChannel channel = defaultChannel;
-        MentionList<StandardGuildMessageChannel> messageChannelsFirst = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), words[0]);
+        GuildMessageChannel channel = defaultChannel;
+        MentionList<GuildMessageChannel> messageChannelsFirst = MentionUtil.getGuildMessageChannels(event.getGuild(), words[0]);
         if (!messageChannelsFirst.getList().isEmpty()) {
             channel = messageChannelsFirst.getList().get(0);
             args = args.substring(words[0].length()).trim();
         } else {
-            MentionList<StandardGuildMessageChannel> messageChannelsLast = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), words[words.length - 1]);
+            MentionList<GuildMessageChannel> messageChannelsLast = MentionUtil.getGuildMessageChannels(event.getGuild(), words[words.length - 1]);
             if (!messageChannelsLast.getList().isEmpty()) {
                 channel = messageChannelsLast.getList().get(0);
                 args = args.substring(0, args.length() - words[words.length - 1].length()).trim();
@@ -62,7 +62,7 @@ public class CommandUtil {
         return new ChannelResponse(args, channel);
     }
 
-    public static CompletableFuture<Message> differentChannelSendMessage(Command command, CommandEvent event, StandardGuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) {
+    public static CompletableFuture<Message> differentChannelSendMessage(Command command, CommandEvent event, GuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) {
         if (event.getChannel() == channel) {
             command.addAllFileAttachments(fileAttachmentMap);
             return command.drawMessageNew(eb);
@@ -73,7 +73,7 @@ public class CommandUtil {
             }
             CompletableFuture<Message> messageFuture = messageAction.submit();
 
-            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(command.getLocale())));
+            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(command.getLocale())));
             command.drawMessageNew(confirmEmbed).exceptionally(ExceptionLogger.get());
 
             return messageFuture;
@@ -84,9 +84,9 @@ public class CommandUtil {
     public static class ChannelResponse {
 
         private final String args;
-        private final StandardGuildMessageChannel channel;
+        private final GuildMessageChannel channel;
 
-        public ChannelResponse(String args, StandardGuildMessageChannel channel) {
+        public ChannelResponse(String args, GuildMessageChannel channel) {
             this.args = args;
             this.channel = channel;
         }
@@ -95,7 +95,7 @@ public class CommandUtil {
             return args;
         }
 
-        public StandardGuildMessageChannel getChannel() {
+        public GuildMessageChannel getChannel() {
             return channel;
         }
 

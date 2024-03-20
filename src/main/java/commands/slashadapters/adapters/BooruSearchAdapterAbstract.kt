@@ -6,6 +6,7 @@ import commands.runnables.PornAbstract
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
+import core.utils.JDAUtil
 import core.utils.StringUtil
 import modules.porn.BooruAutoComplete
 import mysql.hibernate.entity.guild.GuildEntity
@@ -42,7 +43,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
-        if (event.channel!!.asTextChannel().isNSFW || (this is SafeBooruAdapter)) {
+        if (JDAUtil.channelIsNsfw(event.channel) || (this is SafeBooruAdapter)) {
             val nsfwAdditionalFiltersList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
             val nsfwAdditionalFilters = HashSet<String>()
             nsfwAdditionalFiltersList.forEach { nsfwAdditionalFilters.add(it.lowercase()) }

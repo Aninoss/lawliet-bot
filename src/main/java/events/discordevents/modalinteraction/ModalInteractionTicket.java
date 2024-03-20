@@ -9,7 +9,7 @@ import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 
 @DiscordEvent
@@ -19,12 +19,13 @@ public class ModalInteractionTicket extends ModalInteractionAbstract {
 
     @Override
     public boolean onModalInteraction(ModalInteractionEvent event, EntityManagerWrapper entityManager) {
-        if (event.getChannel() instanceof TextChannel && event.getModalId().equals(ID)) {
+        if (event.getChannel() instanceof StandardGuildMessageChannel && event.getModalId().equals(ID)) {
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-            Category category = event.getChannel().asTextChannel().getParentCategory();
+            StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
+            Category category = channel.getParentCategory();
 
-            if (category == null || category.getTextChannels().size() < 50) {
-                Ticket.createTicket(guildEntity, event.getChannel().asTextChannel(), event.getMember(),
+            if (category == null || category.getChannels().size() < 50) {
+                Ticket.createTicket(guildEntity, channel, event.getMember(),
                         event.getValue("message").getAsString()
                 );
                 event.deferEdit().queue();

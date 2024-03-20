@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.UserSnowflake;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -80,12 +80,12 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
         switch (state) {
             case 1:
-                List<TextChannel> channelsList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
+                List<GuildMessageChannel> channelsList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
                 if (channelsList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
-                    TextChannel channel = channelsList.get(0);
+                    GuildMessageChannel channel = channelsList.get(0);
                     if (checkWriteEmbedInChannelWithLog(channel)) {
                         moderation.beginTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, event.getMember(), moderation.getLogChannelId(), channel.getIdLong());
@@ -304,12 +304,12 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                 }
 
             case 16:
-                channelsList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
+                channelsList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
                 if (channelsList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
-                    TextChannel channel = channelsList.get(0);
+                    GuildMessageChannel channel = channelsList.get(0);
                     if (checkWriteEmbedInChannelWithLog(channel)) {
                         moderation.beginTransaction();
                         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), channel.getIdLong());
@@ -677,20 +677,20 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
             case 0:
                 Locale locale = getLocale();
                 String notSet = TextManager.getString(locale, TextManager.GENERAL, "notset");
-                TextChannel textChannel = getTextChannel().get();
+                GuildMessageChannel channel = getGuildMessageChannel().get();
                 setComponents(getString("state0_options").split("\n"));
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mchannel"), moderation.getLogChannelId() != null ? moderation.getLogChannel().getPrefixedNameInField(locale) : notSet, true)
-                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, locale, moderation.getConfirmationMessages()), true)
+                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(channel, locale, moderation.getConfirmationMessages()), true)
                         .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(moderation.getJailRoles(), locale, m -> m.getPrefixedNameInField(locale)), true)
                         .addField(getString("state0_mbanappeallogchannel") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), moderation.getBanAppealLogChannelIdEffectively() != null ? moderation.getBanAppealLogChannelEffectively().getPrefixedNameInField(locale) : notSet, true)
                         .addField(getString("state0_mautomod"), getString(
                                 "state0_mautomod_desc",
-                                getAutoModString(textChannel, moderation.getAutoMute()),
-                                getAutoModString(textChannel, moderation.getAutoJail()),
-                                getAutoModString(textChannel, moderation.getAutoKick()),
-                                getAutoModString(textChannel, moderation.getAutoBan())
+                                getAutoModString(channel, moderation.getAutoMute()),
+                                getAutoModString(channel, moderation.getAutoJail()),
+                                getAutoModString(channel, moderation.getAutoKick()),
+                                getAutoModString(channel, moderation.getAutoBan())
                         ), false);
 
             case 1:
@@ -757,9 +757,9 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
         }
     }
 
-    private String getAutoModString(TextChannel textChannel, AutoModEntity autoModEntity) {
+    private String getAutoModString(GuildMessageChannel channel, AutoModEntity autoModEntity) {
         if (autoModEntity.getInfractions() == null) {
-            return StringUtil.getOnOffForBoolean(textChannel, getLocale(), false);
+            return StringUtil.getOnOffForBoolean(channel, getLocale(), false);
         }
         return getAutoModString(
                 getLocale(),

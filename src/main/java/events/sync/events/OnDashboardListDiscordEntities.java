@@ -2,11 +2,15 @@ package events.sync.events;
 
 import core.MemberCacheController;
 import core.ShardManager;
+import core.atomicassets.AtomicGuildChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
+import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.utils.BotPermissionUtil;
 import dashboard.component.DashboardComboBox;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,30 +54,57 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                             entitiesJson.put(json);
                         });
 
-                case TEXT_CHANNELS -> {
+                case GUILD_CHANNELS -> {
                     Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
-                    guild.getTextChannels().stream()
-                            .filter(c -> ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
+                    guild.getChannelCache().stream()
+                            .filter(c -> new AtomicGuildChannel(c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) &&
+                                    BotPermissionUtil.can(member, c)
+                            )
+                            .sorted()
                             .skip(offset)
                             .limit(limit)
                             .forEach(c -> {
                                 JSONObject json = new JSONObject();
                                 json.put("id", c.getId());
-                                json.put("name", "#" + c.getName());
+                                json.put("name", new AtomicGuildChannel(c).getPrefixedNameRaw().orElse(""));
                                 entitiesJson.put(json);
                             });
                 }
 
-                case BASE_GUILD_MESSAGE_CHANNELS -> {
+                case GUILD_MESSAGE_CHANNELS -> {
                     Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
-                    guild.getChannels().stream()
-                            .filter(c -> c instanceof StandardGuildMessageChannel && ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
+                    guild.getChannelCache().stream()
+                            .filter(c -> c instanceof GuildMessageChannel &&
+                                    new AtomicGuildMessageChannel((GuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) &&
+                                    BotPermissionUtil.can(member, c)
+                            )
+                            .map(c -> (GuildMessageChannel) c)
+                            .sorted()
                             .skip(offset)
                             .limit(limit)
                             .forEach(c -> {
                                 JSONObject json = new JSONObject();
                                 json.put("id", c.getId());
-                                json.put("name", "#" + c.getName());
+                                json.put("name", new AtomicGuildMessageChannel(c).getPrefixedNameRaw().orElse(""));
+                                entitiesJson.put(json);
+                            });
+                }
+
+                case STANDARD_GUILD_MESSAGE_CHANNELS -> {
+                    Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
+                    guild.getChannelCache().stream()
+                            .filter(c -> c instanceof StandardGuildMessageChannel &&
+                                    new AtomicStandardGuildMessageChannel((StandardGuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) &&
+                                    BotPermissionUtil.can(member, c)
+                            )
+                            .map(c -> (StandardGuildMessageChannel) c)
+                            .sorted()
+                            .skip(offset)
+                            .limit(limit)
+                            .forEach(c -> {
+                                JSONObject json = new JSONObject();
+                                json.put("id", c.getId());
+                                json.put("name", new AtomicStandardGuildMessageChannel(c).getPrefixedNameRaw().orElse(""));
                                 entitiesJson.put(json);
                             });
                 }

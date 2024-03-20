@@ -24,7 +24,7 @@ interface OnMessageInputListener : Drawable {
         val command = this as Command
         registerMessageInputListener(member, draw) { event ->
             val ok = event.member!!.idLong == member.idLong &&
-                    event.channel.idLong == command.textChannelId.orElse(0L)
+                    event.channel.idLong == command.channelId.orElse(0L)
             if (ok) CheckResponse.ACCEPT else CheckResponse.IGNORE
         }
     }
@@ -61,7 +61,7 @@ interface OnMessageInputListener : Drawable {
                 }
             }
         } catch (e: Throwable) {
-            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
+            command.guildMessageChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
         }
     }
 

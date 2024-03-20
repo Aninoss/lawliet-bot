@@ -71,7 +71,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
             preparedStatement.setLong(1, inviteTrackingData.getGuildId());
             preparedStatement.setBoolean(2, inviteTrackingData.isActive());
 
-            Optional<Long> channelIdOpt = inviteTrackingData.getTextChannelId();
+            Optional<Long> channelIdOpt = inviteTrackingData.getChannelId();
             if (channelIdOpt.isPresent()) {
                 preparedStatement.setLong(3, channelIdOpt.get());
             } else {

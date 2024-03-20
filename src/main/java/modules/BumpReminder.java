@@ -7,6 +7,7 @@ import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.bump.DBBump;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -35,7 +36,7 @@ public class BumpReminder {
 
         MainScheduler.schedule(Duration.ofMillis(millis), () -> {
             ShardManager.getLocalGuildById(ANINOSS_SERVER_ID)
-                    .map(guild -> guild.getTextChannelById(BUMP_CHANNEL_ID))
+                    .map(guild -> guild.getChannelById(GuildMessageChannel.class, BUMP_CHANNEL_ID))
                     .ifPresent(channel -> {
                         channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Führt `/bump` aus!")
                                 .setAllowedMentions(Collections.singleton(Message.MentionType.ROLE))

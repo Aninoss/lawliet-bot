@@ -14,7 +14,7 @@ import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardMemberComboBox
-import dashboard.components.DashboardTextChannelComboBox
+import dashboard.components.DashboardChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -32,10 +32,10 @@ import java.time.LocalDate
 import java.util.*
 
 @DashboardProperties(
-    id = "invitetracking",
-    userPermissions = [Permission.MANAGE_SERVER],
-    botPermissions = [Permission.MANAGE_SERVER],
-    commandAccessRequirements = [InviteTrackingCommand::class, InvitesManageCommand::class]
+        id = "invitetracking",
+        userPermissions = [Permission.MANAGE_SERVER],
+        botPermissions = [Permission.MANAGE_SERVER],
+        commandAccessRequirements = [InviteTrackingCommand::class, InvitesManageCommand::class]
 )
 class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
@@ -51,14 +51,14 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
         if (anyCommandsAreAccessible(InviteTrackingCommand::class)) {
             mainContainer.add(
-                generateActiveSwitch(inviteTrackingData),
-                generateLogsField(inviteTrackingData)
+                    generateActiveSwitch(inviteTrackingData),
+                    generateLogsField(inviteTrackingData)
             )
         }
 
         if (anyCommandsAreAccessible(InvitesManageCommand::class)) {
             mainContainer.add(
-                generateInvitesManageField(inviteTrackingData)
+                    generateInvitesManageField(inviteTrackingData)
             )
         }
     }
@@ -67,7 +67,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         val activeSwitch = DashboardSwitch(getString(Category.INVITE_TRACKING, "invitetracking_state0_mactive")) {
             if (!anyCommandsAreAccessible(InviteTrackingCommand::class)) {
                 return@DashboardSwitch ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             clearAttributes()
@@ -81,7 +81,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 InviteTracking.synchronizeGuildInvites(atomicGuild.get().orElseThrow(), locale)
             }
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         activeSwitch.isChecked = inviteTrackingData.isActive
 
@@ -94,20 +94,20 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         val title = DashboardTitle(getString(Category.INVITE_TRACKING, "invitetracking_log_title"))
         container.add(title)
 
-        val channelComboBox = DashboardTextChannelComboBox(
-            getString(Category.INVITE_TRACKING, "invitetracking_state0_mchannel"),
-            locale,
-            atomicGuild.idLong,
-            inviteTrackingData.textChannelId.orElse(null),
-            true
+        val channelComboBox = DashboardChannelComboBox(
+                this,
+                getString(Category.INVITE_TRACKING, "invitetracking_state0_mchannel"),
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
+                inviteTrackingData.channelId.orElse(null),
+                true
         ) {
             if (!anyCommandsAreAccessible(InviteTrackingCommand::class)) {
-                return@DashboardTextChannelComboBox ActionResult()
-                    .withRedraw()
+                return@DashboardChannelComboBox ActionResult()
+                        .withRedraw()
             }
 
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, atomicMember, inviteTrackingData.textChannelId.orElse(null), it.data)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, atomicMember, inviteTrackingData.channelId.orElse(null), it.data)
             entityManager.transaction.commit()
 
             inviteTrackingData.setChannelId(it.data?.toLong())
@@ -118,7 +118,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         val pingMembersSwitch = DashboardSwitch(getString(Category.INVITE_TRACKING, "invitetracking_state0_mping")) {
             if (!anyCommandsAreAccessible(InviteTrackingCommand::class)) {
                 return@DashboardSwitch ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             inviteTrackingData.ping = it.data
@@ -135,7 +135,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         val advancedSwitch = DashboardSwitch(getString(Category.INVITE_TRACKING, "invitetracking_state0_madvanced")) {
             if (!anyCommandsAreAccessible(InviteTrackingCommand::class)) {
                 return@DashboardSwitch ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             inviteTrackingData.isAdvanced = it.data
@@ -191,21 +191,21 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         memberContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
         val manageMemberComboBox = DashboardMemberComboBox(
-            getString(Category.INVITE_TRACKING, "invmanage_member"),
-            locale,
-            atomicGuild.idLong,
-            manageMember,
-            true
+                getString(Category.INVITE_TRACKING, "invmanage_member"),
+                locale,
+                atomicGuild.idLong,
+                manageMember,
+                true
         ) {
             if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
                 return@DashboardMemberComboBox ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             manageMember = it.data?.toLong()
             addInviteMember = null
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         manageMemberComboBox.isEnabled = premium
         if (manageMember != null && manageMember == 0L) {
@@ -216,13 +216,13 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         val vanityInviteButton = DashboardButton(getString(Category.INVITE_TRACKING, "invitetracking_dashboard_selectvanity")) {
             if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
                 return@DashboardButton ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             manageMember = 0L
             addInviteMember = null
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         vanityInviteButton.isEnabled = premium
         vanityInviteButton.setCanExpand(false)
@@ -232,17 +232,17 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
         if (manageMember != null) {
             val gridRows = inviteTrackingData.inviteTrackingSlots.values
-                .filter { it.inviterUserId == manageMember }
-                .map {
-                    val atomicMember = AtomicMember(atomicGuild.idLong, it.memberId)
-                    GridRow(it.memberId.toString(), arrayOf(atomicMember.getUsername(locale)))
-                }
+                    .filter { it.inviterUserId == manageMember }
+                    .map {
+                        val atomicMember = AtomicMember(atomicGuild.idLong, it.memberId)
+                        GridRow(it.memberId.toString(), arrayOf(atomicMember.getUsername(locale)))
+                    }
 
             if (!gridRows.isEmpty()) {
                 val invitesGrid = DashboardGrid(arrayOf(getString(Category.INVITE_TRACKING, "invmanage_invitedmember")), gridRows) {
                     if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
                         return@DashboardGrid ActionResult()
-                            .withRedraw()
+                                .withRedraw()
                     }
 
                     entityManager.transaction.begin()
@@ -252,7 +252,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
                     inviteTrackingData.inviteTrackingSlots.remove(it.data.toLong())
                     ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 }
                 invitesGrid.isEnabled = premium
                 invitesGrid.rowButton = getString(Category.INVITE_TRACKING, "invmanage_grid_delete")
@@ -261,7 +261,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 val resetAllButton = DashboardButton(getString(Category.INVITE_TRACKING, "invmanage_resetall")) {
                     if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
                         return@DashboardButton ActionResult()
-                            .withRedraw()
+                                .withRedraw()
                     }
 
                     entityManager.transaction.begin()
@@ -271,7 +271,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
                     DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(atomicGuild.idLong, manageMember!!.toLong())
                     ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 }
                 resetAllButton.style = DashboardButton.Style.DANGER
                 resetAllButton.isEnabled = premium
@@ -284,15 +284,15 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             addNewContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
             val addInviteMemberComboBox = DashboardMemberComboBox(
-                getString(Category.INVITE_TRACKING, "invmanage_invitedmember"),
-                locale,
-                atomicGuild.idLong,
-                addInviteMember,
-                true
+                    getString(Category.INVITE_TRACKING, "invmanage_invitedmember"),
+                    locale,
+                    atomicGuild.idLong,
+                    addInviteMember,
+                    true
             ) {
                 addInviteMember = it.data?.toLong()
                 ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
             manageMemberComboBox.isEnabled = premium
             addNewContainer.add(addInviteMemberComboBox)
@@ -300,12 +300,12 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             val addInviteButton = DashboardButton(getString(Category.INVITE_TRACKING, "invmanage_state1_title")) {
                 if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
                     return@DashboardButton ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 }
 
                 if (addInviteMember != null) {
                     val inviteTrackingSlot =
-                        InviteTrackingSlot(atomicGuild.idLong, addInviteMember!!, manageMember!!, LocalDate.now(), LocalDate.now(), true)
+                            InviteTrackingSlot(atomicGuild.idLong, addInviteMember!!, manageMember!!, LocalDate.now(), LocalDate.now(), true)
 
                     entityManager.transaction.begin()
                     BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, addInviteMember!!, null, listOf(manageMember!!))
@@ -315,10 +315,10 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     inviteTrackingData.inviteTrackingSlots[inviteTrackingSlot.memberId] = inviteTrackingSlot
                     addInviteMember = null
                     ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 } else {
                     ActionResult()
-                        .withErrorMessage(getString(Category.INVITE_TRACKING, "invmanage_unknownmember"))
+                            .withErrorMessage(getString(Category.INVITE_TRACKING, "invmanage_unknownmember"))
                 }
             }
             addInviteButton.style = DashboardButton.Style.PRIMARY

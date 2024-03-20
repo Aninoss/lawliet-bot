@@ -1,8 +1,5 @@
 package events.scheduleevents.events;
 
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
@@ -15,8 +12,11 @@ import events.scheduleevents.ScheduleEventDaily;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @ScheduleEventDaily
 public class CommandReleaseNotification implements ExceptionRunnable {
@@ -26,7 +26,7 @@ public class CommandReleaseNotification implements ExceptionRunnable {
         if (Program.publicInstance()) {
             AtomicBoolean newRelease = new AtomicBoolean(false);
             ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
-                    .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, 557960859792441357L))
+                    .map(guild -> guild.getChannelById(GuildMessageChannel.class, 557960859792441357L))
                     .ifPresent(channel -> {
                         CommandContainer.getCommandCategoryMap().values().forEach(list -> list.forEach(clazz -> {
                             Command command = CommandManager.createCommandByClass(clazz, Language.EN.getLocale(), "L.");
@@ -42,7 +42,7 @@ public class CommandReleaseNotification implements ExceptionRunnable {
 
             if (newRelease.get()) {
                 Guild guild = ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get();
-                TextChannel channel = guild.getTextChannelById(557960859792441357L);
+                GuildMessageChannel channel = guild.getChannelById(GuildMessageChannel.class, 557960859792441357L);
                 Role role = guild.getRoleById(703879430799622155L);
                 channel.sendMessage(role.getAsMention())
                         .setAllowedMentions(Collections.singleton(Message.MentionType.ROLE))

@@ -5,14 +5,14 @@ import commands.Command
 import commands.CommandContainer
 import commands.runnables.configurationcategory.CommandChannelShortcutsCommand
 import core.TextManager
-import core.atomicassets.AtomicStandardGuildMessageChannel
-import core.atomicassets.AtomicTextChannel
+import core.atomicassets.AtomicGuildMessageChannel
 import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
@@ -21,6 +21,7 @@ import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import java.util.*
 
 @DashboardProperties(
@@ -51,7 +52,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
     fun generateShortcutGrid(guild: Guild): DashboardComponent {
         val rows = commandChannelShortcuts.entries
                 .map {
-                    val atomicChannel = AtomicStandardGuildMessageChannel(guild.idLong, it.key)
+                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.key)
                     val values = arrayOf(atomicChannel.getPrefixedName(locale), it.value)
                     GridRow(it.key.toString(), values)
                 }
@@ -83,14 +84,14 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         horizontalContainerer.allowWrap = true
 
         val channelLabel = getString(Category.CONFIGURATION, "ccshortcuts_add_channel")
-        val channelComboBox = DashboardComboBox(channelLabel, DashboardComboBox.DataType.TEXT_CHANNELS, false, 1) {
+        val channelComboBox = DashboardChannelComboBox(this, channelLabel, DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS, null, false) {
             channelId = it.data.toLong()
             ActionResult()
                     .withRedraw()
         }
         channelComboBox.isEnabled = isPremium
         if (channelId != null) {
-            val atomicChannel = AtomicTextChannel(atomicGuild.idLong, channelId!!)
+            val atomicChannel = AtomicGuildMessageChannel(atomicGuild.idLong, channelId!!)
             channelComboBox.selectedValues = listOf(DiscordEntity(channelId.toString(), atomicChannel.getPrefixedName(locale)))
         }
         horizontalContainerer.add(channelComboBox)
@@ -119,7 +120,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
                         .withRedraw()
             }
 
-            val channel = channelId?.let { guild.getTextChannelById(it.toString()) }
+            val channel = channelId?.let { guild.getChannelById(GuildMessageChannel::class.java, it.toString()) }
             if (channel == null) { /* invalid channel */
                 return@DashboardButton ActionResult()
                         .withRedraw()

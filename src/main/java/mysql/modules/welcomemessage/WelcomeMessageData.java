@@ -1,13 +1,14 @@
 package mysql.modules.welcomemessage;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import core.utils.BotPermissionUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class WelcomeMessageData extends DataWithGuild {
 
@@ -66,26 +67,33 @@ public class WelcomeMessageData extends DataWithGuild {
         return goodbyeChannelId;
     }
 
-    public Optional<TextChannel> getWelcomeChannel() {
-        Optional<TextChannel> channelOpt = getGuild()
-                .map(guild -> Optional.ofNullable(guild.getTextChannelById(welcomeChannelId)).orElseGet(() -> getDefaultChannel(guild, true)));
+    public Optional<GuildMessageChannel> getWelcomeChannel() {
+        Optional<GuildMessageChannel> channelOpt = getGuild()
+                .map(guild -> Optional.ofNullable(guild.getChannelById(GuildMessageChannel.class, welcomeChannelId)).orElseGet(() -> getDefaultChannel(guild, true)));
         channelOpt.ifPresent(channel -> setWelcomeChannelId(channel.getIdLong()));
         return channelOpt;
     }
 
-    public Optional<TextChannel> getGoodbyeChannel() {
-        Optional<TextChannel> channelOpt = getGuild()
-                .map(guild -> Optional.ofNullable(guild.getTextChannelById(goodbyeChannelId)).orElseGet(() -> getDefaultChannel(guild, false)));
+    public Optional<GuildMessageChannel> getGoodbyeChannel() {
+        Optional<GuildMessageChannel> channelOpt = getGuild()
+                .map(guild -> Optional.ofNullable(guild.getChannelById(GuildMessageChannel.class, goodbyeChannelId)).orElseGet(() -> getDefaultChannel(guild, false)));
         channelOpt.ifPresent(channel -> setGoodbyeChannelId(channel.getIdLong()));
         return channelOpt;
     }
 
-    private TextChannel getDefaultChannel(Guild guild, boolean attachFiles) {
-        List<TextChannel> writeableChannels = guild.getTextChannels().stream()
+    private GuildMessageChannel getDefaultChannel(Guild guild, boolean attachFiles) {
+        if (guild.getSystemChannel() != null) {
+            return guild.getSystemChannel();
+        }
+
+        List<GuildMessageChannel> writeableChannels = guild.getChannelCache().stream()
+                .filter(channel -> channel instanceof GuildMessageChannel)
+                .map(channel -> (GuildMessageChannel)  channel)
+                .sorted()
                 .filter(channel -> BotPermissionUtil.canWriteEmbed(channel) &&
                         (!attachFiles || BotPermissionUtil.can(channel, Permission.MESSAGE_ATTACH_FILES)))
                 .collect(Collectors.toList());
-        return Optional.ofNullable(guild.getSystemChannel()).orElse(writeableChannels.size() > 0 ? writeableChannels.get(0) : null);
+        return !writeableChannels.isEmpty() ? writeableChannels.get(0) : null;
     }
 
     public boolean isWelcomeActive() {

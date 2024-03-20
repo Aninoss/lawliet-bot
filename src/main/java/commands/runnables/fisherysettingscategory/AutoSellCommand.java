@@ -140,7 +140,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
             }
             default -> {
                 String thresholdValueText = currentThreshold == null
-                        ? StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), false)
+                        ? StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), false)
                         : getString("threshold_fish", StringUtil.numToString(currentThreshold));
                 String thresholdText = getString("threshold", thresholdValueText);
                 return EmbedFactory.getEmbedDefault(this, getCommandLanguage().getDescLong() + thresholdText);

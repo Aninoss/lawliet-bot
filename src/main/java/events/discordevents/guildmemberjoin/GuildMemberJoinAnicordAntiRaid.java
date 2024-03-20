@@ -7,6 +7,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import mysql.hibernate.EntityManagerWrapper;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
 import java.time.Duration;
@@ -40,7 +41,7 @@ public class GuildMemberJoinAnicordAntiRaid extends GuildMemberJoinAbstract {
                             .setInvitesDisabled(true)
                             .reason("Raid Protection")
                             .queue();
-                    event.getGuild().getTextChannelById(462420339364724751L)
+                    event.getGuild().getChannelById(GuildMessageChannel.class, 462420339364724751L)
                             .sendMessage("Raid wurde erkannt! Invites zum Server sind temporär deaktiviert.")
                             .queue();
 

@@ -12,7 +12,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
-import dashboard.components.DashboardTextChannelComboBox
+import dashboard.components.DashboardChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -23,13 +23,13 @@ import mysql.modules.welcomemessage.DBWelcomeMessage
 import mysql.modules.welcomemessage.WelcomeMessageData
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import java.util.*
 
 @DashboardProperties(
-    id = "welcome",
-    userPermissions = [Permission.MANAGE_SERVER],
-    commandAccessRequirements = [WelcomeCommand::class]
+        id = "welcome",
+        userPermissions = [Permission.MANAGE_SERVER],
+        commandAccessRequirements = [WelcomeCommand::class]
 )
 class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
@@ -43,9 +43,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val welcomeData = DBWelcomeMessage.getInstance().retrieve(atomicGuild.idLong)
 
         mainContainer.add(
-            generateWelcomeField(guild, welcomeData),
-            generateDMField(welcomeData),
-            generateLeaveField(guild, welcomeData)
+                generateWelcomeField(guild, welcomeData),
+                generateDMField(welcomeData),
+                generateLeaveField(guild, welcomeData)
         )
     }
 
@@ -65,9 +65,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
-            getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
-            1,
-            WelcomeCommand.MAX_WELCOME_DESCRIPTION_LENGTH
+                getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
+                1,
+                WelcomeCommand.MAX_WELCOME_DESCRIPTION_LENGTH
         ) {
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_TEXT, atomicMember, welcomeData.welcomeText, it.data)
@@ -91,19 +91,19 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         embedSwitch.isChecked = welcomeData.welcomeEmbed
         container.add(embedSwitch, DashboardSeparator())
 
-        val channelComboBox = DashboardTextChannelComboBox(
-            getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
-            locale,
-            atomicGuild.idLong,
-            welcomeData.welcomeChannelId,
-            false
+        val channelComboBox = DashboardChannelComboBox(
+                this,
+                getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
+                welcomeData.welcomeChannelId,
+                false
         ) {
             val channelId = it.data.toLong()
-            val channel = guild.getChannelById(StandardGuildMessageChannel::class.java, channelId)!!
+            val channel = guild.getChannelById(GuildMessageChannel::class.java, channelId)!!
             if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) { /* no permissions in channel */
-                return@DashboardTextChannelComboBox ActionResult()
-                    .withRedraw()
-                    .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
+                return@DashboardChannelComboBox ActionResult()
+                        .withRedraw()
+                        .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
             }
 
             entityManager.transaction.begin()
@@ -112,7 +112,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             welcomeData.welcomeChannelId = channelId
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         container.add(channelComboBox)
 
@@ -137,9 +137,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(bannerSwitch, DashboardSeparator())
 
         val titleField = DashboardTextField(
-            getString(Category.CONFIGURATION, "welcome_state0_mtitle"),
-            1,
-            WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
+                getString(Category.CONFIGURATION, "welcome_state0_mtitle"),
+                1,
+                WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
         ) {
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNER_TITLE, atomicMember, welcomeData.welcomeTitle, it.data)
@@ -164,7 +164,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             renderBannerPreview = true
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         container.add(imageUpload)
 
@@ -178,7 +178,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val previewButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_dashboard_preview")) {
             renderBannerPreview = true
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         previewButton.style = DashboardButton.Style.PRIMARY
 
@@ -192,7 +192,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             renderBannerPreview = true
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         resetButton.style = DashboardButton.Style.DANGER
 
@@ -217,9 +217,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
-            getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
-            1,
-            WelcomeCommand.MAX_DM_DESCRIPTION_LENGTH
+                getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
+                1,
+                WelcomeCommand.MAX_DM_DESCRIPTION_LENGTH
         ) {
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_TEXT, atomicMember, welcomeData.dmText, it.data)
@@ -262,9 +262,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
-            getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
-            1,
-            WelcomeCommand.MAX_FAREWELL_DESCRIPTION_LENGTH
+                getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
+                1,
+                WelcomeCommand.MAX_FAREWELL_DESCRIPTION_LENGTH
         ) {
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_TEXT, atomicMember, welcomeData.goodbyeText, it.data)
@@ -288,19 +288,19 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         embedSwitch.isChecked = welcomeData.goodbyeEmbed
         container.add(embedSwitch, DashboardSeparator())
 
-        val channelComboBox = DashboardTextChannelComboBox(
-            getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
-            locale,
-            atomicGuild.idLong,
-            welcomeData.goodbyeChannelId,
-            false
+        val channelComboBox = DashboardChannelComboBox(
+                this,
+                getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
+                welcomeData.goodbyeChannelId,
+                false
         ) {
             val channelId = it.data.toLong()
-            val channel = guild.getChannelById(StandardGuildMessageChannel::class.java, channelId)!!
+            val channel = guild.getChannelById(GuildMessageChannel::class.java, channelId)!!
             if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) { /* no permissions in channel */
-                return@DashboardTextChannelComboBox ActionResult()
-                    .withRedraw()
-                    .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
+                return@DashboardChannelComboBox ActionResult()
+                        .withRedraw()
+                        .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
             }
 
             entityManager.transaction.begin()
@@ -309,7 +309,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             welcomeData.goodbyeChannelId = it.data.toLong()
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         container.add(channelComboBox)
 

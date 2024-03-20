@@ -9,15 +9,18 @@ import mysql.modules.userprivatechannels.PrivateChannelData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.attribute.IAgeRestrictedChannel;
+import net.dv8tion.jda.api.entities.channel.attribute.ICategorizableChannel;
+import net.dv8tion.jda.api.entities.channel.attribute.IMemberContainer;
+import net.dv8tion.jda.api.entities.channel.attribute.IPositionableChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
-import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
+import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
@@ -27,13 +30,14 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.CheckReturnValue;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class JDAUtil {
 
-    public static Optional<TextChannel> getFirstWritableChannelOfGuild(Guild guild) {
+    public static Optional<TextChannel> getFirstWritableTextChannelOfGuild(Guild guild) {
         if (guild.getSystemChannel() != null && BotPermissionUtil.canWriteEmbed(guild.getSystemChannel())) {
             return Optional.of(guild.getSystemChannel());
         } else {
@@ -52,10 +56,7 @@ public class JDAUtil {
             content = content.replace(MentionUtil.getUserAsMention(member.getIdLong(), true), "@" + StringUtil.escapeMarkdownInField(member.getEffectiveName()))
                     .replace(MentionUtil.getUserAsMention(member.getIdLong(), false), "@" + StringUtil.escapeMarkdownInField(member.getEffectiveName()));
         }
-        for (TextChannel channel : guild.getTextChannels()) {
-            content = content.replace(channel.getAsMention(), "#" + StringUtil.escapeMarkdownInField(channel.getName()));
-        }
-        for (VoiceChannel channel : guild.getVoiceChannels()) {
+        for (GuildChannel channel : guild.getChannelCache()) {
             content = content.replace(channel.getAsMention(), "#" + StringUtil.escapeMarkdownInField(channel.getName()));
         }
         for (Role role : guild.getRoles()) {
@@ -172,8 +173,8 @@ public class JDAUtil {
         return messageActionSetMessageReference(messageAction, guildEntity, originalMessage.getGuildChannel(), originalMessage.getIdLong());
     }
 
-    public static MessageCreateAction messageActionSetMessageReference(MessageCreateAction messageAction, GuildEntity guildEntity, GuildChannel textChannel, long messageId) {
-        if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_HISTORY) &&
+    public static MessageCreateAction messageActionSetMessageReference(MessageCreateAction messageAction, GuildEntity guildEntity, GuildChannel channel, long messageId) {
+        if (BotPermissionUtil.can(channel, Permission.MESSAGE_HISTORY) &&
                 !guildEntity.getRemoveAuthorMessageEffectively()
         ) {
             messageAction = messageAction.setMessageReference(messageId);
@@ -190,16 +191,84 @@ public class JDAUtil {
                 messageType == MessageType.THREAD_STARTER_MESSAGE;
     }
 
-    public static boolean guildMessageChannelIsNsfw(GuildMessageChannel channel) {
-        if (channel instanceof StandardGuildMessageChannel) {
-            return ((StandardGuildMessageChannel) channel).isNSFW();
+    public static boolean channelIsNsfw(Channel channel) {
+        if (channel instanceof IAgeRestrictedChannel) {
+            return ((IAgeRestrictedChannel) channel).isNSFW();
         }
-        if (channel instanceof ThreadChannel &&
-                ((ThreadChannel) channel).getParentChannel() instanceof GuildMessageChannelUnion
-        ) {
-            GuildMessageChannelUnion parentMessageChannel = ((ThreadChannel) channel).getParentMessageChannel();
-            if (parentMessageChannel instanceof StandardGuildMessageChannel) {
-                return ((StandardGuildMessageChannel) parentMessageChannel).isNSFW();
+        if (channel instanceof ThreadChannel) {
+            IThreadContainerUnion parentChannel = ((ThreadChannel) channel).getParentChannel();
+            if (parentChannel instanceof IAgeRestrictedChannel) {
+                return ((IAgeRestrictedChannel) parentChannel).isNSFW();
+            }
+        }
+        return false;
+    }
+
+    public static List<Member> getChannelMembers(Channel channel) {
+        if (channel instanceof IMemberContainer) {
+            return ((IMemberContainer) channel).getMembers();
+        }
+        return Collections.emptyList();
+    }
+
+    public static int getChannelPositionRaw(Channel channel) {
+        if (channel instanceof IPositionableChannel) {
+            return ((IPositionableChannel) channel).getPositionRaw();
+        }
+        if (channel instanceof ThreadChannel) {
+            IThreadContainerUnion parentChannel = ((ThreadChannel) channel).getParentChannel();
+            if (parentChannel instanceof IPositionableChannel) {
+                return ((IPositionableChannel) parentChannel).getPositionRaw();
+            }
+        }
+        return -1;
+    }
+
+    public static boolean channelOrParentEqualsId(Channel channel, long channelId) {
+        if (channel.getIdLong() == channelId) {
+            return true;
+        }
+        if (channel instanceof ThreadChannel) {
+            IThreadContainerUnion parentChannel = ((ThreadChannel) channel).getParentChannel();
+            if (parentChannel.getIdLong() == channelId) {
+                return true;
+            }
+            if (parentChannel instanceof ICategorizableChannel) {
+                Category parentCategory = ((ICategorizableChannel) parentChannel).getParentCategory();
+                if (parentCategory != null && parentCategory.getIdLong() == channelId) {
+                    return true;
+                }
+            }
+        }
+        if (channel instanceof ICategorizableChannel) {
+            Category parentCategory = ((ICategorizableChannel) channel).getParentCategory();
+            if (parentCategory != null && parentCategory.getIdLong() == channelId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean collectionContainsChannelOrParent(Collection<Long> channelIds, Channel channel) {
+        if (channelIds.contains(channel.getIdLong())) {
+            return true;
+        }
+        if (channel instanceof ThreadChannel) {
+            IThreadContainerUnion parentChannel = ((ThreadChannel) channel).getParentChannel();
+            if (channelIds.contains(parentChannel.getIdLong())) {
+                return true;
+            }
+            if (parentChannel instanceof ICategorizableChannel) {
+                Category parentCategory = ((ICategorizableChannel) parentChannel).getParentCategory();
+                if (parentCategory != null && channelIds.contains(parentCategory.getIdLong())) {
+                    return true;
+                }
+            }
+        }
+        if (channel instanceof ICategorizableChannel) {
+            Category parentCategory = ((ICategorizableChannel) channel).getParentCategory();
+            if (parentCategory != null && channelIds.contains(parentCategory.getIdLong())) {
+                return true;
             }
         }
         return false;

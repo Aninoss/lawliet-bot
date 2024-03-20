@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -89,7 +89,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         }
     }
 
-    private void generateBannerAndSendMessage(Member member, WelcomeMessageData welcomeMessageData, TextChannel channel, Locale locale) {
+    private void generateBannerAndSendMessage(Member member, WelcomeMessageData welcomeMessageData, GuildMessageChannel channel, Locale locale) {
         if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
             return;
         }
@@ -98,7 +98,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                 .thenAccept(image -> sendMessage(member, welcomeMessageData, channel, locale, image));
     }
 
-    private void sendMessage(Member member, WelcomeMessageData welcomeMessageData, TextChannel channel, Locale locale, InputStream image) {
+    private void sendMessage(Member member, WelcomeMessageData welcomeMessageData, GuildMessageChannel channel, Locale locale, InputStream image) {
         if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             return;
         }

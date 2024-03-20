@@ -8,7 +8,7 @@ import constants.ExceptionIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.atomicassets.AtomicStandardGuildMessageChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.cache.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -55,7 +55,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     private boolean interrupt = false;
     private List<Member> memberFilter;
     private long amount;
-    StandardGuildMessageChannel channel;
+    GuildMessageChannel channel;
 
     public ClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -63,9 +63,9 @@ public class ClearCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
-        MentionList<StandardGuildMessageChannel> channelMention = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), args);
+        MentionList<GuildMessageChannel> channelMention = MentionUtil.getGuildMessageChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
-        channel = event.getTextChannel();
+        channel = event.getMessageChannel();
         if (!channelMention.getList().isEmpty()) {
             channel = channelMention.getList().get(0);
         }
@@ -119,16 +119,16 @@ public class ClearCommand extends Command implements OnButtonListener {
 
         RestAction<Void> restAction;
         if (event.isMessageReceivedEvent()) {
-            restAction = event.getTextChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
+            restAction = event.getMessageChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
         } else {
-            restAction = event.getTextChannel().deleteMessageById(messageId);
+            restAction = event.getMessageChannel().deleteMessageById(messageId);
         }
         restAction.submitAfter(8, TimeUnit.SECONDS)
                 .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
         return true;
     }
 
-    private ClearResults clear(StandardGuildMessageChannel channel, boolean patreon, int count, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
+    private ClearResults clear(GuildMessageChannel channel, boolean patreon, int count, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean skipped = false;
         MessageHistory messageHistory = channel.getHistory();
@@ -159,7 +159,7 @@ public class ClearCommand extends Command implements OnButtonListener {
                 }
             }
 
-            if (messagesDelete.size() >= 1 && !interrupt) {
+            if (!messagesDelete.isEmpty() && !interrupt) {
                 if (messagesDelete.size() == 1) {
                     messagesDelete.get(0).delete().complete();
                 } else {
@@ -212,9 +212,9 @@ public class ClearCommand extends Command implements OnButtonListener {
         if (!interrupt) {
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             if (memberFilter.isEmpty()) {
-                return EmbedFactory.getEmbedDefault(this, getString("progress", String.valueOf(amount), new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(getLocale()), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+                return EmbedFactory.getEmbedDefault(this, getString("progress", String.valueOf(amount), new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().get())));
             } else {
-                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", String.valueOf(amount), MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(getLocale()), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", String.valueOf(amount), MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().get())));
             }
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));

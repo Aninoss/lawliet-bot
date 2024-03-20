@@ -9,6 +9,7 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
+import core.utils.JDAUtil
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -47,7 +48,7 @@ class NSFWAdapter : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
-        if (event.channel!!.asTextChannel().isNSFW) {
+        if (JDAUtil.channelIsNsfw(event.channel)) {
             val userText = event.focusedOption.value
             val choiceList = ArrayList<Command.Choice>()
             for (clazz in CommandContainer.getFullCommandList()) {
@@ -55,7 +56,7 @@ class NSFWAdapter : SlashAdapter() {
                 val commandTrigger = commandProperties.trigger
                 val triggers = mutableListOf(commandTrigger)
                 if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commandProperties.nsfw &&
-                    CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.channel!!.asTextChannel())
+                    CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.guildChannel)
                 ) {
                     triggers.addAll(commandProperties.aliases)
                     if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {

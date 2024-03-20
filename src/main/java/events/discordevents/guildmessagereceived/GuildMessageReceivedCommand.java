@@ -25,7 +25,6 @@ import mysql.hibernate.entity.guild.CustomCommandEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autoquote.DBAutoQuote;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -113,7 +112,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                 Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                 if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
                     Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
-                    if (event.getChannel() instanceof TextChannel && CommandManager.commandIsEnabledEffectively(guildEntity, helpCommand, event.getMember(), event.getChannel().asTextChannel())) {
+                    if (CommandManager.commandIsEnabledEffectively(guildEntity, helpCommand, event.getMember(), event.getGuildChannel())) {
                         args = command.getTrigger();
                         command = helpCommand;
                         command.getAttachments().put("noargs", true);

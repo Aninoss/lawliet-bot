@@ -1,6 +1,5 @@
 package commands.runnables;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import core.EmbedFactory;
@@ -12,8 +11,10 @@ import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 public abstract class MemberAccountAbstract extends Command {
 
@@ -45,7 +46,7 @@ public abstract class MemberAccountAbstract extends Command {
         return null;
     }
 
-    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) throws Throwable {
+    protected void sendMessage(Member member, GuildMessageChannel channel, EmbedBuilder eb) throws Throwable {
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
     }
 
@@ -58,12 +59,12 @@ public abstract class MemberAccountAbstract extends Command {
             User user = requireMemberMention ? null : event.getMember().getUser();
             MentionList<User> userMention = MentionUtil.getUsers(event.getGuild(), args, event.getRepliedMember());
 
-            if (userMention.getList().size() > 0) {
+            if (!userMention.getList().isEmpty()) {
                 user = userMention.getList().get(0);
                 userMentioned = true;
-            } else if (args.length() > 0) {
+            } else if (!args.isEmpty()) {
                 userMention = MentionUtil.getUsersFromString(args, true).get();
-                if (userMention.getList().size() > 0) {
+                if (!userMention.getList().isEmpty()) {
                     user = userMention.getList().get(0);
                     userMentioned = true;
                 }
@@ -107,12 +108,12 @@ public abstract class MemberAccountAbstract extends Command {
         if (eb != null) {
             if (!userMentioned) {
                 EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
-                if (args.length() > 0 && !found) {
+                if (!args.isEmpty() && !found) {
                     EmbedUtil.addNoResultsLog(eb, getLocale(), args);
                 }
             }
 
-            sendMessage(event.getMember(), event.getTextChannel(), eb);
+            sendMessage(event.getMember(), event.getMessageChannel(), eb);
         }
 
         return true;

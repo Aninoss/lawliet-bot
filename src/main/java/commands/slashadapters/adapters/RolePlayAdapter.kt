@@ -50,7 +50,7 @@ class RolePlayAdapter : SlashAdapter() {
             val commandTrigger = commandProperties.trigger
             val commandCategory = Command.getCategory(clazz);
             if (commandCategory == Category.INTERACTIONS &&
-                CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.channel!!.asTextChannel())
+                CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.guildChannel)
             ) {
                 val triggers = mutableListOf(commandTrigger)
                 triggers.addAll(commandProperties.aliases)

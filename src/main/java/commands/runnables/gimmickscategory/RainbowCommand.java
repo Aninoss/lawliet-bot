@@ -1,8 +1,5 @@
 package commands.runnables.gimmickscategory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
@@ -15,9 +12,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "rainbow",
@@ -53,7 +54,7 @@ public class RainbowCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
+    protected void sendMessage(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
         addFileAttachment(inputStream, "avatar.png");
         drawMessage(eb)
                 .thenAccept(message -> {

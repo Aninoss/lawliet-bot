@@ -8,6 +8,7 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
+import core.utils.JDAUtil
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -49,8 +50,8 @@ class HelpAdapter : SlashAdapter() {
             val commandProperties = commands.Command.getCommandProperties(clazz)
             val commandTrigger = commandProperties.trigger
             val triggers = mutableListOf(commandTrigger)
-            if ((!commandProperties.nsfw || event.channel!!.asTextChannel().isNSFW) &&
-                CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.channel!!.asTextChannel())
+            if ((!commandProperties.nsfw || JDAUtil.channelIsNsfw(event.channel)) &&
+                CommandManager.commandIsEnabledEffectively(guildEntity, clazz, event.member, event.guildChannel)
             ) {
                 triggers.addAll(commandProperties.aliases)
                 if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {

@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 
 import java.time.temporal.ChronoUnit;
@@ -51,7 +51,7 @@ public class DiscordResourcesBackup implements ExceptionRunnable {
         }
     }
 
-    private static void backupMessageFilesChannel(Category category, TextChannel channel) {
+    private static void backupMessageFilesChannel(Category category, GuildMessageChannel channel) {
         MessageHistory history = channel.getHistory();
         boolean full  = true;
         while (full) {

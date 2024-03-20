@@ -8,7 +8,7 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.LocalFile;
 import core.TextManager;
-import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.components.ActionRows;
 import core.utils.FileUtil;
 import core.utils.InternetUtil;
@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -43,7 +43,7 @@ import java.util.concurrent.ExecutionException;
 @CommandProperties(
         trigger = "welcome",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        userGuildPermissions = { Permission.MANAGE_SERVER },
+        userGuildPermissions = {Permission.MANAGE_SERVER},
         emoji = "🙋",
         usesExtEmotes = true,
         executableWithoutArgs = true
@@ -111,7 +111,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return MessageInputResponse.FAILED;
 
             case 3:
-                List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
+                List<GuildMessageChannel> channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
                 if (channelList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -167,7 +167,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return MessageInputResponse.FAILED;
 
             case 7:
-                channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
+                channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
                 if (channelList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -374,33 +374,28 @@ public class WelcomeCommand extends NavigationAbstract {
             actionRows.add(generateSelectMenu());
             setActionRows(actionRows);
 
-            TextChannel textChannel = getTextChannel().get();
-            switch (category) {
-                case 0:
-                    return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_join"))
-                            .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.isWelcomeActive()), true)
-                            .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getWelcomeText()), 1024), true)
-                            .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.getWelcomeEmbed()), true)
-                            .addField(getString("state0_mchannel"), welcomeMessageData.getWelcomeChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
-                            .addField(getString("state0_mbanner"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.getBanner()), true)
-                            .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageData.getWelcomeTitle()), true);
-
-                case 1:
-                    return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_dm"))
-                            .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.isDmActive()), true)
-                            .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getDmText()), 1024), true)
-                            .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.getDmEmbed()), true);
-
-                case 2:
-                    return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_leave"))
-                            .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.isGoodbyeActive()), true)
-                            .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getGoodbyeText()), 1024), true)
-                            .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.getGoodbyeEmbed()), true)
-                            .addField(getString("state0_mchannel"), welcomeMessageData.getGoodbyeChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
-
-                default:
-                    throw new UnsupportedOperationException("Invalid category");
-            }
+            GuildMessageChannel channel = getGuildMessageChannel().get();
+            return switch (category) {
+                case 0 ->
+                        EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_join"))
+                                .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isWelcomeActive()), true)
+                                .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getWelcomeText()), 1024), true)
+                                .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getWelcomeEmbed()), true)
+                                .addField(getString("state0_mchannel"), welcomeMessageData.getWelcomeChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
+                                .addField(getString("state0_mbanner"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getBanner()), true)
+                                .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageData.getWelcomeTitle()), true);
+                case 1 -> EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_dm"))
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isDmActive()), true)
+                        .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getDmText()), 1024), true)
+                        .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getDmEmbed()), true);
+                case 2 ->
+                        EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_leave"))
+                                .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isGoodbyeActive()), true)
+                                .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getGoodbyeText()), 1024), true)
+                                .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getGoodbyeEmbed()), true)
+                                .addField(getString("state0_mchannel"), welcomeMessageData.getGoodbyeChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
+                default -> throw new UnsupportedOperationException("Invalid category");
+            };
         } else if (state == 5) {
             return getWelcomeMessageTest(member);
         }

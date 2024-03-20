@@ -6,8 +6,8 @@ import core.MainLogger;
 import core.Program;
 import core.TextManager;
 import core.atomicassets.AtomicGuild;
+import core.atomicassets.AtomicGuildMessageChannel;
 import core.atomicassets.AtomicMember;
-import core.atomicassets.AtomicTextChannel;
 import core.components.ActionRows;
 import core.interactionresponse.InteractionResponse;
 import core.schedule.MainScheduler;
@@ -23,8 +23,7 @@ import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -56,7 +55,7 @@ public abstract class Command implements OnTriggerListener {
     private final JSONObject attachments = new JSONObject();
     private final ArrayList<Runnable> completedListeners = new ArrayList<>();
     private AtomicGuild atomicGuild;
-    private AtomicTextChannel atomicTextChannel;
+    private AtomicGuildMessageChannel atomicGuildMessageChannel;
     private AtomicMember atomicMember;
     private Message drawMessage = null;
     private LogStatus logStatus = null;
@@ -188,7 +187,7 @@ public abstract class Command implements OnTriggerListener {
     }
 
     private CompletableFuture<Message> drawMessage(EmbedBuilder eb, boolean newMessage) {
-        TextChannel channel = getTextChannel().orElse(null);
+        GuildMessageChannel channel = getGuildMessageChannel().orElse(null);
         if (channel != null) {
             if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isSlashCommandInteractionEvent()) {
                 EmbedUtil.addLog(eb, logStatus, log);
@@ -202,12 +201,12 @@ public abstract class Command implements OnTriggerListener {
     }
 
     private CompletableFuture<Message> drawMessage(String content, boolean newMessage) {
-        return getTextChannel()
+        return getGuildMessageChannel()
                 .map(channel -> drawMessage(channel, content, null, newMessage))
                 .orElse(CompletableFuture.failedFuture(new NoSuchElementException("No such channel")));
     }
 
-    private synchronized CompletableFuture<Message> drawMessage(TextChannel channel, String content, EmbedBuilder eb, boolean newMessage) {
+    private synchronized CompletableFuture<Message> drawMessage(GuildMessageChannel channel, String content, EmbedBuilder eb, boolean newMessage) {
         List<MessageEmbed> additionalEmbeds = this.additionalEmbeds;
         List<ActionRow> actionRows = this.actionRows;
         Map<String, InputStream> fileAttachmentMap = this.fileAttachmentMap;
@@ -267,7 +266,7 @@ public abstract class Command implements OnTriggerListener {
         return future;
     }
 
-    private RestAction<Message> drawMessageProcessNew(TextChannel channel, String content, ArrayList<MessageEmbed> embeds,
+    private RestAction<Message> drawMessageProcessNew(GuildMessageChannel channel, String content, ArrayList<MessageEmbed> embeds,
                                                       List<ActionRow> actionRows, Map<String, InputStream> fileAttachmentMap,
                                                       Collection<Message.MentionType> allowedMentions, boolean forceTextMessage
     ) {
@@ -283,10 +282,10 @@ public abstract class Command implements OnTriggerListener {
                 }
             } else {
                 if (content != null) {
-                    messageAction = commandEvent.getTextChannel().sendMessage(content)
+                    messageAction = commandEvent.getMessageChannel().sendMessage(content)
                             .setEmbeds(embeds);
                 } else {
-                    messageAction = commandEvent.getTextChannel().sendMessageEmbeds(embeds);
+                    messageAction = commandEvent.getMessageChannel().sendMessageEmbeds(embeds);
                 }
             }
         } else {
@@ -309,7 +308,7 @@ public abstract class Command implements OnTriggerListener {
         return messageAction.setComponents(actionRows);
     }
 
-    private RestAction<Message> drawMessageProcessEdit(TextChannel channel, String content, ArrayList<MessageEmbed> embeds,
+    private RestAction<Message> drawMessageProcessEdit(GuildMessageChannel channel, String content, ArrayList<MessageEmbed> embeds,
                                                        List<ActionRow> actionRows, Collection<Message.MentionType> allowedMentions
     ) {
         if (interactionResponse != null &&
@@ -330,7 +329,7 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    private void processAction(TextChannel channel, String content, ArrayList<MessageEmbed> embeds, List<ActionRow> actionRows,
+    private void processAction(GuildMessageChannel channel, String content, ArrayList<MessageEmbed> embeds, List<ActionRow> actionRows,
                                Map<String, InputStream> fileAttachmentMap, Collection<Message.MentionType> allowedMentions,
                                boolean newMessage, RestAction<Message> action, CompletableFuture<Message> future,
                                boolean handleUnknownInteractionExceptions
@@ -420,7 +419,7 @@ public abstract class Command implements OnTriggerListener {
                 .put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
     }
 
-    public void registerStaticReactionMessage(StandardGuildMessageChannel channel, long messageId) {
+    public void registerStaticReactionMessage(GuildMessageChannel channel, long messageId) {
         DBStaticReactionMessages.getInstance()
                 .retrieve(channel.getGuild().getIdLong())
                 .put(messageId, new StaticReactionMessageData(
@@ -605,9 +604,9 @@ public abstract class Command implements OnTriggerListener {
         atomicGuild = new AtomicGuild(guild);
     }
 
-    public void setAtomicAssets(TextChannel textChannel, Member member) {
-        atomicGuild = new AtomicGuild(textChannel.getGuild());
-        atomicTextChannel = new AtomicTextChannel(textChannel);
+    public void setAtomicAssets(GuildMessageChannel channel, Member member) {
+        atomicGuild = new AtomicGuild(channel.getGuild());
+        atomicGuildMessageChannel = new AtomicGuildMessageChannel(channel);
         atomicMember = new AtomicMember(member);
         memberEffectiveName = member.getEffectiveName();
         memberMention = member.getAsMention();
@@ -670,9 +669,9 @@ public abstract class Command implements OnTriggerListener {
                 .flatMap(AtomicGuild::get);
     }
 
-    public Optional<TextChannel> getTextChannel() {
-        return Optional.ofNullable(atomicTextChannel)
-                .flatMap(AtomicTextChannel::get);
+    public Optional<GuildMessageChannel> getGuildMessageChannel() {
+        return Optional.ofNullable(atomicGuildMessageChannel)
+                .flatMap(AtomicGuildMessageChannel::get);
     }
 
     public Optional<Member> getMember() {
@@ -701,9 +700,9 @@ public abstract class Command implements OnTriggerListener {
                 .map(AtomicGuild::getIdLong);
     }
 
-    public Optional<Long> getTextChannelId() {
-        return Optional.ofNullable(atomicTextChannel)
-                .map(AtomicTextChannel::getIdLong);
+    public Optional<Long> getChannelId() {
+        return Optional.ofNullable(atomicGuildMessageChannel)
+                .map(AtomicGuildMessageChannel::getIdLong);
     }
 
     public Optional<Long> getMemberId() {
