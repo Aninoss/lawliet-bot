@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "69",
@@ -25,7 +26,8 @@ public class SixtyNineCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/969973669126340758/969974337576796180/69.gif",
                 "https://cdn.discordapp.com/attachments/969973669126340758/969974368648175706/69.gif",
                 "https://cdn.discordapp.com/attachments/969973669126340758/969974394178928660/69.gif",
-                "https://cdn.discordapp.com/attachments/969973669126340758/969974427569762314/69.gif"
+                "https://cdn.discordapp.com/attachments/969973669126340758/969974427569762314/69.gif",
+                "https://cdn.discordapp.com/attachments/969973669126340758/1220286428055867443/69.gif"
         );
     }
 
