@@ -266,6 +266,7 @@ public class CommandContainer {
         commandList.add(TittyFuckCommand.class);
         commandList.add(YaoiFuckCommand.class);
         commandList.add(YuriFuckCommand.class);
+        commandList.add(BathroomFuckCommand.class);
 
         //EXTERNAL
         commandList.add(RedditCommand.class);

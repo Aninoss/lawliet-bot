@@ -29,7 +29,8 @@ public class FaceSitCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/969970754944909332/969971995544526868/facesit.gif",
                 "https://cdn.discordapp.com/attachments/969970754944909332/969972020102185020/facesit.gif",
                 "https://cdn.discordapp.com/attachments/969970754944909332/1130881488284561530/facesit.gif",
-                "https://cdn.discordapp.com/attachments/969970754944909332/1130882325698314361/facesit.gif"
+                "https://cdn.discordapp.com/attachments/969970754944909332/1130882325698314361/facesit.gif",
+                "https://cdn.discordapp.com/attachments/969970754944909332/1220286016531992606/facesit.gif"
         );
     }
 
