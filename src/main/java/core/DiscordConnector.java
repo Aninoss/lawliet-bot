@@ -1,6 +1,7 @@
 package core;
 
 import commands.SlashCommandManager;
+import core.atomicassets.AtomicRole;
 import core.featurelogger.FeatureLogger;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
@@ -13,9 +14,14 @@ import modules.schedulers.*;
 import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.ReactionRoleEntity;
+import mysql.hibernate.entity.ReactionRoleSlotEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
 import mysql.modules.commandmanagement.DBCommandManagement;
+import mysql.modules.reactionroles.DBReactionRoles;
+import mysql.modules.reactionroles.ReactionRoleMessage;
+import mysql.modules.reactionroles.ReactionRoleMessageSlot;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -36,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNullElse;
 
@@ -93,6 +100,7 @@ public class DiscordConnector {
         MessageRequest.setDefaultMentionRepliedUser(false);
 
         transferCommandManagementSqlToHibernate();
+        transferReactionRolesSqlToHibernate();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -200,6 +208,42 @@ public class DiscordConnector {
                 guildEntity -> {
                     List<String> switchedOffElements = DBCommandManagement.getInstance().retrieve(guildEntity.getGuildId()).getSwitchedOffElements();
                     guildEntity.getDisabledCommandsAndCategories().addAll(switchedOffElements);
+                }
+        );
+    }
+
+    private static void transferReactionRolesSqlToHibernate() {
+        transferSqlToHibernate(
+                "ReactionRolesMessage",
+                guildEntity -> guildEntity,
+                guildEntity -> !guildEntity.getReactionRoles().isEmpty(),
+                guildEntity -> {
+                    for (ReactionRoleMessage reactionRoleMessage : DBReactionRoles.getInstance().retrieve(guildEntity.getGuildId()).values()) {
+                        ReactionRoleEntity reactionRoleEntity = new ReactionRoleEntity();
+                        reactionRoleEntity.setMessageGuildId(reactionRoleMessage.getGuildId());
+                        reactionRoleEntity.setMessageChannelId(reactionRoleMessage.getGuildMessageChannelId());
+                        reactionRoleEntity.setMessageId(reactionRoleMessage.getMessageId());
+                        reactionRoleEntity.setTitle("☑️️ " + reactionRoleMessage.getTitle());
+                        reactionRoleEntity.setDescription(reactionRoleMessage.getDesc() == null || reactionRoleMessage.getDesc().isEmpty() ? null : reactionRoleMessage.getDesc());
+                        reactionRoleEntity.setImageUrl(reactionRoleMessage.getImage());
+                        reactionRoleEntity.setRoleRequirementIds(reactionRoleMessage.getRoleRequirements().stream().map(AtomicRole::getIdLong).collect(Collectors.toList()));
+                        reactionRoleEntity.setRoleRemovals(reactionRoleMessage.getRoleRemoval());
+                        reactionRoleEntity.setMultipleSlots(reactionRoleMessage.getMultipleRoles());
+                        reactionRoleEntity.setSlotOverview(reactionRoleMessage.getShowRoleConnections());
+                        reactionRoleEntity.setComponentType(ReactionRoleEntity.ComponentType.valueOf(reactionRoleMessage.getNewComponents().name()));
+                        reactionRoleEntity.setRoleCounters(reactionRoleMessage.getShowRoleNumbers());
+                        reactionRoleEntity.setNewGeneration(false);
+
+                        for (ReactionRoleMessageSlot slot : reactionRoleMessage.getSlots()) {
+                            ReactionRoleSlotEntity reactionRoleSlotEntity = new ReactionRoleSlotEntity();
+                            reactionRoleSlotEntity.setEmojiFormatted(slot.getEmoji() != null ? slot.getEmoji().getFormatted() : null);
+                            reactionRoleSlotEntity.setRoleIds(List.of(slot.getRoleId()));
+                            reactionRoleSlotEntity.setCustomLabel(slot.getCustomLabel());
+                            reactionRoleEntity.getSlots().add(reactionRoleSlotEntity);
+                        }
+
+                        guildEntity.getReactionRoles().put(reactionRoleEntity.getMessageId(), reactionRoleEntity);
+                    }
                 }
         );
     }

@@ -5,14 +5,19 @@ import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.listeners.Drawable;
 import commands.runnables.NavigationAbstract;
+import constants.LogStatus;
 import core.ExceptionLogger;
+import core.TextManager;
 import core.utils.ExceptionUtil;
 import core.utils.RandomUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.time.Duration;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ModalMediator {
@@ -50,6 +55,34 @@ public class ModalMediator {
                 ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
             }
         });
+    }
+
+    public static Modal createSimpleStringModal(NavigationAbstract command, String valueName, TextInputStyle textInputStyle,
+                                                int minLength, int maxLength, String value, Consumer<String> setter
+    ) {
+        String ID = "value";
+        TextInput message = TextInput.create(ID, valueName, textInputStyle)
+                .setValue(value)
+                .setRequiredRange(minLength, maxLength)
+                .setRequired(minLength > 0)
+                .build();
+
+        Modal.Builder builder = createModal(TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", valueName), (e, guildEntity) -> {
+            e.deferEdit().queue();
+            command.setGuildEntity(guildEntity);
+
+            try {
+                String textValue = e.getValue(ID).getAsString();
+                setter.accept(textValue.isEmpty() ? null : textValue);
+                command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", valueName));
+                command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
+            } catch (Throwable throwable) {
+                ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
+            }
+        });
+
+        return builder.addActionRow(message)
+                .build();
     }
 
     public static ModalConsumer get(String customId) {

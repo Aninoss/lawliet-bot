@@ -12,10 +12,7 @@ import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.modals.ModalMediator;
-import core.utils.BotPermissionUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.ReminderEntity;
@@ -23,7 +20,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
@@ -386,7 +382,7 @@ public class ReminderManageCommand extends NavigationAbstract {
     @Draw(state = STATE_SET_CHANNEL)
     public EmbedBuilder onDrawSetChannel(Member member) {
         EntitySelectMenu selectMenu = EntitySelectMenu.create("channel", EntitySelectMenu.SelectTarget.CHANNEL)
-                .setChannelTypes(ChannelType.TEXT, ChannelType.VOICE, ChannelType.NEWS, ChannelType.STAGE, ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD)
+                .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
                 .setDefaultValues(EntitySelectMenu.DefaultValue.channel(guildChannel.getIdLong()))
                 .setRequiredRange(1, 1)
                 .build();

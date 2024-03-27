@@ -3,23 +3,24 @@ package modules;
 import commands.Category;
 import commands.Command;
 import commands.runnables.configurationcategory.ReactionRolesCommand;
-import constants.Emojis;
 import core.*;
 import core.atomicassets.AtomicRole;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
-import core.utils.JDAUtil;
 import core.utils.StringUtil;
-import mysql.modules.reactionroles.DBReactionRoles;
-import mysql.modules.reactionroles.ReactionRoleMessage;
-import mysql.modules.reactionroles.ReactionRoleMessageSlot;
+import mysql.hibernate.entity.ReactionRoleEntity;
+import mysql.hibernate.entity.ReactionRoleSlotEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -31,116 +32,22 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class ReactionRoles {
 
-    public static List<ReactionRoleMessage> getReactionMessagesInGuild(long guildId) {
-        String trigger = Command.getCommandProperties(ReactionRolesCommand.class).trigger();
-        List<StaticReactionMessageData> guildReactions = DBStaticReactionMessages.getInstance().retrieve(guildId).values().stream()
-                .filter(m -> m.getCommand().equals(trigger))
-                .collect(Collectors.toList());
-
-        return guildReactions.stream()
-                .sorted((md0, md1) -> {
-                    int channelComp = Integer.compare(
-                            md0.getGuildMessageChannel().map(JDAUtil::getChannelPositionRaw).orElse(0),
-                            md1.getGuildMessageChannel().map(JDAUtil::getChannelPositionRaw).orElse(0)
-                    );
-                    if (channelComp == 0) {
-                        return Long.compare(md0.getMessageId(), md1.getMessageId());
-                    }
-                    return channelComp;
-                })
-                .map(m -> m.getGuildMessageChannel().map(ch -> getReactionRoleMessage(ch, m.getMessageId())).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toUnmodifiableList());
-    }
-
-    public static ReactionRoleMessage getReactionRoleMessage(GuildMessageChannel channel, long messageId) {
-        CustomObservableMap<Long, ReactionRoleMessage> reactionRolesMap = DBReactionRoles.getInstance().retrieve(channel.getGuild().getIdLong());
-        if (reactionRolesMap.containsKey(messageId)) {
-            return reactionRolesMap.get(messageId);
-        }
-
-        Message message = channel.retrieveMessageById(messageId).complete();
-        if (message.getEmbeds().isEmpty()) {
-            return null;
-        }
-
-        MessageEmbed embed = message.getEmbeds().get(0);
-        String title = embed.getTitle();
-        if (!title.endsWith(Emojis.FULL_SPACE_UNICODE.getFormatted())) {
-            return null;
-        }
-
-        int hiddenNumber = -1;
-        while (title.endsWith(Emojis.FULL_SPACE_UNICODE.getFormatted())) {
-            title = title.substring(0, title.length() - 1);
-            hiddenNumber++;
-        }
-        title = title.substring(3).trim();
-        boolean removeRole = (hiddenNumber & 0x1) <= 0;
-        boolean multipleRoles = (hiddenNumber & 0x2) <= 0;
-
-        String description = null;
-        if (embed.getDescription() != null) {
-            description = embed.getDescription().trim();
-        }
-
-        String banner = null;
-        if (embed.getImage() != null) {
-            banner = embed.getImage().getUrl();
-        }
-
-        ArrayList<ReactionRoleMessageSlot> slots = new ArrayList<>();
-        for (String line : embed.getFields().get(0).getValue().split("\n")) {
-            String[] parts = line.split(" → ");
-            long roleId = Long.parseLong(parts[1].substring(3, parts[1].length() - 1));
-            slots.add(new ReactionRoleMessageSlot(message.getGuild().getIdLong(), Emoji.fromFormatted(parts[0]), roleId, null));
-        }
-
-        ReactionRoleMessage reactionRoleMessage = new ReactionRoleMessage(
-                message.getGuild().getIdLong(),
-                message.getChannel().getIdLong(),
-                message.getIdLong(),
-                title,
-                description,
-                banner,
-                removeRole,
-                multipleRoles,
-                ReactionRoleMessage.ComponentType.REACTIONS,
-                false,
-                true,
-                slots,
-                Collections.emptyList()
-        );
-
-        reactionRolesMap.put(messageId, reactionRoleMessage);
-        return reactionRoleMessage;
-    }
-
-    public static String generateSlotOverview(List<ReactionRoleMessageSlot> slots, boolean allowCustomLabels, boolean configPreview) {
+    public static String generateSlotOverview(Collection<ReactionRoleSlotEntity> slots) {
         StringBuilder link = new StringBuilder();
-        for (ReactionRoleMessageSlot slot : slots) {
+        for (ReactionRoleSlotEntity slot : slots) {
             if (slot.getEmoji() != null) {
                 link.append(slot.getEmoji().getFormatted())
                         .append(" → ");
             }
-            if (allowCustomLabels && slot.getCustomLabel() != null) {
-                if (configPreview) {
-                    link.append(StringUtil.escapeMarkdown(slot.getCustomLabel()))
-                            .append(" (<@&")
-                            .append(slot.getRoleId())
-                            .append(">)");
-                } else {
-                    link.append(StringUtil.escapeMarkdown(slot.getCustomLabel()));
-                }
+            if (slot.getCustomLabel() != null) {
+                link.append(StringUtil.escapeMarkdown(slot.getCustomLabel()));
             } else {
                 link.append("<@&")
-                        .append(slot.getRoleId())
+                        .append(slot.getRoleIds().get(0))
                         .append(">");
             }
             link.append("\n");
@@ -148,26 +55,22 @@ public class ReactionRoles {
         return link.isEmpty() ? null : link.toString();
     }
 
-    public static EmbedBuilder getMessageEmbed(Locale locale, long guildId, String title, String description,
-                                               List<ReactionRoleMessageSlot> slots, List<AtomicRole> roleRequirements,
-                                               boolean showRoleConnections, String banner
-    ) {
+    public static EmbedBuilder getMessageEmbed(Locale locale, ReactionRoleEntity configuration) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(Command.getCommandProperties(ReactionRolesCommand.class).emoji() + " " + title)
-                .setDescription(description)
-                .setImage(banner == null || banner.isBlank() ? null : banner)
+                .setTitle(configuration.getTitle())
+                .setDescription(configuration.getDescription())
+                .setImage(configuration.getImageUrl())
                 .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
-        if (showRoleConnections) {
-            boolean isPro = ServerPatreonBoostCache.get(guildId);
-            String linkString = generateSlotOverview(slots, isPro, false);
+        if (configuration.getSlotOverview()) {
+            String linkString = generateSlotOverview(configuration.getSlots());
             eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), StringUtil.shortenString(linkString, ReactionRolesCommand.SLOTS_TEXT_LENGTH_MAX), true);
         }
 
-        if (!roleRequirements.isEmpty()) {
+        if (!configuration.getRoleRequirements().isEmpty()) {
             eb.addField(
                     TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_state3_mrolerequirements"),
-                    new ListGen<AtomicRole>().getList(roleRequirements, locale, m -> m.getPrefixedNameInField(locale)),
+                    new ListGen<AtomicRole>().getList(configuration.getRoleRequirements(), locale, m -> m.getPrefixedNameInField(locale)),
                     true
             );
         }
@@ -175,26 +78,24 @@ public class ReactionRoles {
         return eb;
     }
 
-    public static List<ActionRow> getComponents(Locale locale, Guild guild, List<ReactionRoleMessageSlot> slots,
-                                                boolean removeRole, boolean multipleRoles,
-                                                ReactionRoleMessage.ComponentType newComponents, boolean showRoleNumbers
-    ) throws ExecutionException, InterruptedException {
-        if (newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
+    public static List<ActionRow> getComponents(Locale locale, Guild guild, ReactionRoleEntity configuration) throws ExecutionException, InterruptedException {
+        List<ReactionRoleSlotEntity> slots = configuration.getSlots();
+        if (configuration.getComponentType() == ReactionRoleEntity.ComponentType.REACTIONS) {
             return Collections.emptyList();
         }
 
         ArrayList<String> roleNumbers = new ArrayList<>();
-        if (showRoleNumbers) {
-            for (ReactionRoleMessageSlot slot : slots) {
-                Role role = guild.getRoleById(slot.getRoleId());
-                if (role == null) {
+        if (configuration.getRoleCounters()) {
+            for (ReactionRoleSlotEntity slot : slots) {
+                List<Role> roleList = slot.getRoles(guild);
+                if (roleList.isEmpty()) {
                     roleNumbers.add("");
                     continue;
                 }
 
                 long n = MemberCacheController.getInstance().loadMembersFull(guild).get()
                         .stream()
-                        .filter(m -> m.getRoles().contains(role))
+                        .filter(m -> new HashSet<>(m.getRoles()).containsAll(roleList))
                         .count();
                 String roleNumberString = "｜" + StringUtil.numToStringShort(n, locale);
                 roleNumbers.add(roleNumberString);
@@ -202,15 +103,15 @@ public class ReactionRoles {
         }
 
         boolean isPro = ServerPatreonBoostCache.get(guild.getIdLong());
-        switch (newComponents) {
+        switch (configuration.getComponentType()) {
             case BUTTONS -> {
                 ArrayList<Button> buttons = new ArrayList<>();
-                for (int i = 0; i < slots.size(); i++) {
-                    ReactionRoleMessageSlot slot = slots.get(i);
+                for (int i = 0; i < configuration.getSlots().size(); i++) {
+                    ReactionRoleSlotEntity slot = slots.get(i);
                     Emoji emoji = slot.getEmoji();
 
-                    String roleNumberString = showRoleNumbers ? roleNumbers.get(i) : "";
-                    AtomicRole atomicRole = new AtomicRole(slot.getGuildId(), slot.getRoleId());
+                    String roleNumberString = configuration.getRoleCounters() ? roleNumbers.get(i) : "";
+                    AtomicRole atomicRole = new AtomicRole(configuration.getGuildId(), slot.getRoleIds().get(0));
                     String label = slot.getCustomLabel() != null && isPro ? slot.getCustomLabel() : atomicRole.getName(locale);
                     Button button = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(label, Button.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString);
                     if (emoji != null &&
@@ -225,20 +126,20 @@ public class ReactionRoles {
             }
             case SELECT_MENU -> {
                 StringSelectMenu.Builder builder = StringSelectMenu.create("roles")
-                        .setPlaceholder(TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_selectmenu_placeholder", multipleRoles))
-                        .setMinValues(removeRole ? 0 : 1)
-                        .setMaxValues(multipleRoles ? 25 : 1);
+                        .setPlaceholder(TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_selectmenu_placeholder", configuration.getMultipleSlots()))
+                        .setMinValues(configuration.getRoleRemovals() ? 0 : 1)
+                        .setMaxValues(configuration.getMultipleSlots() ? 25 : 1);
 
-                if (removeRole) {
+                if (configuration.getRoleRemovals()) {
                     builder.addOption(TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_selectmenu_norole"), "-1");
                 }
 
                 for (int i = 0; i < slots.size(); i++) {
-                    ReactionRoleMessageSlot slot = slots.get(i);
+                    ReactionRoleSlotEntity slot = slots.get(i);
                     Emoji emoji = slot.getEmoji();
 
-                    String roleNumberString = showRoleNumbers ? roleNumbers.get(i) : "";
-                    AtomicRole atomicRole = new AtomicRole(slot.getGuildId(), slot.getRoleId());
+                    String roleNumberString = configuration.getRoleCounters() ? roleNumbers.get(i) : "";
+                    AtomicRole atomicRole = new AtomicRole(configuration.getGuildId(), slot.getRoleIds().get(0));
                     String label = slot.getCustomLabel() != null && isPro ? slot.getCustomLabel() : atomicRole.getName(locale);
                     SelectOption option = SelectOption.of(StringUtil.shortenString(label, SelectOption.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString, String.valueOf(i));
                     if (emoji != null &&
@@ -249,7 +150,7 @@ public class ReactionRoles {
                     builder.addOptions(option);
                 }
 
-                if (multipleRoles) {
+                if (configuration.getMultipleSlots()) {
                     builder.setMaxValues(builder.getOptions().size());
                 }
 
@@ -261,32 +162,33 @@ public class ReactionRoles {
         }
     }
 
-    public static String checkForErrors(Locale locale, GuildMessageChannel channel, List<ReactionRoleMessageSlot> slots,
-                                        List<AtomicRole> roleRequirements, ReactionRoleMessage.ComponentType newComponents,
-                                        long editMessageId
-    ) {
-        boolean isPro = ServerPatreonBoostCache.get(channel.getGuild().getIdLong());
+    public static String checkForErrors(Locale locale, GuildEntity guildEntity, ReactionRoleEntity configuration, boolean editMode) {
+        GuildMessageChannel channel = configuration.getMessageChannel().get().orElse(null);
+        if (channel == null) {
+            return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_nochannel");
+        }
+
+        long otherRoleMessagesCount = guildEntity.getReactionRoles().values().stream().filter(r -> !editMode || r.getMessageId() != configuration.getMessageId()).count();
+        if (!ServerPatreonBoostCache.get(channel.getGuild().getIdLong()) && otherRoleMessagesCount >= ReactionRolesCommand.MAX_ROLE_MESSAGES_FREE) {
+            return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_limitexceeded");
+        }
+
+        List<ReactionRoleSlotEntity> slots = configuration.getSlots();
         if (slots.isEmpty()) {
             return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_noshortcuts");
         }
-        if (!roleRequirements.isEmpty() && !isPro) {
-            return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_rolerequirements_nopro");
-        }
-        if (slots.stream().anyMatch(s -> s.getCustomLabel() != null) && !isPro) {
-            return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_customlabels_nopro");
-        }
 
-        if (newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
+        if (configuration.getComponentType() == ReactionRoleEntity.ComponentType.REACTIONS) {
             if (slots.size() > ReactionRolesCommand.MAX_REACTION_SLOTS) {
                 return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_toomanyshortcuts_type", StringUtil.numToString(ReactionRolesCommand.MAX_REACTION_SLOTS));
             }
             for (int i = 0; i < slots.size(); i++) {
-                ReactionRoleMessageSlot slot = slots.get(i);
+                ReactionRoleSlotEntity slot = slots.get(i);
                 if (slot.getEmoji() == null) {
                     return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_noemoji");
                 }
                 for (int j = 0; j < i; j++) {
-                    ReactionRoleMessageSlot slot2 = slots.get(j);
+                    ReactionRoleSlotEntity slot2 = slots.get(j);
                     if (EmojiUtil.equals(slot.getEmoji(), slot2.getEmoji())) {
                         return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_duplicateemojis");
                     }
@@ -296,13 +198,7 @@ public class ReactionRoles {
                 return TextManager.getString(locale, TextManager.GENERAL, "permission_channel_reactions", "#" + StringUtil.escapeMarkdownInField(channel.getName()));
             }
         } else {
-            int newComponentTypeMessages = (int) DBReactionRoles.getInstance().retrieve(channel.getGuild().getIdLong()).values().stream()
-                    .filter(r -> r.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS && r.getMessageId() != editMessageId)
-                    .count();
-            if (newComponentTypeMessages >= ReactionRolesCommand.MAX_NEW_COMPONENTS_MESSAGES && !isPro) {
-                return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_limitexceeded");
-            }
-            if (newComponents == ReactionRoleMessage.ComponentType.SELECT_MENU &&
+            if (configuration.getComponentType() == ReactionRoleEntity.ComponentType.SELECT_MENU &&
                     slots.size() > ReactionRolesCommand.MAX_SELECT_MENU_SLOTS
             ) {
                 return TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_toomanyshortcuts_type", StringUtil.numToString(ReactionRolesCommand.MAX_SELECT_MENU_SLOTS));
@@ -312,7 +208,7 @@ public class ReactionRoles {
             }
         }
 
-        for (ReactionRoleMessageSlot slot : slots) {
+        for (ReactionRoleSlotEntity slot : slots) {
             Emoji emoji = slot.getEmoji();
             if (emoji instanceof CustomEmoji && !ShardManager.customEmojiIsKnown((CustomEmoji) emoji)) {
                 return TextManager.getString(locale, TextManager.GENERAL, "emojiunknown", emoji.getName());
@@ -322,86 +218,45 @@ public class ReactionRoles {
         return null;
     }
 
-    public static CompletableFuture<Void> sendMessage(Locale locale, GuildMessageChannel channel, String title, String description,
-                                                      List<ReactionRoleMessageSlot> slots, List<AtomicRole> roleRequirements,
-                                                      boolean removeRole, boolean multipleRoles, boolean showRoleConnections,
-                                                      ReactionRoleMessage.ComponentType newComponents,
-                                                      boolean showRoleNumbers, String banner, boolean editMode,
-                                                      long editMessageId
-    ) throws ExecutionException, InterruptedException {
-        CompletableFuture<Void> future = new CompletableFuture<>();
+    public static void sendMessage(Locale locale, ReactionRoleEntity configuration, boolean editMode, GuildEntity guildEntity) throws ExecutionException, InterruptedException {
+        GuildMessageChannel channel = configuration.getMessageChannel().get().orElse(null);
         if (!editMode) {
-            EmbedBuilder eb = getMessageEmbed(locale, channel.getGuild().getIdLong(), title, description, slots,
-                    roleRequirements, showRoleConnections, banner);
+            EmbedBuilder eb = getMessageEmbed(locale, configuration);
             Message message = channel.sendMessageEmbeds(eb.build())
-                    .setComponents(getComponents(locale, channel.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers))
+                    .setComponents(getComponents(locale, channel.getGuild(), configuration))
                     .complete();
 
-            ReactionRoleMessage reactionRoleMessage = new ReactionRoleMessage(
-                    channel.getGuild().getIdLong(),
-                    channel.getIdLong(),
-                    message.getIdLong(),
-                    title,
-                    description,
-                    banner,
-                    removeRole,
-                    multipleRoles,
-                    newComponents,
-                    showRoleNumbers,
-                    showRoleConnections,
-                    slots,
-                    roleRequirements
-            );
-            Runnable runAfterSave = () -> {
-                DBReactionRoles.getInstance().retrieve(channel.getGuild().getIdLong())
-                        .put(message.getIdLong(), reactionRoleMessage);
-                future.complete(null);
-            };
+            configuration = configuration.copy();
+            configuration.setMessageId(message.getIdLong());
+            guildEntity.getReactionRoles().put(message.getIdLong(), configuration);
 
             StaticReactionMessageData staticReactionMessageData = new StaticReactionMessageData(message,
-                    Command.getCommandProperties(ReactionRolesCommand.class).trigger(), null, runAfterSave
+                    Command.getCommandProperties(ReactionRolesCommand.class).trigger()
             );
             DBStaticReactionMessages.getInstance()
                     .retrieve(message.getGuild().getIdLong())
                     .put(message.getIdLong(), staticReactionMessageData);
 
-            if (newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
+            if (configuration.getComponentType() == ReactionRoleEntity.ComponentType.REACTIONS) {
                 RestActionQueue restActionQueue = new RestActionQueue();
-                for (ReactionRoleMessageSlot slot : slots) {
+                for (ReactionRoleSlotEntity slot : configuration.getSlots()) {
                     restActionQueue.attach(message.addReaction(slot.getEmoji()));
                 }
                 restActionQueue.getCurrentRestAction()
                         .queue();
             }
         } else {
-            ReactionRoleMessage reactionRoleMessage = new ReactionRoleMessage(
-                    channel.getGuild().getIdLong(),
-                    channel.getIdLong(),
-                    editMessageId,
-                    title,
-                    description,
-                    banner,
-                    removeRole,
-                    multipleRoles,
-                    newComponents,
-                    showRoleNumbers,
-                    showRoleConnections,
-                    slots,
-                    roleRequirements
-            );
-
-            EmbedBuilder eb = getMessageEmbed(locale, channel.getGuild().getIdLong(), title, description, slots,
-                    roleRequirements, showRoleConnections, banner);
-            Message message = channel.editMessageEmbedsById(editMessageId, eb.build())
-                    .setComponents(getComponents(locale, channel.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers))
+            EmbedBuilder eb = getMessageEmbed(locale, configuration);
+            Message message = channel.editMessageEmbedsById(configuration.getMessageId(), eb.build())
+                    .setComponents(getComponents(locale, channel.getGuild(), configuration))
                     .complete();
-            DBReactionRoles.getInstance().retrieve(channel.getGuild().getIdLong())
-                    .put(message.getIdLong(), reactionRoleMessage);
-            future.complete(null);
 
-            if (newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
+            configuration = configuration.copy();
+            guildEntity.getReactionRoles().put(message.getIdLong(), configuration);
+
+            if (configuration.getComponentType() == ReactionRoleEntity.ComponentType.REACTIONS) {
                 RestActionQueue restActionQueue = new RestActionQueue();
-                for (ReactionRoleMessageSlot slot : slots) {
+                for (ReactionRoleSlotEntity slot : configuration.getSlots()) {
                     boolean doesntExist = message.getReactions().stream()
                             .noneMatch(reaction -> EmojiUtil.equals(reaction.getEmoji(), slot.getEmoji()));
                     if (doesntExist) {
@@ -411,7 +266,7 @@ public class ReactionRoles {
 
                 if (BotPermissionUtil.can(channel, Permission.MESSAGE_MANAGE)) {
                     for (MessageReaction reaction : message.getReactions()) {
-                        boolean doesntExist = new ArrayList<>(slots).stream()
+                        boolean doesntExist = configuration.getSlots().stream()
                                 .noneMatch(slot -> EmojiUtil.equals(reaction.getEmoji(), slot.getEmoji()));
                         if (doesntExist) {
                             restActionQueue.attach(message.clearReactions(reaction.getEmoji()));
@@ -425,8 +280,6 @@ public class ReactionRoles {
                 message.clearReactions().queue();
             }
         }
-
-        return future;
     }
 
 }

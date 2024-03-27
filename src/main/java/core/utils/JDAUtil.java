@@ -37,6 +37,8 @@ import java.util.stream.Collectors;
 
 public class JDAUtil {
 
+    public static final List<ChannelType> GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES = List.of(ChannelType.TEXT, ChannelType.VOICE, ChannelType.NEWS, ChannelType.STAGE, ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD);
+
     public static Optional<TextChannel> getFirstWritableTextChannelOfGuild(Guild guild) {
         if (guild.getSystemChannel() != null && BotPermissionUtil.canWriteEmbed(guild.getSystemChannel())) {
             return Optional.of(guild.getSystemChannel());
