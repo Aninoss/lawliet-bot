@@ -108,25 +108,34 @@ public class NewCommand extends Command implements OnAlertListener {
         for (int i = versions.size() - 1; i >= 0; i--) {
             VersionSlot slot = versions.get(i);
 
-            StringBuilder[] stringBuilders = new StringBuilder[] { new StringBuilder(), new StringBuilder() };
+            ArrayList<StringBuilder> stringBuilders = new ArrayList<>();
+            stringBuilders.add(new StringBuilder());
+
             String[] lines = TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion())
                     .replace("{PREFIX}", getPrefix())
                     .split("\n");
 
+            int field = 0;
             for (String line : lines) {
+                if (line.isEmpty()) {
+                    field++;
+                    stringBuilders.add(new StringBuilder());
+                    continue;
+                }
+
                 String newLine = line.replace(" ", "").startsWith("-")
                         ? line + "\n"
                         : "- " + line + "\n";
-                if (stringBuilders[0].length() + newLine.length() < 1024) {
-                    stringBuilders[0].append(newLine);
-                } else {
-                    stringBuilders[1].append(newLine);
+                if (stringBuilders.get(field).length() + newLine.length() > 1024) {
+                    field++;
+                    stringBuilders.add(new StringBuilder());
                 }
+                stringBuilders.get(field).append(newLine);
             }
 
-            eb.addField(slot.getVersion(), stringBuilders[0].toString(), false);
-            if (!stringBuilders[1].isEmpty()) {
-                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilders[1].toString(), false);
+            eb.addField(slot.getVersion(), stringBuilders.get(0).toString(), false);
+            for (int j = 1; j <= field; j++) {
+                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilders.get(j).toString(), false);
             }
         }
         return eb;

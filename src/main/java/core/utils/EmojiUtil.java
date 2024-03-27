@@ -17,6 +17,10 @@ import java.util.Optional;
 public class EmojiUtil {
 
     public static boolean equals(Emoji emoji, Emoji otherEmoji) {
+        if (emoji == null || otherEmoji == null) {
+            return false;
+        }
+
         if (emoji instanceof CustomEmoji && otherEmoji instanceof CustomEmoji) {
             return ((CustomEmoji) emoji).getIdLong() == ((CustomEmoji) otherEmoji).getIdLong();
         } else {

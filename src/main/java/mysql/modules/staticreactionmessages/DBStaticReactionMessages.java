@@ -1,7 +1,5 @@
 package mysql.modules.staticreactionmessages;
 
-import java.sql.Types;
-import java.util.Map;
 import commands.Command;
 import commands.runnables.configurationcategory.ReactionRolesCommand;
 import core.CustomObservableMap;
@@ -9,8 +7,12 @@ import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMapCache;
 import mysql.MySQLManager;
-import mysql.modules.reactionroles.DBReactionRoles;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.entities.Guild;
+
+import java.sql.Types;
+import java.util.Map;
 
 public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableMap<Long, StaticReactionMessageData>> {
 
@@ -78,8 +80,11 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
 
     private void removeStaticReaction(StaticReactionMessageData staticReactionMessageData) {
         if (staticReactionMessageData.getCommand().equals(Command.getCommandProperties(ReactionRolesCommand.class).trigger())) {
-            DBReactionRoles.getInstance().retrieve(staticReactionMessageData.getGuildId())
-                    .remove(staticReactionMessageData.getMessageId());
+            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(staticReactionMessageData.getGuildId(), DBStaticReactionMessages.class)) {
+                guildEntity.beginTransaction();
+                guildEntity.getReactionRoles().remove(staticReactionMessageData.getMessageId());
+                guildEntity.commitTransaction();
+            }
         }
         MySQLManager.asyncUpdate("DELETE FROM StaticReactionMessages WHERE messageId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, staticReactionMessageData.getMessageId());

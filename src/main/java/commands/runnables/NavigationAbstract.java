@@ -3,6 +3,7 @@ package commands.runnables;
 import commands.Command;
 import commands.CommandContainer;
 import commands.listeners.*;
+import commands.stateprocessor.AbstractStateProcessor;
 import constants.LogStatus;
 import core.ExceptionLogger;
 import core.MainLogger;
@@ -29,10 +30,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnStringSelectMenuListener, OnEntitySelectMenuListener {
@@ -48,12 +46,21 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     private int page = 0;
     private int pageMax = 0;
     private List<ActionRow> actionRows = Collections.emptyList();
+    private final HashMap<Integer, AbstractStateProcessor> stateProcessorMap = new HashMap<>();
 
     public NavigationAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     protected void registerNavigationListener(Member member) {
+        registerNavigationListener(member, Collections.emptyList());
+    }
+
+    protected void registerNavigationListener(Member member, List<? extends AbstractStateProcessor<?>> stateProcessors) {
+        for (AbstractStateProcessor<?> stateProcessor : stateProcessors) {
+            stateProcessorMap.put(stateProcessor.getState(), stateProcessor);
+        }
+
         registerButtonListener(member);
         registerStringSelectMenuListener(member, false);
         registerEntitySelectMenuListener(member, false);
@@ -137,6 +144,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) throws Throwable {
+        if (stateProcessorMap.containsKey(state)) {
+            return stateProcessorMap.get(state).controllerMessage(event, input);
+        }
+
         for (Method method : getClass().getMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == state) {
@@ -155,6 +166,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) throws Throwable {
+        if (stateProcessorMap.containsKey(state)) {
+            return stateProcessorMap.get(state).controllerButton(event, i);
+        }
+
         for (Method method : getClass().getMethods()) {
             ControllerButton c = method.getAnnotation(ControllerButton.class);
             if (c != null && c.state() == state) {
@@ -173,6 +188,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
+        if (stateProcessorMap.containsKey(state)) {
+            return stateProcessorMap.get(state).controllerStringSelectMenu(event, i);
+        }
+
         for (Method method : getClass().getMethods()) {
             ControllerStringSelectMenu c = method.getAnnotation(ControllerStringSelectMenu.class);
             if (c != null && c.state() == state) {
@@ -191,6 +210,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean controllerEntitySelectMenu(EntitySelectInteractionEvent event, int state) throws Throwable {
+        if (stateProcessorMap.containsKey(state)) {
+            return stateProcessorMap.get(state).controllerEntitySelectMenu(event);
+        }
+
         for (Method method : getClass().getMethods()) {
             ControllerEntitySelectMenu c = method.getAnnotation(ControllerEntitySelectMenu.class);
             if (c != null && c.state() == state) {
@@ -214,6 +237,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public EmbedBuilder draw(Member member, int state) throws Throwable {
+        if (stateProcessorMap.containsKey(state)) {
+            return stateProcessorMap.get(state).draw(member);
+        }
+
         for (Method method : getClass().getMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == state) {
@@ -242,7 +269,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
         ArrayList<Button> controlButtonList = new ArrayList<>();
         if (CommandContainer.getListener(OnButtonListener.class, this).isPresent()) {
-            String key = state == DEFAULT_STATE ? "list_close": "list_back";
+            String key = state == DEFAULT_STATE ? "list_close" : "list_back";
             Button backButton = Button.of(ButtonStyle.SECONDARY, BUTTON_ID_BACK, TextManager.getString(getLocale(), TextManager.GENERAL, key));
             controlButtonList.add(backButton);
         }

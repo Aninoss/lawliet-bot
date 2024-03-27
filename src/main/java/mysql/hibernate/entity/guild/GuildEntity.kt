@@ -3,6 +3,7 @@ package mysql.hibernate.entity.guild
 import constants.Language
 import core.assets.GuildAsset
 import core.cache.ServerPatreonBoostCache
+import mysql.hibernate.entity.ReactionRoleEntity
 import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.template.HibernateEntity
@@ -87,6 +88,9 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
 
     @ElementCollection
     val disabledCommandsAndCategories = mutableSetOf<String>()
+
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    var reactionRoles: Map<Long, ReactionRoleEntity> = mutableMapOf()
 
     val reminders: List<ReminderEntity>
         get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", guildId.toLong())

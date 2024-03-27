@@ -12,6 +12,7 @@ import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
 import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
@@ -19,7 +20,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
@@ -232,7 +232,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
     @Draw(state = STATE_ADJUST_CHANNEL)
     public EmbedBuilder onDrawSetChannel(Member member) {
         EntitySelectMenu memberSelectMenu = EntitySelectMenu.create("add_channel", EntitySelectMenu.SelectTarget.CHANNEL)
-                .setChannelTypes(ChannelType.TEXT, ChannelType.VOICE, ChannelType.NEWS, ChannelType.STAGE, ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD)
+                .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
                 .setRequiredRange(1, 1)
                 .build();
 

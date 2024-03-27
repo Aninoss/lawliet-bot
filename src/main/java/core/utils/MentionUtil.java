@@ -457,7 +457,7 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, args, multi, containedBlockedUser.get(), elementList);
     }
 
-    public static Mention getMentionedStringOfGuilds(Locale locale, List<Guild> guildList) {
+    public static Mention getMentionedStringOfGuilds(Locale locale, Collection<Guild> guildList) {
         ArrayList<String> mentions = new ArrayList<>();
         ArrayList<ISnowflake> elementList = new ArrayList<>();
         guildList.forEach(guild -> {
@@ -467,7 +467,7 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
     }
 
-    public static Mention getMentionedStringOfMembers(Locale locale, List<Member> memberList) {
+    public static Mention getMentionedStringOfMembers(Locale locale, Collection<Member> memberList) {
         ArrayList<String> mentions = new ArrayList<>();
         ArrayList<ISnowflake> elementList = new ArrayList<>();
         memberList.forEach(member -> {
@@ -477,7 +477,7 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
     }
 
-    public static Mention getMentionedStringOfUsernames(Locale locale, List<User> userList) {
+    public static Mention getMentionedStringOfUsernames(Locale locale, Collection<User> userList) {
         ArrayList<String> mentions = new ArrayList<>();
         ArrayList<ISnowflake> elementList = new ArrayList<>();
         userList.forEach(user -> {
@@ -487,7 +487,7 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
     }
 
-    public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) {
+    public static Mention getMentionedStringOfRoles(Locale locale, Collection<Role> roleList) {
         ArrayList<String> mentions = new ArrayList<>();
         ArrayList<ISnowflake> elementList = new ArrayList<>();
         roleList.forEach(role -> {
@@ -495,11 +495,6 @@ public class MentionUtil {
             elementList.add(role);
         });
         return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
-    }
-
-    public static Optional<Role> getRoleByTag(Guild guild, String tag) {
-        String id = tag.substring(3, tag.length() - 1);
-        return StringUtil.stringIsLong(id) ? Optional.ofNullable(guild.getRoleById(id)) : Optional.empty();
     }
 
     public static long getAmountExt(String str) {
