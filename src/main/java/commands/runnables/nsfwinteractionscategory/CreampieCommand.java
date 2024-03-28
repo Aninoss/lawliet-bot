@@ -16,7 +16,7 @@ import java.util.Locale;
 public class CreampieCommand extends RolePlayAbstract {
 
     public CreampieCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/955839621902774272/955839871052808292/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/955839955505139752/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/955840066230554644/creampie.gif",

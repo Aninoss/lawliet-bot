@@ -16,7 +16,7 @@ import java.util.Locale;
 public class SixtyNineCommand extends RolePlayAbstract {
 
     public SixtyNineCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/969973669126340758/969973746679046154/69.gif",
                 "https://cdn.discordapp.com/attachments/969973669126340758/969973986052153364/69.gif",
                 "https://cdn.discordapp.com/attachments/969973669126340758/969974210329997363/69.gif",

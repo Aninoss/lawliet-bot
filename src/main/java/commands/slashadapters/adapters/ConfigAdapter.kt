@@ -37,7 +37,7 @@ import java.util.*
             AutoRolesCommand::class, StickyRolesCommand::class, AutoChannelCommand::class, AutoQuoteCommand::class, MemberCountDisplayCommand::class,
             TriggerDeleteCommand::class, GiveawayCommand::class, TicketCommand::class, ModSettingsCommand::class, InviteFilterCommand::class,
             WordFilterCommand::class, FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class, InviteTrackingCommand::class,
-            CustomConfigCommand::class, CommandChannelShortcutsCommand::class, ReminderManageCommand::class
+            CustomConfigCommand::class, CommandChannelShortcutsCommand::class, ReminderManageCommand::class, RolePlayBlockCommand::class
         ]
 )
 class ConfigAdapter : SlashAdapter() {

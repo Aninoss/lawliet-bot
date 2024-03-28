@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class BoobSuckCommand extends RolePlayAbstract {
 
     public BoobSuckCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/965983252718428230/965983462442008606/boobsuck.gif",
                 "https://cdn.discordapp.com/attachments/965983252718428230/965983495983866007/boobsuck.gif",
                 "https://cdn.discordapp.com/attachments/965983252718428230/965983534370140211/boobsuck.gif",

@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class HugCommand extends RolePlayAbstract {
 
     public HugCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277568629506146/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277578633183293/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277583767011368/hug.gif",

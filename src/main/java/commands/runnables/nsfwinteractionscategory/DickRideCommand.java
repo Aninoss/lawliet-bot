@@ -16,7 +16,7 @@ import java.util.Locale;
 public class DickRideCommand extends RolePlayAbstract {
 
     public DickRideCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/969967119469019136/969967204336549938/dickride.gif",
                 "https://cdn.discordapp.com/attachments/969967119469019136/969967744403517520/dickride.gif",
                 "https://cdn.discordapp.com/attachments/969967119469019136/969967825382940702/dickride.gif",

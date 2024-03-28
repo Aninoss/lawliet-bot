@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class TickleCommand extends RolePlayAbstract {
 
     public TickleCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736274285764542565/736274294211870890/tickle.gif",
                 "https://cdn.discordapp.com/attachments/736274285764542565/736274298494255174/tickle.gif",
                 "https://cdn.discordapp.com/attachments/736274285764542565/736274306392260608/tickle.gif",

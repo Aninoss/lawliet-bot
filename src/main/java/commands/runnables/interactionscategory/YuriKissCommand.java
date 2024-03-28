@@ -1,8 +1,9 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "yurikiss",
@@ -13,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class YuriKissCommand extends RolePlayAbstract {
 
     public YuriKissCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281096764784780/yurikiss.gif",
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281104201285732/yurikiss.gif",
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281115098087506/yurikiss.gif",

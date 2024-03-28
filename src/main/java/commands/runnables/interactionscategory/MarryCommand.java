@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class MarryCommand extends RolePlayAbstract {
 
     public MarryCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736281363464060979/736281372750118912/marry.gif",
                 "https://cdn.discordapp.com/attachments/736281363464060979/736281376898154546/marry.gif",
                 "https://cdn.discordapp.com/attachments/736281363464060979/736281381692244048/marry.gif",

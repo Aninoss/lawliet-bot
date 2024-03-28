@@ -15,7 +15,7 @@ import java.util.Locale;
 public class HandjobCommand extends RolePlayAbstract {
 
     public HandjobCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/972916898436108318/972917081148391454/handjob.gif",
                 "https://cdn.discordapp.com/attachments/972916898436108318/972917114388238427/handjob.gif",
                 "https://cdn.discordapp.com/attachments/972916898436108318/972917143890952322/handjob.gif",

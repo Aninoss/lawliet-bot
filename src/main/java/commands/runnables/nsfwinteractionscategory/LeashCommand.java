@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class LeashCommand extends RolePlayAbstract {
 
     public LeashCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/955835975609749534/955836016932032512/leash.gif",
                 "https://cdn.discordapp.com/attachments/955835975609749534/955836092060418118/leash.gif",
                 "https://cdn.discordapp.com/attachments/955835975609749534/955836134854897734/leash.gif",
