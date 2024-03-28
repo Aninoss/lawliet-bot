@@ -25,6 +25,10 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     @MapKeyEnumerated(EnumType.STRING)
     val fisheryDmReminders = mutableMapOf<FisheryDmReminderEntity.Type, FisheryDmReminderEntity>()
 
+    @Embedded
+    @Column(name = ROLE_PLAY_BLOCK)
+    val rolePlayBlock = RolePlayBlockEntity()
+
 
     constructor() : this("0")
 
@@ -36,6 +40,7 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     override fun postLoad() {
         txt2img.postLoad(this)
         fisheryDmReminders.values.forEach { it.postLoad(this) }
+        rolePlayBlock.postLoad(this)
     }
 
 }

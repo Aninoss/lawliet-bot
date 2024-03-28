@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class FurryFuckCommand extends RolePlayAbstract {
 
     public FurryFuckCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283596993855548/furryfuck.gif",
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283604535214100/furryfuck.gif",
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283613531734127/furryfuck.gif",

@@ -16,7 +16,7 @@ import java.util.Locale;
 public class AssFuckCommand extends RolePlayAbstract {
 
     public AssFuckCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/965979549533872319/965979631041789993/assfuck.gif",
                 "https://cdn.discordapp.com/attachments/965979549533872319/965979664352968714/assfuck.gif",
                 "https://cdn.discordapp.com/attachments/965979549533872319/965979778542878750/assfuck.gif",

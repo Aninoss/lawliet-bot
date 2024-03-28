@@ -15,7 +15,7 @@ import java.util.Locale;
 public class BlowjobCommand extends RolePlayAbstract {
 
     public BlowjobCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491115314610277/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491215537242182/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491223678517288/blowjob.gif",

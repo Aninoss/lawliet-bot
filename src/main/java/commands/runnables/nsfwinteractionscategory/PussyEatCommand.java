@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class PussyEatCommand extends RolePlayAbstract {
 
     public PussyEatCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/964484282984857610/964484568642125854/pussyeat.gif",
                 "https://cdn.discordapp.com/attachments/964484282984857610/964484607351357521/pussyeat.gif",
                 "https://cdn.discordapp.com/attachments/964484282984857610/964484793255460934/pussyeat.gif",

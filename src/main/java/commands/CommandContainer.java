@@ -92,6 +92,7 @@ public class CommandContainer {
         commandList.add(TriggerDeleteCommand.class);
         commandList.add(GiveawayCommand.class);
         commandList.add(CommandChannelShortcutsCommand.class);
+        commandList.add(RolePlayBlockCommand.class);
 
         //UTILITY
         commandList.add(VoteCommand.class);

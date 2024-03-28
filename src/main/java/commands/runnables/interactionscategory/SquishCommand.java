@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class SquishCommand extends RolePlayAbstract {
 
     public SquishCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/955386888624148491/955387024976793640/squish.gif",
                 "https://cdn.discordapp.com/attachments/955386888624148491/955387215511433226/squish.gif",
                 "https://cdn.discordapp.com/attachments/955386888624148491/955387234524213299/squish.gif",

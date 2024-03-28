@@ -14,7 +14,7 @@ import java.util.Locale;
 public class YaoiHugCommand extends RolePlayAbstract {
 
     public YaoiHugCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278344986918954/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278350959607949/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278355015630868/yaoihug.gif",

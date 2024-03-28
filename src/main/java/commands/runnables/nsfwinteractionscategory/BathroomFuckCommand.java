@@ -16,7 +16,7 @@ import java.util.Locale;
 public class BathroomFuckCommand extends RolePlayAbstract {
 
     public BathroomFuckCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/1220283255580921856/1220283477610729625/bathroomfuck.gif",
                 "https://cdn.discordapp.com/attachments/1220283255580921856/1220283805383004160/bathroomfuck.gif",
                 "https://cdn.discordapp.com/attachments/1220283255580921856/1220283866464518264/bathroomfuck.gif",

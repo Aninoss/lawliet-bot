@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class LoveCommand extends RolePlayAbstract {
 
     public LoveCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277083407384626/love.gif",
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277085747675206/love.gif",
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277089451507712/love.gif",

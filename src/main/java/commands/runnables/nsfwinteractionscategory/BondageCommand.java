@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class BondageCommand extends RolePlayAbstract {
 
     public BondageCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/992100317430808596/992100428948979812/bondage.gif",
                 "https://cdn.discordapp.com/attachments/992100317430808596/992100462910251138/bondage.gif",
                 "https://cdn.discordapp.com/attachments/992100317430808596/992100531730399232/bondage.gif",

@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class LickCommand extends RolePlayAbstract {
 
     public LickCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276727541661706/lick.gif",
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276731530444870/lick.gif",
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276735301255208/lick.gif",

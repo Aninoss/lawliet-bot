@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class StripCommand extends RolePlayAbstract {
 
     public StripCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/991784316881346601/991784604409266346/strip.gif",
                 "https://cdn.discordapp.com/attachments/991784316881346601/991784967526944898/strip.gif",
                 "https://cdn.discordapp.com/attachments/991784316881346601/991785174650077314/strip.gif",

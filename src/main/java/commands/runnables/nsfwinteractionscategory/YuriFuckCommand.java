@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class YuriFuckCommand extends RolePlayAbstract {
 
     public YuriFuckCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736283166758797324/736283244990955611/yurifuck.gif",
                 "https://cdn.discordapp.com/attachments/736283166758797324/736283255959060520/yurifuck.gif",
                 "https://cdn.discordapp.com/attachments/736283166758797324/736283260031860786/yurifuck.gif",

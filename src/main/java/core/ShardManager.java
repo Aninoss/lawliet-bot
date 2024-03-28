@@ -315,7 +315,7 @@ public class ShardManager {
                 return Optional.of(user);
             }
         }
-        return Optional.empty();
+        return Optional.ofNullable(userCache.getIfPresent(userId));
     }
 
     public static CompletableFuture<User> fetchUserById(long userId) {

@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class FingerCommand extends RolePlayAbstract {
 
     public FingerCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true,
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/958005774603386881/958007005254140005/finger.gif",
                 "https://cdn.discordapp.com/attachments/958005774603386881/958007071817760838/finger.gif",
                 "https://cdn.discordapp.com/attachments/958005774603386881/958007294594015252/finger.gif",
