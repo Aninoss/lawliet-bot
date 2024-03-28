@@ -396,7 +396,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             messageId.set(-1);
             event.getHook().sendMessageEmbeds(messageEmbeds).queue(message -> messageId.set(message.getIdLong()), error::set);
         } else {
-            event.getHook().editMessageEmbedsById(messageId.get(), messageEmbeds).queue();
+            event.getHook().editMessageEmbedsById(messageId.get(), messageEmbeds).queue(null, error::set);
         }
 
         return predictionResult.get() == null || List.of(PredictionResult.Status.IN_QUEUE, PredictionResult.Status.IN_PROGRESS).contains(predictionResult.get().getStatus());
