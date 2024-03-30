@@ -1,5 +1,6 @@
 package commands.runnables.utilitycategory;
 
+import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -7,10 +8,8 @@ import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
 import constants.LogStatus;
-import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.QuickUpdater;
-import core.RestActionQueue;
+import core.*;
+import core.atomicassets.AtomicUser;
 import core.cache.VoteCache;
 import core.utils.*;
 import modules.VoteInfo;
@@ -38,12 +37,18 @@ import java.util.concurrent.ExecutionException;
 )
 public class VoteCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
+    private static final UnicodeEmoji EMOJI_CANCEL = Emojis.X;
     private static final QuickUpdater quickUpdater = new QuickUpdater();
 
-    private final UnicodeEmoji EMOJI_CANCEL = Emojis.X;
+    private final boolean multiVote;
 
     public VoteCommand(Locale locale, String prefix) {
+        this(locale, prefix, false);
+    }
+
+    public VoteCommand(Locale locale, String prefix, boolean multiVote) {
         super(locale, prefix);
+        this.multiVote = multiVote;
     }
 
     @Override
@@ -67,14 +72,14 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         }
 
         if (argsParts.length < 3 || argsParts.length > 13) {
-            drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args")))
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.UTILITY, "vote_wrong_args")))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
 
         String topic = argsParts[0].trim();
         if (topic.isEmpty()) {
-            drawMessageNew(EmbedFactory.getEmbedError(this, getString("no_topic")))
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.UTILITY, "vote_no_topic")))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -90,10 +95,10 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
             userVotes.add(new HashSet<>());
         }
 
-        VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
+        VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong(), true, multiVote);
         EmbedBuilder eb = getEmbed(voteInfo, true);
         Message message = CommandUtil.differentChannelSendMessage(this, event, channel, eb, Collections.emptyMap()).get();
-        registerStaticReactionMessage(message);
+        registerStaticReactionMessage(message, event.getMember().getId());
         VoteCache.put(message.getIdLong(), voteInfo);
 
         RestActionQueue restActionQueue = new RestActionQueue();
@@ -116,22 +121,25 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title"))
-                .addField(getString("topic"), voteInfo.getTopic(), false)
-                .addField(getString("choices"), StringUtil.shortenString(answerText.toString(), 1024), false)
-                .addField(getString("results") + " (" + voteInfo.getTotalVotes() + " " + getString("votes", voteInfo.getTotalVotes() != 1) + ")", resultsText.toString(), false);
+                .addField(TextManager.getString(getLocale(), Category.UTILITY, "vote_topic"), voteInfo.getTopic(), false)
+                .addField(TextManager.getString(getLocale(), Category.UTILITY, "vote_choices"), StringUtil.shortenString(answerText.toString(), 1024), false)
+                .addField(TextManager.getString(getLocale(), Category.UTILITY, "vote_results") + " (" + voteInfo.getTotalVotes() + " " + TextManager.getString(getLocale(), Category.UTILITY, "vote_votes", voteInfo.getTotalVotes() != 1) + ")", resultsText.toString(), false);
 
         if (voteInfo.getCreatorId().isPresent() && voteInfo.isActive()) {
-            eb.setFooter(getString("footer", String.valueOf(voteInfo.getCreatorId().get())));
+            String authorString = voteInfo.isNewVersion()
+                    ? AtomicUser.fromOutsideCache(voteInfo.getCreatorId().orElse(null)).getName(getLocale())
+                    : String.valueOf(voteInfo.getCreatorId().get());
+            eb.setFooter(TextManager.getString(getLocale(), Category.UTILITY, "vote_footer", authorString));
         }
-
-        if (!open) EmbedUtil.addLog(eb, LogStatus.WARNING, getString("closed"));
-
+        if (!open) {
+            EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), Category.UTILITY, "vote_closed"));
+        }
         return eb;
     }
 
     @Override
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
-        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), event.getEmoji(), true).ifPresent(voteInfo -> {
+        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), event.getEmoji(), true, multiVote).ifPresent(voteInfo -> {
             if (EmojiUtil.equals(event.getEmoji(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
@@ -150,7 +158,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 return;
             }
 
-            if (voteInfo.getVotes(event.getUserIdLong()) > 1 && BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
+            if (voteInfo.getVotes(event.getUserIdLong()) > 1 && !multiVote && BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getGuildChannel()
                         .removeReactionById(event.getMessageIdLong(), event.getEmoji(), event.getUser())
                         .queue();
@@ -168,15 +176,13 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
-        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), event.getEmoji(), false)
+        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), event.getEmoji(), false, multiVote)
                 .ifPresent(voteInfo -> {
-                    if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
-                        if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
-                            quickUpdater.update(
-                                    event.getMessageIdLong(),
-                                    event.getGuildChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
-                            );
-                        }
+                    if ((voteInfo.getVotes(event.getUserIdLong()) == 0 || multiVote) && BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
+                        quickUpdater.update(
+                                event.getMessageIdLong(),
+                                event.getGuildChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                        );
                     }
                 });
     }

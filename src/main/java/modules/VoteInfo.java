@@ -1,7 +1,8 @@
 package modules;
 
-import java.util.*;
 import core.utils.StringUtil;
+
+import java.util.*;
 
 public class VoteInfo {
 
@@ -10,8 +11,10 @@ public class VoteInfo {
     private final ArrayList<HashSet<Long>> userVotes;
     private final long creatorId;
     private boolean active = true;
+    private boolean newVersion;
+    private boolean multiVote;
 
-    public VoteInfo(String topic, String[] choices, ArrayList<HashSet<Long>> userVotes, long creatorId) {
+    public VoteInfo(String topic, String[] choices, ArrayList<HashSet<Long>> userVotes, long creatorId, boolean newVersion, boolean multiVote) {
         this.topic = StringUtil.shortenString(topic, 1024);
         this.userVotes = userVotes;
         this.creatorId = creatorId;
@@ -20,6 +23,8 @@ public class VoteInfo {
             choices[i] = choices[i].trim();
         }
         this.choices = choices;
+        this.newVersion = newVersion;
+        this.multiVote = multiVote;
     }
 
     public String getTopic() {
@@ -54,17 +59,19 @@ public class VoteInfo {
 
     public synchronized int[] getUserVotes() {
         HashMap<Long, Integer> userCounter = new HashMap<>();
-        for (HashSet<Long> userVoteSet : userVotes) {
-            userVoteSet.forEach(userId -> {
-                int c = userCounter.computeIfAbsent(userId, e -> 0);
-                userCounter.put(userId, c + 1);
-            });
+        if (!multiVote) {
+            for (HashSet<Long> userVoteSet : userVotes) {
+                userVoteSet.forEach(userId -> {
+                    int c = userCounter.computeIfAbsent(userId, e -> 0);
+                    userCounter.put(userId, c + 1);
+                });
+            }
         }
 
         int[] votes = new int[userVotes.size()];
         for (int i = 0; i < userVotes.size(); i++) {
             votes[i] = (int) userVotes.get(i).stream()
-                    .filter(userId -> userCounter.get(userId) == 1)
+                    .filter(userId -> multiVote || userCounter.get(userId) == 1)
                     .count();
         }
         return votes;
@@ -98,6 +105,10 @@ public class VoteInfo {
 
     public void stop() {
         active = false;
+    }
+
+    public boolean isNewVersion() {
+        return newVersion;
     }
 
 }

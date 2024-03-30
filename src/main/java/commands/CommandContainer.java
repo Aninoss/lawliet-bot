@@ -96,6 +96,7 @@ public class CommandContainer {
 
         //UTILITY
         commandList.add(VoteCommand.class);
+        commandList.add(MultiVoteCommand.class);
         commandList.add(AssignRoleCommand.class);
         commandList.add(RevokeRoleCommand.class);
         commandList.add(ReminderCommand.class);
