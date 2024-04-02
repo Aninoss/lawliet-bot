@@ -2,14 +2,13 @@ package commands.runnables.configurationcategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.GuildChannelStateProcessor;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
-import core.utils.BotPermissionUtil;
-import core.utils.MentionUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.suggestions.DBSuggestions;
@@ -17,9 +16,7 @@ import mysql.modules.suggestions.SuggestionsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -30,11 +27,13 @@ import java.util.Locale;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "❕",
         executableWithoutArgs = true,
-        releaseDate = { 2020, 12, 7 },
+        releaseDate = {2020, 12, 7},
         usesExtEmotes = true,
-        aliases = { "suggestionconfig", "suggestionsconfig" }
+        aliases = {"suggestionconfig", "suggestionsconfig"}
 )
 public class SuggestionConfigCommand extends NavigationAbstract {
+
+    public static final int STATE_CHANNEL = 1;
 
     private SuggestionsData suggestionsData;
 
@@ -45,93 +44,59 @@ public class SuggestionConfigCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         suggestionsData = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener(event.getMember());
+
+        Permission[] permissions = {Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY};
+        GuildChannelStateProcessor channelStateProcessor = new GuildChannelStateProcessor(this, STATE_CHANNEL, DEFAULT_STATE, getString("state0_mchannel"), 1, 1,
+                JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES, permissions,
+                () -> List.of(suggestionsData.getChannelId().orElse(0L)),
+                channelIds -> {
+                    getEntityManager().getTransaction().begin();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getChannelId().orElse(null), channelIds.get(0));
+                    getEntityManager().getTransaction().commit();
+
+                    suggestionsData.setChannelId(channelIds.get(0));
+                }
+        );
+        registerNavigationListener(event.getMember(), List.of(channelStateProcessor));
         return true;
     }
 
-    @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
-        if (state == 1) {
-            List<GuildMessageChannel> channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
-            if (channelList.isEmpty()) {
-                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                return MessageInputResponse.FAILED;
-            } else {
-                GuildMessageChannel channel = channelList.get(0);
-                if (BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
+    @ControllerButton(state = DEFAULT_STATE)
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1 -> {
+                deregisterListenersWithComponentMessage();
+                return false;
+            }
+            case 0 -> {
+                if (suggestionsData.isActive() || suggestionsData.getChannel().isPresent()) {
+                    suggestionsData.toggleActive();
+
                     getEntityManager().getTransaction().begin();
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getChannelId().orElse(null), channelList.get(0).getIdLong());
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_ACTIVE, event.getMember(), null, suggestionsData.isActive());
                     getEntityManager().getTransaction().commit();
 
-                    suggestionsData.setChannelId(channelList.get(0).getIdLong());
-                    setLog(LogStatus.SUCCESS, getString("channelset"));
-                    setState(0);
-                    return MessageInputResponse.SUCCESS;
+                    setLog(LogStatus.SUCCESS, getString("activeset", suggestionsData.isActive()));
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_history", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
-                    return MessageInputResponse.FAILED;
+                    setLog(LogStatus.FAILURE, getString("active_nochannel"));
                 }
+                return true;
+            }
+            case 1 -> {
+                setState(STATE_CHANNEL);
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
-    @Override
-    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
-        switch (state) {
-            case 0:
-                switch (i) {
-                    case -1 -> {
-                        deregisterListenersWithComponentMessage();
-                        return false;
-                    }
-                    case 0 -> {
-                        if (suggestionsData.isActive() || suggestionsData.getChannel().isPresent()) {
-                            suggestionsData.toggleActive();
-
-                            getEntityManager().getTransaction().begin();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_ACTIVE, event.getMember(), null, suggestionsData.isActive());
-                            getEntityManager().getTransaction().commit();
-
-                            setLog(LogStatus.SUCCESS, getString("activeset", suggestionsData.isActive()));
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("active_nochannel"));
-                        }
-                        return true;
-                    }
-                    case 1 -> {
-                        setState(1);
-                        return true;
-                    }
-                }
-
-            case 1:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                }
-
-            default:
-                return false;
-        }
-    }
-
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
+    @Draw(state = DEFAULT_STATE)
+    public EmbedBuilder drawDefault(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        switch (state) {
-            case 0:
-                setComponents(getString("state0_options").split("\n"));
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), suggestionsData.isActive()), true)
-                        .addField(getString("state0_mchannel"), suggestionsData.getChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
-
-            case 1:
-                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
-
-            default:
-                return null;
-        }
+        setComponents(getString("state0_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
+                .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), suggestionsData.isActive()), true)
+                .addField(getString("state0_mchannel"), suggestionsData.getChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
     }
 
 }
