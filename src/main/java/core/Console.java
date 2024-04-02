@@ -566,7 +566,10 @@ public class Console {
     }
 
     private static void onUptime(String[] args) {
-        MainLogger.get().info("Uptime cluster {}: {}", Program.getClusterId(), TimeUtil.getRemainingTimeString(Language.EN.getLocale(), Program.getStartTime(), Instant.now(), false));
+        MainLogger.get().info("Uptime cluster {}: {}",
+                Program.getClusterId(),
+                TimeUtil.getDurationString(Language.EN.getLocale(), Duration.between(Program.getStartTime(), Instant.now()))
+        );
     }
 
     private static void onStats(String[] args) {

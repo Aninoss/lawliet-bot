@@ -4,6 +4,7 @@ import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.GiveawayCommand
 import core.CustomObservableMap
+import core.LocalFile
 import core.ShardManager
 import core.TextManager
 import core.atomicassets.AtomicGuildMessageChannel
@@ -29,6 +30,7 @@ import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import net.dv8tion.jda.api.exceptions.ErrorResponseException
+import java.io.File
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -53,6 +55,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
     var image: String? = null
     var messageId: Long? = null
     var startInstant: Instant? = null
+    var imageCdn: File? = null
 
     var mode: Mode = Mode.OVERVIEW
 
@@ -162,7 +165,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         channelComboBox.isEnabled = mode == Mode.OVERVIEW
         channelArticleContainer.add(channelComboBox)
 
-        val articleTextfield = DashboardTextField(getString(Category.CONFIGURATION, "giveaway_state3_mtitle"), 1, GiveawayCommand.ARTICLE_LENGTH_MAX) {
+        val articleTextfield = DashboardTextField(getString(Category.CONFIGURATION, "giveaway_state3_mtitle"), 1, GiveawayCommand.ITEM_LENGTH_MAX) {
             if (mode == Mode.REROLL) {
                 return@DashboardTextField ActionResult()
             }
@@ -252,6 +255,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         if (mode != Mode.REROLL) {
             val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "giveaway_dashboard_includedimage"), "giveaway") {
                 image = it.data
+                imageCdn?.delete()
+                imageCdn = LocalFile(LocalFile.Directory.CDN, "giveaway/${image!!.split("/")[5]}")
                 ActionResult()
                     .withRedraw()
             }
@@ -261,6 +266,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 container.add(DashboardImage(image))
                 val removeImageButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_removeimage")) {
                     image = null
+                    imageCdn?.delete()
+                    imageCdn = null
                     ActionResult()
                         .withRedraw()
                 }
@@ -274,6 +281,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         val sendButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_send", mode.ordinal)) {
             if (mode != Mode.REROLL) {
+                imageCdn = null
                 entityManager.transaction.begin()
                 if (mode == Mode.OVERVIEW) {
                     BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_ADD, atomicMember, article)
@@ -449,6 +457,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             messageId = null
             startInstant = null
         }
+        imageCdn?.delete()
+        imageCdn = null
     }
 
     private fun readValuesFromGiveawayData(giveawayData: GiveawayData) {

@@ -1,13 +1,13 @@
 package core.utils;
 
+import core.TextManager;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import core.TextManager;
 
 public final class TimeUtil {
 
@@ -27,34 +27,60 @@ public final class TimeUtil {
         return str;
     }
 
-    public static String getRemainingTimeString(Locale locale, Instant time0, Instant time1, boolean shorter) {
-        long diff = Math.abs(Date.from(time0).getTime() - Date.from(time1).getTime()) + 1000 * 60;
-        return getRemainingTimeString(locale, diff, shorter);
-    }
-
-    public static String getRemainingTimeString(Locale locale, long millis, boolean shorter) {
-        String remaining = "";
+    public static String getDurationString(Locale locale, Duration duration) {
+        long millis = duration.toMillis();
 
         int days = (int) (millis / (24 * 60 * 60 * 1000));
         int hours = (int) (millis / (60 * 60 * 1000) % 24);
         int minutes = (int) (millis / (60 * 1000) % 60);
 
-        String addString = "";
-        if (shorter) addString = "_shorter";
-
+        StringBuilder sb = new StringBuilder();
         if (days > 0) {
-            remaining += days + " " + TextManager.getString(locale, TextManager.GENERAL, "days" + addString, days != 1) + ", ";
+            sb.append(days)
+                    .append(" ")
+                    .append(TextManager.getString(locale, TextManager.GENERAL, "days", days != 1))
+                    .append(", ");
         }
         if (hours > 0) {
-            remaining += hours + " " + TextManager.getString(locale, TextManager.GENERAL, "hours" + addString, hours != 1) + ", ";
+            sb.append(hours)
+                    .append(" ")
+                    .append(TextManager.getString(locale, TextManager.GENERAL, "hours", hours != 1))
+                    .append(", ");
         }
         if (minutes > 0) {
-            remaining += minutes + " " + TextManager.getString(locale, TextManager.GENERAL, "minutes" + addString, minutes != 1) + ", ";
+            sb.append(minutes)
+                    .append(" ")
+                    .append(TextManager.getString(locale, TextManager.GENERAL, "minutes", minutes != 1))
+                    .append(", ");
         }
 
-        if (remaining.length() > 0) remaining = remaining.substring(0, remaining.length() - 2);
-        remaining = StringUtil.replaceLast(remaining, ",", " " + TextManager.getString(locale, TextManager.GENERAL, "and"));
-        return remaining;
+        String durationString = sb.toString();
+        if (!durationString.isEmpty()) {
+            durationString = durationString.substring(0, durationString.length() - 2);
+        }
+
+        durationString = StringUtil.replaceLast(durationString, ",", " " + TextManager.getString(locale, TextManager.GENERAL, "and"));
+        return durationString;
+    }
+
+    public static String getDurationString(Duration duration) {
+        long millis = duration.toMillis();
+        int days = (int) (millis / (24 * 60 * 60 * 1000));
+        int hours = (int) (millis / (60 * 60 * 1000) % 24);
+        int minutes = (int) (millis / (60 * 1000) % 60);
+
+        StringBuilder sb = new StringBuilder();
+        if (days > 0) {
+            sb.append(days).append("d ");
+        }
+        if (hours > 0) {
+            sb.append(hours).append("h ");
+        }
+        if (minutes > 0) {
+            sb.append(minutes).append("m ");
+        }
+
+        return sb.toString().trim();
     }
 
     public static Instant instantToNextMinute(Instant instant) {

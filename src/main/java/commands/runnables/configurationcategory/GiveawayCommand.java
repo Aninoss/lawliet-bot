@@ -2,12 +2,19 @@ package commands.runnables.configurationcategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.AbstractStateProcessor;
+import commands.stateprocessor.EmojiStateProcessor;
+import commands.stateprocessor.FileStateProcessor;
+import commands.stateprocessor.StringStateProcessor;
 import constants.LogStatus;
-import core.*;
+import core.CustomObservableMap;
+import core.EmbedFactory;
+import core.LocalFile;
+import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
+import core.modals.ModalMediator;
 import core.utils.*;
 import modules.Giveaway;
 import modules.schedulers.GiveawayScheduler;
@@ -19,17 +26,16 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -42,50 +48,47 @@ import java.util.stream.Collectors;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "🎆",
-        releaseDate = { 2020, 10, 28 },
+        releaseDate = {2020, 10, 28},
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "giveaways" }
+        aliases = {"giveaways"}
 )
 public class GiveawayCommand extends NavigationAbstract implements OnReactionListener {
 
-    public final static int ARTICLE_LENGTH_MAX = 250;
+    public final static int ITEM_LENGTH_MAX = 250;
     public final static int DESC_LENGTH_MAX = 1000;
     public final static int WINNERS_MIN = 1;
     public final static int WINNERS_MAX = 20;
+    public final static long DURATION_MINUTES_MAX = 999 * 24 * 60;
 
     private final static int
-            ADD_OR_EDIT = 0,
-            ADD_MESSAGE = 1,
-            EDIT_MESSAGE = 2,
-            REROLL_MESSAGE = 12,
-            CONFIGURE_MESSAGE = 3,
-            UPDATE_TITLE = 11,
-            UPDATE_DESC = 4,
-            UPDATE_DURATION = 5,
-            UPDATE_WINNERS = 6,
-            UPDATE_EMOJI = 7,
-            UPDATE_IMAGE = 8,
-            EXAMPLE = 9,
-            SENT = 10,
-            REROLL_NUMBER = 13;
+            STATE_SET_CHANNEL = 1,
+            STATE_EDIT_SELECT_GIVEAWAY = 2,
+            STATE_REROLL_SELECT_GIVEAWAY = 3,
+            STATE_CONFIG = 4,
+            STATE_SET_DESC = 5,
+            STATE_SET_EMOJI = 6,
+            STATE_SET_IMAGE = 7,
+            STATE_EXAMPLE = 8,
+            STATE_REROLL = 9;
 
     private CustomObservableMap<Long, GiveawayData> giveawayMap = null;
 
     private long messageId;
-    private String title = "";
-    private String previousTitle = "";
+    private String item = "";
+    private String previousItem = "";
     private String description = "";
     private long durationMinutes = 10080;
     private int amountOfWinners = 1;
     private Emoji emoji = Emoji.fromUnicode("🎉");
-    private String imageLink;
+    private String imageUrl;
     private LocalFile imageCdn;
     private AtomicGuildMessageChannel channel;
     private Instant instant;
     private boolean editMode = false;
     private GiveawayData rerollGiveawayData;
     private int rerollWinners;
+    private EmojiStateProcessor emojiStateProcessor;
 
     public GiveawayCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -94,158 +97,45 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         giveawayMap = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener(event.getMember());
+        emojiStateProcessor = new EmojiStateProcessor(this, STATE_SET_EMOJI, STATE_CONFIG, getString("state3_memoji"), false, emoji -> this.emoji = emoji);
+
+        List<? extends AbstractStateProcessor<?>> stateProcessors = List.of(
+                new StringStateProcessor(this, STATE_SET_DESC, STATE_CONFIG, getString("state3_mdescription"), DESC_LENGTH_MAX, true, value -> description = value != null ? value : ""),
+                new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"), true, attachment -> {
+                    if (attachment != null) {
+                        LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
+                        if (!FileUtil.downloadImageAttachment(attachment, tempFile)) {
+                            throw new RuntimeException("File download failed");
+                        }
+                        imageUrl = uploadFile(tempFile);
+                    } else {
+                        deleteTemporaryImage();
+                        imageUrl = null;
+                    }
+                }),
+                emojiStateProcessor
+        );
+        registerNavigationListener(event.getMember(), stateProcessors);
         registerReactionListener(event.getMember());
         return true;
     }
 
-    @ControllerMessage(state = ADD_MESSAGE)
-    public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
-        List<GuildMessageChannel> channel = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
-        if (!channel.isEmpty()) {
-            if (checkWriteEmbedInChannelWithLog(channel.get(0))) {
-                this.channel = new AtomicGuildMessageChannel(channel.get(0));
-                setLog(LogStatus.SUCCESS, getString("channelset"));
-                return MessageInputResponse.SUCCESS;
-            } else {
-                return MessageInputResponse.FAILED;
-            }
-        }
-        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return MessageInputResponse.FAILED;
-    }
-
-    @ControllerMessage(state = UPDATE_TITLE)
-    public MessageInputResponse onMessageUpdateTitle(MessageReceivedEvent event, String input) {
-        if (!input.isEmpty() && input.length() <= ARTICLE_LENGTH_MAX) {
-            title = input;
-            setLog(LogStatus.SUCCESS, getString("titleset", input));
-            setState(CONFIGURE_MESSAGE);
-            return MessageInputResponse.SUCCESS;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", StringUtil.numToString(ARTICLE_LENGTH_MAX)));
-            return MessageInputResponse.FAILED;
-        }
-    }
-
-    @ControllerMessage(state = UPDATE_DESC)
-    public MessageInputResponse onMessageUpdateDesc(MessageReceivedEvent event, String input) {
-        if (!input.isEmpty() && input.length() <= DESC_LENGTH_MAX) {
-            description = input;
-            setLog(LogStatus.SUCCESS, getString("descriptionset", input));
-            setState(CONFIGURE_MESSAGE);
-            return MessageInputResponse.SUCCESS;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1000"));
-            return MessageInputResponse.FAILED;
-        }
-    }
-
-    @ControllerMessage(state = UPDATE_DURATION)
-    public MessageInputResponse onMessageUpdateDuration(MessageReceivedEvent event, String input) {
-        long minutes = MentionUtil.getTimeMinutes(input).getValue();
-
-        if (minutes > 0) {
-            final int MAX = 999 * 24 * 60;
-            if (minutes <= MAX) {
-                durationMinutes = minutes;
-                setLog(LogStatus.SUCCESS, getString("durationset", input));
-                setState(CONFIGURE_MESSAGE);
-                return MessageInputResponse.SUCCESS;
-            } else {
-                setLog(LogStatus.FAILURE, getString("durationtoolong"));
-                return MessageInputResponse.FAILED;
-            }
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
-            return MessageInputResponse.FAILED;
-        }
-    }
-
-    @ControllerMessage(state = UPDATE_WINNERS)
-    public MessageInputResponse onMessageUpdateWinners(MessageReceivedEvent event, String input) {
-        int amount;
-        if (StringUtil.stringIsInt(input) &&
-                (amount = Integer.parseInt(input)) >= WINNERS_MIN &&
-                amount <= WINNERS_MAX
-        ) {
-            amountOfWinners = amount;
-            setLog(LogStatus.SUCCESS, getString("winnersset", input));
-            setState(CONFIGURE_MESSAGE);
-            return MessageInputResponse.SUCCESS;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(WINNERS_MIN), String.valueOf(WINNERS_MAX)));
-            return MessageInputResponse.FAILED;
-        }
-    }
-
-    @ControllerMessage(state = UPDATE_EMOJI)
-    public MessageInputResponse onMessageUpdateEmoji(MessageReceivedEvent event, String input) {
-        List<Emoji> emojiList = MentionUtil.getEmojis(event.getMessage(), input).getList();
-        if (!emojiList.isEmpty()) {
-            Emoji emoji = emojiList.get(0);
-            return processEmoji(emoji) ? MessageInputResponse.SUCCESS : MessageInputResponse.FAILED;
-        }
-
-        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return MessageInputResponse.FAILED;
-    }
-
-    @ControllerMessage(state = UPDATE_IMAGE)
-    public MessageInputResponse onMessageUpdateImage(MessageReceivedEvent event, String input) {
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
-        if (!attachments.isEmpty()) {
-            Message.Attachment attachment = attachments.get(0);
-            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
-            boolean success = FileUtil.downloadImageAttachment(attachment, tempFile);
-            if (success) {
-                imageLink = uploadFile(tempFile);
-                setLog(LogStatus.SUCCESS, getString("imageset"));
-                setState(CONFIGURE_MESSAGE);
-                return MessageInputResponse.SUCCESS;
-            }
-        }
-
-        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return MessageInputResponse.FAILED;
-    }
-
-    @ControllerMessage(state = REROLL_NUMBER)
-    public MessageInputResponse onMessageRerollWinners(MessageReceivedEvent event, String input) {
-        long amount = MentionUtil.getAmountExt(input);
-        if (amount >= WINNERS_MIN && amount <= WINNERS_MAX) {
-            rerollWinners = (int) amount;
-            return MessageInputResponse.SUCCESS;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(WINNERS_MIN), String.valueOf(WINNERS_MAX)));
-            return MessageInputResponse.FAILED;
-        }
-    }
-
-    private String uploadFile(LocalFile file) {
-        if (imageCdn != null) {
-            imageCdn.delete();
-        }
-
-        imageCdn = file;
-        return file.cdnGetUrl();
-    }
-
-    @ControllerButton(state = ADD_OR_EDIT)
+    @ControllerButton(state = DEFAULT_STATE)
     public boolean onButtonAddOrEdit(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
+                deleteTemporaryImage();
                 deregisterListenersWithComponentMessage();
                 return false;
 
             case 0:
-                setState(ADD_MESSAGE);
+                setState(STATE_SET_CHANNEL);
                 editMode = false;
                 return true;
 
             case 1:
                 if (!getActiveGiveawaySlots().isEmpty()) {
-                    setState(EDIT_MESSAGE);
+                    setState(STATE_EDIT_SELECT_GIVEAWAY);
                     editMode = true;
                 } else {
                     setLog(LogStatus.FAILURE, getString("nothing"));
@@ -254,7 +144,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
             case 2:
                 if (!getCompletedGiveawaySlots().isEmpty()) {
-                    setState(REROLL_MESSAGE);
+                    setState(STATE_REROLL_SELECT_GIVEAWAY);
                 } else {
                     setLog(LogStatus.FAILURE, getString("nothing_completed"));
                 }
@@ -265,28 +155,19 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         }
     }
 
-    @ControllerButton(state = ADD_MESSAGE)
+    @ControllerButton(state = STATE_SET_CHANNEL)
     public boolean onButtonAddMessage(ButtonInteractionEvent event, int i) {
-        switch (i) {
-            case -1:
-                setState(ADD_OR_EDIT);
-                return true;
-
-            case 0:
-                if (channel != null) {
-                    setState(CONFIGURE_MESSAGE);
-                    return true;
-                }
-
-            default:
-                return false;
+        if (i == -1) {
+            setState(DEFAULT_STATE);
+            return true;
         }
+        return false;
     }
 
-    @ControllerButton(state = EDIT_MESSAGE)
+    @ControllerButton(state = STATE_EDIT_SELECT_GIVEAWAY)
     public boolean onButtonEditMessage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
-            setState(ADD_OR_EDIT);
+            setState(DEFAULT_STATE);
             return true;
         }
 
@@ -294,16 +175,17 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (i >= 0 && i < giveaways.size()) {
             GiveawayData giveaway = giveaways.get(i);
             messageId = giveaway.getMessageId();
-            title = giveaway.getTitle();
-            previousTitle = title;
+            item = giveaway.getTitle();
+            previousItem = item;
             description = giveaway.getDescription();
             durationMinutes = giveaway.getDurationMinutes();
             amountOfWinners = giveaway.getWinners();
-            imageLink = giveaway.getImageUrl().orElse(null);
+            imageUrl = giveaway.getImageUrl().orElse(null);
             channel = new AtomicGuildMessageChannel(event.getGuild().getIdLong(), giveaway.getGuildMessageChannelId());
             instant = giveaway.getStart();
             emoji = Emoji.fromFormatted(giveaway.getEmoji());
-            setState(CONFIGURE_MESSAGE);
+            deleteTemporaryImage();
+            setState(STATE_CONFIG);
 
             return true;
         }
@@ -311,123 +193,144 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         return false;
     }
 
-    @ControllerButton(state = REROLL_MESSAGE)
+    @ControllerButton(state = STATE_REROLL_SELECT_GIVEAWAY)
     public boolean onButtonRerollMessage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
-            setState(ADD_OR_EDIT);
+            setState(DEFAULT_STATE);
             return true;
         }
 
         List<GiveawayData> giveaways = getCompletedGiveawaySlots();
         if (i >= 0 && i < giveaways.size()) {
             rerollGiveawayData = giveaways.get(i);
-            rerollWinners = 0;
-            setState(REROLL_NUMBER);
+            rerollWinners = rerollGiveawayData.getWinners();
+            setState(STATE_REROLL);
             return true;
         }
 
         return false;
     }
 
-    @ControllerButton(state = CONFIGURE_MESSAGE)
+    @ControllerButton(state = STATE_CONFIG)
     public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
                 if (!editMode) {
-                    setState(ADD_MESSAGE);
+                    setState(STATE_SET_CHANNEL);
                 } else {
-                    setState(EDIT_MESSAGE);
+                    resetGiveawayConfiguration();
+                    deleteTemporaryImage();
+                    setState(STATE_EDIT_SELECT_GIVEAWAY);
                 }
                 return true;
 
             case 0:
-                setState(UPDATE_TITLE);
-                return true;
+                Modal modal = ModalMediator.createSimpleStringModal(this, getString("state3_mtitle"), TextInputStyle.SHORT,
+                        1, ITEM_LENGTH_MAX, item, value -> item = value
+                );
+                event.replyModal(modal).queue();
+                return false;
 
             case 1:
-                setState(UPDATE_DESC);
+                setState(STATE_SET_DESC);
                 return true;
 
             case 2:
                 if (!editMode) {
-                    setState(UPDATE_DURATION);
+                    modal = ModalMediator.createSimpleDurationModal(this, getString("state3_mduration"),
+                            1, DURATION_MINUTES_MAX, durationMinutes, value -> durationMinutes = value
+                    );
+                    event.replyModal(modal).queue();
+                    return false;
                 } else {
                     setLog(LogStatus.FAILURE, getString("locked"));
+                    return true;
                 }
-                return true;
 
             case 3:
-                setState(UPDATE_WINNERS);
-                return true;
+                modal = ModalMediator.createSimpleIntModal(this, getString("state3_mwinners"), 1,
+                        WINNERS_MAX, amountOfWinners, value -> amountOfWinners = value
+                );
+                event.replyModal(modal).queue();
+                return false;
 
             case 4:
                 if (!editMode) {
-                    setState(UPDATE_EMOJI);
+                    setState(STATE_SET_EMOJI);
                 } else {
                     setLog(LogStatus.FAILURE, getString("locked"));
                 }
                 return true;
 
             case 5:
-                setState(UPDATE_IMAGE);
+                setState(STATE_SET_IMAGE);
                 return true;
 
             case 6:
-                setState(EXAMPLE);
+                setState(STATE_EXAMPLE);
                 return true;
 
             case 7:
-                if (!title.isEmpty()) {
-                    getEntityManager().getTransaction().begin();
-                    if (editMode) {
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_END, event.getMember(), previousTitle);
-                    } else {
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_ADD, event.getMember(), title);
-                    }
-                    getEntityManager().getTransaction().commit();
-                    send(event, editMode);
-                } else {
+                if (item.isEmpty()) {
                     setLog(LogStatus.FAILURE, getString("noitem"));
+                    return true;
                 }
+
+                getEntityManager().getTransaction().begin();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_END, event.getMember(), previousItem);
+                getEntityManager().getTransaction().commit();
+
+                send(event, true);
                 return true;
 
             case 8:
-                if (editMode) {
-                    if (!title.isEmpty()) {
-                        getEntityManager().getTransaction().begin();
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_EDIT, event.getMember(), previousTitle);
-                        getEntityManager().getTransaction().commit();
-
-                        send(event, false);
-                    } else {
-                        setLog(LogStatus.FAILURE, getString("noitem"));
-                    }
+                if (item.isEmpty()) {
+                    setLog(LogStatus.FAILURE, getString("noitem"));
                     return true;
-                } else {
-                    return false;
                 }
+
+                getEntityManager().getTransaction().begin();
+                BotLogEntity.log(getEntityManager(), editMode ? BotLogEntity.Event.GIVEAWAYS_EDIT : BotLogEntity.Event.GIVEAWAYS_ADD, event.getMember(), previousItem);
+                getEntityManager().getTransaction().commit();
+
+                send(event, false);
+                return true;
 
             default:
                 return false;
         }
     }
 
+    private void resetGiveawayConfiguration() {
+        messageId = 0L;
+        item = "";
+        previousItem = item;
+        description = "";
+        durationMinutes = 10080;
+        amountOfWinners = 1;
+        imageUrl = null;
+        channel = null;
+        instant = null;
+        emoji = Emoji.fromUnicode("🎉");
+    }
+
     private void send(ButtonInteractionEvent event, boolean endPrematurely) {
         if (editMode && (!giveawayMap.containsKey(messageId) || !giveawayMap.get(messageId).isActive())) {
             setLog(LogStatus.FAILURE, getString("dashboard_toolate"));
-            setState(EDIT_MESSAGE);
+            setState(STATE_EDIT_SELECT_GIVEAWAY);
         }
 
         Optional<Long> messageIdOpt = sendMessage();
         if (messageIdOpt.isEmpty() && editMode) {
             setLog(LogStatus.FAILURE, getString("nomessage"));
-            setState(EDIT_MESSAGE);
+            setState(STATE_EDIT_SELECT_GIVEAWAY);
             return;
         }
 
         if (messageIdOpt.isPresent()) {
-            setState(SENT);
-            deregisterListeners();
+            setLog(LogStatus.SUCCESS, getString("sent", item));
+            setState(editMode && (!endPrematurely || giveawayMap.size() > 1) ? STATE_EDIT_SELECT_GIVEAWAY : DEFAULT_STATE);
+
             GiveawayData giveawayData = new GiveawayData(
                     event.getGuild().getIdLong(),
                     channel.getIdLong(),
@@ -436,83 +339,62 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                     amountOfWinners,
                     instant,
                     endPrematurely ? 0 : durationMinutes,
-                    title,
+                    item,
                     description,
-                    imageLink,
+                    imageUrl,
                     true
             );
             if (endPrematurely || !giveawayMap.containsKey(giveawayData.getMessageId())) {
                 GiveawayScheduler.loadGiveawayBean(giveawayData);
             }
             giveawayMap.put(giveawayData.getMessageId(), giveawayData);
+            imageCdn = null;
+            resetGiveawayConfiguration();
         } else {
             setLog(LogStatus.FAILURE, getString("error"));
         }
     }
 
     @Override
-    public boolean onReaction(@NotNull GenericMessageReactionEvent event) throws Throwable {
-        if (getState() == UPDATE_EMOJI && event instanceof MessageReactionAddEvent) {
-            processEmoji(event.getEmoji());
-            processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
-            if (BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
-                event.getReaction().removeReaction(event.getUser()).queue();
-            }
-            return false;
-        }
-        return false;
+    public boolean onReaction(@NotNull GenericMessageReactionEvent event) {
+        return emojiStateProcessor.handleReactionEvent(event);
     }
 
-    @ControllerButton(state = UPDATE_IMAGE)
-    public boolean onButtonUpdateImage(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(CONFIGURE_MESSAGE);
-            return true;
-        } else if (i == 0) {
-            if (imageCdn != null) {
-                imageCdn.delete();
-                imageCdn = null;
-            }
-            imageLink = null;
-            setLog(LogStatus.SUCCESS, getString("imageset"));
-            setState(CONFIGURE_MESSAGE);
-            return true;
-        }
-
-        return false;
-    }
-
-    @ControllerButton(state = SENT)
-    public boolean onButtonSent(ButtonInteractionEvent event, int i) {
-        return false;
-    }
-
-    @ControllerButton(state = REROLL_NUMBER)
+    @ControllerButton(state = STATE_REROLL)
     public boolean onButtonRerollNumber(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(REROLL_MESSAGE);
-            return true;
-        } else if (i == 0 && rerollWinners > 0) {
-            boolean messageExists = GiveawayScheduler.processGiveawayUsers(rerollGiveawayData, rerollWinners, true).join();
-            getEntityManager().getTransaction().begin();
-            if (messageExists) {
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REROLL, event.getMember(), rerollGiveawayData.getTitle());
-                setLog(LogStatus.SUCCESS, getString("rerollset", rerollGiveawayData.getTitle()));
-            } else {
-                setLog(LogStatus.FAILURE, getString("error"));
+        switch (i) {
+            case -1: {
+                setState(STATE_REROLL_SELECT_GIVEAWAY);
+                return true;
             }
-            getEntityManager().getTransaction().commit();
-            setState(REROLL_MESSAGE);
-            return true;
-        } else if (i == (rerollWinners > 0 ? 1 : 0)) {
-            getEntityManager().getTransaction().begin();
-            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REMOVE, event.getMember(), rerollGiveawayData.getTitle());
-            getEntityManager().getTransaction().commit();
+            case 0: {
+                getEntityManager().getTransaction().begin();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REMOVE, event.getMember(), rerollGiveawayData.getTitle());
+                getEntityManager().getTransaction().commit();
 
-            giveawayMap.remove(rerollGiveawayData.getMessageId());
-            setLog(LogStatus.SUCCESS, getString("removed", rerollGiveawayData.getTitle()));
-            setState(REROLL_MESSAGE);
-            return true;
+                giveawayMap.remove(rerollGiveawayData.getMessageId());
+                setLog(LogStatus.SUCCESS, getString("removed", rerollGiveawayData.getTitle()));
+                setState(giveawayMap.isEmpty() ? DEFAULT_STATE : STATE_REROLL_SELECT_GIVEAWAY);
+                return true;
+            }
+            case 1: {
+                Modal modal = ModalMediator.createSimpleIntModal(this, getString("state3_mwinners"), WINNERS_MIN, WINNERS_MAX, rerollWinners, value -> rerollWinners = value);
+                event.replyModal(modal).queue();
+                return false;
+            }
+            case 2: {
+                boolean messageExists = GiveawayScheduler.processGiveawayUsers(rerollGiveawayData, rerollWinners, true).join();
+                getEntityManager().getTransaction().begin();
+                if (messageExists) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REROLL, event.getMember(), rerollGiveawayData.getTitle());
+                    setLog(LogStatus.SUCCESS, getString("rerollset", rerollGiveawayData.getTitle()));
+                } else {
+                    setLog(LogStatus.FAILURE, getString("error"));
+                }
+                getEntityManager().getTransaction().commit();
+                setState(STATE_REROLL_SELECT_GIVEAWAY);
+                return true;
+            }
         }
         return false;
     }
@@ -520,40 +402,39 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @ControllerButton
     public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
         if (i == -1) {
-            setState(CONFIGURE_MESSAGE);
+            setState(STATE_CONFIG);
             return true;
         }
         return false;
     }
 
-    private boolean processEmoji(Emoji emoji) {
-        if (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji)) {
-            this.emoji = emoji;
-            setLog(LogStatus.SUCCESS, getString("emojiset"));
-            setState(CONFIGURE_MESSAGE);
-            return true;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown", emoji.getName()));
-            return false;
+    @ControllerEntitySelectMenu(state = STATE_SET_CHANNEL)
+    public boolean onSelectMenuAddMessage(EntitySelectInteractionEvent event) {
+        GuildMessageChannel channel = (GuildMessageChannel) event.getMentions().getChannels().get(0);
+        if (checkWriteEmbedInChannelWithLog(channel)) {
+            this.channel = new AtomicGuildMessageChannel(channel);
+            setState(STATE_CONFIG);
         }
+        return true;
     }
 
-    @Draw(state = ADD_OR_EDIT)
+    @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawAddOrEdit(Member member) {
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
-    @Draw(state = ADD_MESSAGE)
+    @Draw(state = STATE_SET_CHANNEL)
     public EmbedBuilder onDrawAddMessage(Member member) {
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (channel != null) {
-            setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
-        }
-        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(m -> m.getPrefixedNameInField(getLocale())).orElse(notSet)), getString("state1_title"));
+        EntitySelectMenu channelSelectMenu = EntitySelectMenu.create("select_channel", EntitySelectMenu.SelectTarget.CHANNEL)
+                .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                .setRequiredRange(1, 1)
+                .build();
+        setComponents(channelSelectMenu);
+        return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
     }
 
-    @Draw(state = EDIT_MESSAGE)
+    @Draw(state = STATE_EDIT_SELECT_GIVEAWAY)
     public EmbedBuilder onDrawEditMessage(Member member) {
         String[] options = getActiveGiveawaySlots().stream()
                 .map(giveawayData -> {
@@ -565,7 +446,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 
-    @Draw(state = REROLL_MESSAGE)
+    @Draw(state = STATE_REROLL_SELECT_GIVEAWAY)
     public EmbedBuilder onDrawRerollMessage(Member member) {
         String[] options = getCompletedGiveawaySlots().stream()
                 .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicGuildMessageChannel(member.getGuild().getIdLong(), giveawayData.getGuildMessageChannelId()).getName(getLocale())))
@@ -574,88 +455,53 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         return EmbedFactory.getEmbedDefault(this, getString("state12_description"), getString("state12_title"));
     }
 
-    @Draw(state = CONFIGURE_MESSAGE)
+    @Draw(state = STATE_CONFIG)
     public EmbedBuilder onDrawConfigureMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (editMode) {
-            setComponents(getString("state3_options_edit").split("\n"));
-        } else {
-            setComponents(getString("state3_options").split("\n"));
+
+        String[] options = getString("state3_options").split("\n");
+        if (!editMode) {
+            options[7] = "";
         }
+        setComponents(options, new int[]{7, 8}, new int[0]);
 
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + (editMode ? "edit" : "new")))
-                .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(title.isEmpty() ? notSet : title), false)
+                .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(item.isEmpty() ? notSet : item), false)
                 .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(description.isEmpty() ? notSet : description), false)
-                .addField(getString("state3_mduration"), TimeUtil.getRemainingTimeString(getLocale(), durationMinutes * 60_000, false), true)
+                .addField(getString("state3_mduration"), TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(durationMinutes)), true)
                 .addField(getString("state3_mwinners"), String.valueOf(amountOfWinners), true)
                 .addField(getString("state3_memoji"), emoji.getFormatted(), true)
-                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), imageLink != null), true);
+                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), imageUrl != null), true);
     }
 
-    @Draw(state = UPDATE_TITLE)
-    public EmbedBuilder onDrawUpdateTitle(Member member) {
-        return EmbedFactory.getEmbedDefault(this, getString("state11_description"), getString("state11_title"));
-    }
-
-    @Draw(state = UPDATE_DESC)
-    public EmbedBuilder onDrawUpdateDesc(Member member) {
-        return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
-    }
-
-    @Draw(state = UPDATE_DURATION)
-    public EmbedBuilder onDrawUpdateDuration(Member member) {
-        return EmbedFactory.getEmbedDefault(this, getString("state5_description"), getString("state5_title"));
-    }
-
-    @Draw(state = UPDATE_WINNERS)
-    public EmbedBuilder onDrawUpdateWinners(Member member) {
-        return EmbedFactory.getEmbedDefault(this, getString("state6_description"), getString("state6_title"));
-    }
-
-    @Draw(state = UPDATE_EMOJI)
-    public EmbedBuilder onDrawUpdateEmoji(Member member) {
-        return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
-    }
-
-    @Draw(state = UPDATE_IMAGE)
-    public EmbedBuilder onDrawUpdateImage(Member member) {
-        setComponents(getString("state8_options").split("\n"));
-        return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
-    }
-
-    @Draw(state = EXAMPLE)
+    @Draw(state = STATE_EXAMPLE)
     public EmbedBuilder onDrawExample(Member member) {
-        return Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
-                durationMinutes, imageLink, Instant.now()
+        return Giveaway.getMessageEmbed(getLocale(), item, description, amountOfWinners, emoji,
+                durationMinutes, imageUrl, Instant.now()
         );
     }
 
-    @Draw(state = SENT)
-    public EmbedBuilder onDrawSent(Member member) {
-        return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
-    }
-
-    @Draw(state = REROLL_NUMBER)
+    @Draw(state = STATE_REROLL)
     public EmbedBuilder onDrawRerollNumber(Member member) {
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        Button[] buttons;
-        if (rerollWinners > 0) {
-            buttons = new Button[] {
-                    Button.of(ButtonStyle.PRIMARY, "0", getString("state13_confirm")),
-                    Button.of(ButtonStyle.DANGER, "1", getString("state13_delete"))
-            };
-        } else {
-            buttons = new Button[] {
-                    Button.of(ButtonStyle.DANGER, "0", getString("state13_delete")),
-            };
-        }
-
-        setComponents(buttons);
+        setComponents(getString("state13_options").split("\n"), new int[]{2}, new int[]{0});
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("state13_description", rerollGiveawayData.getTitle(), rerollWinners > 0 ? StringUtil.numToString(rerollWinners) : notSet),
+                getString("state13_description", rerollGiveawayData.getTitle(), StringUtil.numToString(rerollWinners)),
                 getString("state13_title")
         );
+    }
+
+    private String uploadFile(LocalFile file) {
+        deleteTemporaryImage();
+        imageCdn = file;
+        return file.cdnGetUrl();
+    }
+
+    private void deleteTemporaryImage() {
+        if (imageCdn != null) {
+            imageCdn.delete();
+            imageCdn = null;
+        }
     }
 
     private List<GiveawayData> getActiveGiveawaySlots() {
@@ -676,8 +522,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             GuildMessageChannel channel = this.channel.get().get();
             if (!editMode) {
                 instant = Instant.now();
-                EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
-                        durationMinutes, imageLink, instant
+                EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), item, description, amountOfWinners, emoji,
+                        durationMinutes, imageUrl, instant
                 );
                 message = channel.sendMessageEmbeds(eb.build()).complete();
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
@@ -688,8 +534,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 if (instant.plus(durationMinutes, ChronoUnit.MINUTES).isBefore(Instant.now())) {
                     return Optional.empty();
                 }
-                EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
-                        durationMinutes, imageLink, instant
+                EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), item, description, amountOfWinners, emoji,
+                        durationMinutes, imageUrl, instant
                 );
                 try {
                     channel.editMessageEmbedsById(messageId, eb.build()).complete();

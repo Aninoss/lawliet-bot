@@ -8,13 +8,13 @@ import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.utils.ExceptionUtil;
-import core.utils.RandomUtil;
+import core.utils.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 
 import java.time.Duration;
 import java.util.function.Consumer;
@@ -62,7 +62,7 @@ public class ModalMediator {
     ) {
         String ID = "value";
         TextInput message = TextInput.create(ID, valueName, textInputStyle)
-                .setValue(value)
+                .setValue(value.isEmpty() ? null : value)
                 .setRequiredRange(minLength, maxLength)
                 .setRequired(minLength > 0)
                 .build();
@@ -72,8 +72,95 @@ public class ModalMediator {
             command.setGuildEntity(guildEntity);
 
             try {
-                String textValue = e.getValue(ID).getAsString();
-                setter.accept(textValue.isEmpty() ? null : textValue);
+                ModalMapping newValue = e.getValue(ID);
+                String newValueString = newValue != null ? newValue.getAsString() : null;
+
+                setter.accept(newValueString != null && newValueString.isEmpty() ? null : newValueString);
+                command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", valueName));
+                command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
+            } catch (Throwable throwable) {
+                ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
+            }
+        });
+
+        return builder.addActionRow(message)
+                .build();
+    }
+
+    public static Modal createSimpleIntModal(NavigationAbstract command, String valueName, int min, int max, int value, Consumer<Integer> setter) {
+        String ID = "value";
+        TextInput message = TextInput.create(ID, valueName, TextInputStyle.SHORT)
+                .setValue(String.valueOf(value))
+                .setRequiredRange(min > 0 ? 1 : 0, (int) Math.ceil(Math.log10(max + 1)))
+                .setRequired(min > 0)
+                .build();
+
+        Modal.Builder builder = createModal(TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", valueName), (e, guildEntity) -> {
+            e.deferEdit().queue();
+            command.setGuildEntity(guildEntity);
+
+            try {
+                ModalMapping newValue = e.getValue(ID);
+                String newValueString = newValue != null ? newValue.getAsString() : null;
+                if (newValueString != null && !StringUtil.stringIsInt(newValueString)) {
+                    command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "invalid", newValueString));
+                    command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
+                    return;
+                }
+
+                int newValueInt = newValueString == null ? 0 : Integer.parseInt(newValueString);
+                if (newValueInt < min || newValueInt > max) {
+                    command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "number", StringUtil.numToString(min), StringUtil.numToString(max)));
+                    command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
+                    return;
+                }
+
+                setter.accept(newValueInt);
+                command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", valueName));
+                command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
+            } catch (Throwable throwable) {
+                ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
+            }
+        });
+
+        return builder.addActionRow(message)
+                .build();
+    }
+
+    public static Modal createSimpleDurationModal(NavigationAbstract command, String valueName, long minMinutes, long maxMinutes, long value, Consumer<Long> setter) {
+        String ID = "value";
+        TextInput message = TextInput.create(ID, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_duration", valueName), TextInputStyle.SHORT)
+                .setValue(TimeUtil.getDurationString(Duration.ofMinutes(value)))
+                .setRequiredRange(minMinutes > 0 ? 1 : 0, 12)
+                .setRequired(minMinutes > 0)
+                .build();
+
+        Modal.Builder builder = createModal(TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", valueName), (e, guildEntity) -> {
+            e.deferEdit().queue();
+            command.setGuildEntity(guildEntity);
+
+            try {
+                ModalMapping newValue = e.getValue(ID);
+                String newValueString = newValue != null ? newValue.getAsString() : null;
+                long newValueLong = newValueString != null ? MentionUtil.getTimeMinutes(newValueString).getValue() : -1;
+
+                if (newValueLong == 0L) {
+                    command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "invalid", newValueString));
+                    command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
+                    return;
+                }
+
+                newValueLong = newValueLong != -1 ? newValueLong : 0L;
+                if (newValueLong < minMinutes || newValueLong > maxMinutes) {
+                    command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_duration_outofrange",
+                            TimeUtil.getDurationString(Duration.ofMinutes(minMinutes)),
+                            TimeUtil.getDurationString(Duration.ofMinutes(maxMinutes))
+                    ));
+                    command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
+                    return;
+                }
+
+                setter.accept(newValueLong);
                 command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", valueName));
                 command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
             } catch (Throwable throwable) {

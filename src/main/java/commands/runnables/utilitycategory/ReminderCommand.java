@@ -143,7 +143,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
     public static EmbedBuilder generateEmbed(Locale locale, String prefix, GuildMessageChannel channel, Instant time, String messageText, Integer interval) {
         String intervalText = TextManager.getString(locale, Category.UTILITY, "reminder_norep");
         if (interval != null && interval > 0) {
-            intervalText = TimeUtil.getRemainingTimeString(locale, Duration.ofMinutes(interval).toMillis(), false);
+            intervalText = TimeUtil.getDurationString(locale, Duration.ofMinutes(interval));
         }
 
         String channelStr = channel != null

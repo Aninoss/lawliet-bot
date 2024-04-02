@@ -370,7 +370,7 @@ public class ReminderManageCommand extends NavigationAbstract {
 
         String intervalText = TextManager.getString(getLocale(), Category.UTILITY, "reminder_norep");
         if (intervalMinutes != null && intervalMinutes > 0) {
-            intervalText = TimeUtil.getRemainingTimeString(getLocale(), Duration.ofMinutes(intervalMinutes).toMillis(), false);
+            intervalText = TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(intervalMinutes));
         }
 
         String add = type == ReminderEntity.Type.GUILD_REMINDER ? " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted() : "";

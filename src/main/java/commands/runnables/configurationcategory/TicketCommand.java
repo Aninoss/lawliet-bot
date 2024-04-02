@@ -42,6 +42,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -416,7 +417,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         if (autoCloseMinutes == null) {
             return StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), false);
         } else {
-            return TimeUtil.getRemainingTimeString(getLocale(), autoCloseMinutes * 3_600_000, false);
+            return TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(autoCloseMinutes));
         }
     }
 

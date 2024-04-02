@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -776,7 +777,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         : TextManager.getString(locale, Category.MODERATION, "mod_total")
         );
         if (durationMinutes != null) {
-            content = content + " " + TextManager.getString(locale, Category.MODERATION,"mod_duration", TimeUtil.getRemainingTimeString(locale, durationMinutes * 60_000L, true));
+            content = content + " " + TextManager.getString(locale, Category.MODERATION,"mod_duration", TimeUtil.getDurationString(Duration.ofMinutes(durationMinutes)));
         }
         return content;
     }

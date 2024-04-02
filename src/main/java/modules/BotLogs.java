@@ -14,6 +14,7 @@ import javafx.util.Pair;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.entities.User;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -108,7 +109,7 @@ public class BotLogs {
                     }
                     yield value;
                 }
-                case DURATION -> TimeUtil.getRemainingTimeString(locale, Long.parseLong(value) * 60_000, false);
+                case DURATION -> TimeUtil.getDurationString(locale, Duration.ofMinutes(Long.parseLong(value)));
                 case CHANNEL -> {
                     AtomicGuildChannel atomicGuildChannel = new AtomicGuildChannel(guildId, Long.parseLong(value));
                     if (inBlocks) {

@@ -1,8 +1,5 @@
 package modules;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Locale;
 import commands.Category;
 import constants.Emojis;
 import core.EmbedFactory;
@@ -11,12 +8,16 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Locale;
+
 public class Giveaway {
 
     public static EmbedBuilder getMessageEmbed(Locale locale, String title, String desc, int amountOfWinners,
                                                Emoji emoji, long durationMinutes, String imageUrl, Instant instant) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle("🎆 " + title)
+                .setTitle(title)
                 .setDescription(desc)
                 .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
