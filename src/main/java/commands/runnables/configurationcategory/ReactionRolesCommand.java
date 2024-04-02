@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
@@ -62,16 +63,15 @@ import java.util.concurrent.TimeoutException;
 )
 public class ReactionRolesCommand extends NavigationAbstract implements OnReactionListener, OnStaticReactionAddListener, OnStaticReactionRemoveListener, OnStaticButtonListener, OnStaticStringSelectMenuListener {
 
-    public final static int TITLE_LENGTH_MAX = 256;
-    public final static int DESC_LENGTH_MAX = 1024;
-    public final static int SLOTS_TEXT_LENGTH_MAX = 1024;
-    public static final int MAX_REACTION_SLOTS = 20;
-    public static final int MAX_SELECT_MENU_SLOTS = 24;
-    public static final int MAX_BUTTON_SLOTS = 25;
-    public static final int MAX_SLOTS_TOTAL = MAX_BUTTON_SLOTS;
+    public final static int TITLE_LENGTH_MAX = MessageEmbed.TITLE_MAX_LENGTH;
+    public final static int DESC_LENGTH_MAX = MessageEmbed.VALUE_MAX_LENGTH;
+    public final static int SLOTS_TEXT_LENGTH_MAX = MessageEmbed.VALUE_MAX_LENGTH;
+    public static final int MAX_REACTION_SLOTS = Message.MAX_REACTIONS;
+    public static final int MAX_SELECT_MENU_SLOTS = StringSelectMenu.OPTIONS_MAX_AMOUNT - 1;
+    public static final int MAX_SLOTS_TOTAL = 25;
     public static final int MAX_ROLE_MESSAGES_FREE = 10;
-    public static final int MAX_ROLE_REQUIREMENTS = 25;
-    public static final int MAX_ROLES = 10;
+    public static final int MAX_ROLE_REQUIREMENTS = EntitySelectMenu.OPTIONS_MAX_AMOUNT;
+    public static final int MAX_ROLES = EntitySelectMenu.OPTIONS_MAX_AMOUNT;
     public static final int CUSTOM_LABEL_MAX_LENGTH = 100;
 
     private final static int

@@ -50,7 +50,7 @@ public class RolesStateProcessor extends AbstractStateProcessor<List<Long>> {
     protected void addActionRows(ArrayList<ActionRow> actionRows) {
         List<EntitySelectMenu.DefaultValue> defaultValues = getter.call().stream().map(EntitySelectMenu.DefaultValue::role).collect(Collectors.toList());
         EntitySelectMenu entitySelectMenu = EntitySelectMenu.create(SELECT_MENU_ID, EntitySelectMenu.SelectTarget.ROLE)
-                .setDefaultValues(defaultValues)
+                .setDefaultValues(defaultValues.stream().limit(max).collect(Collectors.toList()))
                 .setRequiredRange(min, max)
                 .build();
         actionRows.add(ActionRow.of(entitySelectMenu));

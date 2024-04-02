@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -55,8 +56,8 @@ import java.util.stream.Collectors;
 )
 public class GiveawayCommand extends NavigationAbstract implements OnReactionListener {
 
-    public final static int ITEM_LENGTH_MAX = 250;
-    public final static int DESC_LENGTH_MAX = 1000;
+    public final static int ITEM_LENGTH_MAX = MessageEmbed.TITLE_MAX_LENGTH;
+    public final static int DESC_LENGTH_MAX = MessageEmbed.VALUE_MAX_LENGTH;
     public final static int WINNERS_MIN = 1;
     public final static int WINNERS_MAX = 20;
     public final static long DURATION_MINUTES_MAX = 999 * 24 * 60;

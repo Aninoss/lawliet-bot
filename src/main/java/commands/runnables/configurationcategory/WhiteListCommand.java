@@ -2,29 +2,25 @@ package commands.runnables.configurationcategory;
 
 import commands.Category;
 import commands.CommandEvent;
-import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.GuildChannelStateProcessor;
 import constants.LogStatus;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicGuildChannel;
-import core.utils.JDAUtil;
-import core.utils.MentionUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
-import mysql.modules.whitelistedchannels.WhiteListedChannelsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,10 +34,11 @@ import java.util.Locale;
 )
 public class WhiteListCommand extends NavigationAbstract {
 
-    public static final int MAX_CHANNELS = 100;
+    public static final int MAX_CHANNELS = EntitySelectMenu.OPTIONS_MAX_AMOUNT;
 
-    private NavigationHelper<AtomicGuildChannel> channelNavigationHelper;
-    private CustomObservableList<AtomicGuildChannel> whiteListedChannels;
+    public static final int STATE_CHANNELS = 1;
+
+    private CustomObservableList<Long> whiteListedChannelIds;
 
     public WhiteListCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -49,91 +46,58 @@ public class WhiteListCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        WhiteListedChannelsData whiteListedChannelsData = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
-        whiteListedChannels = AtomicGuildChannel.transformIdList(event.getGuild(), whiteListedChannelsData.getChannelIds());
-        channelNavigationHelper = new NavigationHelper<>(this, guildEntity -> whiteListedChannels, AtomicGuildChannel.class, MAX_CHANNELS);
         setLog(LogStatus.WARNING, TextManager.getString(getLocale(), Category.CONFIGURATION, "cperms_obsolete", getPrefix()));
-        registerNavigationListener(event.getMember());
+        whiteListedChannelIds = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).getChannelIds();
+
+        registerNavigationListener(event.getMember(), List.of(
+                new GuildChannelStateProcessor(this, STATE_CHANNELS, DEFAULT_STATE, getString("state0_mchannel"),
+                        1, MAX_CHANNELS, Collections.emptyList(), () -> whiteListedChannelIds,
+                        channelIds -> {
+                            whiteListedChannelIds.clear();
+                            whiteListedChannelIds.addAll(channelIds);
+                        })
+        ));
         return true;
     }
 
-    @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
-        if (state == 1) {
-            List<GuildChannel> channelList = MentionUtil.getGuildChannels(event.getGuild(), input).getList();
-            return channelNavigationHelper.addData(AtomicGuildChannel.from(channelList), input, event.getMember(), 0, BotLogEntity.Event.CHANNEL_WHITELIST);
-        }
-
-        return null;
-    }
-
-    @Override
-    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
-        switch (state) {
-            case 0:
-                switch (i) {
-                    case -1 -> {
-                        deregisterListenersWithComponentMessage();
-                        return false;
-                    }
-                    case 0 -> {
-                        channelNavigationHelper.startDataAdd(1);
-                        return true;
-                    }
-                    case 1 -> {
-                        channelNavigationHelper.startDataRemove(2);
-                        return true;
-                    }
-                    case 2 -> {
-                        if (!whiteListedChannels.isEmpty()) {
-                            getEntityManager().getTransaction().begin();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CHANNEL_WHITELIST, event.getMember(), null, JDAUtil.toIdList(whiteListedChannels));
-                            getEntityManager().getTransaction().commit();
-
-                            whiteListedChannels.clear();
-                            setLog(LogStatus.SUCCESS, getString("channelcleared"));
-                        } else {
-                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_start_remove_none_channel"));
-                        }
-                        return true;
-                    }
-                }
+    @ControllerButton(state = DEFAULT_STATE)
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1 -> {
+                deregisterListenersWithComponentMessage();
                 return false;
+            }
+            case 0 -> {
+                setState(1);
+                return true;
+            }
+            case 1 -> {
+                if (!whiteListedChannelIds.isEmpty()) {
+                    getEntityManager().getTransaction().begin();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CHANNEL_WHITELIST, event.getMember(), null, whiteListedChannelIds);
+                    getEntityManager().getTransaction().commit();
 
-            case 1:
-                if (i == -1) {
-                    setState(0);
-                    return true;
+                    whiteListedChannelIds.clear();
+                    setLog(LogStatus.SUCCESS, getString("channelcleared"));
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_start_remove_none_channel"));
                 }
-                break;
-
-            case 2:
-                return channelNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.CHANNEL_WHITELIST);
+                return true;
+            }
         }
         return false;
     }
 
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
+    @Draw(state = DEFAULT_STATE)
+    public EmbedBuilder drawDefault(Member member) {
         String everyChannel = getString("all");
-        switch (state) {
-            case 0 -> {
-                setComponents(getString("state0_options").split("\n"));
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(
-                                getString("state0_mchannel"),
-                                new ListGen<AtomicGuildChannel>().getList(whiteListedChannels, everyChannel, m -> m.getPrefixedNameInField(getLocale())),
-                                true
-                        );
-            }
-            case 1 -> {
-                return channelNavigationHelper.drawDataAdd();
-            }
-            case 2 -> {
-                return channelNavigationHelper.drawDataRemove(getLocale());
-            }
-        }
-        return null;
+        setComponents(getString("state0_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
+                .addField(
+                        getString("state0_mchannel"),
+                        new ListGen<AtomicGuildChannel>().getList(AtomicGuildChannel.transformIdList(member.getGuild(), whiteListedChannelIds), everyChannel, m -> m.getPrefixedNameInField(getLocale())),
+                        true
+                );
     }
 
 }
