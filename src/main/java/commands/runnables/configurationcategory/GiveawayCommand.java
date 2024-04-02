@@ -226,7 +226,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 0:
-                Modal modal = ModalMediator.createSimpleStringModal(this, getString("state3_mtitle"), TextInputStyle.SHORT,
+                Modal modal = ModalMediator.createStringModal(this, getString("state3_mtitle"), TextInputStyle.SHORT,
                         1, ITEM_LENGTH_MAX, item, value -> item = value
                 );
                 event.replyModal(modal).queue();
@@ -238,7 +238,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
             case 2:
                 if (!editMode) {
-                    modal = ModalMediator.createSimpleDurationModal(this, getString("state3_mduration"),
+                    modal = ModalMediator.createDurationModal(this, getString("state3_mduration"),
                             1, DURATION_MINUTES_MAX, durationMinutes, value -> durationMinutes = value
                     );
                     event.replyModal(modal).queue();
@@ -249,7 +249,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 }
 
             case 3:
-                modal = ModalMediator.createSimpleIntModal(this, getString("state3_mwinners"), 1,
+                modal = ModalMediator.createIntModal(this, getString("state3_mwinners"), 1,
                         WINNERS_MAX, amountOfWinners, value -> amountOfWinners = value
                 );
                 event.replyModal(modal).queue();
@@ -379,7 +379,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
             }
             case 1: {
-                Modal modal = ModalMediator.createSimpleIntModal(this, getString("state3_mwinners"), WINNERS_MIN, WINNERS_MAX, rerollWinners, value -> rerollWinners = value);
+                Modal modal = ModalMediator.createIntModal(this, getString("state3_mwinners"), WINNERS_MIN, WINNERS_MAX, rerollWinners, value -> rerollWinners = value);
                 event.replyModal(modal).queue();
                 return false;
             }

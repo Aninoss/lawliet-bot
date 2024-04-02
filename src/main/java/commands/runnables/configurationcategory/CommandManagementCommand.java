@@ -5,12 +5,12 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.DisabledCommands;
 import core.EmbedFactory;
 import core.TextManager;
+import core.modals.ModalMediator;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
@@ -19,8 +19,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -35,10 +37,9 @@ import java.util.stream.Collectors;
 )
 public class CommandManagementCommand extends NavigationAbstract {
 
-    private static final int MAIN = 0,
+    private static final int
             SET_CATEGORIES = 1,
-            ADD_COMMANDS = 2,
-            REMOVE_COMMANDS = 3;
+            REMOVE_COMMANDS = 2;
 
     public CommandManagementCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -50,46 +51,7 @@ public class CommandManagementCommand extends NavigationAbstract {
         return true;
     }
 
-    @ControllerMessage(state = ADD_COMMANDS)
-    public MessageInputResponse onMessageAddCommands(MessageReceivedEvent event, String input) {
-        List<String> commands = Arrays.stream(input.split(" "))
-                .map(trigger -> CommandContainer.getCommandMap().get(trigger))
-                .filter(Objects::nonNull)
-                .filter(clazz -> {
-                    CommandProperties commandProperties = Command.getCommandProperties(clazz);
-                    return commandProperties.exclusiveGuilds().length == 0 && commandProperties.exclusiveUsers().length == 0;
-                })
-                .map(clazz -> Command.getCommandProperties(clazz).trigger())
-                .distinct()
-                .collect(Collectors.toList());
-
-        if (commands.isEmpty()) {
-            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-            return MessageInputResponse.FAILED;
-        }
-
-        GuildEntity guildEntity = getGuildEntity();
-        Set<String> disabledCommands = guildEntity.getDisabledCommandsAndCategories();
-        List<String> newCommands = commands.stream()
-                .filter(trigger -> !disabledCommands.contains(trigger))
-                .collect(Collectors.toList());
-
-        if (newCommands.isEmpty()) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_exists", commands.size() != 1));
-            return MessageInputResponse.FAILED;
-        }
-
-        guildEntity.beginTransaction();
-        guildEntity.getDisabledCommandsAndCategories().addAll(newCommands);
-        BotLogEntity.log(guildEntity.getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), newCommands, null);
-        guildEntity.commitTransaction();
-
-        setLog(LogStatus.SUCCESS, getString("addcommands_set", newCommands.size() != 1, StringUtil.numToString(newCommands.size())));
-        setState(MAIN);
-        return MessageInputResponse.SUCCESS;
-    }
-
-    @ControllerButton(state = MAIN)
+    @ControllerButton(state = DEFAULT_STATE)
     public boolean onButtonMain(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1 -> {
@@ -101,8 +63,44 @@ public class CommandManagementCommand extends NavigationAbstract {
                 return true;
             }
             case 1 -> {
-                setState(ADD_COMMANDS);
-                return true;
+                Modal modal = ModalMediator.createStringModalWithOptionalLog(this, getString("state0_mcommands"), TextInputStyle.SHORT, 1, TextInput.MAX_VALUE_LENGTH, null, input -> {
+                    List<String> commands = Arrays.stream(input.split(" "))
+                            .map(trigger -> CommandContainer.getCommandMap().get(trigger))
+                            .filter(Objects::nonNull)
+                            .filter(clazz -> {
+                                CommandProperties commandProperties = Command.getCommandProperties(clazz);
+                                return commandProperties.exclusiveGuilds().length == 0 && commandProperties.exclusiveUsers().length == 0;
+                            })
+                            .map(clazz -> Command.getCommandProperties(clazz).trigger())
+                            .distinct()
+                            .collect(Collectors.toList());
+
+                    if (commands.isEmpty()) {
+                        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+                        return false;
+                    }
+
+                    GuildEntity guildEntity = getGuildEntity();
+                    Set<String> disabledCommands = guildEntity.getDisabledCommandsAndCategories();
+                    List<String> newCommands = commands.stream()
+                            .filter(trigger -> !disabledCommands.contains(trigger))
+                            .collect(Collectors.toList());
+
+                    if (newCommands.isEmpty()) {
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_exists", commands.size() != 1));
+                        return false;
+                    }
+
+                    guildEntity.beginTransaction();
+                    guildEntity.getDisabledCommandsAndCategories().addAll(newCommands);
+                    BotLogEntity.log(guildEntity.getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), newCommands, null);
+                    guildEntity.commitTransaction();
+
+                    setLog(LogStatus.SUCCESS, getString("addcommands_set", newCommands.size() != 1, StringUtil.numToString(newCommands.size())));
+                    return false;
+                });
+                event.replyModal(modal).queue();
+                return false;
             }
             case 2 -> {
                 if (!DisabledCommands.getDisabledCommands(getGuildEntity()).isEmpty()) {
@@ -122,16 +120,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     @ControllerButton(state = SET_CATEGORIES)
     public boolean onButtonSetCategories(ButtonInteractionEvent event, int i) {
         if (i == -1) {
-            setState(MAIN);
-            return true;
-        }
-        return false;
-    }
-
-    @ControllerButton(state = ADD_COMMANDS)
-    public boolean onButtonAddCommands(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(MAIN);
+            setState(DEFAULT_STATE);
             return true;
         }
         return false;
@@ -140,7 +129,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     @ControllerButton(state = REMOVE_COMMANDS)
     public boolean onButtonRemoveCommands(ButtonInteractionEvent event, int i) {
         if (i == -1) {
-            setState(MAIN);
+            setState(DEFAULT_STATE);
             return true;
         } else {
             GuildEntity guildEntity = getGuildEntity();
@@ -156,7 +145,7 @@ public class CommandManagementCommand extends NavigationAbstract {
 
             setLog(LogStatus.SUCCESS, getString("commandremoved", trigger));
             if (DisabledCommands.getDisabledCommands(guildEntity).isEmpty()) {
-                setState(MAIN);
+                setState(DEFAULT_STATE);
             }
             return true;
         }
@@ -183,19 +172,19 @@ public class CommandManagementCommand extends NavigationAbstract {
         guildEntity.commitTransaction();
 
         setLog(LogStatus.SUCCESS, getString("categoryset_set"));
-        setState(MAIN);
+        setState(DEFAULT_STATE);
         return true;
     }
 
-    @Draw(state = MAIN)
+    @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawMain(Member member) {
         setComponents(getString("state0_options").split("\n"));
         List<String> categoryNameList = DisabledCommands.getDisabledCommandCategories(getGuildEntity()).stream()
                 .map(category -> TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()))
                 .collect(Collectors.toList());
         return EmbedFactory.getEmbedDefault(this, getString("state0_desc"))
-                .addField(getString("state0_mcategories"), StringUtil.shortenString(generateList(categoryNameList), 1024), false)
-                .addField(getString("state0_mcommands"), StringUtil.shortenString(generateList(DisabledCommands.getDisabledCommands(getGuildEntity())), 1024), false);
+                .addField(getString("state0_mcategories"), StringUtil.shortenString(generateList(categoryNameList), 1024), true)
+                .addField(getString("state0_mcommands"), StringUtil.shortenString(generateList(DisabledCommands.getDisabledCommands(getGuildEntity())), 1024), true);
     }
 
     @Draw(state = SET_CATEGORIES)
@@ -212,11 +201,6 @@ public class CommandManagementCommand extends NavigationAbstract {
         selectionMenuBuilder = selectionMenuBuilder.setDefaultValues(categoryIdList);
         setComponents(selectionMenuBuilder.build());
         return EmbedFactory.getEmbedDefault(this, getString("state1_desc"), getString("state1_title"));
-    }
-
-    @Draw(state = ADD_COMMANDS)
-    public EmbedBuilder onDrawAddCommands(Member member) {
-        return EmbedFactory.getEmbedDefault(this, getString("state2_desc"), getString("state2_title"));
     }
 
     @Draw(state = REMOVE_COMMANDS)

@@ -242,7 +242,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 0:
-                Modal modal = ModalMediator.createSimpleStringModal(this, getString("state3_mtitle"), TextInputStyle.SHORT,
+                Modal modal = ModalMediator.createStringModal(this, getString("state3_mtitle"), TextInputStyle.SHORT,
                         1, TITLE_LENGTH_MAX, configuration.getTitle(), s -> configuration.setTitle(s)
                 );
                 event.replyModal(modal).queue();
@@ -354,7 +354,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
             }
             case 2: {
-                Modal modal = ModalMediator.createSimpleStringModal(this, getString("addslot_customlabel"), TextInputStyle.SHORT, 0, CUSTOM_LABEL_MAX_LENGTH, slotConfiguration.getCustomLabel(), s -> slotConfiguration.setCustomLabel(s));
+                Modal modal = ModalMediator.createStringModal(this, getString("addslot_customlabel"),
+                        TextInputStyle.SHORT, 0, CUSTOM_LABEL_MAX_LENGTH, slotConfiguration.getCustomLabel(),
+                        s -> slotConfiguration.setCustomLabel(s)
+                );
                 event.replyModal(modal).queue();
                 return false;
             }
