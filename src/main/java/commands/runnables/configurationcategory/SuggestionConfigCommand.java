@@ -46,15 +46,15 @@ public class SuggestionConfigCommand extends NavigationAbstract {
         suggestionsData = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
 
         Permission[] permissions = {Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY};
-        GuildChannelStateProcessor channelStateProcessor = new GuildChannelStateProcessor(this, STATE_CHANNEL, DEFAULT_STATE, getString("state0_mchannel"), 1, 1,
+        GuildChannelStateProcessor channelStateProcessor = new GuildChannelStateProcessor(this, STATE_CHANNEL, DEFAULT_STATE, getString("state0_mchannel"), false,
                 JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES, permissions,
-                () -> List.of(suggestionsData.getChannelId().orElse(0L)),
-                channelIds -> {
+                () -> suggestionsData.getChannelId().orElse(null),
+                channelId -> {
                     getEntityManager().getTransaction().begin();
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getChannelId().orElse(null), channelIds.get(0));
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getChannelId().orElse(null), channelId);
                     getEntityManager().getTransaction().commit();
 
-                    suggestionsData.setChannelId(channelIds.get(0));
+                    suggestionsData.setChannelId(channelId);
                 }
         );
         registerNavigationListener(event.getMember(), List.of(channelStateProcessor));

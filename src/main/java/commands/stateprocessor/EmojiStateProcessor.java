@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class EmojiStateProcessor extends AbstractStateProcessor<Emoji> {
+public class EmojiStateProcessor extends AbstractStateProcessor<Emoji, Emoji> {
 
     public EmojiStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, boolean canClear, Consumer<Emoji> setter) {
         this(command, state, stateBack, propertyName, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_emoji_desc"), canClear, setter);

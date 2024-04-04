@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.function.Consumer;
 
-public class StringStateProcessor extends AbstractStateProcessor<String> {
+public class StringStateProcessor extends AbstractStateProcessor<String, String> {
 
     private final int max;
 

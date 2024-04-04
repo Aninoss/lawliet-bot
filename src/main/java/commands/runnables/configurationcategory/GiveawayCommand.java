@@ -100,7 +100,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         giveawayMap = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         emojiStateProcessor = new EmojiStateProcessor(this, STATE_SET_EMOJI, STATE_CONFIG, getString("state3_memoji"), false, emoji -> this.emoji = emoji);
 
-        List<? extends AbstractStateProcessor<?>> stateProcessors = List.of(
+        List<? extends AbstractStateProcessor<?, ?>> stateProcessors = List.of(
                 new StringStateProcessor(this, STATE_SET_DESC, STATE_CONFIG, getString("state3_mdescription"), DESC_LENGTH_MAX, true, value -> description = value != null ? value : ""),
                 new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"), true, attachment -> {
                     if (attachment != null) {

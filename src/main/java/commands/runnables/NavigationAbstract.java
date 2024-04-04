@@ -46,7 +46,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     private int page = 0;
     private int pageMax = 0;
     private List<ActionRow> actionRows = Collections.emptyList();
-    private final HashMap<Integer, AbstractStateProcessor> stateProcessorMap = new HashMap<>();
+    private final HashMap<Integer, AbstractStateProcessor<?, ?>> stateProcessorMap = new HashMap<>();
 
     public NavigationAbstract(Locale locale, String prefix) {
         super(locale, prefix);
@@ -56,8 +56,8 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         registerNavigationListener(member, Collections.emptyList());
     }
 
-    protected void registerNavigationListener(Member member, List<? extends AbstractStateProcessor<?>> stateProcessors) {
-        for (AbstractStateProcessor<?> stateProcessor : stateProcessors) {
+    protected void registerNavigationListener(Member member, List<? extends AbstractStateProcessor<?, ?>> stateProcessors) {
+        for (AbstractStateProcessor<?, ?> stateProcessor : stateProcessors) {
             stateProcessorMap.put(stateProcessor.getState(), stateProcessor);
         }
 

@@ -118,7 +118,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             }
         });
 
-        List<? extends AbstractStateProcessor<?>> stateProcessors = List.of(
+        List<? extends AbstractStateProcessor<?, ?>> stateProcessors = List.of(
                 new StringStateProcessor(this, STATE_SET_DESC, STATE_CONFIG, getString("state3_mdescription"), DESC_LENGTH_MAX, true, s -> configuration.setDescription(s)),
                 new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"), true, attachment -> {
                     if (attachment != null) {
@@ -132,9 +132,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                         configuration.setImageFilename(null);
                     }
                 }),
-                new RolesStateProcessor(this, STATE_SET_ROLE_REQUIREMENTS, STATE_CONFIG, getString("state3_mrolerequirements"), 0, MAX_ROLE_REQUIREMENTS, false, () -> configuration.getRoleRequirementIds(), roleIds -> configuration.setRoleRequirementIds(roleIds)),
+                new RoleListStateProcessor(this, STATE_SET_ROLE_REQUIREMENTS, STATE_CONFIG, getString("state3_mrolerequirements"), 0, MAX_ROLE_REQUIREMENTS, false, () -> configuration.getRoleRequirementIds(), update -> configuration.setRoleRequirementIds(update.getNewValues())),
                 emojiStateProcessor,
-                new RolesStateProcessor(this, STATE_ADD_SLOT_SET_ROLES, STATE_ADD_SLOT, getString("addslot_roles"), 1, MAX_ROLES, true, () -> slotConfiguration.getRoleIds(), roleIds -> slotConfiguration.setRoleIds(roleIds))
+                new RoleListStateProcessor(this, STATE_ADD_SLOT_SET_ROLES, STATE_ADD_SLOT, getString("addslot_roles"), 1, MAX_ROLES, true, () -> slotConfiguration.getRoleIds(), update -> slotConfiguration.setRoleIds(update.getNewValues()))
         );
 
         registerNavigationListener(event.getMember(), stateProcessors);

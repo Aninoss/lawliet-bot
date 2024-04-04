@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.function.Consumer;
 
-public class FileStateProcessor extends AbstractStateProcessor<Message.Attachment> {
+public class FileStateProcessor extends AbstractStateProcessor<Message.Attachment, Message.Attachment> {
 
     public FileStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, boolean canClear, Consumer<Message.Attachment> setter) {
         this(command, state, stateBack, propertyName, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_file_desc"), canClear, setter);

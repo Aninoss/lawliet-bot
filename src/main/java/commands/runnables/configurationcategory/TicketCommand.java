@@ -1,19 +1,21 @@
 package commands.runnables.configurationcategory;
 
 import commands.CommandEvent;
-import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnStaticButtonListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.AbstractStateProcessor;
+import commands.stateprocessor.GuildChannelStateProcessor;
+import commands.stateprocessor.RoleListStateProcessor;
+import commands.stateprocessor.StringStateProcessor;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
-import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.interactionresponse.ComponentInteractionResponse;
 import core.utils.*;
@@ -27,16 +29,16 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -64,22 +66,17 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public final static int MAX_GREETING_TEXT_LENGTH = 1000;
 
     public final static UnicodeEmoji TICKET_CLOSE_EMOJI = Emojis.X;
-
-    private final static int
-            MAIN = 0,
-            ANNOUNCEMENT_CHANNEL = 1,
-            ADD_STAFF_ROLE = 2,
-            REMOVE_STAFF_ROLE = 3,
-            CREATE_TICKET_MESSAGE = 4,
-            GREETING_TEXT = 5,
-            ASSIGNMENT_MODE = 6,
-            CLOSE_ON_INACTIVITY = 7;
     public final static String BUTTON_ID_CREATE = "create";
     public final static String BUTTON_ID_CLOSE = "close";
     public final static String BUTTON_ID_ASSIGN = "assign";
 
-    private NavigationHelper<AtomicRole> staffRoleNavigationHelper;
-    private AtomicStandardGuildMessageChannel atomicPostChannel = null;
+    private final static int
+            STATE_SET_LOG_CHANNEL = 1,
+            STATE_SET_STAFF_ROLES = 2,
+            STATE_CREATE_TICKET_MESSAGE = 4,
+            STATE_SET_GREETING_TEXT = 5,
+            STATE_SET_ASSIGNMENT_MODE = 6,
+            STATE_SET_CLOSE_ON_INACTIVITY = 7;
 
     public TicketCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -87,45 +84,64 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        staffRoleNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getTickets().getStaffRoles(), AtomicRole.class, MAX_STAFF_ROLES, false);
-        registerNavigationListener(event.getMember());
+        List<? extends AbstractStateProcessor<?, ?>> stateProcessors = List.of(
+                new GuildChannelStateProcessor(
+                        this,
+                        STATE_SET_LOG_CHANNEL,
+                        DEFAULT_STATE,
+                        getString("state0_mannouncement"),
+                        getString("state1_description"),
+                        true,
+                        JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES,
+                        new Permission[]{Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS},
+                        () -> getGuildEntity().getTickets().getLogChannelId(),
+                        channelId -> {
+                            TicketsEntity tickets = getGuildEntity().getTickets();
+                            tickets.beginTransaction();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_LOG_CHANNEL, event.getMember(), tickets.getLogChannelId(), channelId);
+                            tickets.setLogChannelId(channelId);
+                            tickets.commitTransaction();
+                        }),
+                new RoleListStateProcessor(
+                        this,
+                        STATE_SET_STAFF_ROLES,
+                        DEFAULT_STATE,
+                        getString("state0_mstaffroles"),
+                        getString("state2_description"),
+                        0,
+                        MAX_STAFF_ROLES,
+                        false,
+                        () -> getGuildEntity().getTickets().getStaffRoleIds(),
+                        update -> {
+                            TicketsEntity tickets = getGuildEntity().getTickets();
+                            tickets.beginTransaction();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_STAFF_ROLES, event.getMember(), update.getAddedValues(), update.getRemovedValues());
+                            tickets.setStaffRoleIds(update.getNewValues());
+                            tickets.commitTransaction();
+                        }
+                ),
+                new StringStateProcessor(
+                        this,
+                        STATE_SET_GREETING_TEXT,
+                        DEFAULT_STATE,
+                        getString("state0_mcreatemessage"),
+                        MAX_GREETING_TEXT_LENGTH,
+                        true,
+                        input -> {
+                            TicketsEntity tickets = getGuildEntity().getTickets();
+                            tickets.beginTransaction();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_GREETING_TEXT, event.getMember(), tickets.getGreetingText(), input);
+                            tickets.setGreetingText(input);
+                            tickets.commitTransaction();
+                        }
+                )
+        );
+
+        registerNavigationListener(event.getMember(), stateProcessors);
         return true;
     }
 
-    @ControllerMessage(state = ADD_STAFF_ROLE)
-    public MessageInputResponse onMessageAddStaffRole(MessageReceivedEvent event, String input) {
-        List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-        return staffRoleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), MAIN, BotLogEntity.Event.TICKETS_STAFF_ROLES);
-    }
-
-    @ControllerMessage(state = ANNOUNCEMENT_CHANNEL)
-    public MessageInputResponse onMessageAnnouncementChannel(MessageReceivedEvent event, String input) {
-        List<GuildMessageChannel> channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
-        if (channelList.isEmpty()) {
-            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-            return MessageInputResponse.FAILED;
-        } else {
-            GuildMessageChannel channel = channelList.get(0);
-
-            String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS);
-            if (channelMissingPerms != null) {
-                setLog(LogStatus.FAILURE, channelMissingPerms);
-                return MessageInputResponse.FAILED;
-            }
-
-            TicketsEntity tickets = getGuildEntity().getTickets();
-            tickets.beginTransaction();
-            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_LOG_CHANNEL, event.getMember(), tickets.getLogChannelId(), channel.getIdLong());
-            tickets.setLogChannelId(channel.getIdLong());
-            tickets.commitTransaction();
-
-            setLog(LogStatus.SUCCESS, getString("announcement_set"));
-            setState(MAIN);
-            return MessageInputResponse.SUCCESS;
-        }
-    }
-
-    @ControllerMessage(state = CLOSE_ON_INACTIVITY)
+    @ControllerMessage(state = STATE_SET_CLOSE_ON_INACTIVITY)
     public MessageInputResponse onMessageCloseOnInactivity(MessageReceivedEvent event, String input) {
         int hours = (int) (MentionUtil.getTimeMinutes(input).getValue() / 60);
         if (hours > 0) {
@@ -141,7 +157,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             tickets.commitTransaction();
 
             setLog(LogStatus.SUCCESS, getString("autoclose_set"));
-            setState(MAIN);
+            setState(DEFAULT_STATE);
             return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
@@ -149,40 +165,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
     }
 
-    @ControllerMessage(state = CREATE_TICKET_MESSAGE)
-    public MessageInputResponse onMessageCreateTicketMessage(MessageReceivedEvent event, String input) {
-        List<StandardGuildMessageChannel> channelList = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), input).getList();
-        if (channelList.isEmpty()) {
-            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-            return MessageInputResponse.FAILED;
-        } else {
-            atomicPostChannel = new AtomicStandardGuildMessageChannel(channelList.get(0));
-            return MessageInputResponse.SUCCESS;
-        }
-    }
-
-    @ControllerMessage(state = GREETING_TEXT)
-    public MessageInputResponse onMessageGreetingText(MessageReceivedEvent event, String input) {
-        if (!input.isEmpty()) {
-            if (input.length() <= MAX_GREETING_TEXT_LENGTH) {
-                TicketsEntity tickets = getGuildEntity().getTickets();
-                tickets.beginTransaction();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_GREETING_TEXT, event.getMember(), tickets.getGreetingText(), input);
-                tickets.setGreetingText(input);
-                tickets.commitTransaction();
-
-                setLog(LogStatus.SUCCESS, getString("greetingset"));
-                setState(0);
-                return MessageInputResponse.SUCCESS;
-            } else {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", StringUtil.numToString(MAX_GREETING_TEXT_LENGTH)));
-                return MessageInputResponse.FAILED;
-            }
-        }
-        return MessageInputResponse.FAILED;
-    }
-
-    @ControllerButton(state = MAIN)
+    @ControllerButton(state = DEFAULT_STATE)
     public boolean onButtonMain(ButtonInteractionEvent event, int i) {
         TicketsEntity tickets = getGuildEntity().getTickets();
 
@@ -192,35 +175,31 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return false;
             }
             case 0 -> {
-                setState(ANNOUNCEMENT_CHANNEL);
+                setState(STATE_SET_LOG_CHANNEL);
                 return true;
             }
             case 1 -> {
-                staffRoleNavigationHelper.startDataAdd(ADD_STAFF_ROLE);
+                setState(STATE_SET_STAFF_ROLES);
                 return true;
             }
             case 2 -> {
-                staffRoleNavigationHelper.startDataRemove(REMOVE_STAFF_ROLE);
+                setState(STATE_SET_ASSIGNMENT_MODE);
                 return true;
             }
             case 3 -> {
-                setState(ASSIGNMENT_MODE);
-                return true;
-            }
-            case 4 -> {
                 if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                    setState(CLOSE_ON_INACTIVITY);
+                    setState(STATE_SET_CLOSE_ON_INACTIVITY);
                     return true;
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
                 }
                 return true;
             }
-            case 5 -> {
-                setState(GREETING_TEXT);
+            case 4 -> {
+                setState(STATE_SET_GREETING_TEXT);
                 return true;
             }
-            case 6 -> {
+            case 5 -> {
                 tickets.beginTransaction();
                 tickets.setPingStaffRoles(!tickets.getPingStaffRoles());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_PING_STAFF_ROLES, event.getMember(), null, tickets.getPingStaffRoles());
@@ -228,7 +207,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getPingStaffRoles(), getString("state0_mping")));
                 return true;
             }
-            case 7 -> {
+            case 6 -> {
                 tickets.beginTransaction();
                 tickets.setEnforceModal(!tickets.getEnforceModal());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_ENFORCE_MODAL, event.getMember(), null, tickets.getEnforceModal());
@@ -236,7 +215,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getEnforceModal(), getString("state0_mtextinput")));
                 return true;
             }
-            case 8 -> {
+            case 7 -> {
                 tickets.beginTransaction();
                 tickets.setMembersCanCloseTickets(!tickets.getMembersCanCloseTickets());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_MEMBERS_CAN_CLOSE_TICKETS, event.getMember(), null, tickets.getMembersCanCloseTickets());
@@ -244,7 +223,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getMembersCanCloseTickets(), getString("state0_mmembercanclose")));
                 return true;
             }
-            case 9 -> {
+            case 8 -> {
                 if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     tickets.beginTransaction();
                     tickets.setProtocols(!tickets.getProtocols());
@@ -256,7 +235,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 }
                 return true;
             }
-            case 10 -> {
+            case 9 -> {
                 tickets.beginTransaction();
                 tickets.setDeleteChannelsOnClose(!tickets.getDeleteChannelsOnClose());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_DELETE_CHANNELS_ON_CLOSE, event.getMember(), null, tickets.getDeleteChannelsOnClose());
@@ -264,8 +243,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 setLog(LogStatus.SUCCESS, getString("boolean_set", tickets.getDeleteChannelsOnClose(), getString("state0_mdeletechannel")));
                 return true;
             }
-            case 11 -> {
-                setState(CREATE_TICKET_MESSAGE);
+            case 10 -> {
+                setState(STATE_CREATE_TICKET_MESSAGE);
                 return true;
             }
             default -> {
@@ -274,46 +253,10 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
     }
 
-    @ControllerButton(state = ANNOUNCEMENT_CHANNEL)
-    public boolean onButtonAnnouncementChannel(ButtonInteractionEvent event, int i) {
-        switch (i) {
-            case -1 -> {
-                setState(MAIN);
-                return true;
-            }
-            case 0 -> {
-                TicketsEntity tickets = getGuildEntity().getTickets();
-                tickets.beginTransaction();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_LOG_CHANNEL, event.getMember(), tickets.getLogChannelId(), null);
-                tickets.setLogChannelId(null);
-                tickets.commitTransaction();
-
-                setLog(LogStatus.SUCCESS, getString("announcement_set"));
-                setState(MAIN);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @ControllerButton(state = ADD_STAFF_ROLE)
-    public boolean onButtonAddStaffRole(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(MAIN);
-            return true;
-        }
-        return false;
-    }
-
-    @ControllerButton(state = REMOVE_STAFF_ROLE)
-    public boolean onButtonRemoveStaffRole(ButtonInteractionEvent event, int i) {
-        return staffRoleNavigationHelper.removeData(i, event.getMember(), MAIN, BotLogEntity.Event.TICKETS_STAFF_ROLES);
-    }
-
-    @ControllerButton(state = ASSIGNMENT_MODE)
+    @ControllerButton(state = STATE_SET_ASSIGNMENT_MODE)
     public boolean onButtonAssignmentMode(ButtonInteractionEvent event, int i) {
         if (i == -1) {
-            setState(MAIN);
+            setState(DEFAULT_STATE);
             return true;
         }
 
@@ -324,14 +267,14 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         tickets.commitTransaction();
 
         setLog(LogStatus.SUCCESS, getString("assignment_set", getString("assignment_modes").split("\n")[i]));
-        setState(MAIN);
+        setState(DEFAULT_STATE);
         return true;
     }
 
-    @ControllerButton(state = CLOSE_ON_INACTIVITY)
+    @ControllerButton(state = STATE_SET_CLOSE_ON_INACTIVITY)
     public boolean onButtonCloseOnInactivity(ButtonInteractionEvent event, int i) {
         if (i == -1) {
-            setState(MAIN);
+            setState(DEFAULT_STATE);
             return true;
         } else if (i == 0) {
             TicketsEntity tickets = getGuildEntity().getTickets();
@@ -346,57 +289,39 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             tickets.commitTransaction();
 
             setLog(LogStatus.SUCCESS, getString("autoclose_set"));
-            setState(MAIN);
+            setState(DEFAULT_STATE);
             return true;
         }
         return false;
     }
 
-    @ControllerButton(state = CREATE_TICKET_MESSAGE)
+    @ControllerButton(state = STATE_CREATE_TICKET_MESSAGE)
     public boolean onButtonCreateTicketMessage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(0);
             return true;
-        } else if (i == 0 && atomicPostChannel != null) {
-            StandardGuildMessageChannel postChannel = atomicPostChannel.get().orElse(null);
-            if (postChannel != null) {
-                String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), postChannel);
-                if (error == null) {
-                    getEntityManager().getTransaction().begin();
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, event.getMember(), postChannel.getId());
-                    getEntityManager().getTransaction().commit();
-
-                    setLog(LogStatus.SUCCESS, getString("message_sent"));
-                    setState(MAIN);
-                } else {
-                    setLog(LogStatus.FAILURE, error);
-                }
-                return true;
-            }
         }
         return false;
     }
 
-    @ControllerButton(state = GREETING_TEXT)
-    public boolean onButtonGreetingText(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(0);
-            return true;
-        } else if (i == 0) {
-            TicketsEntity tickets = getGuildEntity().getTickets();
-            tickets.beginTransaction();
-            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_GREETING_TEXT, event.getMember(), tickets.getGreetingText(), null);
-            tickets.setGreetingText(null);
-            tickets.commitTransaction();
+    @ControllerEntitySelectMenu(state = STATE_CREATE_TICKET_MESSAGE)
+    public boolean onSelectMenuCreateTicketMessage(EntitySelectInteractionEvent event) {
+        StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getMentions().getChannels().get(0);
+        String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), channel);
+        if (error == null) {
+            getEntityManager().getTransaction().begin();
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, event.getMember(), channel.getId());
+            getEntityManager().getTransaction().commit();
 
-            setLog(LogStatus.SUCCESS, getString("greetingset"));
-            setState(0);
-            return true;
+            setLog(LogStatus.SUCCESS, getString("message_sent"));
+            setState(DEFAULT_STATE);
+        } else {
+            setLog(LogStatus.FAILURE, error);
         }
-        return false;
+        return true;
     }
 
-    @Draw(state = MAIN)
+    @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawMain(Member member) {
         TicketsEntity tickets = getGuildEntity().getTickets();
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
@@ -452,23 +377,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         return sb.toString();
     }
 
-    @Draw(state = ANNOUNCEMENT_CHANNEL)
-    public EmbedBuilder onDrawAnnouncementChannel(Member member) {
-        setComponents(getString("state1_options").split("\n"));
-        return staffRoleNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
-    }
-
-    @Draw(state = ADD_STAFF_ROLE)
-    public EmbedBuilder onDrawAddStaffRole(Member member) {
-        return staffRoleNavigationHelper.drawDataAdd(getString("state2_title"), getString("state2_description"));
-    }
-
-    @Draw(state = REMOVE_STAFF_ROLE)
-    public EmbedBuilder onDrawRemoveStaffRole(Member member) {
-        return staffRoleNavigationHelper.drawDataRemove(getString("state3_title"), getString("state3_description"), getLocale());
-    }
-
-    @Draw(state = ASSIGNMENT_MODE)
+    @Draw(state = STATE_SET_ASSIGNMENT_MODE)
     public EmbedBuilder onDrawAssignmentMode(Member member) {
         setComponents(getString("assignment_modes").split("\n"));
         return EmbedFactory.getEmbedDefault(
@@ -478,7 +387,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         );
     }
 
-    @Draw(state = CLOSE_ON_INACTIVITY)
+    @Draw(state = STATE_SET_CLOSE_ON_INACTIVITY)
     public EmbedBuilder onDrawCloseOnInactivity(Member member) {
         setComponents(getString("state7_options").split("\n"));
         return EmbedFactory.getEmbedDefault(
@@ -488,23 +397,19 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         );
     }
 
-    @Draw(state = CREATE_TICKET_MESSAGE)
+    @Draw(state = STATE_CREATE_TICKET_MESSAGE)
     public EmbedBuilder onDrawCreateTicketMessage(Member member) {
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (atomicPostChannel != null) {
-            setComponents(getString("state4_options").split("\n"));
-        }
+        EntitySelectMenu entitySelectMenu = EntitySelectMenu.create("channel", EntitySelectMenu.SelectTarget.CHANNEL)
+                .setChannelTypes(JDAUtil.STANDARD_GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                .setRequiredRange(1, 1)
+                .build();
+        setComponents(entitySelectMenu);
+
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("state4_description", atomicPostChannel != null ? atomicPostChannel.getPrefixedNameInField(getLocale()) : notSet),
+                getString("state4_description"),
                 getString("state4_title")
         );
-    }
-
-    @Draw(state = GREETING_TEXT)
-    public EmbedBuilder onDrawGreetingTextx(Member member) {
-        setComponents(getString("state5_options").split("\n"));
-        return staffRoleNavigationHelper.drawDataAdd(getString("state5_title"), getString("state5_description"));
     }
 
     @Override
