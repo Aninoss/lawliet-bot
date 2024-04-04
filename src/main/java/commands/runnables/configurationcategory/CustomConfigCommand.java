@@ -3,6 +3,7 @@ package commands.runnables.configurationcategory;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.StringStateProcessor;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
@@ -19,15 +20,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -46,7 +44,8 @@ public class CustomConfigCommand extends NavigationAbstract {
 
     private final int
             STATE_ADD_AND_UPDATE = 1,
-            STATE_EDIT = 2;
+            STATE_EDIT = 2,
+            STATE_SET_TEXT_RESPONSE = 3;
 
     private String trigger;
     private String textResponse;
@@ -59,7 +58,12 @@ public class CustomConfigCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        registerNavigationListener(event.getMember());
+        registerNavigationListener(event.getMember(), List.of(
+                new StringStateProcessor(this, STATE_SET_TEXT_RESPONSE, STATE_ADD_AND_UPDATE, getString("add_textresponse"))
+                        .setMax(MAX_TEXT_RESPONSE_LENGTH)
+                        .setClearButton(false)
+                        .setSetter(input -> textResponse = input)
+        ));
         return true;
     }
 
@@ -120,44 +124,21 @@ public class CustomConfigCommand extends NavigationAbstract {
                 return true;
             }
             case 0 -> {
-                String textId = "trigger";
-                TextInput message = TextInput.create(textId, getString("add_trigger"), TextInputStyle.SHORT)
-                        .setValue(trigger)
-                        .setMinLength(1)
-                        .setMaxLength(MAX_COMMAND_TRIGGER_LENGTH)
-                        .build();
-
-                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("add_trigger"), e -> {
-                            String newTrigger = e.getValue(textId).getAsString();
-                            newTrigger = newTrigger.replaceAll("[^a-zA-Z0-9-_]", "").toLowerCase();
-                            if (newTrigger.isEmpty()) {
-                                setLog(LogStatus.FAILURE, getString("error_triggerinvalidchars"));
-                            } else {
-                                trigger = newTrigger;
-                            }
-                            return null;
-                        }).addActionRows(ActionRow.of(message))
-                        .build();
-
+                Modal modal = ModalMediator.createStringModalWithOptionalLog(this, getString("add_trigger"), TextInputStyle.SHORT, 1, MAX_COMMAND_TRIGGER_LENGTH, trigger, newTrigger -> {
+                    newTrigger = newTrigger.replaceAll("[^a-zA-Z0-9-_]", "").toLowerCase();
+                    if (newTrigger.isEmpty()) {
+                        setLog(LogStatus.FAILURE, getString("error_triggerinvalidchars"));
+                    } else {
+                        trigger = newTrigger;
+                    }
+                    return false;
+                });
                 event.replyModal(modal).queue();
                 return false;
             }
             case 1 -> {
-                String textId = "textResponse";
-                TextInput message = TextInput.create(textId, getString("add_textresponse"), TextInputStyle.PARAGRAPH)
-                        .setValue(textResponse)
-                        .setMinLength(1)
-                        .setMaxLength(MAX_TEXT_RESPONSE_LENGTH)
-                        .build();
-
-                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("add_textresponse"), e -> {
-                            textResponse = e.getValue(textId).getAsString();
-                            return null;
-                        }).addActionRows(ActionRow.of(message))
-                        .build();
-
-                event.replyModal(modal).queue();
-                return false;
+                setState(STATE_SET_TEXT_RESPONSE);
+                return true;
             }
             case 2 -> {
                 GuildEntity guildEntity = getGuildEntity();
@@ -224,17 +205,13 @@ public class CustomConfigCommand extends NavigationAbstract {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         if (updateMode) {
-            String[] options = getString("add_update_options").split("\n");
-            Button[] buttons = new Button[options.length];
-            for (int i = 0; i < options.length; i++) {
-                buttons[i] = Button.of(i == options.length - 1 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY, String.valueOf(i), options[i]);
-            }
-            setComponents(buttons);
+            setComponents(getString("add_update_options").split("\n"), new int[]{2}, new int[]{3});
         } else {
-            String[] options = trigger == null || textResponse == null
-                    ? getString("add_options").split("\n")
-                    : getString("add_options2").split("\n");
-            setComponents(options);
+            String[] options = getString("add_options").split("\n");
+            if (trigger == null || textResponse == null) {
+                options[2] = "";
+            }
+            setComponents(options, new int[]{2}, new int[0]);
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
