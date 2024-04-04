@@ -17,16 +17,11 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.function.Consumer;
 
-public class EmojiStateProcessor extends AbstractStateProcessor<Emoji, Emoji> {
+public class EmojiStateProcessor extends AbstractStateProcessor<Emoji, Emoji, EmojiStateProcessor> {
 
-    public EmojiStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, boolean canClear, Consumer<Emoji> setter) {
-        this(command, state, stateBack, propertyName, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_emoji_desc"), canClear, setter);
-    }
-
-    public EmojiStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, String description, boolean canClear, Consumer<Emoji> setter) {
-        super(command, state, stateBack, propertyName, description, canClear, setter);
+    public EmojiStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName) {
+        super(command, state, stateBack, propertyName, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_emoji_desc"));
     }
 
     @Override

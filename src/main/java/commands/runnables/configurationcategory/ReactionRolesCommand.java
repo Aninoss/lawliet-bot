@@ -110,34 +110,47 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         resetRoleMessage(event.getGuild().getIdLong());
 
-        emojiStateProcessor = new EmojiStateProcessor(this, STATE_ADD_SLOT_SET_EMOJI, STATE_ADD_SLOT, getString("addslot_emoji"), true, emoji -> {
-            if (emoji != null) {
-                slotConfiguration.setEmojiFormatted(emoji.getFormatted());
-            } else {
-                slotConfiguration.setEmojiFormatted(null);
-            }
-        });
-
-        List<? extends AbstractStateProcessor<?, ?>> stateProcessors = List.of(
-                new StringStateProcessor(this, STATE_SET_DESC, STATE_CONFIG, getString("state3_mdescription"), DESC_LENGTH_MAX, true, s -> configuration.setDescription(s)),
-                new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"), true, attachment -> {
-                    if (attachment != null) {
-                        LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
-                        if (!FileUtil.downloadImageAttachment(attachment, tempFile)) {
-                            throw new RuntimeException("File download failed");
-                        }
-                        configuration.setImageUrl(uploadFile(tempFile));
+        emojiStateProcessor = new EmojiStateProcessor(this, STATE_ADD_SLOT_SET_EMOJI, STATE_ADD_SLOT, getString("addslot_emoji"))
+                .setClearButton(true)
+                .setSetter(emoji -> {
+                    if (emoji != null) {
+                        slotConfiguration.setEmojiFormatted(emoji.getFormatted());
                     } else {
-                        deleteTemporaryImage();
-                        configuration.setImageFilename(null);
+                        slotConfiguration.setEmojiFormatted(null);
                     }
-                }),
-                new RoleListStateProcessor(this, STATE_SET_ROLE_REQUIREMENTS, STATE_CONFIG, getString("state3_mrolerequirements"), 0, MAX_ROLE_REQUIREMENTS, false, () -> configuration.getRoleRequirementIds(), update -> configuration.setRoleRequirementIds(update.getNewValues())),
-                emojiStateProcessor,
-                new RoleListStateProcessor(this, STATE_ADD_SLOT_SET_ROLES, STATE_ADD_SLOT, getString("addslot_roles"), 1, MAX_ROLES, true, () -> slotConfiguration.getRoleIds(), update -> slotConfiguration.setRoleIds(update.getNewValues()))
-        );
+                });
 
-        registerNavigationListener(event.getMember(), stateProcessors);
+        registerNavigationListener(event.getMember(), List.of(
+                new StringStateProcessor(this, STATE_SET_DESC, STATE_CONFIG, getString("state3_mdescription"))
+                        .setMax(DESC_LENGTH_MAX)
+                        .setClearButton(true)
+                        .setSetter(s -> configuration.setDescription(s)),
+                new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"))
+                        .setClearButton(true)
+                        .setSetter(attachment -> {
+                            if (attachment != null) {
+                                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
+                                if (!FileUtil.downloadImageAttachment(attachment, tempFile)) {
+                                    throw new RuntimeException("File download failed");
+                                }
+                                configuration.setImageUrl(uploadFile(tempFile));
+                            } else {
+                                deleteTemporaryImage();
+                                configuration.setImageFilename(null);
+                            }
+                        }),
+                new RolesStateProcessor(this, STATE_SET_ROLE_REQUIREMENTS, STATE_CONFIG, getString("state3_mrolerequirements"))
+                        .setMinMax(0, MAX_ROLE_REQUIREMENTS)
+                        .setCheckAccess(false)
+                        .setGetter(() -> configuration.getRoleRequirementIds())
+                        .setSetter(update -> configuration.setRoleRequirementIds(update.getNewValues())),
+                emojiStateProcessor,
+                new RolesStateProcessor(this, STATE_ADD_SLOT_SET_ROLES, STATE_ADD_SLOT, getString("addslot_roles"))
+                        .setMinMax(1, MAX_ROLES)
+                        .setCheckAccess(true)
+                        .setGetter(() -> slotConfiguration.getRoleIds())
+                        .setSetter(update -> slotConfiguration.setRoleIds(update.getNewValues()))
+        ));
         registerReactionListener(event.getMember());
         return true;
     }
@@ -803,7 +816,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             eb.setDescription(getString("components_result_noupdates"));
         } else {
             if (!removedRoles.isEmpty()) {
-                eb.addField(getString("components_result_removedroles"), new ListGen<Role>().getList(removedRoles, ListGen.SLOT_TYPE_BULLET,  r -> new AtomicRole(r).getPrefixedNameInField(getLocale())), true);
+                eb.addField(getString("components_result_removedroles"), new ListGen<Role>().getList(removedRoles, ListGen.SLOT_TYPE_BULLET, r -> new AtomicRole(r).getPrefixedNameInField(getLocale())), true);
             }
             if (!addedRoles.isEmpty()) {
                 eb.addField(getString("components_result_newroles"), new ListGen<Role>().getList(addedRoles, ListGen.SLOT_TYPE_BULLET, r -> new AtomicRole(r).getPrefixedNameInField(getLocale())), true);

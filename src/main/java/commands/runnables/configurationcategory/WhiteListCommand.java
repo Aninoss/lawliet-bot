@@ -4,7 +4,7 @@ import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
-import commands.stateprocessor.GuildChannelListStateProcessor;
+import commands.stateprocessor.GuildChannelsStateProcessor;
 import constants.LogStatus;
 import core.CustomObservableList;
 import core.EmbedFactory;
@@ -29,7 +29,7 @@ import java.util.Locale;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "✅",
         executableWithoutArgs = true,
-        aliases = { "wl" },
+        aliases = {"wl"},
         obsolete = true
 )
 public class WhiteListCommand extends NavigationAbstract {
@@ -50,9 +50,11 @@ public class WhiteListCommand extends NavigationAbstract {
         whiteListedChannelIds = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).getChannelIds();
 
         registerNavigationListener(event.getMember(), List.of(
-                new GuildChannelListStateProcessor(this, STATE_CHANNELS, DEFAULT_STATE, getString("state0_mchannel"),
-                        1, MAX_CHANNELS, Collections.emptyList(), null, () -> whiteListedChannelIds,
-                        update -> {
+                new GuildChannelsStateProcessor(this, STATE_CHANNELS, DEFAULT_STATE, getString("state0_mchannel"))
+                        .setMinMax(1, MAX_CHANNELS)
+                        .setChannelTypes(Collections.emptyList())
+                        .setGetter(() -> whiteListedChannelIds)
+                        .setSetter(update -> {
                             getEntityManager().getTransaction().begin();
                             BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CHANNEL_WHITELIST, event.getMember(), update.getAddedValues(), update.getRemovedValues());
                             getEntityManager().getTransaction().commit();

@@ -5,6 +5,7 @@ import constants.LogStatus;
 import core.TextManager;
 import core.atomicassets.AtomicGuildChannel;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -16,37 +17,60 @@ import org.glassfish.jersey.internal.util.Producer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class GuildChannelListStateProcessor extends AbstractStateProcessor<List<Long>, AbstractStateProcessor.ListUpdate<Long>> {
+public class GuildChannelsStateProcessor extends AbstractStateProcessor<List<Long>, AbstractStateProcessor.ListUpdate<Long>, GuildChannelsStateProcessor> {
 
     public static final String SELECT_MENU_ID = "entities";
 
-    private final int min;
-    private final int max;
-    private final Collection<ChannelType> channelTypes;
-    private final Permission[] checkPermissions;
-    private final Producer<List<Long>> getter;
+    private int min = 0;
+    private int max = EntitySelectMenu.OPTIONS_MAX_AMOUNT;
+    private Collection<ChannelType> channelTypes = JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES;
+    private Permission[] checkPermissions = new Permission[0];
+    private Producer<List<Long>> getter = Collections::emptyList;
 
-    public GuildChannelListStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, int min, int max,
-                                          Collection<ChannelType> channelTypes, Permission[] checkPermissions,
-                                          Producer<List<Long>> getter, Consumer<AbstractStateProcessor.ListUpdate<Long>> setter
-    ) {
-        this(command, state, stateBack, propertyName, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_channels_desc"), min, max, channelTypes, checkPermissions, getter, setter);
+    public GuildChannelsStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName) {
+        super(command, state, stateBack, propertyName, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_channels_desc"));
     }
 
-    public GuildChannelListStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, String description,
-                                          int min, int max, Collection<ChannelType> channelTypes, Permission[] checkPermissions,
-                                          Producer<List<Long>> getter, Consumer<AbstractStateProcessor.ListUpdate<Long>> setter
-    ) {
-        super(command, state, stateBack, propertyName, description, false, setter);
+    public GuildChannelsStateProcessor setMinMax(int min, int max) {
         this.min = min;
         this.max = max;
+        return this;
+    }
+
+    public GuildChannelsStateProcessor setChannelTypes(Collection<ChannelType> channelTypes) {
         this.channelTypes = channelTypes;
-        this.checkPermissions = checkPermissions != null ? checkPermissions : new Permission[0];
+        return this;
+    }
+
+    public GuildChannelsStateProcessor setCheckPermissions(Permission[] checkPermissions) {
+        this.checkPermissions = checkPermissions;
+        return this;
+    }
+
+    public GuildChannelsStateProcessor setGetter(Producer<List<Long>> getter) {
         this.getter = getter;
+        return this;
+    }
+
+    public GuildChannelsStateProcessor setSingleGetter(Producer<Long> getter) {
+        this.getter = () -> {
+            Long value = getter.call();
+            return value == null ? Collections.emptyList() : List.of(value);
+        };
+        return this;
+    }
+
+    public GuildChannelsStateProcessor setSingleSetter(Consumer<Long> setter) {
+        setSetter(update -> {
+            List<Long> newValues = update.getNewValues();
+            setter.accept(newValues.isEmpty() ? null : newValues.get(0));
+        });
+        return this;
     }
 
     @Override
@@ -78,7 +102,12 @@ public class GuildChannelListStateProcessor extends AbstractStateProcessor<List<
 
     @Override
     protected void addActionRows(ArrayList<ActionRow> actionRows) {
-        List<EntitySelectMenu.DefaultValue> defaultValues = getter.call().stream().filter(id -> id != null && id != 0L).map(EntitySelectMenu.DefaultValue::channel).collect(Collectors.toList());
+        List<Long> valueList = getter.call();
+        if (valueList == null) {
+            valueList = Collections.emptyList();
+        }
+
+        List<EntitySelectMenu.DefaultValue> defaultValues = valueList.stream().filter(id -> id != null && id != 0L).map(EntitySelectMenu.DefaultValue::channel).collect(Collectors.toList());
         EntitySelectMenu entitySelectMenu = EntitySelectMenu.create(SELECT_MENU_ID, EntitySelectMenu.SelectTarget.CHANNEL)
                 .setChannelTypes(channelTypes)
                 .setDefaultValues(defaultValues.stream().limit(max).collect(Collectors.toList()))

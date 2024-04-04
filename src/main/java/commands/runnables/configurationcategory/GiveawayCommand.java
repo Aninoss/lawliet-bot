@@ -4,7 +4,6 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
-import commands.stateprocessor.AbstractStateProcessor;
 import commands.stateprocessor.EmojiStateProcessor;
 import commands.stateprocessor.FileStateProcessor;
 import commands.stateprocessor.StringStateProcessor;
@@ -98,25 +97,31 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         giveawayMap = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
-        emojiStateProcessor = new EmojiStateProcessor(this, STATE_SET_EMOJI, STATE_CONFIG, getString("state3_memoji"), false, emoji -> this.emoji = emoji);
+        emojiStateProcessor = new EmojiStateProcessor(this, STATE_SET_EMOJI, STATE_CONFIG, getString("state3_memoji"))
+                .setClearButton(false)
+                .setSetter(emoji -> this.emoji = emoji);
 
-        List<? extends AbstractStateProcessor<?, ?>> stateProcessors = List.of(
-                new StringStateProcessor(this, STATE_SET_DESC, STATE_CONFIG, getString("state3_mdescription"), DESC_LENGTH_MAX, true, value -> description = value != null ? value : ""),
-                new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"), true, attachment -> {
-                    if (attachment != null) {
-                        LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
-                        if (!FileUtil.downloadImageAttachment(attachment, tempFile)) {
-                            throw new RuntimeException("File download failed");
-                        }
-                        imageUrl = uploadFile(tempFile);
-                    } else {
-                        deleteTemporaryImage();
-                        imageUrl = null;
-                    }
-                }),
+        registerNavigationListener(event.getMember(), List.of(
+                new StringStateProcessor(this, STATE_SET_DESC, STATE_CONFIG, getString("state3_mdescription"))
+                        .setClearButton(true)
+                        .setMax(DESC_LENGTH_MAX)
+                        .setSetter(value -> description = value != null ? value : ""),
+                new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"))
+                        .setClearButton(true)
+                        .setSetter(attachment -> {
+                            if (attachment != null) {
+                                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
+                                if (!FileUtil.downloadImageAttachment(attachment, tempFile)) {
+                                    throw new RuntimeException("File download failed");
+                                }
+                                imageUrl = uploadFile(tempFile);
+                            } else {
+                                deleteTemporaryImage();
+                                imageUrl = null;
+                            }
+                        }),
                 emojiStateProcessor
-        );
-        registerNavigationListener(event.getMember(), stateProcessors);
+        ));
         registerReactionListener(event.getMember());
         return true;
     }

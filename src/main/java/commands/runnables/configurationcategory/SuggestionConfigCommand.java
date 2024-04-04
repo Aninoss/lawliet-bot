@@ -3,7 +3,7 @@ package commands.runnables.configurationcategory;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
-import commands.stateprocessor.GuildChannelStateProcessor;
+import commands.stateprocessor.GuildChannelsStateProcessor;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
@@ -46,18 +46,20 @@ public class SuggestionConfigCommand extends NavigationAbstract {
         suggestionsData = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
 
         Permission[] permissions = {Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY};
-        GuildChannelStateProcessor channelStateProcessor = new GuildChannelStateProcessor(this, STATE_CHANNEL, DEFAULT_STATE, getString("state0_mchannel"), false,
-                JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES, permissions,
-                () -> suggestionsData.getChannelId().orElse(null),
-                channelId -> {
-                    getEntityManager().getTransaction().begin();
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getChannelId().orElse(null), channelId);
-                    getEntityManager().getTransaction().commit();
+        registerNavigationListener(event.getMember(), List.of(
+                new GuildChannelsStateProcessor(this, STATE_CHANNEL, DEFAULT_STATE, getString("state0_mchannel"))
+                        .setMinMax(1, 1)
+                        .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setCheckPermissions(permissions)
+                        .setSingleGetter(() -> suggestionsData.getChannelId().orElse(null))
+                        .setSingleSetter(channelId -> {
+                            getEntityManager().getTransaction().begin();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getChannelId().orElse(null), channelId);
+                            getEntityManager().getTransaction().commit();
 
-                    suggestionsData.setChannelId(channelId);
-                }
-        );
-        registerNavigationListener(event.getMember(), List.of(channelStateProcessor));
+                            suggestionsData.setChannelId(channelId);
+                        })
+        ));
         return true;
     }
 

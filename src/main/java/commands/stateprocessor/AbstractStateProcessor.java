@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class AbstractStateProcessor<T, U> {
+public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProcessor<T, U, V>> {
 
     public static final String BUTTON_ID_CLEAR = "clear";
 
@@ -28,22 +28,39 @@ public abstract class AbstractStateProcessor<T, U> {
     private final int state;
     private final int stateBack;
     private final String propertyName;
-    private final String description;
-    private final boolean clearButton;
-    private final Consumer<U> setter;
+    private String description;
+    private boolean clearButton = false;
+    private Consumer<U> setter = update -> {};
 
-    public AbstractStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, String description, boolean clearButton, Consumer<U> setter) {
+    public AbstractStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, String description) {
         this.command = command;
         this.state = state;
         this.stateBack = stateBack;
         this.propertyName = propertyName;
         this.description = description;
-        this.clearButton = clearButton;
-        this.setter = setter;
     }
 
     public int getState() {
         return state;
+    }
+
+    protected NavigationAbstract getCommand() {
+        return command;
+    }
+
+    public V setDescription(String description) {
+        this.description = description;
+        return (V) this;
+    }
+
+    public V setClearButton(boolean clearButton) {
+        this.clearButton = clearButton;
+        return (V) this;
+    }
+
+    public V setSetter(Consumer<U> setter) {
+        this.setter = setter;
+        return (V) this;
     }
 
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input) throws Throwable {
@@ -82,10 +99,6 @@ public abstract class AbstractStateProcessor<T, U> {
             command.setActionRows(actionRows);
         }
         return EmbedFactory.getEmbedDefault(command, description, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName));
-    }
-
-    protected NavigationAbstract getCommand() {
-        return command;
     }
 
     protected void set(U u) {
