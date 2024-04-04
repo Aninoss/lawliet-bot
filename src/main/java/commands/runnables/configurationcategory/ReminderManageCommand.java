@@ -5,6 +5,8 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import commands.runnables.utilitycategory.ReminderCommand;
+import commands.stateprocessor.GuildChannelsStateProcessor;
+import commands.stateprocessor.StringStateProcessor;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
@@ -12,23 +14,20 @@ import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.modals.ModalMediator;
-import core.utils.*;
+import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
+import core.utils.StringUtil;
+import core.utils.TimeUtil;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.ReminderEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +51,8 @@ public class ReminderManageCommand extends NavigationAbstract {
     private static final int STATE_DM_REMINDERS = 1,
             STATE_GUILD_REMINDERS = 2,
             STATE_MANAGE = 3,
-            STATE_SET_CHANNEL = 4;
+            STATE_SET_MESSAGE = 4,
+            STATE_SET_CHANNEL = 5;
 
     private UUID id;
     private AtomicGuildMessageChannel guildChannel;
@@ -67,7 +67,18 @@ public class ReminderManageCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        registerNavigationListener(event.getMember());
+        registerNavigationListener(event.getMember(), List.of(
+                new StringStateProcessor(this, STATE_SET_MESSAGE, STATE_MANAGE, getString("manage_message"))
+                        .setClearButton(false)
+                        .setMax(ReminderCommand.MESSAGE_CONTENT_MAX_LENGTH)
+                        .setSetter(input -> this.message = input),
+                new GuildChannelsStateProcessor(this, STATE_SET_CHANNEL, STATE_MANAGE, getString("manage_channel"))
+                        .setMinMax(1, 1)
+                        .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+                        .setSingleGetter(() -> guildChannel != null ? guildChannel.getIdLong() : null)
+                        .setSingleSetter(channelId -> this.guildChannel = new AtomicGuildMessageChannel(event.getGuild().getIdLong(), channelId))
+        ));
         return true;
     }
 
@@ -152,69 +163,40 @@ public class ReminderManageCommand extends NavigationAbstract {
                     return true;
                 }
 
-                String textId = "interval";
-                TextInput textInput = TextInput.create(textId, getString("manage_interval_label"), TextInputStyle.SHORT)
-                        .setMinLength(0)
-                        .setMaxLength(12)
-                        .setRequired(false)
-                        .build();
+                Modal modal = ModalMediator.createDurationModalWithOptionalLog(this, getString("manage_interval"), 0, Long.MAX_VALUE, intervalMinutes != null ? intervalMinutes.longValue() : null, intervalMinutes -> {
+                    if (intervalMinutes == null) {
+                        this.intervalMinutes = null;
+                        setLog(LogStatus.SUCCESS, getString("set_interval"));
+                        return false;
+                    }
 
-                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("manage_interval_title"), e -> {
-                            String interval = e.getValue(textId).getAsString();
-                            if (interval.isEmpty()) {
-                                this.intervalMinutes = null;
-                                setLog(LogStatus.SUCCESS, getString("set_interval"));
-                                return null;
-                            }
+                    if (type == ReminderEntity.Type.GUILD_REMINDER) {
+                        if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                            setLog(LogStatus.FAILURE, getString("err_nopremium"));
+                            return false;
+                        }
+                    } else {
+                        if (getNumberOfRepeatingDmReminders(id) + 1 > MAX_REPEATING_DM_REMINDERS) {
+                            setLog(LogStatus.FAILURE, getString("err_toomanydmreminders", StringUtil.numToString(MAX_REPEATING_DM_REMINDERS)));
+                            return false;
+                        }
+                        if (intervalMinutes < REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES) {
+                            setLog(LogStatus.FAILURE, getString("err_dmrepetitiontooshort", StringUtil.numToString(REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES)));
+                            return false;
+                        }
+                    }
 
-                            int intervalMinutes = MentionUtil.getTimeMinutes(interval).getValue().intValue();
-                            if (intervalMinutes == 0L) {
-                                setLog(LogStatus.FAILURE, StringUtil.escapeMarkdownInField(getString("err_invalidtime", interval)));
-                                return null;
-                            }
-
-                            if (type == ReminderEntity.Type.GUILD_REMINDER) {
-                                if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                                    setLog(LogStatus.FAILURE, getString("err_nopremium"));
-                                    return null;
-                                }
-                            } else {
-                                if (getNumberOfRepeatingDmReminders(id) + 1 > MAX_REPEATING_DM_REMINDERS) {
-                                    setLog(LogStatus.FAILURE, getString("err_toomanydmreminders", StringUtil.numToString(MAX_REPEATING_DM_REMINDERS)));
-                                    return null;
-                                }
-                                if (intervalMinutes < REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES) {
-                                    setLog(LogStatus.FAILURE, getString("err_dmrepetitiontooshort", StringUtil.numToString(REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES)));
-                                    return null;
-                                }
-                            }
-
-                            this.intervalMinutes = intervalMinutes;
-                            setLog(LogStatus.SUCCESS, getString("set_interval"));
-                            return null;
-                        }).addActionRows(ActionRow.of(textInput))
-                        .build();
+                    this.intervalMinutes = intervalMinutes.intValue();
+                    setLog(LogStatus.SUCCESS, getString("set_interval"));
+                    return false;
+                });
 
                 event.replyModal(modal).queue();
                 return false;
             }
             case 2 -> {
-                String textId = "message";
-                TextInput textInput = TextInput.create(textId, getString("manage_message_label"), TextInputStyle.PARAGRAPH)
-                        .setMinLength(1)
-                        .setMaxLength(Message.MAX_CONTENT_LENGTH)
-                        .setValue(message)
-                        .build();
-
-                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("manage_message_title"), e -> {
-                            this.message = e.getValue(textId).getAsString();
-                            setLog(LogStatus.SUCCESS, getString("set_message"));
-                            return null;
-                        }).addActionRows(ActionRow.of(textInput))
-                        .build();
-
-                event.replyModal(modal).queue();
-                return false;
+                setState(STATE_SET_MESSAGE);
+                return true;
             }
             case 3 -> {
                 GuildMessageChannel channel = null;
@@ -301,29 +283,6 @@ public class ReminderManageCommand extends NavigationAbstract {
         return true;
     }
 
-    @ControllerButton(state = STATE_SET_CHANNEL)
-    public boolean onButtonSetChannel(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(STATE_MANAGE);
-            return true;
-        }
-        return false;
-    }
-
-    @ControllerEntitySelectMenu(state = STATE_SET_CHANNEL)
-    public boolean onEntitySelectMenuSetChannel(EntitySelectInteractionEvent event) {
-        GuildMessageChannel channel = (GuildMessageChannel) event.getMentions().getChannels().get(0);
-        if (!BotPermissionUtil.canWrite(channel)) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_send", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
-            return true;
-        }
-
-        this.guildChannel = new AtomicGuildMessageChannel(channel);
-        setLog(LogStatus.SUCCESS, getString("set_channel"));
-        setState(STATE_MANAGE);
-        return true;
-    }
-
     @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawDefault(Member member) {
         setComponents(getString("default_options").split("\n"));
@@ -351,13 +310,10 @@ public class ReminderManageCommand extends NavigationAbstract {
     @Draw(state = STATE_MANAGE)
     public EmbedBuilder onDrawManage(Member member) {
         String[] options = getString("manage_options").split("\n");
-        ArrayList<Button> buttons = new ArrayList<>();
-        int iStart = type == ReminderEntity.Type.DM_REMINDER ? 1 : 0;
-        for (int i = iStart; i < options.length; i++) {
-            Button button = Button.of(i == 4 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY, String.valueOf(i), options[i]);
-            buttons.add(button);
+        if (type == ReminderEntity.Type.DM_REMINDER) {
+            options[0] = "";
         }
-        setComponents(buttons);
+        setComponents(options, new int[]{3}, new int[]{4});
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, null,
                 getString(type == ReminderEntity.Type.DM_REMINDER ? "manage_dm_title" : "manage_guild_title")
@@ -377,17 +333,6 @@ public class ReminderManageCommand extends NavigationAbstract {
         eb.addField(getString("manage_interval") + add, intervalText, true)
                 .addField(getString("manage_message"), StringUtil.shortenString(message, 1024), false);
         return eb;
-    }
-
-    @Draw(state = STATE_SET_CHANNEL)
-    public EmbedBuilder onDrawSetChannel(Member member) {
-        EntitySelectMenu selectMenu = EntitySelectMenu.create("channel", EntitySelectMenu.SelectTarget.CHANNEL)
-                .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
-                .setDefaultValues(EntitySelectMenu.DefaultValue.channel(guildChannel.getIdLong()))
-                .setRequiredRange(1, 1)
-                .build();
-        setComponents(selectMenu);
-        return EmbedFactory.getEmbedDefault(this, getString("channel_desc"), getString("channel_title"));
     }
 
     private void setStateReminders() {

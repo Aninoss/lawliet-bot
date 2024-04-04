@@ -47,7 +47,7 @@ public class GuildChannelsStateProcessor extends AbstractStateProcessor<List<Lon
         return this;
     }
 
-    public GuildChannelsStateProcessor setCheckPermissions(Permission[] checkPermissions) {
+    public GuildChannelsStateProcessor setCheckPermissions(Permission... checkPermissions) {
         this.checkPermissions = checkPermissions;
         return this;
     }

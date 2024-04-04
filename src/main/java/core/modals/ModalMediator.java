@@ -137,10 +137,17 @@ public class ModalMediator {
                 .build();
     }
 
-    public static Modal createDurationModal(NavigationAbstract command, String valueName, long minMinutes, long maxMinutes, long value, Consumer<Long> setter) {
+    public static Modal createDurationModal(NavigationAbstract command, String valueName, long minMinutes, long maxMinutes, Long value, Consumer<Long> setter) {
+        return createDurationModalWithOptionalLog(command, valueName, minMinutes, maxMinutes, value, newValue -> {
+            setter.accept(newValue);
+            return true;
+        });
+    }
+
+    public static Modal createDurationModalWithOptionalLog(NavigationAbstract command, String valueName, long minMinutes, long maxMinutes, Long value, Function<Long, Boolean> setter) {
         String ID = "value";
         TextInput message = TextInput.create(ID, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_duration", valueName), TextInputStyle.SHORT)
-                .setValue(TimeUtil.getDurationString(Duration.ofMinutes(value)))
+                .setValue(value != null ? TimeUtil.getDurationString(Duration.ofMinutes(value)) : null)
                 .setRequiredRange(minMinutes > 0 ? 1 : 0, 12)
                 .setRequired(minMinutes > 0)
                 .build();
@@ -152,8 +159,15 @@ public class ModalMediator {
             try {
                 ModalMapping newValue = e.getValue(ID);
                 String newValueString = newValue != null ? newValue.getAsString() : null;
-                long newValueLong = newValueString != null ? MentionUtil.getTimeMinutes(newValueString).getValue() : -1;
+                if (minMinutes == 0 && (newValueString == null || newValueString.isEmpty())) {
+                    if (setter.apply(null)) {
+                        command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", valueName));
+                    }
+                    command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
+                    return;
+                }
 
+                long newValueLong = newValueString != null ? MentionUtil.getTimeMinutes(newValueString).getValue() : -1;
                 if (newValueLong == 0L) {
                     command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "invalid", newValueString));
                     command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
@@ -170,8 +184,9 @@ public class ModalMediator {
                     return;
                 }
 
-                setter.accept(newValueLong);
-                command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", valueName));
+                if (setter.apply(newValueLong)) {
+                    command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", valueName));
+                }
                 command.processDraw(e.getMember(), true).exceptionally(ExceptionLogger.get());
             } catch (Throwable throwable) {
                 ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);

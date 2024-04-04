@@ -45,12 +45,11 @@ public class SuggestionConfigCommand extends NavigationAbstract {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         suggestionsData = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
 
-        Permission[] permissions = {Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY};
         registerNavigationListener(event.getMember(), List.of(
                 new GuildChannelsStateProcessor(this, STATE_CHANNEL, DEFAULT_STATE, getString("state0_mchannel"))
                         .setMinMax(1, 1)
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
-                        .setCheckPermissions(permissions)
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)
                         .setSingleGetter(() -> suggestionsData.getChannelId().orElse(null))
                         .setSingleSetter(channelId -> {
                             getEntityManager().getTransaction().begin();

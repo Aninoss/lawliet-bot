@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -41,6 +42,8 @@ import java.util.concurrent.ExecutionException;
         aliases = {"remindme", "remind", "reminders", "schedule", "scheduler", "schedulers"}
 )
 public class ReminderCommand extends Command implements OnStaticButtonListener {
+
+    public static final int MESSAGE_CONTENT_MAX_LENGTH = MessageEmbed.VALUE_MAX_LENGTH;
 
     public ReminderCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -89,6 +92,11 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
         if (messageText.isEmpty()) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("notext")))
+                    .exceptionally(ExceptionLogger.get());
+            return false;
+        }
+        if (messageText.length() > MESSAGE_CONTENT_MAX_LENGTH) {
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(MESSAGE_CONTENT_MAX_LENGTH))))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }

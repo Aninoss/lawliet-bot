@@ -16,6 +16,7 @@ import mysql.hibernate.entity.ReminderEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -76,7 +77,7 @@ public class ReminderScheduler {
                 (GuildMessageChannel) channel,
                 Permission.MESSAGE_SEND
         )) {
-            String userMessage = StringUtil.shortenString(reminderEntity.getMessage(), 1800);
+            String userMessage = StringUtil.shortenString(reminderEntity.getMessage(), MessageEmbed.VALUE_MAX_LENGTH);
             if (channel instanceof PrivateChannel ||
                     (BotPermissionUtil.canWriteEmbed((GuildMessageChannel) channel) && !InternetUtil.stringHasURL(userMessage))
             ) {

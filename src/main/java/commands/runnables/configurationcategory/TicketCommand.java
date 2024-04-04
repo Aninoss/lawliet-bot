@@ -88,7 +88,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         .setDescription(getString("state1_description"))
                         .setMinMax(0, 1)
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
-                        .setCheckPermissions(new Permission[]{Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS})
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
                         .setSingleGetter(() -> getGuildEntity().getTickets().getLogChannelId())
                         .setSingleSetter(channelId -> {
                             TicketsEntity tickets = getGuildEntity().getTickets();
