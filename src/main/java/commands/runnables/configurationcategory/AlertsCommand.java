@@ -284,11 +284,11 @@ public class AlertsCommand extends NavigationAbstract {
         }
 
         switch (i) {
-            case -1: {
+            case -1 -> {
                 setState(STATE_USERMESSAGE);
                 return true;
             }
-            case 0: {
+            case 0 -> {
                 if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
                     return true;
@@ -310,7 +310,7 @@ public class AlertsCommand extends NavigationAbstract {
                 event.replyModal(modal).queue();
                 return true;
             }
-            case 1: {
+            case 1 -> {
                 addTracker(event.getMember(), 0);
                 return true;
             }

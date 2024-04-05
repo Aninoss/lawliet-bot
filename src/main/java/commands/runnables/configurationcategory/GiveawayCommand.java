@@ -369,11 +369,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @ControllerButton(state = STATE_REROLL)
     public boolean onButtonRerollNumber(ButtonInteractionEvent event, int i) {
         switch (i) {
-            case -1: {
+            case -1 -> {
                 setState(STATE_REROLL_SELECT_GIVEAWAY);
                 return true;
             }
-            case 0: {
+            case 0 -> {
                 getEntityManager().getTransaction().begin();
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REMOVE, event.getMember(), rerollGiveawayData.getTitle());
                 getEntityManager().getTransaction().commit();
@@ -383,12 +383,12 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 setState(giveawayMap.isEmpty() ? DEFAULT_STATE : STATE_REROLL_SELECT_GIVEAWAY);
                 return true;
             }
-            case 1: {
+            case 1 -> {
                 Modal modal = ModalMediator.createIntModal(this, getString("state3_mwinners"), WINNERS_MIN, WINNERS_MAX, rerollWinners, value -> rerollWinners = value);
                 event.replyModal(modal).queue();
                 return false;
             }
-            case 2: {
+            case 2 -> {
                 boolean messageExists = GiveawayScheduler.processGiveawayUsers(rerollGiveawayData, rerollWinners, true).join();
                 getEntityManager().getTransaction().begin();
                 if (messageExists) {

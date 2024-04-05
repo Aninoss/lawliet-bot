@@ -354,19 +354,19 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @ControllerButton(state = STATE_ADD_SLOT)
     public boolean onButtonAddSlot(ButtonInteractionEvent event, int i) {
         switch (i) {
-            case -1: {
+            case -1 -> {
                 setState(STATE_CONFIG);
                 return true;
             }
-            case 0: {
+            case 0 -> {
                 setState(STATE_ADD_SLOT_SET_EMOJI);
                 return true;
             }
-            case 1: {
+            case 1 -> {
                 setState(STATE_ADD_SLOT_SET_ROLES);
                 return true;
             }
-            case 2: {
+            case 2 -> {
                 Modal modal = ModalMediator.createStringModal(this, getString("addslot_customlabel"),
                         TextInputStyle.SHORT, 0, CUSTOM_LABEL_MAX_LENGTH, slotConfiguration.getCustomLabel(),
                         s -> slotConfiguration.setCustomLabel(s)
@@ -374,7 +374,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 event.replyModal(modal).queue();
                 return false;
             }
-            case 3: {
+            case 3 -> {
                 if (slotConfiguration.getRoleIds().isEmpty()) {
                     setLog(LogStatus.FAILURE, getString("addslot_noroles"));
                     return true;

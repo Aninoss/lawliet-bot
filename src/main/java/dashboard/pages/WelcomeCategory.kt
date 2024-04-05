@@ -67,7 +67,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val descriptionField = DashboardMultiLineTextField(
                 getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
                 1,
-                WelcomeCommand.MAX_WELCOME_DESCRIPTION_LENGTH
+                WelcomeCommand.MAX_TEXT_LENGTH
         ) {
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_TEXT, atomicMember, welcomeData.welcomeText, it.data)
@@ -182,7 +182,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
         previewButton.style = DashboardButton.Style.PRIMARY
 
-        val resetButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_state4_options")) {
+        val resetButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_dashboard_resetbanner")) {
             val backgroundFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
             backgroundFile.delete()
 
@@ -219,7 +219,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val descriptionField = DashboardMultiLineTextField(
                 getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
                 1,
-                WelcomeCommand.MAX_DM_DESCRIPTION_LENGTH
+                WelcomeCommand.MAX_TEXT_LENGTH
         ) {
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_TEXT, atomicMember, welcomeData.dmText, it.data)
@@ -264,7 +264,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val descriptionField = DashboardMultiLineTextField(
                 getString(Category.CONFIGURATION, "welcome_state0_mdescription"),
                 1,
-                WelcomeCommand.MAX_FAREWELL_DESCRIPTION_LENGTH
+                WelcomeCommand.MAX_TEXT_LENGTH
         ) {
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_TEXT, atomicMember, welcomeData.goodbyeText, it.data)
