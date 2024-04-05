@@ -54,7 +54,7 @@ public class Console {
         tasks.put("help", Console::onHelp);
 
         tasks.put("discord_backup", Console::onDiscordBackup);
-        tasks.put("discord_domain", Console::onDiscordDomain);
+        tasks.put("discord_secondary_domain", Console::onDiscordSecondaryDomain);
         tasks.put("bot_logs_cleanup", Console::onBotLogsCleanUp);
         tasks.put("fishery_copy", Console::onFisheryCopy);
         tasks.put("featurelogging", Console::onFeatureLogging);
@@ -112,10 +112,8 @@ public class Console {
         DiscordResourcesBackup.execute();
     }
 
-    private static void onDiscordDomain(String[] args) {
-        String newDomain = args[1];
-        DiscordDomain.set(newDomain);
-        MainLogger.get().info("Discord domain changed to {}", newDomain);
+    private static void onDiscordSecondaryDomain(String[] args) {
+        DiscordDomain.switchToSecondaryDomain();
     }
 
     private static void onBotLogsCleanUp(String[] args) {

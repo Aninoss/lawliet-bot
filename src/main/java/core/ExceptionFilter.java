@@ -24,11 +24,16 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         final IThrowableProxy iThrowableProxy = event.getThrowableProxy();
         final ThrowableProxy throwableProxy = (iThrowableProxy instanceof ThrowableProxy) ? (ThrowableProxy) iThrowableProxy : null;
 
-        if (throwableProxy != null && throwableProxy.getThrowable().toString().contains("java.lang.OutOfMemoryError")) {
-            System.err.println("EXIT - Out of Memory (" + Program.getClusterId() + ")");
-            throwableProxy.getThrowable().printStackTrace();
-            System.exit(1);
-            return FilterReply.NEUTRAL;
+        if (throwableProxy != null) {
+            if (throwableProxy.getThrowable().toString().contains("java.lang.OutOfMemoryError")) {
+                System.err.println("EXIT - Out of Memory (" + Program.getClusterId() + ")");
+                throwableProxy.getThrowable().printStackTrace();
+                System.exit(1);
+                return FilterReply.NEUTRAL;
+            }
+            if (throwableProxy.getThrowable().toString().contains("Encountered cloudflare rate limit!")) {
+                DiscordDomain.switchToSecondaryDomain();
+            }
         }
 
         String message = throwableProxy != null
