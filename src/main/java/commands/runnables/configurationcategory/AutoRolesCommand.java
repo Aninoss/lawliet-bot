@@ -14,7 +14,6 @@ import core.cache.ServerPatreonBoostCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import modules.RoleAssigner;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.autoroles.AutoRolesData;
 import mysql.modules.autoroles.DBAutoRoles;
@@ -62,15 +61,11 @@ public class AutoRolesCommand extends NavigationAbstract {
                 new RolesStateProcessor(this, STATE_SET_ROLES, DEFAULT_STATE, getString("roles"))
                         .setMinMax(0, MAX_ROLES)
                         .setCheckAccess(true)
+                        .setLogEvent(BotLogEntity.Event.AUTO_ROLES)
                         .setGetter(() -> this.roles.stream().map(AtomicRole::getIdLong).collect(Collectors.toList()))
-                        .setSetter(update -> {
+                        .setSetter(roleIds -> {
                             roles.clear();
-                            roles.addAll(update.getNewValues().stream().map(roleId -> new AtomicRole(event.getGuild().getIdLong(), roleId)).collect(Collectors.toList()));
-
-                            EntityManagerWrapper entityManager = getEntityManager();
-                            entityManager.getTransaction().begin();
-                            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_ROLES, event.getMember(), update.getAddedValues(), update.getRemovedValues());
-                            entityManager.getTransaction().commit();
+                            roles.addAll(roleIds.stream().map(roleId -> new AtomicRole(event.getGuild().getIdLong(), roleId)).collect(Collectors.toList()));
                         })
         ));
         return true;

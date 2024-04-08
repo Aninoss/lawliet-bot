@@ -89,36 +89,22 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         .setMinMax(0, 1)
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
                         .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+                        .setLogEvent(BotLogEntity.Event.TICKETS_LOG_CHANNEL)
                         .setSingleGetter(() -> getGuildEntity().getTickets().getLogChannelId())
-                        .setSingleSetter(channelId -> {
-                            TicketsEntity tickets = getGuildEntity().getTickets();
-                            tickets.beginTransaction();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_LOG_CHANNEL, event.getMember(), tickets.getLogChannelId(), channelId);
-                            tickets.setLogChannelId(channelId);
-                            tickets.commitTransaction();
-                        }),
+                        .setSingleSetter(channelId -> getGuildEntity().getTickets().setLogChannelId(channelId)),
                 new RolesStateProcessor(this, STATE_SET_STAFF_ROLES, DEFAULT_STATE, getString("state0_mstaffroles"))
                         .setDescription(getString("state2_description"))
                         .setMinMax(0, MAX_STAFF_ROLES)
                         .setCheckAccess(false)
+                        .setLogEvent(BotLogEntity.Event.TICKETS_STAFF_ROLES)
                         .setGetter(() -> getGuildEntity().getTickets().getStaffRoleIds())
-                        .setSetter(update -> {
-                            TicketsEntity tickets = getGuildEntity().getTickets();
-                            tickets.beginTransaction();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_STAFF_ROLES, event.getMember(), update.getAddedValues(), update.getRemovedValues());
-                            tickets.setStaffRoleIds(update.getNewValues());
-                            tickets.commitTransaction();
-                        }),
+                        .setSetter(roleIds -> getGuildEntity().getTickets().setStaffRoleIds(roleIds)),
                 new StringStateProcessor(this, STATE_SET_GREETING_TEXT, DEFAULT_STATE, getString("state0_mcreatemessage"))
                         .setClearButton(true)
                         .setMax(MAX_GREETING_TEXT_LENGTH)
-                        .setSetter(input -> {
-                            TicketsEntity tickets = getGuildEntity().getTickets();
-                            tickets.beginTransaction();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_GREETING_TEXT, event.getMember(), tickets.getGreetingText(), input);
-                            tickets.setGreetingText(input);
-                            tickets.commitTransaction();
-                        })
+                        .setLogEvent(BotLogEntity.Event.TICKETS_GREETING_TEXT)
+                        .setGetter(() -> getGuildEntity().getTickets().getGreetingText())
+                        .setSetter(input -> getGuildEntity().getTickets().setGreetingText(input))
         ));
         return true;
     }

@@ -10,7 +10,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.cache.ServerPatreonBoostCache;
-import core.modals.ModalMediator;
+import core.modals.StringModalBuilder;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.CustomCommandEntity;
@@ -124,15 +124,19 @@ public class CustomConfigCommand extends NavigationAbstract {
                 return true;
             }
             case 0 -> {
-                Modal modal = ModalMediator.createStringModalWithOptionalLog(this, getString("add_trigger"), TextInputStyle.SHORT, 1, MAX_COMMAND_TRIGGER_LENGTH, trigger, newTrigger -> {
-                    newTrigger = newTrigger.replaceAll("[^a-zA-Z0-9-_]", "").toLowerCase();
-                    if (newTrigger.isEmpty()) {
-                        setLog(LogStatus.FAILURE, getString("error_triggerinvalidchars"));
-                    } else {
-                        trigger = newTrigger;
-                    }
-                    return false;
-                });
+                Modal modal = new StringModalBuilder(this, getString("add_trigger"), TextInputStyle.SHORT)
+                        .setMinMaxLength(1, MAX_COMMAND_TRIGGER_LENGTH)
+                        .setGetter(() -> trigger)
+                        .setSetterWithOptionalLogs(newTrigger -> {
+                            newTrigger = newTrigger.replaceAll("[^a-zA-Z0-9-_]", "").toLowerCase();
+                            if (newTrigger.isEmpty()) {
+                                setLog(LogStatus.FAILURE, getString("error_triggerinvalidchars"));
+                            } else {
+                                trigger = newTrigger;
+                            }
+                            return false;
+                        })
+                        .build();
                 event.replyModal(modal).queue();
                 return false;
             }

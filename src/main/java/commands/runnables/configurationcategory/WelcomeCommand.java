@@ -12,7 +12,7 @@ import core.LocalFile;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
 import core.components.ActionRows;
-import core.modals.ModalMediator;
+import core.modals.StringModalBuilder;
 import core.utils.FileUtil;
 import core.utils.InternetUtil;
 import core.utils.JDAUtil;
@@ -81,27 +81,19 @@ public class WelcomeCommand extends NavigationAbstract {
                         .setDescription(getString("settext_description"))
                         .setClearButton(false)
                         .setMax(MAX_TEXT_LENGTH)
+                        .enableHibernateTransaction()
                         .setSetter(input -> {
                             switch (category) {
                                 case 0 -> {
-                                    getEntityManager().getTransaction().begin();
                                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_TEXT, event.getMember(), welcomeMessageData.getWelcomeText(), input);
-                                    getEntityManager().getTransaction().commit();
-
                                     welcomeMessageData.setWelcomeText(input);
                                 }
                                 case 1 -> {
-                                    getEntityManager().getTransaction().begin();
                                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_TEXT, event.getMember(), welcomeMessageData.getDmText(), input);
-                                    getEntityManager().getTransaction().commit();
-
                                     welcomeMessageData.setDmText(input);
                                 }
                                 case 2 -> {
-                                    getEntityManager().getTransaction().begin();
                                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_TEXT, event.getMember(), welcomeMessageData.getGoodbyeText(), input);
-                                    getEntityManager().getTransaction().commit();
-
                                     welcomeMessageData.setGoodbyeText(input);
                                 }
                             }
@@ -110,40 +102,30 @@ public class WelcomeCommand extends NavigationAbstract {
                         .setMinMax(1, 1)
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
                         .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)
+                        .enableHibernateTransaction()
                         .setSingleGetter(() -> category == 0 ? welcomeMessageData.getWelcomeChannelId() : welcomeMessageData.getGoodbyeChannelId())
                         .setSingleSetter(channelId -> {
                             if (category == 0) {
-                                getEntityManager().getTransaction().begin();
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_CHANNEL, event.getMember(), welcomeMessageData.getWelcomeChannelId(), channelId);
-                                getEntityManager().getTransaction().commit();
-
                                 welcomeMessageData.setWelcomeChannelId(channelId);
                             } else {
-                                getEntityManager().getTransaction().begin();
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_CHANNEL, event.getMember(), welcomeMessageData.getGoodbyeChannelId(), channelId);
-                                getEntityManager().getTransaction().commit();
-
                                 welcomeMessageData.setGoodbyeChannelId(channelId);
                             }
                         }),
                 new FileStateProcessor(this, STATE_SET_BANNER_BACKGROUND, DEFAULT_STATE, getString("dashboard_backgroundimage"))
                         .setClearButton(true)
+                        .enableHibernateTransaction()
                         .setSetter(attachment -> {
                             LocalFile localFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", event.getGuild().getIdLong()));
                             if (attachment != null) {
                                 if (!FileUtil.downloadImageAttachment(attachment, localFile)) {
                                     throw new RuntimeException("File download failed");
                                 }
-
-                                getEntityManager().getTransaction().begin();
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_SET, event.getMember());
-                                getEntityManager().getTransaction().commit();
                             } else {
                                 localFile.delete();
-
-                                getEntityManager().getTransaction().begin();
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_RESET, event.getMember());
-                                getEntityManager().getTransaction().commit();
                             }
                         })
         ));
@@ -196,21 +178,21 @@ public class WelcomeCommand extends NavigationAbstract {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         return switch (category) {
             case 0 -> EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_join"))
-                            .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isWelcomeActive()), true)
-                            .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getWelcomeText()), 1024), true)
-                            .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getWelcomeEmbed()), true)
-                            .addField(getString("state0_mchannel"), welcomeMessageData.getWelcomeChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
-                            .addField(getString("state0_mbanner"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getBanner()), true)
-                            .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageData.getWelcomeTitle()), true);
+                    .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isWelcomeActive()), true)
+                    .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getWelcomeText()), 1024), true)
+                    .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getWelcomeEmbed()), true)
+                    .addField(getString("state0_mchannel"), welcomeMessageData.getWelcomeChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
+                    .addField(getString("state0_mbanner"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getBanner()), true)
+                    .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageData.getWelcomeTitle()), true);
             case 1 -> EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_dm"))
                     .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isDmActive()), true)
                     .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getDmText()), 1024), true)
                     .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getDmEmbed()), true);
             case 2 -> EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_leave"))
-                            .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isGoodbyeActive()), true)
-                            .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getGoodbyeText()), 1024), true)
-                            .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getGoodbyeEmbed()), true)
-                            .addField(getString("state0_mchannel"), welcomeMessageData.getGoodbyeChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
+                    .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isGoodbyeActive()), true)
+                    .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getGoodbyeText()), 1024), true)
+                    .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getGoodbyeEmbed()), true)
+                    .addField(getString("state0_mchannel"), welcomeMessageData.getGoodbyeChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
             default -> throw new UnsupportedOperationException("Invalid category");
         };
     }
@@ -279,13 +261,13 @@ public class WelcomeCommand extends NavigationAbstract {
                 return true;
             }
             case 5 -> {
-                Modal modal = ModalMediator.createStringModal(this, getString("state0_mtitle"), TextInputStyle.SHORT, 1, MAX_WELCOME_TITLE_LENGTH, welcomeMessageData.getWelcomeTitle(), input -> {
-                    getEntityManager().getTransaction().begin();
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_TITLE, event.getMember(), welcomeMessageData.getWelcomeTitle(), input);
-                    getEntityManager().getTransaction().commit();
+                Modal modal = new StringModalBuilder(this, getString("state0_mtitle"), TextInputStyle.SHORT)
+                        .setMinMaxLength(1, MAX_WELCOME_TITLE_LENGTH)
+                        .setLogEvent(BotLogEntity.Event.WELCOME_BANNER_TITLE)
+                        .setGetter(() -> welcomeMessageData.getWelcomeTitle())
+                        .setSetter(s -> welcomeMessageData.setWelcomeTitle(s))
+                        .build();
 
-                    welcomeMessageData.setWelcomeTitle(input);
-                });
                 event.replyModal(modal).queue();
                 return false;
             }

@@ -7,7 +7,7 @@ import constants.LogStatus;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
-import core.modals.ModalMediator;
+import core.modals.StringModalBuilder;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
@@ -57,42 +57,45 @@ public class NSFWFilterCommand extends NavigationAbstract {
                 return false;
             }
             case 0 -> {
-                Modal modal = ModalMediator.createStringModalWithOptionalLog(this, getString("state0_mkeywords"), TextInputStyle.SHORT, 1, TextInput.MAX_VALUE_LENGTH, null, input -> {
-                    String[] mentionedKeywords = input.toLowerCase().split(" ");
-                    int existingKeywords = 0;
-                    for (String str : mentionedKeywords) {
-                        if (keywords.contains(str)) {
-                            existingKeywords++;
-                        }
-                    }
-                    if (existingKeywords >= mentionedKeywords.length) {
-                        setLog(LogStatus.FAILURE, getString("keywordexists", mentionedKeywords.length != 1));
-                        return false;
-                    }
+                Modal modal = new StringModalBuilder(this, getString("state0_mkeywords"), TextInputStyle.SHORT)
+                        .setMinMaxLength(1, TextInput.MAX_VALUE_LENGTH)
+                        .setSetterWithOptionalLogs(input -> {
+                            String[] mentionedKeywords = input.toLowerCase().split(" ");
+                            int existingKeywords = 0;
+                            for (String str : mentionedKeywords) {
+                                if (keywords.contains(str)) {
+                                    existingKeywords++;
+                                }
+                            }
+                            if (existingKeywords >= mentionedKeywords.length) {
+                                setLog(LogStatus.FAILURE, getString("keywordexists", mentionedKeywords.length != 1));
+                                return false;
+                            }
 
-                    int tooLongKeywords = 0;
-                    for (String str : mentionedKeywords) {
-                        if (str.length() > MAX_LENGTH) tooLongKeywords++;
-                    }
-                    if (tooLongKeywords >= mentionedKeywords.length) {
-                        setLog(LogStatus.FAILURE, getString("keywordtoolong", String.valueOf(MAX_LENGTH)));
-                        return false;
-                    }
+                            int tooLongKeywords = 0;
+                            for (String str : mentionedKeywords) {
+                                if (str.length() > MAX_LENGTH) tooLongKeywords++;
+                            }
+                            if (tooLongKeywords >= mentionedKeywords.length) {
+                                setLog(LogStatus.FAILURE, getString("keywordtoolong", String.valueOf(MAX_LENGTH)));
+                                return false;
+                            }
 
-                    int n = 0;
-                    getEntityManager().getTransaction().begin();
-                    for (String str : mentionedKeywords) {
-                        if (!keywords.contains(str) && keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.NSFW_FILTER, event.getMember(), str, null);
-                            keywords.add(str);
-                            n++;
-                        }
-                    }
-                    getEntityManager().getTransaction().commit();
+                            int n = 0;
+                            getEntityManager().getTransaction().begin();
+                            for (String str : mentionedKeywords) {
+                                if (!keywords.contains(str) && keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
+                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.NSFW_FILTER, event.getMember(), str, null);
+                                    keywords.add(str);
+                                    n++;
+                                }
+                            }
+                            getEntityManager().getTransaction().commit();
 
-                    setLog(LogStatus.SUCCESS, getString("keywordadd", n != 1, String.valueOf(n)));
-                    return false;
-                });
+                            setLog(LogStatus.SUCCESS, getString("keywordadd", n != 1, String.valueOf(n)));
+                            return false;
+                        })
+                        .build();
                 event.replyModal(modal).queue();
                 return false;
             }

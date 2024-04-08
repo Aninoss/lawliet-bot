@@ -7,7 +7,7 @@ import core.TextManager;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class FileStateProcessor extends AbstractStateProcessor<Message.Attachment, Message.Attachment, FileStateProcessor> {
+public class FileStateProcessor extends AbstractStateProcessor<Message.Attachment, FileStateProcessor> {
 
     public FileStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName) {
         super(command, state, stateBack, propertyName, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_file_desc"));

@@ -50,14 +50,9 @@ public class SuggestionConfigCommand extends NavigationAbstract {
                         .setMinMax(1, 1)
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
                         .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)
+                        .setLogEvent(BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL)
                         .setSingleGetter(() -> suggestionsData.getChannelId().orElse(null))
-                        .setSingleSetter(channelId -> {
-                            getEntityManager().getTransaction().begin();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.SERVER_SUGGESTIONS_CHANNEL, event.getMember(), suggestionsData.getChannelId().orElse(null), channelId);
-                            getEntityManager().getTransaction().commit();
-
-                            suggestionsData.setChannelId(channelId);
-                        })
+                        .setSingleSetter(channelId -> suggestionsData.setChannelId(channelId))
         ));
         return true;
     }

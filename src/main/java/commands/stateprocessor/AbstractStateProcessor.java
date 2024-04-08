@@ -5,6 +5,8 @@ import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -14,13 +16,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import org.glassfish.jersey.internal.util.Producer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProcessor<T, U, V>> {
+public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor<T, U>> {
 
     public static final String BUTTON_ID_CLEAR = "clear";
 
@@ -30,7 +32,11 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
     private final String propertyName;
     private String description;
     private boolean clearButton = false;
-    private Consumer<U> setter = update -> {};
+    private BotLogEntity.Event logEvent = null;
+    private boolean hibernateTransaction = false;
+    private Producer<T> getter = () -> null;
+    private Consumer<T> setter = newValue -> {
+    };
 
     public AbstractStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, String description) {
         this.command = command;
@@ -48,19 +54,37 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
         return command;
     }
 
-    public V setDescription(String description) {
+    public U setDescription(String description) {
         this.description = description;
-        return (V) this;
+        return (U) this;
     }
 
-    public V setClearButton(boolean clearButton) {
+    public U setClearButton(boolean clearButton) {
         this.clearButton = clearButton;
-        return (V) this;
+        return (U) this;
     }
 
-    public V setSetter(Consumer<U> setter) {
+    public U setLogEvent(BotLogEntity.Event logEvent) {
+        this.logEvent = logEvent;
+        if (logEvent != null) {
+            enableHibernateTransaction();
+        }
+        return (U) this;
+    }
+
+    public U enableHibernateTransaction() {
+        this.hibernateTransaction = true;
+        return (U) this;
+    }
+
+    public U setGetter(Producer<T> getter) {
+        this.getter = getter;
+        return (U) this;
+    }
+
+    public U setSetter(Consumer<T> setter) {
         this.setter = setter;
-        return (V) this;
+        return (U) this;
     }
 
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input) throws Throwable {
@@ -101,62 +125,64 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
         return EmbedFactory.getEmbedDefault(command, description, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName));
     }
 
-    protected void set(U u) {
-        setter.accept(u);
+    protected T get() {
+        return getter.call();
+    }
+
+    protected void set(T t) {
+        EntityManagerWrapper entityManager = command.getEntityManager();
+        if (hibernateTransaction) {
+            entityManager.getTransaction().begin();
+        }
+
+        if (logEvent != null) {
+            if (t instanceof List<?>) {
+                addBotLogEntryForList(entityManager, command.getGuildId().get(), command.getMemberId().get(), (List<?>) getter.call(), (List<?>) t);
+            } else {
+                addBotLogEntry(entityManager, command.getGuildId().get(), command.getMemberId().get(), getter.call(), t);
+            }
+        }
+
+        setter.accept(t);
+        if (hibernateTransaction) {
+            entityManager.getTransaction().commit();
+        }
+
         command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", propertyName));
         command.setState(stateBack);
     }
 
-    protected void addActionRows(ArrayList<ActionRow> actionRows) {
+    private void addBotLogEntry(EntityManagerWrapper entityManager, long guildId, long memberId, T oldValue, T newValue) {
+        BotLogEntity.log(entityManager, logEvent, guildId, memberId, oldValue, newValue);
     }
 
-
-    public static class ListUpdate<T> {
-
-        private final List<T> newValues;
-        private final List<T> addedValues;
-        private final List<T> removedValues;
-
-        public ListUpdate(List<T> newValues, List<T> addedValues, List<T> removedValues) {
-            this.newValues = newValues;
-            this.addedValues = addedValues;
-            this.removedValues = removedValues;
-        }
-
-        public List<T> getNewValues() {
-            return newValues;
-        }
-
-        public List<T> getAddedValues() {
-            return addedValues;
-        }
-
-        public List<T> getRemovedValues() {
-            return removedValues;
-        }
-
-        public static <T> ListUpdate<T> fromUpdate(List<T> oldValues, List<T> newValues) {
-            if (newValues == null) {
-                newValues = Collections.emptyList();
+    private void addBotLogEntryForList(EntityManagerWrapper entityManager, long guildId, long memberId, List<?> oldValues, List<?> newValues) {
+        switch (logEvent.getValuesRelationship()) {
+            case EMPTY -> {
             }
+            case OLD_AND_NEW -> BotLogEntity.log(entityManager, logEvent, guildId, memberId, oldValues, newValues);
+            case ADD_AND_REMOVE -> {
+                ArrayList<Object> addedValues = new ArrayList<>();
+                ArrayList<Object> removedValues = new ArrayList<>();
 
-            ArrayList<T> addedValues = new ArrayList<>();
-            ArrayList<T> removedValues = new ArrayList<>();
-
-            for (T newValue : newValues) {
-                if (!oldValues.contains(newValue)) {
-                    addedValues.add(newValue);
+                for (Object newValue : newValues) {
+                    if (!oldValues.contains(newValue)) {
+                        addedValues.add(newValue);
+                    }
                 }
-            }
-            for (T oldValue : oldValues) {
-                if (!newValues.contains(oldValue)) {
-                    removedValues.add(oldValue);
+                for (Object oldValue : oldValues) {
+                    if (!newValues.contains(oldValue)) {
+                        removedValues.add(oldValue);
+                    }
                 }
+
+                BotLogEntity.log(entityManager, logEvent, guildId, memberId, addedValues, removedValues);
             }
-
-            return new ListUpdate<>(newValues, addedValues, removedValues);
+            case SINGLE_VALUE_COLUMN -> BotLogEntity.log(entityManager, logEvent, guildId, memberId, null, newValues);
         }
+    }
 
+    protected void addActionRows(ArrayList<ActionRow> actionRows) {
     }
 
 }

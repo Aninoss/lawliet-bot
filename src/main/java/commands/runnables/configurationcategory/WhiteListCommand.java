@@ -53,14 +53,11 @@ public class WhiteListCommand extends NavigationAbstract {
                 new GuildChannelsStateProcessor(this, STATE_CHANNELS, DEFAULT_STATE, getString("state0_mchannel"))
                         .setMinMax(1, MAX_CHANNELS)
                         .setChannelTypes(Collections.emptyList())
+                        .setLogEvent(BotLogEntity.Event.CHANNEL_WHITELIST)
                         .setGetter(() -> whiteListedChannelIds)
-                        .setSetter(update -> {
-                            getEntityManager().getTransaction().begin();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CHANNEL_WHITELIST, event.getMember(), update.getAddedValues(), update.getRemovedValues());
-                            getEntityManager().getTransaction().commit();
-
+                        .setSetter(channelIds -> {
                             whiteListedChannelIds.clear();
-                            whiteListedChannelIds.addAll(update.getNewValues());
+                            whiteListedChannelIds.addAll(channelIds);
                         })
         ));
         return true;

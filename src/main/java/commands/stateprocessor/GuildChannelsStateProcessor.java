@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class GuildChannelsStateProcessor extends AbstractStateProcessor<List<Long>, AbstractStateProcessor.ListUpdate<Long>, GuildChannelsStateProcessor> {
+public class GuildChannelsStateProcessor extends AbstractStateProcessor<List<Long>, GuildChannelsStateProcessor> {
 
     public static final String SELECT_MENU_ID = "entities";
 
@@ -30,10 +30,10 @@ public class GuildChannelsStateProcessor extends AbstractStateProcessor<List<Lon
     private int max = EntitySelectMenu.OPTIONS_MAX_AMOUNT;
     private Collection<ChannelType> channelTypes = JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES;
     private Permission[] checkPermissions = new Permission[0];
-    private Producer<List<Long>> getter = Collections::emptyList;
 
     public GuildChannelsStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName) {
         super(command, state, stateBack, propertyName, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_channels_desc"));
+        setGetter(Collections::emptyList);
     }
 
     public GuildChannelsStateProcessor setMinMax(int min, int max) {
@@ -52,24 +52,16 @@ public class GuildChannelsStateProcessor extends AbstractStateProcessor<List<Lon
         return this;
     }
 
-    public GuildChannelsStateProcessor setGetter(Producer<List<Long>> getter) {
-        this.getter = getter;
-        return this;
-    }
-
     public GuildChannelsStateProcessor setSingleGetter(Producer<Long> getter) {
-        this.getter = () -> {
+        setGetter(() -> {
             Long value = getter.call();
             return value == null ? Collections.emptyList() : List.of(value);
-        };
+        });
         return this;
     }
 
     public GuildChannelsStateProcessor setSingleSetter(Consumer<Long> setter) {
-        setSetter(update -> {
-            List<Long> newValues = update.getNewValues();
-            setter.accept(newValues.isEmpty() ? null : newValues.get(0));
-        });
+        setSetter(list -> setter.accept(list.isEmpty() ? null : list.get(0)));
         return this;
     }
 
@@ -96,13 +88,13 @@ public class GuildChannelsStateProcessor extends AbstractStateProcessor<List<Lon
         }
 
         List<Long> newValues = channels.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
-        set(ListUpdate.fromUpdate(getter.call(), newValues));
+        set(newValues);
         return true;
     }
 
     @Override
     protected void addActionRows(ArrayList<ActionRow> actionRows) {
-        List<Long> valueList = getter.call();
+        List<Long> valueList = get();
         if (valueList == null) {
             valueList = Collections.emptyList();
         }

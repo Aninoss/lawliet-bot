@@ -8,7 +8,7 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class StringStateProcessor extends AbstractStateProcessor<String, String, StringStateProcessor> {
+public class StringStateProcessor extends AbstractStateProcessor<String, StringStateProcessor> {
 
     private int max = MessageEmbed.VALUE_MAX_LENGTH;
 

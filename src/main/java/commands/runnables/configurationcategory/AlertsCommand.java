@@ -13,7 +13,8 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
-import core.modals.ModalMediator;
+import core.modals.DurationModalBuilder;
+import core.modals.StringModalBuilder;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
@@ -174,51 +175,54 @@ public class AlertsCommand extends NavigationAbstract {
             setState(STATE_ADD);
             return true;
         } else if (i == 0) {
-            Modal modal = ModalMediator.createStringModalWithOptionalLog(this, getString("dashboard_command"), TextInputStyle.SHORT, 1, 50, null, input -> {
-                String prefix = getPrefix();
-                if (input.toLowerCase().startsWith(prefix.toLowerCase())) {
-                    input = input.substring(prefix.length());
-                }
+            Modal modal = new StringModalBuilder(this, getString("dashboard_command"), TextInputStyle.SHORT)
+                    .setMinMaxLength(1, 50)
+                    .setSetterWithOptionalLogs(input -> {
+                        String prefix = getPrefix();
+                        if (input.toLowerCase().startsWith(prefix.toLowerCase())) {
+                            input = input.substring(prefix.length());
+                        }
 
-                Optional<Command> commandOpt = CommandManager.createCommandByTrigger(input.toLowerCase(), getLocale(), getPrefix());
-                if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnAlertListener) || !commandOpt.get().canRunOnGuild(0L, 0L)) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
-                    return false;
-                }
+                        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(input.toLowerCase(), getLocale(), getPrefix());
+                        if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnAlertListener) || !commandOpt.get().canRunOnGuild(0L, 0L)) {
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
+                            return false;
+                        }
 
-                GuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
-                if (channel == null) {
-                    return false;
-                }
+                        GuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
+                        if (channel == null) {
+                            return false;
+                        }
 
-                Command command = commandOpt.get();
-                if (command.getCommandProperties().nsfw() && !JDAUtil.channelIsNsfw(channel)) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description", getPrefix()).replace("`", "\""));
-                    return false;
-                }
+                        Command command = commandOpt.get();
+                        if (command.getCommandProperties().nsfw() && !JDAUtil.channelIsNsfw(channel)) {
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description", getPrefix()).replace("`", "\""));
+                            return false;
+                        }
 
-                if (command.getCommandProperties().patreonRequired() &&
-                        !ServerPatreonBoostCache.get(event.getGuild().getIdLong())
-                ) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
-                    return false;
-                }
+                        if (command.getCommandProperties().patreonRequired() &&
+                                !ServerPatreonBoostCache.get(event.getGuild().getIdLong())
+                        ) {
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                            return false;
+                        }
 
-                if (trackerSlotExists(command.getTrigger(), "")) {
-                    setLog(LogStatus.FAILURE, getString("state1_alreadytracking", command.getTrigger()));
-                    return false;
-                }
+                        if (trackerSlotExists(command.getTrigger(), "")) {
+                            setLog(LogStatus.FAILURE, getString("state1_alreadytracking", command.getTrigger()));
+                            return false;
+                        }
 
-                OnAlertListener trackerCommand = (OnAlertListener) command;
-                commandCache = command;
-                if (trackerCommand.trackerUsesKey()) {
-                    setState(STATE_KEY);
-                } else {
-                    commandKeyCache = "";
-                    setState(STATE_USERMESSAGE);
-                }
-                return false;
-            });
+                        OnAlertListener trackerCommand = (OnAlertListener) command;
+                        commandCache = command;
+                        if (trackerCommand.trackerUsesKey()) {
+                            setState(STATE_KEY);
+                        } else {
+                            commandKeyCache = "";
+                            setState(STATE_USERMESSAGE);
+                        }
+                        return false;
+                    })
+                    .build();
             event.replyModal(modal).queue();
             return false;
         }
@@ -235,25 +239,28 @@ public class AlertsCommand extends NavigationAbstract {
             setState(STATE_COMMAND);
             return true;
         } else if (i == 0) {
-            Modal modal = ModalMediator.createStringModalWithOptionalLog(this, getString("dashboard_arg"), TextInputStyle.SHORT, 1, TextInput.MAX_VALUE_LENGTH, null, input -> {
-                if (getAlertChannelOrFail(event.getMember()) == null) {
-                    return false;
-                }
+            Modal modal = new StringModalBuilder(this, getString("dashboard_arg"), TextInputStyle.SHORT)
+                    .setMinMaxLength(1, TextInput.MAX_VALUE_LENGTH)
+                    .setSetterWithOptionalLogs(input -> {
+                        if (getAlertChannelOrFail(event.getMember()) == null) {
+                            return false;
+                        }
 
-                if (input.length() > LIMIT_KEY_LENGTH) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(LIMIT_KEY_LENGTH)));
-                    return false;
-                }
+                        if (input.length() > LIMIT_KEY_LENGTH) {
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(LIMIT_KEY_LENGTH)));
+                            return false;
+                        }
 
-                if (trackerSlotExists(commandCache.getTrigger(), input)) {
-                    setLog(LogStatus.FAILURE, getString("state3_alreadytracking", input));
-                    return false;
-                }
+                        if (trackerSlotExists(commandCache.getTrigger(), input)) {
+                            setLog(LogStatus.FAILURE, getString("state3_alreadytracking", input));
+                            return false;
+                        }
 
-                commandKeyCache = input;
-                setState(STATE_USERMESSAGE);
-                return false;
-            });
+                        commandKeyCache = input;
+                        setState(STATE_USERMESSAGE);
+                        return false;
+                    })
+                    .build();
             event.replyModal(modal).queue();
             return false;
         }
@@ -294,21 +301,24 @@ public class AlertsCommand extends NavigationAbstract {
                     return true;
                 }
 
-                Modal modal = ModalMediator.createDurationModalWithOptionalLog(this, getString("dashboard_mininterval"), 1, Long.MAX_VALUE, null, minutes -> {
-                    GuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
-                    if (channel == null) {
-                        return false;
-                    }
+                Modal modal = new DurationModalBuilder(this, getString("dashboard_mininterval"))
+                        .setMinMaxMinutes(1, Long.MAX_VALUE)
+                        .setSetterWithOptionalLogs(minutes -> {
+                            GuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
+                            if (channel == null) {
+                                return false;
+                            }
 
-                    if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                        addTracker(event.getMember(), minutes.intValue());
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
-                    }
-                    return false;
-                });
+                            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                                addTracker(event.getMember(), minutes.intValue());
+                            } else {
+                                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                            }
+                            return false;
+                        })
+                        .build();
                 event.replyModal(modal).queue();
-                return true;
+                return false;
             }
             case 1 -> {
                 addTracker(event.getMember(), 0);

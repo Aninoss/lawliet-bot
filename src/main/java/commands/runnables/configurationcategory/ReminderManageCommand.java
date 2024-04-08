@@ -13,7 +13,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
-import core.modals.ModalMediator;
+import core.modals.DurationModalBuilder;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
@@ -34,7 +34,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -163,33 +166,37 @@ public class ReminderManageCommand extends NavigationAbstract {
                     return true;
                 }
 
-                Modal modal = ModalMediator.createDurationModalWithOptionalLog(this, getString("manage_interval"), 0, Long.MAX_VALUE, intervalMinutes != null ? intervalMinutes.longValue() : null, intervalMinutes -> {
-                    if (intervalMinutes == null) {
-                        this.intervalMinutes = null;
-                        setLog(LogStatus.SUCCESS, getString("set_interval"));
-                        return false;
-                    }
+                Modal modal = new DurationModalBuilder(this, getString("manage_interval"))
+                        .setMinMaxMinutes(0, Long.MAX_VALUE)
+                        .setGetter(() -> intervalMinutes != null ? intervalMinutes.longValue() : null)
+                        .setSetterWithOptionalLogs(intervalMinutes -> {
+                            if (intervalMinutes == null) {
+                                this.intervalMinutes = null;
+                                setLog(LogStatus.SUCCESS, getString("set_interval"));
+                                return false;
+                            }
 
-                    if (type == ReminderEntity.Type.GUILD_REMINDER) {
-                        if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                            setLog(LogStatus.FAILURE, getString("err_nopremium"));
-                            return false;
-                        }
-                    } else {
-                        if (getNumberOfRepeatingDmReminders(id) + 1 > MAX_REPEATING_DM_REMINDERS) {
-                            setLog(LogStatus.FAILURE, getString("err_toomanydmreminders", StringUtil.numToString(MAX_REPEATING_DM_REMINDERS)));
-                            return false;
-                        }
-                        if (intervalMinutes < REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES) {
-                            setLog(LogStatus.FAILURE, getString("err_dmrepetitiontooshort", StringUtil.numToString(REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES)));
-                            return false;
-                        }
-                    }
+                            if (type == ReminderEntity.Type.GUILD_REMINDER) {
+                                if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                                    setLog(LogStatus.FAILURE, getString("err_nopremium"));
+                                    return false;
+                                }
+                            } else {
+                                if (getNumberOfRepeatingDmReminders(id) + 1 > MAX_REPEATING_DM_REMINDERS) {
+                                    setLog(LogStatus.FAILURE, getString("err_toomanydmreminders", StringUtil.numToString(MAX_REPEATING_DM_REMINDERS)));
+                                    return false;
+                                }
+                                if (intervalMinutes < REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES) {
+                                    setLog(LogStatus.FAILURE, getString("err_dmrepetitiontooshort", StringUtil.numToString(REPEATING_DM_REMINDERS_MIN_INTERVAL_MINUTES)));
+                                    return false;
+                                }
+                            }
 
-                    this.intervalMinutes = intervalMinutes.intValue();
-                    setLog(LogStatus.SUCCESS, getString("set_interval"));
-                    return false;
-                });
+                            this.intervalMinutes = intervalMinutes.intValue();
+                            setLog(LogStatus.SUCCESS, getString("set_interval"));
+                            return false;
+                        })
+                        .build();
 
                 event.replyModal(modal).queue();
                 return false;

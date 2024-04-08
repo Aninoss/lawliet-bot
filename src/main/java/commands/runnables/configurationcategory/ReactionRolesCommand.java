@@ -6,7 +6,10 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.*;
 import commands.runnables.NavigationAbstract;
-import commands.stateprocessor.*;
+import commands.stateprocessor.EmojiStateProcessor;
+import commands.stateprocessor.FileStateProcessor;
+import commands.stateprocessor.RolesStateProcessor;
+import commands.stateprocessor.StringStateProcessor;
 import constants.LogStatus;
 import core.*;
 import core.atomicassets.AtomicRole;
@@ -15,7 +18,7 @@ import core.cache.ServerPatreonBoostCache;
 import core.collectionadapters.ListAdapter;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
-import core.modals.ModalMediator;
+import core.modals.StringModalBuilder;
 import core.utils.*;
 import modules.ReactionRoles;
 import mysql.hibernate.entity.BotLogEntity;
@@ -143,13 +146,13 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                         .setMinMax(0, MAX_ROLE_REQUIREMENTS)
                         .setCheckAccess(false)
                         .setGetter(() -> configuration.getRoleRequirementIds())
-                        .setSetter(update -> configuration.setRoleRequirementIds(update.getNewValues())),
+                        .setSetter(roleIds -> configuration.setRoleRequirementIds(roleIds)),
                 emojiStateProcessor,
                 new RolesStateProcessor(this, STATE_ADD_SLOT_SET_ROLES, STATE_ADD_SLOT, getString("addslot_roles"))
                         .setMinMax(1, MAX_ROLES)
                         .setCheckAccess(true)
                         .setGetter(() -> slotConfiguration.getRoleIds())
-                        .setSetter(update -> slotConfiguration.setRoleIds(update.getNewValues()))
+                        .setSetter(roleIds -> slotConfiguration.setRoleIds(roleIds))
         ));
         registerReactionListener(event.getMember());
         return true;
@@ -255,9 +258,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 0:
-                Modal modal = ModalMediator.createStringModal(this, getString("state3_mtitle"), TextInputStyle.SHORT,
-                        1, TITLE_LENGTH_MAX, configuration.getTitle(), s -> configuration.setTitle(s)
-                );
+                Modal modal = new StringModalBuilder(this, getString("state3_mtitle"), TextInputStyle.SHORT)
+                        .setMinMaxLength(1, TITLE_LENGTH_MAX)
+                        .setGetter(() -> configuration.getTitle())
+                        .setSetter(s -> configuration.setTitle(s))
+                        .build();
                 event.replyModal(modal).queue();
                 return false;
 
@@ -367,10 +372,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
             }
             case 2 -> {
-                Modal modal = ModalMediator.createStringModal(this, getString("addslot_customlabel"),
-                        TextInputStyle.SHORT, 0, CUSTOM_LABEL_MAX_LENGTH, slotConfiguration.getCustomLabel(),
-                        s -> slotConfiguration.setCustomLabel(s)
-                );
+                Modal modal = new StringModalBuilder(this, getString("addslot_customlabel"), TextInputStyle.SHORT)
+                        .setMinMaxLength(0, CUSTOM_LABEL_MAX_LENGTH)
+                        .setGetter(() -> slotConfiguration.getCustomLabel())
+                        .setSetter(s -> slotConfiguration.setCustomLabel(s))
+                        .build();
                 event.replyModal(modal).queue();
                 return false;
             }

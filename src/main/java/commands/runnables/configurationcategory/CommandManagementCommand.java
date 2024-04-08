@@ -10,7 +10,7 @@ import constants.LogStatus;
 import core.DisabledCommands;
 import core.EmbedFactory;
 import core.TextManager;
-import core.modals.ModalMediator;
+import core.modals.StringModalBuilder;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
@@ -63,42 +63,45 @@ public class CommandManagementCommand extends NavigationAbstract {
                 return true;
             }
             case 1 -> {
-                Modal modal = ModalMediator.createStringModalWithOptionalLog(this, getString("state0_mcommands"), TextInputStyle.SHORT, 1, TextInput.MAX_VALUE_LENGTH, null, input -> {
-                    List<String> commands = Arrays.stream(input.split(" "))
-                            .map(trigger -> CommandContainer.getCommandMap().get(trigger))
-                            .filter(Objects::nonNull)
-                            .filter(clazz -> {
-                                CommandProperties commandProperties = Command.getCommandProperties(clazz);
-                                return commandProperties.exclusiveGuilds().length == 0 && commandProperties.exclusiveUsers().length == 0;
-                            })
-                            .map(clazz -> Command.getCommandProperties(clazz).trigger())
-                            .distinct()
-                            .collect(Collectors.toList());
+                Modal modal = new StringModalBuilder(this, getString("state0_mcommands"), TextInputStyle.SHORT)
+                        .setMinMaxLength(1, TextInput.MAX_VALUE_LENGTH)
+                        .setSetterWithOptionalLogs(input -> {
+                            List<String> commands = Arrays.stream(input.split(" "))
+                                    .map(trigger -> CommandContainer.getCommandMap().get(trigger))
+                                    .filter(Objects::nonNull)
+                                    .filter(clazz -> {
+                                        CommandProperties commandProperties = Command.getCommandProperties(clazz);
+                                        return commandProperties.exclusiveGuilds().length == 0 && commandProperties.exclusiveUsers().length == 0;
+                                    })
+                                    .map(clazz -> Command.getCommandProperties(clazz).trigger())
+                                    .distinct()
+                                    .collect(Collectors.toList());
 
-                    if (commands.isEmpty()) {
-                        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                        return false;
-                    }
+                            if (commands.isEmpty()) {
+                                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+                                return false;
+                            }
 
-                    GuildEntity guildEntity = getGuildEntity();
-                    Set<String> disabledCommands = guildEntity.getDisabledCommandsAndCategories();
-                    List<String> newCommands = commands.stream()
-                            .filter(trigger -> !disabledCommands.contains(trigger))
-                            .collect(Collectors.toList());
+                            GuildEntity guildEntity = getGuildEntity();
+                            Set<String> disabledCommands = guildEntity.getDisabledCommandsAndCategories();
+                            List<String> newCommands = commands.stream()
+                                    .filter(trigger -> !disabledCommands.contains(trigger))
+                                    .collect(Collectors.toList());
 
-                    if (newCommands.isEmpty()) {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_exists", commands.size() != 1));
-                        return false;
-                    }
+                            if (newCommands.isEmpty()) {
+                                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_exists", commands.size() != 1));
+                                return false;
+                            }
 
-                    guildEntity.beginTransaction();
-                    guildEntity.getDisabledCommandsAndCategories().addAll(newCommands);
-                    BotLogEntity.log(guildEntity.getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), newCommands, null);
-                    guildEntity.commitTransaction();
+                            guildEntity.beginTransaction();
+                            guildEntity.getDisabledCommandsAndCategories().addAll(newCommands);
+                            BotLogEntity.log(guildEntity.getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), newCommands, null);
+                            guildEntity.commitTransaction();
 
-                    setLog(LogStatus.SUCCESS, getString("addcommands_set", newCommands.size() != 1, StringUtil.numToString(newCommands.size())));
-                    return false;
-                });
+                            setLog(LogStatus.SUCCESS, getString("addcommands_set", newCommands.size() != 1, StringUtil.numToString(newCommands.size())));
+                            return false;
+                        })
+                        .build();
                 event.replyModal(modal).queue();
                 return false;
             }

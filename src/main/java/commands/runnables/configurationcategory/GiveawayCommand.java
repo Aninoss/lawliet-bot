@@ -13,7 +13,9 @@ import core.EmbedFactory;
 import core.LocalFile;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
-import core.modals.ModalMediator;
+import core.modals.DurationModalBuilder;
+import core.modals.IntModalBuilder;
+import core.modals.StringModalBuilder;
 import core.utils.*;
 import modules.Giveaway;
 import modules.schedulers.GiveawayScheduler;
@@ -231,9 +233,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 0:
-                Modal modal = ModalMediator.createStringModal(this, getString("state3_mtitle"), TextInputStyle.SHORT,
-                        1, ITEM_LENGTH_MAX, item, value -> item = value
-                );
+                Modal modal = new StringModalBuilder(this, getString("state3_mtitle"), TextInputStyle.SHORT)
+                        .setMinMaxLength(1, ITEM_LENGTH_MAX)
+                        .setGetter(() -> item)
+                        .setSetter(value -> item = value)
+                        .build();
                 event.replyModal(modal).queue();
                 return false;
 
@@ -243,9 +247,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
             case 2:
                 if (!editMode) {
-                    modal = ModalMediator.createDurationModal(this, getString("state3_mduration"),
-                            1, DURATION_MINUTES_MAX, durationMinutes, value -> durationMinutes = value
-                    );
+                    modal = new DurationModalBuilder(this, getString("state3_mduration"))
+                            .setMinMaxMinutes(1, DURATION_MINUTES_MAX)
+                            .setGetter(() -> durationMinutes)
+                            .setSetter(value -> durationMinutes = value)
+                            .build();
                     event.replyModal(modal).queue();
                     return false;
                 } else {
@@ -254,9 +260,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 }
 
             case 3:
-                modal = ModalMediator.createIntModal(this, getString("state3_mwinners"), 1,
-                        WINNERS_MAX, amountOfWinners, value -> amountOfWinners = value
-                );
+                modal = new IntModalBuilder(this, getString("state3_mwinners"))
+                        .setMinMax(1, WINNERS_MAX)
+                        .setGetter(() -> amountOfWinners)
+                        .setSetter(value -> amountOfWinners = value)
+                        .build();
                 event.replyModal(modal).queue();
                 return false;
 
@@ -384,7 +392,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
             }
             case 1 -> {
-                Modal modal = ModalMediator.createIntModal(this, getString("state3_mwinners"), WINNERS_MIN, WINNERS_MAX, rerollWinners, value -> rerollWinners = value);
+                Modal modal = new IntModalBuilder(this, getString("state3_mwinners"))
+                        .setMinMax(WINNERS_MIN, WINNERS_MAX)
+                        .setGetter(() -> rerollWinners)
+                        .setSetter(value -> rerollWinners = value)
+                        .build();
                 event.replyModal(modal).queue();
                 return false;
             }
