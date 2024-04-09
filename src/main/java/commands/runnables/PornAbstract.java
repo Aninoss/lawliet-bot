@@ -47,6 +47,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public abstract class PornAbstract extends Command implements OnAlertListener, OnButtonListener {
@@ -85,7 +86,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
         args = args.replace("`", "");
 
-        Matcher m = RegexPatterns.BOORU_AMOUNT.matcher(args);
+        Matcher m = RegexPatterns.BOORU_NUMBER.matcher(args);
         long amount = 1;
         boolean premium = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
@@ -94,8 +95,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         int maxAmount = maxAmountString == null ? 30 : Integer.parseInt(maxAmountString);
 
         if (m.find()) {
-            String group = m.group();
-            args = args.replaceFirst(group, "").replace("  ", " ").trim();
+            String group = m.group().replace(" ", "");
+            args = args.replaceAll("(^| )" + Pattern.quote(group) + "( |$)", " ").replace("  ", " ").trim();
             amount = Long.parseLong(group);
             this.newAmount = (int) Math.min(5, amount);
 
