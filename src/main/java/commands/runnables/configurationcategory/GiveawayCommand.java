@@ -110,12 +110,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                         .setSetter(value -> description = value != null ? value : ""),
                 new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"))
                         .setClearButton(true)
+                        .setAllowGifs(true)
                         .setSetter(attachment -> {
                             if (attachment != null) {
                                 LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
-                                if (!FileUtil.downloadImageAttachment(attachment, tempFile)) {
-                                    throw new RuntimeException("File download failed");
-                                }
+                                FileUtil.downloadImageAttachment(attachment, tempFile);
                                 imageUrl = uploadFile(tempFile);
                             } else {
                                 deleteTemporaryImage();
@@ -281,6 +280,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 6:
+                if (item.isEmpty()) {
+                    setLog(LogStatus.FAILURE, getString("noitem"));
+                    return true;
+                }
+
                 setState(STATE_EXAMPLE);
                 return true;
 

@@ -32,13 +32,13 @@ public final class InternetUtil {
         return FileUtil.writeInputStreamToFile(inputStream, cdnFile);
     }
 
-    public static boolean uriIsImage(String url) {
+    public static boolean uriIsImage(String url, boolean allowGifs) {
         url = url.toLowerCase();
         int index = url.indexOf('?');
         if (index != -1) {
             url = url.substring(0, index);
         }
-        return url.endsWith(".jpeg") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".bmp") || url.endsWith(".gif");
+        return url.endsWith(".jpeg") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".bmp") || (url.endsWith(".gif") && allowGifs);
     }
 
     public static boolean stringHasURL(String url) {

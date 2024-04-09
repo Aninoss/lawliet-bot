@@ -11,18 +11,12 @@ import java.util.concurrent.ExecutionException;
 
 public class FileUtil {
 
-    public static boolean downloadImageAttachment(Message.Attachment messageAttachment, LocalFile localFile) {
-        if (!InternetUtil.uriIsImage(messageAttachment.getUrl())) {
-            return false;
-        }
-
+    public static void downloadImageAttachment(Message.Attachment messageAttachment, LocalFile localFile) {
         deleteLocalFile(localFile);
         try {
-            messageAttachment.downloadToFile(localFile).get();
-            return true;
+            messageAttachment.getProxy().downloadToFile(localFile).get();
         } catch (InterruptedException | ExecutionException e) {
-            MainLogger.get().error("Message attachment download exception", e);
-            return false;
+            throw new RuntimeException(e);
         }
     }
 

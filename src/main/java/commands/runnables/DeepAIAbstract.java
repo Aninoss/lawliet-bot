@@ -58,7 +58,7 @@ public abstract class DeepAIAbstract extends Command {
             return true;
         }
 
-        EmbedBuilder notFound = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
+        EmbedBuilder notFound = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound_nogifs"));
         drawMessageNew(notFound).exceptionally(ExceptionLogger.get());
         return false;
     }

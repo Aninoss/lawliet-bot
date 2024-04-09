@@ -115,13 +115,12 @@ public class WelcomeCommand extends NavigationAbstract {
                         }),
                 new FileStateProcessor(this, STATE_SET_BANNER_BACKGROUND, DEFAULT_STATE, getString("dashboard_backgroundimage"))
                         .setClearButton(true)
+                        .setAllowGifs(false)
                         .enableHibernateTransaction()
                         .setSetter(attachment -> {
                             LocalFile localFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", event.getGuild().getIdLong()));
                             if (attachment != null) {
-                                if (!FileUtil.downloadImageAttachment(attachment, localFile)) {
-                                    throw new RuntimeException("File download failed");
-                                }
+                                FileUtil.downloadImageAttachment(attachment, localFile);
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_SET, event.getMember());
                             } else {
                                 localFile.delete();

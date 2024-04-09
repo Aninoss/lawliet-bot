@@ -130,12 +130,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                         .setSetter(s -> configuration.setDescription(s)),
                 new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"))
                         .setClearButton(true)
+                        .setAllowGifs(true)
                         .setSetter(attachment -> {
                             if (attachment != null) {
                                 LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
-                                if (!FileUtil.downloadImageAttachment(attachment, tempFile)) {
-                                    throw new RuntimeException("File download failed");
-                                }
+                                FileUtil.downloadImageAttachment(attachment, tempFile);
                                 configuration.setImageUrl(uploadFile(tempFile));
                             } else {
                                 deleteTemporaryImage();
