@@ -34,7 +34,7 @@ class ReactionRoleEntity : HibernateEntity(), HibernateDiscordInterface {
     var imageUrl: String?
         get() = if (imageFilename != null) "https://lawlietbot.xyz/cdn/reactionroles/$imageFilename" else null
         set(value) {
-            if (value == null) {
+            if (value == null || value.isEmpty()) {
                 imageFilename = null
             } else {
                 imageFilename = value.split("/")[5]
