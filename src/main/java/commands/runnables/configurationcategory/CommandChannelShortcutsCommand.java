@@ -5,13 +5,13 @@ import commands.CommandContainer;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.GuildChannelsStateProcessor;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
-import core.modals.ModalMediator;
-import core.utils.BotPermissionUtil;
+import core.modals.StringModalBuilder;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
@@ -22,15 +22,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -58,7 +55,14 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        registerNavigationListener(event.getMember());
+        registerNavigationListener(event.getMember(), List.of(
+                new GuildChannelsStateProcessor(this, STATE_ADJUST_CHANNEL, STATE_ADD, getString("add_channel"))
+                        .setMinMax(1, 1)
+                        .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
+                        .setSingleGetter(() -> atomicChannel != null ? atomicChannel.getIdLong() : null)
+                        .setSingleSetter(channelId -> atomicChannel = new AtomicGuildMessageChannel(event.getGuild().getIdLong(), channelId))
+        ));
         return true;
     }
 
@@ -124,29 +128,23 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
                 return true;
             }
             case 1 -> {
-                String textId = "trigger";
-                TextInput message = TextInput.create(textId, getString("add_command"), TextInputStyle.SHORT)
-                        .setValue(trigger)
-                        .setMinLength(1)
-                        .setMaxLength(30)
-                        .build();
-
-                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("add_adjustcommand"), e -> {
-                            String trigger = e.getValue(textId).getAsString().toLowerCase();
-                            Class<? extends Command> commandClass = CommandContainer.getCommandMap().get(trigger);
+                Modal modal = new StringModalBuilder(this, getString("add_command"), TextInputStyle.SHORT)
+                        .setMinMaxLength(1, 30)
+                        .setGetter(() -> trigger)
+                        .setSetterWithOptionalLogs(value -> {
+                            Class<? extends Command> commandClass = CommandContainer.getCommandMap().get(value);
                             if (commandClass == null ||
                                     Command.getCommandProperties(commandClass).exclusiveGuilds().length != 0 ||
                                     Command.getCommandProperties(commandClass).exclusiveUsers().length != 0
                             ) {
-                                setLog(LogStatus.FAILURE, getString("log_invalid_trigger", StringUtil.escapeMarkdownInField(trigger)));
-                                return null;
+                                setLog(LogStatus.FAILURE, getString("log_invalid_trigger", StringUtil.escapeMarkdownInField(value)));
+                                return false;
                             }
 
                             this.trigger = Command.getCommandProperties(commandClass).trigger();
-                            return null;
-                        }).addActionRows(ActionRow.of(message))
+                            return false;
+                        })
                         .build();
-
                 event.replyModal(modal).queue();
                 return false;
             }
@@ -183,25 +181,6 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
         return true;
     }
 
-    @ControllerButton(state = STATE_ADJUST_CHANNEL)
-    public boolean onButtonAdjustChannel(ButtonInteractionEvent event, int i) {
-        setState(STATE_ADD);
-        return true;
-    }
-
-    @ControllerEntitySelectMenu(state = STATE_ADJUST_CHANNEL)
-    public boolean onEntitySelectMenuAdjustChannel(EntitySelectInteractionEvent event) {
-        GuildMessageChannel channel = (GuildMessageChannel) event.getMentions().getChannels().get(0);
-        if (!BotPermissionUtil.canWrite(channel)) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_send", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
-            return true;
-        }
-
-        this.atomicChannel = new AtomicGuildMessageChannel(channel);
-        setState(STATE_ADD);
-        return true;
-    }
-
     @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawDefault(Member member) {
         setComponents(getString("default_options").split("\n"));
@@ -215,10 +194,11 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
     public EmbedBuilder onDrawAdd(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
-        String[] options = atomicChannel == null || trigger == null
-                ? getString("add_options").split("\n")
-                : getString("add_options2").split("\n");
-        setComponents(options);
+        String[] options = getString("add_options").split("\n");
+        if (atomicChannel == null || trigger == null) {
+            options[2] = "";
+        }
+        setComponents(options, new int[]{2}, new int[0]);
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
@@ -227,18 +207,6 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
         eb.addField(getString("add_channel"), atomicChannel != null ? atomicChannel.getPrefixedNameInField(getLocale()) : notSet, true);
         eb.addField(getString("add_command"), trigger != null ? "`" + trigger + "`" : notSet, true);
         return eb;
-    }
-
-    @Draw(state = STATE_ADJUST_CHANNEL)
-    public EmbedBuilder onDrawSetChannel(Member member) {
-        EntitySelectMenu memberSelectMenu = EntitySelectMenu.create("add_channel", EntitySelectMenu.SelectTarget.CHANNEL)
-                .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
-                .setRequiredRange(1, 1)
-                .build();
-
-        setComponents(memberSelectMenu);
-        return EmbedFactory.getEmbedDefault(this)
-                .setTitle(getString("channel_title"));
     }
 
     @Draw(state = STATE_DELETE)
