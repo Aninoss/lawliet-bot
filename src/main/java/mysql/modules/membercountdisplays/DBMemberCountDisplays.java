@@ -1,9 +1,10 @@
 package mysql.modules.membercountdisplays;
 
-import java.util.Map;
 import mysql.DBDataLoad;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
+
+import java.util.Map;
 
 public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountData> {
 
@@ -18,16 +19,16 @@ public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountD
 
     @Override
     protected MemberCountData load(Long serverId) throws Exception {
-        MemberCountData memberCountBean = new MemberCountData(
+        MemberCountData memberCountData = new MemberCountData(
                 serverId,
                 getMemberCountBeanSlot(serverId)
         );
 
-        memberCountBean.getMemberCountBeanSlots()
+        memberCountData.getMemberCountDisplaySlots()
                 .addMapAddListener(slot -> addMemberCountBeanSlot(serverId, slot))
                 .addMapRemoveListener(slot -> removeMemberCountBeanSlot(serverId, slot));
 
-        return memberCountBean;
+        return memberCountData;
     }
 
     @Override

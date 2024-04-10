@@ -3,7 +3,9 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.MemberCountDisplayCommand
+import core.TextManager
 import core.atomicassets.AtomicVoiceChannel
+import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -32,13 +34,17 @@ import java.util.*
 class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     var atomicVoiceChannel: AtomicVoiceChannel? = null
-    var nameMask: String? = null
+    var nameMask: String = ""
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(MemberCountDisplayCommand::class.java, locale).title
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        if (nameMask.isEmpty()) {
+            clearAttributes()
+        }
+
         mainContainer.add(
                 generateGrid(),
                 generateNewDisplayField()
@@ -46,7 +52,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
     }
 
     fun generateGrid(): DashboardComponent {
-        val rows = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountBeanSlots.values
+        val rows = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.values
                 .map {
                     val atomicVoiceChannel = AtomicVoiceChannel(atomicGuild.idLong, it.voiceChannelId)
                     val values = arrayOf(atomicVoiceChannel.getPrefixedName(locale), it.mask)
@@ -55,7 +61,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
 
         val headers = getString(Category.CONFIGURATION, "mcdisplays_dashboard_gridheader").split('\n').toTypedArray()
         val grid = DashboardGrid(headers, rows) {
-            val slot = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountBeanSlots.remove(it.data.toLong())
+            val slot = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.remove(it.data.toLong())
 
             if (slot != null) {
                 entityManager.transaction.begin()
@@ -79,30 +85,20 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
 
         val buttonField = HorizontalContainer()
         val addButton = DashboardButton(getString(Category.CONFIGURATION, "mcdisplays_dashboard_add")) {
-            val voiceChannel = atomicVoiceChannel?.get()?.orElse(null)
-            if (voiceChannel == null) {
-                return@DashboardButton ActionResult()
-                        .withErrorMessage(getString(Category.CONFIGURATION, "mcdisplays_dashboard_invalidvc"))
-            }
-            if (nameMask == null) {
-                return@DashboardButton ActionResult()
-                        .withErrorMessage(getString(Category.CONFIGURATION, "mcdisplays_dashboard_invalidmask"))
-            }
-
-            val err = MemberCountDisplay.initialize(locale, voiceChannel)
+            val err = MemberCountDisplay.initialize(locale, atomicVoiceChannel, nameMask)
             if (err != null) {
                 return@DashboardButton ActionResult()
                         .withErrorMessage(err)
             }
 
-            DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountBeanSlots.put(
-                    voiceChannel.idLong,
-                    MemberCountDisplaySlot(atomicGuild.idLong, voiceChannel.idLong, nameMask!!)
+            DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.put(
+                    atomicVoiceChannel!!.idLong,
+                    MemberCountDisplaySlot(atomicGuild.idLong, atomicVoiceChannel!!.idLong, nameMask!!)
             )
             MemberCountDisplay.manage(locale, atomicGuild.get().get())
 
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.MEMBER_COUNT_DISPLAYS_ADD, atomicMember, voiceChannel.idLong)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MEMBER_COUNT_DISPLAYS_ADD, atomicMember, atomicVoiceChannel!!.idLong)
             entityManager.transaction.commit()
 
             clearAttributes()
@@ -121,11 +117,14 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         val channelLabel = getString(Category.CONFIGURATION, "mcdisplays_dashboard_vc")
         val channelComboBox = DashboardComboBox(channelLabel, DashboardComboBox.DataType.VOICE_CHANNELS, false, 1) {
             val newAtomicVoiceChannel = AtomicVoiceChannel(atomicGuild.idLong, it.data.toLong())
-            val err = MemberCountDisplay.checkChannel(locale, newAtomicVoiceChannel.get().get())
-            if (err != null) {
+
+            val channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, newAtomicVoiceChannel.get().get(),
+                    Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS
+            )
+            if (channelMissingPerms != null) {
                 return@DashboardComboBox ActionResult()
                         .withRedraw()
-                        .withErrorMessage(err)
+                        .withErrorMessage(channelMissingPerms)
             }
 
             atomicVoiceChannel = newAtomicVoiceChannel
@@ -147,7 +146,8 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
             nameMask = it.data
             ActionResult()
         }
-        nameMaskTextField.value = nameMask ?: ""
+        nameMaskTextField.editButton = false
+        nameMaskTextField.value = nameMask
         container.add(nameMaskTextField, DashboardText(getString(Category.CONFIGURATION, "mcdisplays_vars").replace("-", "•")))
 
         return container;
@@ -155,7 +155,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
 
     fun clearAttributes() {
         atomicVoiceChannel = null
-        nameMask = null
+        nameMask = TextManager.getString(guildEntity.locale, Category.CONFIGURATION, "mcdisplays_state1_example")
     }
 
 }

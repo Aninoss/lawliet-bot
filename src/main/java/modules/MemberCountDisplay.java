@@ -8,7 +8,7 @@ import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.RatelimitUpdater;
 import core.TextManager;
-import core.utils.BotPermissionUtil;
+import core.atomicassets.AtomicVoiceChannel;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
@@ -36,10 +36,20 @@ public class MemberCountDisplay {
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();
 
-    public static String initialize(Locale locale, VoiceChannel voiceChannel) {
-        String err;
-        if ((err = checkChannel(locale, voiceChannel)) != null) {
-            return err;
+    public static String initialize(Locale locale, AtomicVoiceChannel currentChannel, String currentNameMask) {
+        if (currentChannel == null) {
+            return TextManager.getString(locale, Category.CONFIGURATION, "mcdisplays_dashboard_invalidvc");
+        }
+
+        VoiceChannel voiceChannel = currentChannel.get().orElse(null);
+        if (voiceChannel == null) {
+            return TextManager.getString(locale, Category.CONFIGURATION, "mcdisplays_dashboard_invalidvc");
+        }
+        if (DBMemberCountDisplays.getInstance().retrieve(voiceChannel.getGuild().getIdLong()).getMemberCountDisplaySlots().containsKey(voiceChannel.getIdLong())) {
+            return TextManager.getString(locale, Category.CONFIGURATION, "mcdisplays_alreadyexists");
+        }
+        if (replaceVariables(currentNameMask, "", "", "", "").equals(currentNameMask)) {
+            return TextManager.getString(locale, Category.CONFIGURATION, "mcdisplays_dashboard_novars");
         }
 
         MemberCacheController.getInstance().loadMembersFull(voiceChannel.getGuild()).join();
@@ -86,20 +96,8 @@ public class MemberCountDisplay {
         return null;
     }
 
-    public static String checkChannel(Locale locale, VoiceChannel channel) {
-        String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS, Permission.VOICE_CONNECT);
-        if (channelMissingPerms != null) {
-            return channelMissingPerms;
-        }
-        if (DBMemberCountDisplays.getInstance().retrieve(channel.getGuild().getIdLong()).getMemberCountBeanSlots().containsKey(channel.getIdLong())) {
-            return TextManager.getString(locale, Category.CONFIGURATION, "mcdisplays_alreadyexists");
-        }
-
-        return null;
-    }
-
     public static void manage(Locale locale, Guild guild) {
-        ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().retrieve(guild.getIdLong()).getMemberCountBeanSlots().values());
+        ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().retrieve(guild.getIdLong()).getMemberCountDisplaySlots().values());
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
                 if (PermissionCheckRuntime.botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
