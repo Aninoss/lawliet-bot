@@ -227,6 +227,19 @@ public class JDAUtil {
         return -1;
     }
 
+    public static Category getChannelParentCategory(Channel channel) {
+        if (channel instanceof ICategorizableChannel) {
+            return ((ICategorizableChannel) channel).getParentCategory();
+        }
+        if (channel instanceof ThreadChannel) {
+            IThreadContainerUnion parentChannel = ((ThreadChannel) channel).getParentChannel();
+            if (parentChannel instanceof ICategorizableChannel) {
+                return ((ICategorizableChannel) parentChannel).getParentCategory();
+            }
+        }
+        return null;
+    }
+
     public static boolean channelOrParentEqualsId(Channel channel, long channelId) {
         if (channel.getIdLong() == channelId) {
             return true;
