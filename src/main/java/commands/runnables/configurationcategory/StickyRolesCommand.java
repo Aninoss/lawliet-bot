@@ -1,21 +1,17 @@
 package commands.runnables.configurationcategory;
 
 import commands.CommandEvent;
-import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.RolesStateProcessor;
 import core.EmbedFactory;
 import core.ListGen;
 import core.atomicassets.AtomicRole;
-import core.utils.MentionUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -34,7 +30,7 @@ public class StickyRolesCommand extends NavigationAbstract {
 
     public static final int MAX_ROLES = 12;
 
-    private NavigationHelper<AtomicRole> roleNavigationHelper;
+    public static final int STATE_SET_ROLES = 1;
 
     public StickyRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -42,70 +38,38 @@ public class StickyRolesCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        roleNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getStickyRoles().getRoles(), AtomicRole.class, MAX_ROLES);
         checkRolesWithLog(event.getMember(), getGuildEntity().getStickyRoles().getRoles().stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
-        registerNavigationListener(event.getMember());
+        registerNavigationListener(event.getMember(), List.of(
+                new RolesStateProcessor(this, STATE_SET_ROLES, DEFAULT_STATE, getString("state0_mroles"))
+                        .setMinMax(0, MAX_ROLES)
+                        .setCheckAccess(true)
+                        .setLogEvent(BotLogEntity.Event.STICKY_ROLES)
+                        .setGetter(() -> getGuildEntity().getStickyRoles().getRoleIds())
+                        .setSetter(roleIds -> getGuildEntity().getStickyRoles().setRoleIds(roleIds))
+        ));
         return true;
     }
 
-    @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
-        if (state == 1) {
-            List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-            return roleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), 0, BotLogEntity.Event.STICKY_ROLES);
-        }
-
-        return null;
-    }
-
-    @Override
-    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
-        switch (state) {
-            case 0:
-                switch (i) {
-                    case -1:
-                        deregisterListenersWithComponentMessage();
-                        return false;
-
-                    case 0:
-                        roleNavigationHelper.startDataAdd(1);
-                        return true;
-
-                    case 1:
-                        roleNavigationHelper.startDataRemove(2);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 1:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                }
-                return false;
-
-            case 2:
-                return roleNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.STICKY_ROLES);
-
-            default:
-                return false;
-        }
-    }
-
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
-        return switch (state) {
-            case 0 -> {
-                setComponents(getString("state0_options").split("\n"));
-                yield EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(getGuildEntity().getStickyRoles().getRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
+    @ControllerButton(state = DEFAULT_STATE)
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
+        return switch (i) {
+            case -1 -> {
+                deregisterListenersWithComponentMessage();
+                yield false;
             }
-            case 1 -> roleNavigationHelper.drawDataAdd();
-            case 2 -> roleNavigationHelper.drawDataRemove(getLocale());
-            default -> null;
+            case 0 -> {
+                setState(STATE_SET_ROLES);
+                yield true;
+            }
+            default -> false;
         };
+    }
+
+    @Draw(state = DEFAULT_STATE)
+    public EmbedBuilder drawDefault(Member member) {
+        setComponents(getString("state0_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
+                .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(getGuildEntity().getStickyRoles().getRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
     }
 
 }
