@@ -65,7 +65,7 @@ public class CommandManagementCommand extends NavigationAbstract {
             case 1 -> {
                 Modal modal = new StringModalBuilder(this, getString("state0_mcommands"), TextInputStyle.SHORT)
                         .setMinMaxLength(1, TextInput.MAX_VALUE_LENGTH)
-                        .setSetterWithOptionalLogs(input -> {
+                        .setSetterOptionalLogs(input -> {
                             List<String> commands = Arrays.stream(input.split(" "))
                                     .map(trigger -> CommandContainer.getCommandMap().get(trigger))
                                     .filter(Objects::nonNull)

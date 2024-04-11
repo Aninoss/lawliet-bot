@@ -7,8 +7,11 @@ import core.utils.MentionUtil;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import org.glassfish.jersey.internal.util.Producer;
 
 import java.time.Duration;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class DurationModalBuilder extends AbstractModalBuilder<Long, DurationModalBuilder> {
 
@@ -51,6 +54,21 @@ public class DurationModalBuilder extends AbstractModalBuilder<Long, DurationMod
         }
 
         set(member, newValueLong);
+    }
+
+    public DurationModalBuilder setGetterInt(Producer<Integer> getter) {
+        return super.setGetter(() -> {
+            Integer value = getter.call();
+            return value != null ? value.longValue() : null;
+        });
+    }
+
+    public DurationModalBuilder setSetterInt(Consumer<Integer> setter) {
+        return super.setSetter(value -> setter.accept(value != null ? value.intValue() : null));
+    }
+
+    public DurationModalBuilder setSetterIntOptionalLogs(Function<Integer, Boolean> setter) {
+        return super.setSetterOptionalLogs(value -> setter.apply(value != null ? value.intValue() : null));
     }
 
     @Override

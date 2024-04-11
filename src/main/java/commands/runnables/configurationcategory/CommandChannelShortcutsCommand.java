@@ -131,7 +131,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
                 Modal modal = new StringModalBuilder(this, getString("add_command"), TextInputStyle.SHORT)
                         .setMinMaxLength(1, 30)
                         .setGetter(() -> trigger)
-                        .setSetterWithOptionalLogs(value -> {
+                        .setSetterOptionalLogs(value -> {
                             Class<? extends Command> commandClass = CommandContainer.getCommandMap().get(value);
                             if (commandClass == null ||
                                     Command.getCommandProperties(commandClass).exclusiveGuilds().length != 0 ||

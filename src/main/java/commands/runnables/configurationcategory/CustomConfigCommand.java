@@ -127,7 +127,7 @@ public class CustomConfigCommand extends NavigationAbstract {
                 Modal modal = new StringModalBuilder(this, getString("add_trigger"), TextInputStyle.SHORT)
                         .setMinMaxLength(1, MAX_COMMAND_TRIGGER_LENGTH)
                         .setGetter(() -> trigger)
-                        .setSetterWithOptionalLogs(newTrigger -> {
+                        .setSetterOptionalLogs(newTrigger -> {
                             newTrigger = newTrigger.replaceAll("[^a-zA-Z0-9-_]", "").toLowerCase();
                             if (newTrigger.isEmpty()) {
                                 setLog(LogStatus.FAILURE, getString("error_triggerinvalidchars"));

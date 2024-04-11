@@ -2,11 +2,11 @@ package commands.runnables.moderationcategory;
 
 import commands.Category;
 import commands.CommandEvent;
-import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.listeners.OnStaticButtonListener;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.GuildChannelsStateProcessor;
+import commands.stateprocessor.RolesStateProcessor;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
@@ -15,6 +15,8 @@ import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
 import core.cache.ServerPatreonBoostCache;
+import core.modals.DurationModalBuilder;
+import core.modals.IntModalBuilder;
 import core.utils.*;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.AutoModEntity;
@@ -24,11 +26,10 @@ import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,12 +40,12 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "mod",
-        botGuildPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS },
+        botGuildPermissions = {Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS},
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "moderation", "modsettings" }
+        aliases = {"moderation", "modsettings", "modconfig"}
 )
 public class ModSettingsCommand extends NavigationAbstract implements OnStaticButtonListener {
 
@@ -53,6 +54,20 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
     public static final String BUTTON_ID_DECLINE = "ban_appeals_decline";
     public static final String BUTTON_ID_DECLINE_PERMANENTLY = "ban_appeals_decline_permanently";
 
+    private static final int STATE_SET_LOG_CHANNEL = 1,
+            STATE_SET_JAIL_ROLES = 11,
+            STATE_SET_BAN_APPEAL_LOG_CHANNEL = 16,
+            STATE_SET_AUTO_MUTE_WARNS = 8,
+            STATE_SET_AUTO_MUTE_WARN_DAYS = 9,
+            STATE_SET_AUTO_MUTE_DURATION = 10,
+            STATE_SET_AUTO_JAIL_WARNS = 13,
+            STATE_SET_AUTO_JAIL_WARN_DAYS = 14,
+            STATE_SET_AUTO_JAIL_DURATION = 15,
+            STATE_SET_AUTO_KICK_WARNS = 2,
+            STATE_SET_AUTO_KICK_WARN_DAYS = 4,
+            STATE_SET_AUTO_BAN_WARNS = 3,
+            STATE_SET_AUTO_BAN_WARN_DAYS = 5,
+            STATE_SET_AUTO_BAN_DURATION = 7;
 
     private Integer autoKickTemp;
     private Integer autoBanTemp;
@@ -61,7 +76,6 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
     private Integer autoBanDaysTemp;
     private Integer autoMuteDaysTemp;
     private Integer autoJailDaysTemp;
-    private NavigationHelper<AtomicRole> jailRolesNavigationHelper;
 
     public ModSettingsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -69,600 +83,80 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        jailRolesNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getModeration().getJailRoles(), AtomicRole.class, MAX_JAIL_ROLES);
         checkRolesWithLog(event.getMember(), getGuildEntity().getModeration().getJailRoles().stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
-        registerNavigationListener(event.getMember());
+        registerNavigationListener(event.getMember(), List.of(
+                new GuildChannelsStateProcessor(this, STATE_SET_LOG_CHANNEL, DEFAULT_STATE, getString("state0_mchannel"))
+                        .setMinMax(0, 1)
+                        .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+                        .setLogEvent(BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL)
+                        .setSingleGetter(() -> getGuildEntity().getModeration().getLogChannelId())
+                        .setSingleSetter(channelId -> getGuildEntity().getModeration().setLogChannelId(channelId)),
+                new RolesStateProcessor(this, STATE_SET_JAIL_ROLES, DEFAULT_STATE, getString("state0_mjailroles"))
+                        .setMinMax(0, MAX_JAIL_ROLES)
+                        .setCheckAccess(true)
+                        .setLogEvent(BotLogEntity.Event.MOD_JAIL_ROLES)
+                        .setGetter(() -> getGuildEntity().getModeration().getJailRoleIds())
+                        .setSetter(roleIds -> getGuildEntity().getModeration().setJailRoleIds(roleIds)),
+                new GuildChannelsStateProcessor(this, STATE_SET_BAN_APPEAL_LOG_CHANNEL, DEFAULT_STATE, getString("state0_mbanappeallogchannel"))
+                        .setMinMax(0, 1)
+                        .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+                        .setDescription(getString("state16_description", ExternalLinks.BAN_APPEAL_URL + event.getGuild().getId()))
+                        .setLogEvent(BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL)
+                        .setSingleGetter(() -> getGuildEntity().getModeration().getBanAppealLogChannelIdEffectively())
+                        .setSingleSetter(channelId -> getGuildEntity().getModeration().setBanAppealLogChannelId(channelId))
+        ));
         return true;
     }
 
-    @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
-        ModerationEntity moderation = getGuildEntity().getModeration();
-
-        switch (state) {
-            case 1:
-                List<GuildMessageChannel> channelsList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
-                if (channelsList.isEmpty()) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return MessageInputResponse.FAILED;
-                } else {
-                    GuildMessageChannel channel = channelsList.get(0);
-                    if (checkWriteEmbedInChannelWithLog(channel)) {
-                        moderation.beginTransaction();
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, event.getMember(), moderation.getLogChannelId(), channel.getIdLong());
-                        moderation.setLogChannelId(channel.getIdLong());
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("channelset"));
-                        setState(0);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        return MessageInputResponse.FAILED;
-                    }
-                }
-
-            case 2:
-                if (StringUtil.stringIsInt(input)) {
-                    int value = Integer.parseInt(input);
-                    if (value >= 1) {
-                        autoKickTemp = value;
-                        setState(4);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 3:
-                if (StringUtil.stringIsInt(input)) {
-                    int value = Integer.parseInt(input);
-                    if (value >= 1) {
-                        autoBanTemp = value;
-                        setState(5);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 4:
-                if (StringUtil.stringIsInt(input)) {
-                    int value = Integer.parseInt(input);
-                    if (value >= 1) {
-                        moderation.beginTransaction();
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARNS, event.getMember(), moderation.getAutoKick().getInfractions(), autoKickTemp);
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARN_DAYS, event.getMember(), moderation.getAutoKick().getInfractionDays(), value);
-
-                        moderation.getAutoKick().setInfractions(autoKickTemp);
-                        moderation.getAutoKick().setInfractionDays(value);
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("autokickset"));
-                        setState(0);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 5:
-                if (StringUtil.stringIsInt(input)) {
-                    int value = Integer.parseInt(input);
-                    if (value >= 1) {
-                        autoBanDaysTemp = value;
-                        setState(7);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 7:
-                long minutes = MentionUtil.getTimeMinutes(input).getValue();
-                if (minutes > 0) {
-                    moderation.beginTransaction();
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARNS, event.getMember(), moderation.getAutoBan().getInfractions(), autoBanTemp);
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARN_DAYS, event.getMember(), moderation.getAutoBan().getInfractionDays(), autoBanDaysTemp);
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_DURATION, event.getMember(), moderation.getAutoBan().getDurationMinutes(), (int) minutes);
-
-                    moderation.getAutoBan().setInfractions(autoBanTemp);
-                    moderation.getAutoBan().setInfractionDays(autoBanDaysTemp);
-                    moderation.getAutoBan().setDurationMinutes((int) minutes);
-                    moderation.commitTransaction();
-
-                    setLog(LogStatus.SUCCESS, getString("autobanset"));
-                    setState(0);
-                    return MessageInputResponse.SUCCESS;
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 8:
-                if (StringUtil.stringIsInt(input)) {
-                    int value = Integer.parseInt(input);
-                    if (value >= 1) {
-                        autoMuteTemp = value;
-                        setState(9);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 9:
-                if (StringUtil.stringIsInt(input)) {
-                    int value = Integer.parseInt(input);
-                    if (value >= 1) {
-                        autoMuteDaysTemp = value;
-                        setState(10);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 10:
-                minutes = MentionUtil.getTimeMinutes(input).getValue();
-                if (minutes > 0) {
-                    moderation.beginTransaction();
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARNS, event.getMember(), moderation.getAutoMute().getInfractions(), autoMuteTemp);
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARN_DAYS, event.getMember(), moderation.getAutoMute().getInfractionDays(), autoMuteDaysTemp);
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_DURATION, event.getMember(), moderation.getAutoMute().getDurationMinutes(), (int) minutes);
-
-                    moderation.getAutoMute().setInfractions(autoMuteTemp);
-                    moderation.getAutoMute().setInfractionDays(autoMuteDaysTemp);
-                    moderation.getAutoMute().setDurationMinutes((int) minutes);
-                    moderation.commitTransaction();
-
-                    setLog(LogStatus.SUCCESS, getString("automuteset"));
-                    setState(0);
-                    return MessageInputResponse.SUCCESS;
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 11:
-                List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-                return jailRolesNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMessage().getMember(), 0, BotLogEntity.Event.MOD_JAIL_ROLES);
-
-            case 13:
-                if (StringUtil.stringIsInt(input)) {
-                    int value = Integer.parseInt(input);
-                    if (value >= 1) {
-                        autoJailTemp = value;
-                        setState(14);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 14:
-                if (StringUtil.stringIsInt(input)) {
-                    int value = Integer.parseInt(input);
-                    if (value >= 1) {
-                        autoJailDaysTemp = value;
-                        setState(15);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 15:
-                minutes = MentionUtil.getTimeMinutes(input).getValue();
-                if (minutes > 0) {
-                    moderation.beginTransaction();
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARNS, event.getMember(), moderation.getAutoJail().getInfractions(), autoJailTemp);
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARN_DAYS, event.getMember(), moderation.getAutoJail().getInfractionDays(), autoJailDaysTemp);
-                    logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_DURATION, event.getMember(), moderation.getAutoJail().getDurationMinutes(), (int) minutes);
-
-                    moderation.getAutoJail().setInfractions(autoJailTemp);
-                    moderation.getAutoJail().setInfractionDays(autoJailDaysTemp);
-                    moderation.getAutoJail().setDurationMinutes((int) minutes);
-                    moderation.commitTransaction();
-
-                    setLog(LogStatus.SUCCESS, getString("autojailset"));
-                    setState(0);
-                    return MessageInputResponse.SUCCESS;
-                } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
-                    return MessageInputResponse.FAILED;
-                }
-
-            case 16:
-                channelsList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
-                if (channelsList.isEmpty()) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return MessageInputResponse.FAILED;
-                } else {
-                    GuildMessageChannel channel = channelsList.get(0);
-                    if (checkWriteEmbedInChannelWithLog(channel)) {
-                        moderation.beginTransaction();
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), channel.getIdLong());
-                        moderation.setBanAppealLogChannelId(channel.getIdLong());
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("banappealchannelset"));
-                        setState(0);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        return MessageInputResponse.FAILED;
-                    }
-                }
-
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
-        ModerationEntity moderation = getGuildEntity().getModeration();
-
-        switch (state) {
-            case 0:
-                switch (i) {
-                    case -1:
-                        deregisterListenersWithComponentMessage();
-                        return false;
-
-                    case 0:
-                        setState(1);
-                        return true;
-
-                    case 1:
-                        moderation.beginTransaction();
-                        moderation.setConfirmationMessages(!moderation.getConfirmationMessages());
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_CONFIRMATION_MESSAGES, event.getMember(), null, moderation.getConfirmationMessages());
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("setquestion", moderation.getConfirmationMessages()));
-                        return true;
-
-                    case 2:
-                        jailRolesNavigationHelper.startDataAdd(11);
-                        return true;
-
-                    case 3:
-                        jailRolesNavigationHelper.startDataRemove(12);
-                        return true;
-
-                    case 4:
-                        if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
-                            return true;
-                        }
-                        setState(16);
-                        return true;
-
-                    case 5:
-                        setState(8);
-                        return true;
-
-                    case 6:
-                        setState(13);
-                        return true;
-
-                    case 7:
-                        setState(2);
-                        return true;
-
-                    case 8:
-                        setState(3);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 1:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_NOTIFICATION_CHANNEL, event.getMember(), moderation.getLogChannelId(), null);
-                        moderation.setLogChannelId(null);
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("channelreset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 2:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        moderation.getAutoKick().setInfractions(null);
-                        moderation.getAutoKick().setInfractionDays(null);
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_KICK_DISABLE, event.getMember());
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("autokickset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 3:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        moderation.getAutoBan().setInfractions(null);
-                        moderation.getAutoBan().setInfractionDays(null);
-                        moderation.getAutoBan().setDurationMinutes(null);
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_BAN_DISABLE, event.getMember());
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("autobanset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 4:
-                switch (i) {
-                    case -1:
-                        setState(2);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARNS, event.getMember(), moderation.getAutoKick().getInfractions(), autoKickTemp);
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARN_DAYS, event.getMember(), moderation.getAutoKick().getInfractionDays(), null);
-
-                        moderation.getAutoKick().setInfractions(autoKickTemp);
-                        moderation.getAutoKick().setInfractionDays(null);
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("autokickset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 5:
-                switch (i) {
-                    case -1:
-                        setState(3);
-                        return true;
-
-                    case 0:
-                        autoBanDaysTemp = null;
-                        setState(7);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 7:
-                switch (i) {
-                    case -1:
-                        setState(5);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARNS, event.getMember(), moderation.getAutoBan().getInfractions(), autoBanTemp);
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARN_DAYS, event.getMember(), moderation.getAutoBan().getInfractionDays(), autoBanDaysTemp);
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_DURATION, event.getMember(), moderation.getAutoBan().getDurationMinutes(), null);
-
-                        moderation.getAutoBan().setInfractions(autoBanTemp);
-                        moderation.getAutoBan().setInfractionDays(autoBanDaysTemp);
-                        moderation.getAutoBan().setDurationMinutes(null);
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("autobanset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 8:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        moderation.getAutoMute().setInfractions(null);
-                        moderation.getAutoMute().setInfractionDays(null);
-                        moderation.getAutoMute().setDurationMinutes(null);
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_MUTE_DISABLE, event.getMember());
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("automuteset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 9:
-                switch (i) {
-                    case -1:
-                        setState(8);
-                        return true;
-
-                    case 0:
-                        autoMuteDaysTemp = null;
-                        setState(10);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 10:
-                switch (i) {
-                    case -1:
-                        setState(9);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARNS, event.getMember(), moderation.getAutoMute().getInfractions(), autoMuteTemp);
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARN_DAYS, event.getMember(), moderation.getAutoMute().getInfractionDays(), autoMuteDaysTemp);
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_DURATION, event.getMember(), moderation.getAutoMute().getDurationMinutes(), null);
-
-                        moderation.getAutoMute().setInfractions(autoMuteTemp);
-                        moderation.getAutoMute().setInfractionDays(autoMuteDaysTemp);
-                        moderation.getAutoMute().setDurationMinutes(null);
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("automuteset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 11:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                }
+    @ControllerButton(state = DEFAULT_STATE)
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                deregisterListenersWithComponentMessage();
                 return false;
 
-            case 12:
-                return jailRolesNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.MOD_JAIL_ROLES);
+            case 0:
+                setState(STATE_SET_LOG_CHANNEL);
+                return true;
 
-            case 13:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        moderation.getAutoJail().setInfractions(null);
-                        moderation.getAutoJail().setInfractionDays(null);
-                        moderation.getAutoJail().setDurationMinutes(null);
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_JAIL_DISABLE, event.getMember());
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("autojailset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 14:
-                switch (i) {
-                    case -1:
-                        setState(13);
-                        return true;
-
-                    case 0:
-                        autoJailDaysTemp = null;
-                        setState(15);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 15:
-                switch (i) {
-                    case -1:
-                        setState(14);
-                        return true;
-
-                    case 0:
-                        moderation.beginTransaction();
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARNS, event.getMember(), moderation.getAutoJail().getInfractions(), autoJailTemp);
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARN_DAYS, event.getMember(), moderation.getAutoJail().getInfractionDays(), autoJailDaysTemp);
-                        logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_DURATION, event.getMember(), moderation.getAutoJail().getDurationMinutes(), null);
-
-                        moderation.getAutoJail().setInfractions(autoJailTemp);
-                        moderation.getAutoJail().setInfractionDays(autoJailDaysTemp);
-                        moderation.getAutoJail().setDurationMinutes(null);
-                        moderation.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("autojailset"));
-                        setState(0);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 16:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                }
-
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
                 moderation.beginTransaction();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_APPEAL_LOG_CHANNEL, event.getMember(), moderation.getBanAppealLogChannelIdEffectively(), null);
-                moderation.setBanAppealLogChannelId(null);
+                moderation.setConfirmationMessages(!moderation.getConfirmationMessages());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_CONFIRMATION_MESSAGES, event.getMember(), null, moderation.getConfirmationMessages());
                 moderation.commitTransaction();
 
-                setLog(LogStatus.SUCCESS, getString("banappealchannelset"));
-                setState(0);
+                setLog(LogStatus.SUCCESS, getString("setquestion", moderation.getConfirmationMessages()));
+                return true;
+
+            case 2:
+                setState(STATE_SET_JAIL_ROLES);
+                return true;
+
+            case 3:
+                if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                    return true;
+                }
+                setState(STATE_SET_BAN_APPEAL_LOG_CHANNEL);
+                return true;
+
+            case 4:
+                setState(STATE_SET_AUTO_MUTE_WARNS);
+                return true;
+
+            case 5:
+                setState(STATE_SET_AUTO_JAIL_WARNS);
+                return true;
+
+            case 6:
+                setState(STATE_SET_AUTO_KICK_WARNS);
+                return true;
+
+            case 7:
+                setState(STATE_SET_AUTO_BAN_WARNS);
                 return true;
 
             default:
@@ -670,92 +164,534 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
         }
     }
 
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
-        ModerationEntity moderation = getGuildEntity().getModeration();
+    @ControllerButton(state = STATE_SET_AUTO_MUTE_WARNS)
+    public boolean onButtonAutoMuteWarns(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(DEFAULT_STATE);
+                return true;
 
-        switch (state) {
             case 0:
-                Locale locale = getLocale();
-                String notSet = TextManager.getString(locale, TextManager.GENERAL, "notset");
-                GuildMessageChannel channel = getGuildMessageChannel().get();
-                setComponents(getString("state0_options").split("\n"));
-
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mchannel"), moderation.getLogChannelId() != null ? moderation.getLogChannel().getPrefixedNameInField(locale) : notSet, true)
-                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(channel, locale, moderation.getConfirmationMessages()), true)
-                        .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(moderation.getJailRoles(), locale, m -> m.getPrefixedNameInField(locale)), true)
-                        .addField(getString("state0_mbanappeallogchannel") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), moderation.getBanAppealLogChannelIdEffectively() != null ? moderation.getBanAppealLogChannelEffectively().getPrefixedNameInField(locale) : notSet, true)
-                        .addField(getString("state0_mautomod"), getString(
-                                "state0_mautomod_desc",
-                                getAutoModString(channel, moderation.getAutoMute()),
-                                getAutoModString(channel, moderation.getAutoJail()),
-                                getAutoModString(channel, moderation.getAutoKick()),
-                                getAutoModString(channel, moderation.getAutoBan())
-                        ), false);
+                Modal modal = new IntModalBuilder(this, getString("automod_warns"))
+                        .setMinMax(1, 999)
+                        .setGetter(() -> getGuildEntity().getModeration().getAutoMute().getInfractions())
+                        .setSetterOptionalLogs(value -> {
+                            autoMuteTemp = value;
+                            setState(STATE_SET_AUTO_MUTE_WARN_DAYS);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
 
             case 1:
-                setComponents(getString("state1_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                moderation.getAutoMute().setInfractions(null);
+                moderation.getAutoMute().setInfractionDays(null);
+                moderation.getAutoMute().setDurationMinutes(null);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_MUTE_DISABLE, event.getMember());
+                moderation.commitTransaction();
 
-            case 2:
-                setComponents(getString("state2_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
-
-            case 3:
-                setComponents(getString("state3_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
-
-            case 4:
-                setComponents(getString("state4_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoKickTemp != 1, StringUtil.numToString(autoKickTemp)), getString("state4_title"));
-
-            case 5:
-                setComponents(getString("state4_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
-
-            case 7:
-                setComponents(getString("state7_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
-
-            case 8:
-                setComponents(getString("state8_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
-
-            case 9:
-                setComponents(getString("state4_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoMuteTemp != 1, StringUtil.numToString(autoMuteTemp)), getString("state9_title"));
-
-            case 10:
-                setComponents(getString("state10_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
-
-            case 11:
-                return jailRolesNavigationHelper.drawDataAdd(getString("state11_title"));
-
-            case 12:
-                return jailRolesNavigationHelper.drawDataRemove(getString("state12_title"), getLocale());
-
-            case 13:
-                setComponents(getString("state13_options"));
-                setLog(LogStatus.WARNING, getString("state13_warning"));
-                return EmbedFactory.getEmbedDefault(this, getString("state13_description"), getString("state13_title"));
-
-            case 14:
-                setComponents(getString("state4_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoJailTemp != 1, StringUtil.numToString(autoJailTemp)), getString("state14_title"));
-
-            case 15:
-                setComponents(getString("state15_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state15_description"), getString("state15_title"));
-
-            case 16:
-                setComponents(getString("state16_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state16_description", ExternalLinks.BAN_APPEAL_URL + member.getGuild().getId()), getString("state16_title"));
+                setLog(LogStatus.SUCCESS, getString("automuteset"));
+                setState(DEFAULT_STATE);
+                return true;
 
             default:
-                return null;
+                return false;
         }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_MUTE_WARN_DAYS)
+    public boolean onButtonAutoMuteWarnDays(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(STATE_SET_AUTO_MUTE_WARNS);
+                return true;
+
+            case 0:
+                Modal modal = new IntModalBuilder(this, getString("automod_warndays"))
+                        .setMinMax(1, 999)
+                        .setGetter(() -> getGuildEntity().getModeration().getAutoMute().getInfractionDays())
+                        .setSetterOptionalLogs(value -> {
+                            autoMuteDaysTemp = value;
+                            setState(STATE_SET_AUTO_MUTE_DURATION);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                autoMuteDaysTemp = null;
+                setState(STATE_SET_AUTO_MUTE_DURATION);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_MUTE_DURATION)
+    public boolean onButtonAutoMuteDuration(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(STATE_SET_AUTO_MUTE_WARN_DAYS);
+                return true;
+
+            case 0:
+                Modal modal = new DurationModalBuilder(this, getString("automod_duration"))
+                        .setMinMaxMinutes(1, Integer.MAX_VALUE)
+                        .enableHibernateTransaction()
+                        .setGetterInt(() -> getGuildEntity().getModeration().getAutoMute().getDurationMinutes())
+                        .setSetterIntOptionalLogs(value -> {
+                            ModerationEntity moderation = getGuildEntity().getModeration();
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARNS, event.getMember(), moderation.getAutoMute().getInfractions(), autoMuteTemp);
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARN_DAYS, event.getMember(), moderation.getAutoMute().getInfractionDays(), autoMuteDaysTemp);
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_DURATION, event.getMember(), moderation.getAutoMute().getDurationMinutes(), value);
+
+                            moderation.getAutoMute().setInfractions(autoMuteTemp);
+                            moderation.getAutoMute().setInfractionDays(autoMuteDaysTemp);
+                            moderation.getAutoMute().setDurationMinutes(value);
+
+                            setLog(LogStatus.SUCCESS, getString("automuteset"));
+                            setState(DEFAULT_STATE);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARNS, event.getMember(), moderation.getAutoMute().getInfractions(), autoMuteTemp);
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_WARN_DAYS, event.getMember(), moderation.getAutoMute().getInfractionDays(), autoMuteDaysTemp);
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_MUTE_DURATION, event.getMember(), moderation.getAutoMute().getDurationMinutes(), null);
+
+                moderation.getAutoMute().setInfractions(autoMuteTemp);
+                moderation.getAutoMute().setInfractionDays(autoMuteDaysTemp);
+                moderation.getAutoMute().setDurationMinutes(null);
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("automuteset"));
+                setState(DEFAULT_STATE);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_JAIL_WARNS)
+    public boolean onButtonAutoJailWarns(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(DEFAULT_STATE);
+                return true;
+
+            case 0:
+                Modal modal = new IntModalBuilder(this, getString("automod_warns"))
+                        .setMinMax(1, 999)
+                        .setGetter(() -> getGuildEntity().getModeration().getAutoJail().getInfractions())
+                        .setSetterOptionalLogs(value -> {
+                            autoJailTemp = value;
+                            setState(STATE_SET_AUTO_JAIL_WARN_DAYS);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                moderation.getAutoJail().setInfractions(null);
+                moderation.getAutoJail().setInfractionDays(null);
+                moderation.getAutoJail().setDurationMinutes(null);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_JAIL_DISABLE, event.getMember());
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("autojailset"));
+                setState(DEFAULT_STATE);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_JAIL_WARN_DAYS)
+    public boolean onButtonAutoJailWarnDays(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(STATE_SET_AUTO_JAIL_WARNS);
+                return true;
+
+            case 0:
+                Modal modal = new IntModalBuilder(this, getString("automod_warndays"))
+                        .setMinMax(1, 999)
+                        .setGetter(() -> getGuildEntity().getModeration().getAutoJail().getInfractionDays())
+                        .setSetterOptionalLogs(value -> {
+                            autoJailDaysTemp = value;
+                            setState(STATE_SET_AUTO_JAIL_DURATION);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                autoJailDaysTemp = null;
+                setState(STATE_SET_AUTO_JAIL_DURATION);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_JAIL_DURATION)
+    public boolean onButtonAutoJailDuration(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(STATE_SET_AUTO_JAIL_WARN_DAYS);
+                return true;
+
+            case 0:
+                Modal modal = new DurationModalBuilder(this, getString("automod_duration"))
+                        .setMinMaxMinutes(1, Integer.MAX_VALUE)
+                        .enableHibernateTransaction()
+                        .setGetterInt(() -> getGuildEntity().getModeration().getAutoJail().getDurationMinutes())
+                        .setSetterIntOptionalLogs(value -> {
+                            ModerationEntity moderation = getGuildEntity().getModeration();
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARNS, event.getMember(), moderation.getAutoJail().getInfractions(), autoJailTemp);
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARN_DAYS, event.getMember(), moderation.getAutoJail().getInfractionDays(), autoJailDaysTemp);
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_DURATION, event.getMember(), moderation.getAutoJail().getDurationMinutes(), value);
+
+                            moderation.getAutoJail().setInfractions(autoJailTemp);
+                            moderation.getAutoJail().setInfractionDays(autoJailDaysTemp);
+                            moderation.getAutoJail().setDurationMinutes(value);
+
+                            setLog(LogStatus.SUCCESS, getString("autojailset"));
+                            setState(DEFAULT_STATE);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARNS, event.getMember(), moderation.getAutoJail().getInfractions(), autoJailTemp);
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_WARN_DAYS, event.getMember(), moderation.getAutoJail().getInfractionDays(), autoJailDaysTemp);
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_JAIL_DURATION, event.getMember(), moderation.getAutoJail().getDurationMinutes(), null);
+
+                moderation.getAutoJail().setInfractions(autoJailTemp);
+                moderation.getAutoJail().setInfractionDays(autoJailDaysTemp);
+                moderation.getAutoJail().setDurationMinutes(null);
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("autojailset"));
+                setState(DEFAULT_STATE);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_KICK_WARNS)
+    public boolean onButtonAutoKickWarns(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(DEFAULT_STATE);
+                return true;
+
+            case 0:
+                Modal modal = new IntModalBuilder(this, getString("automod_warns"))
+                        .setMinMax(1, 999)
+                        .setGetter(() -> getGuildEntity().getModeration().getAutoKick().getInfractions())
+                        .setSetterOptionalLogs(value -> {
+                            autoKickTemp = value;
+                            setState(STATE_SET_AUTO_KICK_WARN_DAYS);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                moderation.getAutoKick().setInfractions(null);
+                moderation.getAutoKick().setInfractionDays(null);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_KICK_DISABLE, event.getMember());
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("autokickset"));
+                setState(DEFAULT_STATE);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_KICK_WARN_DAYS)
+    public boolean onButtonAutoKickWarnDays(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(STATE_SET_AUTO_KICK_WARNS);
+                return true;
+
+            case 0:
+                Modal modal = new IntModalBuilder(this, getString("automod_warndays"))
+                        .setMinMax(1, 999)
+                        .enableHibernateTransaction()
+                        .setGetter(() -> getGuildEntity().getModeration().getAutoKick().getInfractionDays())
+                        .setSetterOptionalLogs(value -> {
+                            ModerationEntity moderation = getGuildEntity().getModeration();
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARNS, event.getMember(), moderation.getAutoKick().getInfractions(), autoKickTemp);
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARN_DAYS, event.getMember(), moderation.getAutoKick().getInfractionDays(), value);
+
+                            moderation.getAutoKick().setInfractions(autoKickTemp);
+                            moderation.getAutoKick().setInfractionDays(value);
+
+                            setLog(LogStatus.SUCCESS, getString("autokickset"));
+                            setState(DEFAULT_STATE);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARNS, event.getMember(), moderation.getAutoKick().getInfractions(), autoKickTemp);
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_KICK_WARN_DAYS, event.getMember(), moderation.getAutoKick().getInfractionDays(), null);
+
+                moderation.getAutoKick().setInfractions(autoKickTemp);
+                moderation.getAutoKick().setInfractionDays(null);
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("autokickset"));
+                setState(DEFAULT_STATE);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_BAN_WARNS)
+    public boolean onButtonAutoBanWarns(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(DEFAULT_STATE);
+                return true;
+
+            case 0:
+                Modal modal = new IntModalBuilder(this, getString("automod_warns"))
+                        .setMinMax(1, 999)
+                        .setGetter(() -> getGuildEntity().getModeration().getAutoBan().getInfractions())
+                        .setSetterOptionalLogs(value -> {
+                            autoBanTemp = value;
+                            setState(STATE_SET_AUTO_BAN_WARN_DAYS);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                moderation.getAutoBan().setInfractions(null);
+                moderation.getAutoBan().setInfractionDays(null);
+                moderation.getAutoBan().setDurationMinutes(null);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_AUTO_BAN_DISABLE, event.getMember());
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("autobanset"));
+                setState(DEFAULT_STATE);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_BAN_WARN_DAYS)
+    public boolean onButtonAutoBanWarnDays(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(STATE_SET_AUTO_BAN_WARNS);
+                return true;
+
+            case 0:
+                Modal modal = new IntModalBuilder(this, getString("automod_warndays"))
+                        .setMinMax(1, 999)
+                        .setGetter(() -> getGuildEntity().getModeration().getAutoBan().getInfractionDays())
+                        .setSetterOptionalLogs(value -> {
+                            autoBanDaysTemp = value;
+                            setState(STATE_SET_AUTO_BAN_DURATION);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                autoBanDaysTemp = null;
+                setState(STATE_SET_AUTO_BAN_DURATION);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_AUTO_BAN_DURATION)
+    public boolean onButtonAutoBanDuration(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(STATE_SET_AUTO_BAN_WARN_DAYS);
+                return true;
+
+            case 0:
+                Modal modal = new DurationModalBuilder(this, getString("automod_duration"))
+                        .setMinMaxMinutes(1, Integer.MAX_VALUE)
+                        .enableHibernateTransaction()
+                        .setGetterInt(() -> getGuildEntity().getModeration().getAutoBan().getDurationMinutes())
+                        .setSetterIntOptionalLogs(value -> {
+                            ModerationEntity moderation = getGuildEntity().getModeration();
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARNS, event.getMember(), moderation.getAutoBan().getInfractions(), autoBanTemp);
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARN_DAYS, event.getMember(), moderation.getAutoBan().getInfractionDays(), autoBanDaysTemp);
+                            logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_DURATION, event.getMember(), moderation.getAutoBan().getDurationMinutes(), value);
+
+                            moderation.getAutoBan().setInfractions(autoBanTemp);
+                            moderation.getAutoBan().setInfractionDays(autoBanDaysTemp);
+                            moderation.getAutoBan().setDurationMinutes(value);
+
+                            setLog(LogStatus.SUCCESS, getString("autobanset"));
+                            setState(DEFAULT_STATE);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARNS, event.getMember(), moderation.getAutoBan().getInfractions(), autoBanTemp);
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_WARN_DAYS, event.getMember(), moderation.getAutoBan().getInfractionDays(), autoBanDaysTemp);
+                logAutoMod(BotLogEntity.Event.MOD_AUTO_BAN_DURATION, event.getMember(), moderation.getAutoBan().getDurationMinutes(), null);
+
+                moderation.getAutoBan().setInfractions(autoBanTemp);
+                moderation.getAutoBan().setInfractionDays(autoBanDaysTemp);
+                moderation.getAutoBan().setDurationMinutes(null);
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("autobanset"));
+                setState(DEFAULT_STATE);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @Draw(state = DEFAULT_STATE)
+    public EmbedBuilder drawDefault(Member member) {
+        ModerationEntity moderation = getGuildEntity().getModeration();
+        Locale locale = getLocale();
+        String notSet = TextManager.getString(locale, TextManager.GENERAL, "notset");
+        GuildMessageChannel channel = getGuildMessageChannel().get();
+        setComponents(getString("state0_options").split("\n"));
+
+        return EmbedFactory.getEmbedDefault(this)
+                .addField(getString("state0_mchannel"), moderation.getLogChannelId() != null ? moderation.getLogChannel().getPrefixedNameInField(locale) : notSet, true)
+                .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(channel, locale, moderation.getConfirmationMessages()), true)
+                .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(moderation.getJailRoles(), locale, m -> m.getPrefixedNameInField(locale)), true)
+                .addField(getString("state0_mbanappeallogchannel") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), moderation.getBanAppealLogChannelIdEffectively() != null ? moderation.getBanAppealLogChannelEffectively().getPrefixedNameInField(locale) : notSet, true)
+                .addField(getString("state0_mautomod"), getString(
+                        "state0_mautomod_desc",
+                        getAutoModString(channel, moderation.getAutoMute()),
+                        getAutoModString(channel, moderation.getAutoJail()),
+                        getAutoModString(channel, moderation.getAutoKick()),
+                        getAutoModString(channel, moderation.getAutoBan())
+                ), false);
+    }
+
+    @Draw(state = STATE_SET_AUTO_MUTE_WARNS)
+    public EmbedBuilder drawAutoMuteWarns(Member member) {
+        setComponents(getString("automod_warns_options").split("\n"), new int[0], new int[]{1});
+        return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_MUTE_WARN_DAYS)
+    public EmbedBuilder drawAutoMuteWarnDays(Member member) {
+        setComponents(getString("automod_warndays_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoMuteTemp != 1, StringUtil.numToString(autoMuteTemp)), getString("state9_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_MUTE_DURATION)
+    public EmbedBuilder drawAutoMuteDuration(Member member) {
+        setComponents(getString("state10_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_JAIL_WARNS)
+    public EmbedBuilder drawAutoJailWarns(Member member) {
+        setComponents(getString("automod_warns_options").split("\n"), new int[0], new int[]{1});
+        setLog(LogStatus.WARNING, getString("state13_warning"));
+        return EmbedFactory.getEmbedDefault(this, getString("state13_description"), getString("state13_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_JAIL_WARN_DAYS)
+    public EmbedBuilder drawAutoJailWarnDays(Member member) {
+        setComponents(getString("automod_warndays_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoJailTemp != 1, StringUtil.numToString(autoJailTemp)), getString("state14_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_JAIL_DURATION)
+    public EmbedBuilder drawAutoJailDuration(Member member) {
+        setComponents(getString("state15_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state15_description"), getString("state15_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_KICK_WARNS)
+    public EmbedBuilder drawAutoKickWarns(Member member) {
+        setComponents(getString("automod_warns_options").split("\n"), new int[0], new int[]{1});
+        return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_KICK_WARN_DAYS)
+    public EmbedBuilder drawAutoKickWarnDays(Member member) {
+        setComponents(getString("automod_warndays_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoKickTemp != 1, StringUtil.numToString(autoKickTemp)), getString("state4_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_BAN_WARNS)
+    public EmbedBuilder drawAutoBanWarns(Member member) {
+        setComponents(getString("automod_warns_options").split("\n"), new int[0], new int[]{1});
+        return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_BAN_WARN_DAYS)
+    public EmbedBuilder drawAutoBanWarnDays(Member member) {
+        setComponents(getString("automod_warndays_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
+    }
+
+    @Draw(state = STATE_SET_AUTO_BAN_DURATION)
+    public EmbedBuilder drawAutoBanDuration(Member member) {
+        setComponents(getString("state7_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state7_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state7_title"));
     }
 
     private String getAutoModString(GuildMessageChannel channel, AutoModEntity autoModEntity) {
@@ -771,13 +707,13 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
     }
 
     public static String getAutoModString(Locale locale, Integer infractions, Integer infractionDays, Integer durationMinutes) {
-        String content = TextManager.getString(locale, Category.MODERATION,"mod_state0_mautomod_templ", infractions != null,
+        String content = TextManager.getString(locale, Category.MODERATION, "mod_state0_mautomod_templ", infractions != null,
                 infractions != null ? StringUtil.numToString(infractions) : "", infractionDays != null
                         ? TextManager.getString(locale, Category.MODERATION, "mod_days", infractionDays > 1, StringUtil.numToString(infractionDays))
                         : TextManager.getString(locale, Category.MODERATION, "mod_total")
         );
         if (durationMinutes != null) {
-            content = content + " " + TextManager.getString(locale, Category.MODERATION,"mod_duration", TimeUtil.getDurationString(Duration.ofMinutes(durationMinutes)));
+            content = content + " " + TextManager.getString(locale, Category.MODERATION, "mod_duration", TimeUtil.getDurationString(Duration.ofMinutes(durationMinutes)));
         }
         return content;
     }
@@ -788,8 +724,8 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
         EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                 getLocale(),
                 event.getMember(),
-                new Permission[] { Permission.BAN_MEMBERS },
-                new Permission[] { Permission.BAN_MEMBERS }
+                new Permission[]{Permission.BAN_MEMBERS},
+                new Permission[]{Permission.BAN_MEMBERS}
         );
         if (errEmbed != null) {
             event.replyEmbeds(errEmbed.build())

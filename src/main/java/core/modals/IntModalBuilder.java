@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 public class IntModalBuilder extends AbstractModalBuilder<Integer, IntModalBuilder> {
 
     private int min = 0;
-    private int max = Integer.MAX_VALUE;
+    private int max = Integer.MAX_VALUE - 1;
 
     public IntModalBuilder(NavigationAbstract command, String propertyName) {
         super(command, propertyName, TextInputStyle.SHORT);

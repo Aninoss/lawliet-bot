@@ -177,7 +177,7 @@ public class AlertsCommand extends NavigationAbstract {
         } else if (i == 0) {
             Modal modal = new StringModalBuilder(this, getString("dashboard_command"), TextInputStyle.SHORT)
                     .setMinMaxLength(1, 50)
-                    .setSetterWithOptionalLogs(input -> {
+                    .setSetterOptionalLogs(input -> {
                         String prefix = getPrefix();
                         if (input.toLowerCase().startsWith(prefix.toLowerCase())) {
                             input = input.substring(prefix.length());
@@ -241,7 +241,7 @@ public class AlertsCommand extends NavigationAbstract {
         } else if (i == 0) {
             Modal modal = new StringModalBuilder(this, getString("dashboard_arg"), TextInputStyle.SHORT)
                     .setMinMaxLength(1, TextInput.MAX_VALUE_LENGTH)
-                    .setSetterWithOptionalLogs(input -> {
+                    .setSetterOptionalLogs(input -> {
                         if (getAlertChannelOrFail(event.getMember()) == null) {
                             return false;
                         }
@@ -303,7 +303,7 @@ public class AlertsCommand extends NavigationAbstract {
 
                 Modal modal = new DurationModalBuilder(this, getString("dashboard_mininterval"))
                         .setMinMaxMinutes(1, Long.MAX_VALUE)
-                        .setSetterWithOptionalLogs(minutes -> {
+                        .setSetterOptionalLogs(minutes -> {
                             GuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
                             if (channel == null) {
                                 return false;

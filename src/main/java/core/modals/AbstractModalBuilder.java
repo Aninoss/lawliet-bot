@@ -71,7 +71,7 @@ public abstract class AbstractModalBuilder<T, U extends AbstractModalBuilder<T, 
         return (U) this;
     }
 
-    public U setSetterWithOptionalLogs(Function<T, Boolean> setter) {
+    public U setSetterOptionalLogs(Function<T, Boolean> setter) {
         this.setter = setter;
         return (U) this;
     }

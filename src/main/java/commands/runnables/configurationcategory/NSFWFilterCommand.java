@@ -59,7 +59,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
             case 0 -> {
                 Modal modal = new StringModalBuilder(this, getString("state0_mkeywords"), TextInputStyle.SHORT)
                         .setMinMaxLength(1, TextInput.MAX_VALUE_LENGTH)
-                        .setSetterWithOptionalLogs(input -> {
+                        .setSetterOptionalLogs(input -> {
                             String[] mentionedKeywords = input.toLowerCase().split(" ");
                             int existingKeywords = 0;
                             for (String str : mentionedKeywords) {

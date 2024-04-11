@@ -13,8 +13,8 @@ import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
-import dashboard.components.DashboardMultiMembersComboBox
 import dashboard.components.DashboardMultiChannelsComboBox
+import dashboard.components.DashboardMultiMembersComboBox
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
@@ -272,7 +272,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         buttonContainer.add(configButton)
 
         if (slot.getInfractions(moderationEntity) != null) {
-            val turnOffButton = DashboardButton(getString(Category.MODERATION, "mod_state${slot.states[0]}_options")) {
+            val turnOffButton = DashboardButton(getString(Category.MODERATION, "mod_turnoff")) {
                 if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                     return@DashboardButton ActionResult()
                             .withRedraw()
@@ -483,7 +483,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                     autoModConfigTempValue = it.data.toInt()
                     ActionResult()
                 }
-                textField.value = 1
+                textField.value = autoModConfigSlot?.getInfractions(moderationEntity)?.toLong() ?: 1
                 textField.editButton = false
                 return textField
             }
@@ -493,7 +493,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                     autoModConfigTempDays = it.data.toInt()
                     ActionResult()
                 }
-                textField.value = 1
+                textField.value = autoModConfigSlot?.getInfractionDays(moderationEntity)?.toLong() ?: 1
                 textField.editButton = false
                 return textField
             }
@@ -503,7 +503,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                     autoModConfigTempDuration = it.data.toInt()
                     ActionResult()
                 }
-                textField.value = 1
+                textField.value = autoModConfigSlot?.getDurationMinutes(moderationEntity)?.toLong() ?: 1
                 textField.editButton = false
                 return textField
             }
@@ -534,7 +534,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         container.add(continueButton)
 
         if (autoModConfigStep == 1) {
-            val countAllButton = DashboardButton(getString(Category.MODERATION, "mod_state4_options")) {
+            val countAllButton = DashboardButton(getString(Category.MODERATION, "mod_automod_countall")) {
                 if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                     return@DashboardButton ActionResult()
                             .withRedraw()
@@ -546,7 +546,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             countAllButton.style = DashboardButton.Style.PRIMARY
             container.add(countAllButton)
         } else if (autoModConfigStep == 2) {
-            val countAllButton = DashboardButton(getString(Category.MODERATION, "mod_state${autoModConfigSlot!!.states[autoModConfigStep]}_options")) {
+            val permanentlyButton = DashboardButton(getString(Category.MODERATION, "mod_state${autoModConfigSlot!!.states[autoModConfigStep]}_options").split("\n")[1]) {
                 if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                     return@DashboardButton ActionResult()
                             .withRedraw()
@@ -555,8 +555,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 autoModConfigTempDuration = null
                 return@DashboardButton autoModConfigNextStep()
             }
-            countAllButton.style = DashboardButton.Style.PRIMARY
-            container.add(countAllButton)
+            permanentlyButton.style = DashboardButton.Style.PRIMARY
+            container.add(permanentlyButton)
         }
 
         val cancelButton = DashboardButton(getString(TextManager.GENERAL, "process_abort")) {
