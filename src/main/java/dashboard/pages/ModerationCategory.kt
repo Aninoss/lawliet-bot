@@ -407,7 +407,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 getString(Category.MODERATION, "wordfilter_state0_mignoredusers"),
                 { it.wordFilter.excludedMemberIds },
                 true,
-                WordFilterCommand.MAX_IGNORED_USERS,
+                WordFilterCommand.MAX_EXCLUDED_MEMBERS,
                 WordFilterCommand::class,
                 BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS
         )
@@ -438,7 +438,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             if (it.type == "add") {
                 val newWordsList = WordFilter.translateString(it.data).split(" ")
                         .filter { it.length > 0 }
-                        .map { it.substring(0, Math.min(WordFilterCommand.MAX_LETTERS, it.length)) }
+                        .map { it.substring(0, Math.min(WordFilterCommand.MAX_LETTERS_PER_WORD, it.length)) }
                         .filter { !wordFilterEntity.words.contains(it) }
 
                 wordFilterEntity.beginTransaction()
