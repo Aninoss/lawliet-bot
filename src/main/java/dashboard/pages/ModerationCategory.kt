@@ -360,7 +360,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 getString(Category.MODERATION, "invitefilter_state0_mignoredusers"),
                 { it.inviteFilter.excludedMemberIds },
                 true,
-                InviteFilterCommand.MAX_IGNORED_USERS,
+                InviteFilterCommand.MAX_EXCLUDED_MEMBERS,
                 InviteFilterCommand::class,
                 BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS
         )
@@ -372,7 +372,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 DashboardComboBox.DataType.GUILD_CHANNELS,
                 { it.inviteFilter.excludedChannelIds },
                 true,
-                InviteFilterCommand.MAX_IGNORED_CHANNELS,
+                InviteFilterCommand.MAX_EXCLUDED_CHANNELS,
                 InviteFilterCommand::class,
                 BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS
         )
