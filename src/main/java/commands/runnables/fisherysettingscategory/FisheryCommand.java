@@ -2,12 +2,11 @@ package commands.runnables.fisherysettingscategory;
 
 import commands.Category;
 import commands.CommandEvent;
-import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.listeners.OnStaticButtonListener;
 import commands.listeners.OnStaticEntitySelectMenuListener;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.GuildChannelsStateProcessor;
 import constants.Emojis;
 import constants.ExceptionIds;
 import constants.LogStatus;
@@ -17,7 +16,6 @@ import core.atomicassets.AtomicGuildChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
-import core.utils.MentionUtil;
 import core.utils.NumberUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
@@ -33,15 +31,11 @@ import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -51,10 +45,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 @CommandProperties(
         trigger = "fishery",
@@ -67,14 +58,15 @@ import java.util.Random;
 )
 public class FisheryCommand extends NavigationAbstract implements OnStaticButtonListener, OnStaticEntitySelectMenuListener {
 
-    public static final int MAX_CHANNELS = 50;
+    public static final int MAX_EXCLUDED_CHANNELS = 25;
 
     public static final String BUTTON_ID_TREASURE = "open";
     public static final String BUTTON_ID_POWERUP = "use";
     public static final String ENTITY_SELECT_MENU_ID_COLLABORATION = "member";
 
+    private static final int STATE_SET_EXCLUDED_CHANNELS = 1;
+
     private boolean stopLock = true;
-    private NavigationHelper<AtomicGuildChannel> channelNavigationHelper;
 
     public static final String EMOJI_TREASURE = "💰";
     public static final String EMOJI_KEY = "🔑";
@@ -86,244 +78,200 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
-        channelNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getFishery().getExcludedChannels(), AtomicGuildChannel.class, MAX_CHANNELS);
-        registerNavigationListener(event.getMember());
+        registerNavigationListener(event.getMember(), List.of(
+                new GuildChannelsStateProcessor(this, STATE_SET_EXCLUDED_CHANNELS, DEFAULT_STATE, getString("state0_mchannels"))
+                        .setMinMax(0, MAX_EXCLUDED_CHANNELS)
+                        .setChannelTypes(Collections.emptyList())
+                        .setDescription(getString("excludedchannels"))
+                        .setLogEvent(BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS)
+                        .setGetter(() -> getGuildEntity().getFishery().getExcludedChannelIds())
+                        .setSetter(channelIds -> getGuildEntity().getFishery().setExcludedChannelIds(channelIds))
+        ));
         return true;
     }
 
-    @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
-        if (state == 1) {
-            List<GuildChannel> channelList = MentionUtil.getGuildChannels(event.getGuild(), input).getList();
-            return channelNavigationHelper.addData(AtomicGuildChannel.from(channelList), input, event.getMessage().getMember(), 0, BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS);
-        }
-
-        return null;
-    }
-
-    @Override
-    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
+    @ControllerButton(state = DEFAULT_STATE)
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
         FisheryEntity fishery = getGuildEntity().getFishery();
+        switch (i) {
+            case -1:
+                deregisterListenersWithComponentMessage();
+                return false;
 
-        switch (state) {
             case 0:
-                switch (i) {
-                    case -1:
-                        deregisterListenersWithComponentMessage();
-                        return false;
+                fishery.beginTransaction();
+                fishery.setTreasureChests(!fishery.getTreasureChests());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHESTS, event.getMember(), null, fishery.getTreasureChests());
+                fishery.commitTransaction();
 
-                    case 0:
+                setLog(LogStatus.SUCCESS, getString("treasurechestsset", fishery.getTreasureChests()));
+                stopLock = true;
+                return true;
+
+            case 1:
+                fishery.beginTransaction();
+                fishery.setPowerUps(!fishery.getPowerUps());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_POWER_UPS, event.getMember(), null, fishery.getPowerUps());
+                fishery.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("powerupsset", fishery.getPowerUps()));
+                stopLock = true;
+                return true;
+
+            case 2:
+                fishery.beginTransaction();
+                fishery.setFishReminders(!fishery.getFishReminders());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_FISH_REMINDERS, event.getMember(), null, fishery.getFishReminders());
+                fishery.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("remindersset", fishery.getFishReminders()));
+                stopLock = true;
+                return true;
+
+            case 3:
+                fishery.beginTransaction();
+                fishery.setCoinGiftLimit(!fishery.getCoinGiftLimit());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_COIN_GIFT_LIMIT, event.getMember(), null, fishery.getCoinGiftLimit());
+                fishery.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("coinsgivenset", fishery.getCoinGiftLimit()));
+                stopLock = true;
+                return true;
+
+            case 4:
+                if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                    return true;
+                }
+
+                String treasureChestsId = "treasure_chests";
+                TextInput textTreasureChests = TextInput.create(treasureChestsId, getString("probabilities_treasure"), TextInputStyle.SHORT)
+                        .setValue(StringUtil.doubleToString(fishery.getTreasureChestProbabilityInPercentEffectively(), 2, getLocale()))
+                        .setMinLength(1)
+                        .setMaxLength(5)
+                        .build();
+
+                String powerUpsId = "power_ups";
+                TextInput textPowerUps = TextInput.create(powerUpsId, getString("probabilities_powerups"), TextInputStyle.SHORT)
+                        .setValue(StringUtil.doubleToString(fishery.getPowerUpProbabilityInPercentEffectively(), 2, getLocale()))
+                        .setMinLength(1)
+                        .setMaxLength(5)
+                        .build();
+
+                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("probabilities_title"), e -> {
+                            String treasureChestsProbabilityStr = e.getValue(treasureChestsId).getAsString().replace(",", ".");
+                            if (!StringUtil.stringIsDouble(treasureChestsProbabilityStr)) {
+                                setLog(LogStatus.FAILURE, getString("probabilities_invalid_treasure", StringUtil.escapeMarkdown(treasureChestsProbabilityStr)));
+                                return null;
+                            }
+
+                            String powerUpsProbabilityStr = e.getValue(powerUpsId).getAsString().replace(",", ".");
+                            if (!StringUtil.stringIsDouble(powerUpsProbabilityStr)) {
+                                setLog(LogStatus.FAILURE, getString("probabilities_invalid_powerups", StringUtil.escapeMarkdown(powerUpsProbabilityStr)));
+                                return null;
+                            }
+
+                            double treasureChestsProbability = Double.parseDouble(treasureChestsProbabilityStr);
+                            if (treasureChestsProbability < 0 || treasureChestsProbability > 100) {
+                                setLog(LogStatus.FAILURE, getString("probabilities_outofrange_treasure"));
+                                return null;
+                            }
+
+                            double powerUpsProbability = Double.parseDouble(powerUpsProbabilityStr);
+                            if (powerUpsProbability < 0 || powerUpsProbability > 100) {
+                                setLog(LogStatus.FAILURE, getString("probabilities_outofrange_powerup"));
+                                return null;
+                            }
+
+                            FisheryEntity newFishery = getGuildEntity().getFishery();
+                            newFishery.beginTransaction();
+
+                            double newTreasureChestProbability = NumberUtil.trimDecimalPositions(treasureChestsProbability, 2);
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHEST_PROBABILITY, e.getMember(),
+                                    newFishery.getTreasureChestProbabilityInPercent(), newTreasureChestProbability
+                            );
+
+                            double newPowerUpProbability = NumberUtil.trimDecimalPositions(powerUpsProbability, 2);
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_POWER_UP_PROBABILITY, e.getMember(),
+                                    newFishery.getPowerUpProbabilityInPercent(), newPowerUpProbability
+                            );
+
+
+                            newFishery.setTreasureChestProbabilityInPercent(newTreasureChestProbability);
+                            newFishery.setPowerUpProbabilityInPercent(newPowerUpProbability);
+                            newFishery.commitTransaction();
+
+                            setLog(LogStatus.SUCCESS, getString("probabilitiesset"));
+                            return null;
+                        }).addActionRows(ActionRow.of(textTreasureChests), ActionRow.of(textPowerUps))
+                        .build();
+
+                event.replyModal(modal).queue();
+                return false;
+
+            case 5:
+                setState(STATE_SET_EXCLUDED_CHANNELS);
+                stopLock = true;
+                return true;
+
+            case 6:
+                if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
+                    fishery.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.ACTIVE);
+                    fishery.setFisheryStatus(FisheryStatus.ACTIVE);
+                    fishery.commitTransaction();
+                } else {
+                    fishery.beginTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.PAUSED);
+                    fishery.setFisheryStatus(FisheryStatus.PAUSED);
+                    fishery.commitTransaction();
+                }
+
+                setLog(LogStatus.SUCCESS, getString("setstatus"));
+                stopLock = true;
+                return true;
+
+            case 7:
+                if (fishery.getFisheryStatus() == FisheryStatus.ACTIVE) {
+                    if (stopLock) {
+                        stopLock = false;
+                        setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
+                    } else {
+                        GlobalThreadPool.submit(() -> FisheryUserManager.deleteGuildData(event.getGuild().getIdLong()));
+
                         fishery.beginTransaction();
-                        fishery.setTreasureChests(!fishery.getTreasureChests());
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHESTS, event.getMember(), null, fishery.getTreasureChests());
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.STOPPED);
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_DATA_RESET, event.getMember());
+                        fishery.setFisheryStatus(FisheryStatus.STOPPED);
                         fishery.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("treasurechestsset", fishery.getTreasureChests()));
-                        stopLock = true;
-                        return true;
-
-                    case 1:
-                        fishery.beginTransaction();
-                        fishery.setPowerUps(!fishery.getPowerUps());
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_POWER_UPS, event.getMember(), null, fishery.getPowerUps());
-                        fishery.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("powerupsset", fishery.getPowerUps()));
-                        stopLock = true;
-                        return true;
-
-                    case 2:
-                        fishery.beginTransaction();
-                        fishery.setFishReminders(!fishery.getFishReminders());
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_FISH_REMINDERS, event.getMember(), null, fishery.getFishReminders());
-                        fishery.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("remindersset", fishery.getFishReminders()));
-                        stopLock = true;
-                        return true;
-
-                    case 3:
-                        fishery.beginTransaction();
-                        fishery.setCoinGiftLimit(!fishery.getCoinGiftLimit());
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_COIN_GIFT_LIMIT, event.getMember(), null, fishery.getCoinGiftLimit());
-                        fishery.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("coinsgivenset", fishery.getCoinGiftLimit()));
-                        stopLock = true;
-                        return true;
-
-                    case 4:
-                        if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
-                            return true;
-                        }
-
-                        String treasureChestsId = "treasure_chests";
-                        TextInput textTreasureChests = TextInput.create(treasureChestsId, getString("probabilities_treasure"), TextInputStyle.SHORT)
-                                .setValue(StringUtil.doubleToString(fishery.getTreasureChestProbabilityInPercentEffectively(), 2, getLocale()))
-                                .setMinLength(1)
-                                .setMaxLength(5)
-                                .build();
-
-                        String powerUpsId = "power_ups";
-                        TextInput textPowerUps = TextInput.create(powerUpsId, getString("probabilities_powerups"), TextInputStyle.SHORT)
-                                .setValue(StringUtil.doubleToString(fishery.getPowerUpProbabilityInPercentEffectively(), 2, getLocale()))
-                                .setMinLength(1)
-                                .setMaxLength(5)
-                                .build();
-
-                        Modal modal = ModalMediator.createDrawableCommandModal(this, getString("probabilities_title"), e -> {
-                                    String treasureChestsProbabilityStr = e.getValue(treasureChestsId).getAsString().replace(",", ".");
-                                    if (!StringUtil.stringIsDouble(treasureChestsProbabilityStr)) {
-                                        setLog(LogStatus.FAILURE, getString("probabilities_invalid_treasure", StringUtil.escapeMarkdown(treasureChestsProbabilityStr)));
-                                        return null;
-                                    }
-
-                                    String powerUpsProbabilityStr = e.getValue(powerUpsId).getAsString().replace(",", ".");
-                                    if (!StringUtil.stringIsDouble(powerUpsProbabilityStr)) {
-                                        setLog(LogStatus.FAILURE, getString("probabilities_invalid_powerups", StringUtil.escapeMarkdown(powerUpsProbabilityStr)));
-                                        return null;
-                                    }
-
-                                    double treasureChestsProbability = Double.parseDouble(treasureChestsProbabilityStr);
-                                    if (treasureChestsProbability < 0 || treasureChestsProbability > 100) {
-                                        setLog(LogStatus.FAILURE, getString("probabilities_outofrange_treasure"));
-                                        return null;
-                                    }
-
-                                    double powerUpsProbability = Double.parseDouble(powerUpsProbabilityStr);
-                                    if (powerUpsProbability < 0 || powerUpsProbability > 100) {
-                                        setLog(LogStatus.FAILURE, getString("probabilities_outofrange_powerup"));
-                                        return null;
-                                    }
-
-                                    FisheryEntity newFishery = getGuildEntity().getFishery();
-                                    newFishery.beginTransaction();
-
-                                    double newTreasureChestProbability = NumberUtil.trimDecimalPositions(treasureChestsProbability, 2);
-                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHEST_PROBABILITY, e.getMember(),
-                                            newFishery.getTreasureChestProbabilityInPercent(), newTreasureChestProbability
-                                    );
-
-                                    double newPowerUpProbability = NumberUtil.trimDecimalPositions(powerUpsProbability, 2);
-                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_POWER_UP_PROBABILITY, e.getMember(),
-                                            newFishery.getPowerUpProbabilityInPercent(), newPowerUpProbability
-                                    );
-
-
-                                    newFishery.setTreasureChestProbabilityInPercent(newTreasureChestProbability);
-                                    newFishery.setPowerUpProbabilityInPercent(newPowerUpProbability);
-                                    newFishery.commitTransaction();
-
-                                    setLog(LogStatus.SUCCESS, getString("probabilitiesset"));
-                                    return null;
-                                }).addActionRows(ActionRow.of(textTreasureChests), ActionRow.of(textPowerUps))
-                                .build();
-
-                        event.replyModal(modal).queue();
-                        return false;
-
-                    case 5:
-                        channelNavigationHelper.startDataAdd(1);
-                        stopLock = true;
-                        return true;
-
-                    case 6:
-                        channelNavigationHelper.startDataRemove(2);
-                        stopLock = true;
-                        return true;
-
-                    case 7:
-                        if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
-                            fishery.beginTransaction();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.ACTIVE);
-                            fishery.setFisheryStatus(FisheryStatus.ACTIVE);
-                            fishery.commitTransaction();
-                        } else {
-                            fishery.beginTransaction();
-                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.PAUSED);
-                            fishery.setFisheryStatus(FisheryStatus.PAUSED);
-                            fishery.commitTransaction();
-                        }
 
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         stopLock = true;
-                        return true;
-
-                    case 8:
-                        if (fishery.getFisheryStatus() == FisheryStatus.ACTIVE) {
-                            if (stopLock) {
-                                stopLock = false;
-                                setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
-                            } else {
-                                GlobalThreadPool.submit(() -> FisheryUserManager.deleteGuildData(event.getGuild().getIdLong()));
-
-                                fishery.beginTransaction();
-                                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.STOPPED);
-                                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_DATA_RESET, event.getMember());
-                                fishery.setFisheryStatus(FisheryStatus.STOPPED);
-                                fishery.commitTransaction();
-
-                                setLog(LogStatus.SUCCESS, getString("setstatus"));
-                                stopLock = true;
-                            }
-                            return true;
-                        }
-
-                    default:
-                        return false;
-                }
-
-            case 1:
-                if (i == -1) {
-                    setState(0);
+                    }
                     return true;
                 }
-                return false;
-
-            case 2:
-                return channelNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS);
 
             default:
                 return false;
         }
     }
 
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
-        switch (state) {
-            case 0:
-                FisheryEntity fishery = getGuildEntity().getFishery();
+    @Draw(state = DEFAULT_STATE)
+    public EmbedBuilder drawDefault(Member member) {
+        FisheryEntity fishery = getGuildEntity().getFishery();
 
-                String[] options = getString("state0_options_" + fishery.getFisheryStatus().ordinal()).split("\n");
-                Button[] buttons = new Button[options.length];
-                for (int i = 0; i < options.length; i++) {
-                    buttons[i] = Button.of(
-                            i == 8 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
-                            String.valueOf(i),
-                            options[i]
-                    );
-                }
-                setComponents(buttons);
+        String[] options = getString("state0_options_" + fishery.getFisheryStatus().ordinal()).split("\n");
+        setComponents(options, fishery.getFisheryStatus() == FisheryStatus.ACTIVE ? new int[0] : new int[]{6}, new int[]{7});
 
-                GuildMessageChannel channel = getGuildMessageChannel().get();
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[fishery.getFisheryStatus().ordinal()] + "**\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
-                        .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, fishery.getTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
-                        .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, fishery.getPowerUps()).getFormatted()), getString("state0_mpowerups_desc"), true)
-                        .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
-                        .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
-                        .addField(getString("state0_mprobs", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), generateProbabilitiesTextValue(fishery) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
-                        .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
-
-            case 1:
-                return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
-            case 2:
-                return channelNavigationHelper.drawDataRemove(getLocale());
-
-            default:
-                return null;
-        }
+        GuildMessageChannel channel = getGuildMessageChannel().get();
+        return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
+                .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[fishery.getFisheryStatus().ordinal()] + "**\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
+                .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, fishery.getTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
+                .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, fishery.getPowerUps()).getFormatted()), getString("state0_mpowerups_desc"), true)
+                .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
+                .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
+                .addField(getString("state0_mprobs", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), generateProbabilitiesTextValue(fishery) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
+                .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
     }
 
     @Override
@@ -342,6 +290,57 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .queue();
             }
         }
+    }
+
+    @Override
+    public void onStaticEntitySelectMenu(EntitySelectInteractionEvent event, String secondaryId) {
+        if (!event.getComponent().getId().equals(ENTITY_SELECT_MENU_ID_COLLABORATION)) {
+            return;
+        }
+
+        if (!event.getUser().getId().equals(secondaryId)) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(getString("powerup_notforyou"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        if (event.getUser().getIdLong() == event.getMentions().getUsers().get(0).getIdLong()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(getString("powerup_collab_yourself"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        if (event.getMentions().getUsers().get(0).isBot()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(getString("powerup_collab_bot"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        if (event.getMentions().getMembers().isEmpty()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(getString("powerup_collab_notpresent"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong())
+                .remove(event.getMessage().getIdLong());
+        processCollaboration(event);
     }
 
     private void processTreasureChest(ButtonInteractionEvent event) {
@@ -470,57 +469,6 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
             }
         });
-    }
-
-    @Override
-    public void onStaticEntitySelectMenu(EntitySelectInteractionEvent event, String secondaryId) {
-        if (!event.getComponent().getId().equals(ENTITY_SELECT_MENU_ID_COLLABORATION)) {
-            return;
-        }
-
-        if (!event.getUser().getId().equals(secondaryId)) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
-                    .setDescription(getString("powerup_notforyou"));
-            event.replyEmbeds(eb.build())
-                    .setEphemeral(true)
-                    .queue();
-            return;
-        }
-
-        if (event.getUser().getIdLong() == event.getMentions().getUsers().get(0).getIdLong()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
-                    .setDescription(getString("powerup_collab_yourself"));
-            event.replyEmbeds(eb.build())
-                    .setEphemeral(true)
-                    .queue();
-            return;
-        }
-
-        if (event.getMentions().getUsers().get(0).isBot()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
-                    .setDescription(getString("powerup_collab_bot"));
-            event.replyEmbeds(eb.build())
-                    .setEphemeral(true)
-                    .queue();
-            return;
-        }
-
-        if (event.getMentions().getMembers().isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
-                    .setDescription(getString("powerup_collab_notpresent"));
-            event.replyEmbeds(eb.build())
-                    .setEphemeral(true)
-                    .queue();
-            return;
-        }
-
-        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong())
-                .remove(event.getMessage().getIdLong());
-        processCollaboration(event);
     }
 
     private void processCollaboration(EntitySelectInteractionEvent event) {

@@ -10,7 +10,6 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.atomicassets.AtomicGuildChannel;
 import core.atomicassets.AtomicMember;
-import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.InviteFilterEntity;
@@ -20,6 +19,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,7 +58,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                         .setSetter(userIds -> getGuildEntity().getInviteFilter().setExcludedMemberIds(userIds)),
                 new GuildChannelsStateProcessor(this, STATE_SET_EXCLUDED_CHANNELS, DEFAULT_STATE, getString("state0_mignoredchannels"))
                         .setMinMax(0, MAX_EXCLUDED_CHANNELS)
-                        .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setChannelTypes(Collections.emptyList())
                         .setLogEvent(BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS)
                         .setGetter(() -> getGuildEntity().getInviteFilter().getExcludedChannelIds())
                         .setSetter(userIds -> getGuildEntity().getInviteFilter().setExcludedChannelIds(userIds)),

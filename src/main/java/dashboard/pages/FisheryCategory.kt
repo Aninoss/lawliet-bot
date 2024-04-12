@@ -441,7 +441,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 DashboardComboBox.DataType.GUILD_CHANNELS,
                 { it.fishery.excludedChannelIds },
                 true,
-                FisheryCommand.MAX_CHANNELS,
+                FisheryCommand.MAX_EXCLUDED_CHANNELS,
                 FisheryCommand::class,
                 BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS
         )
