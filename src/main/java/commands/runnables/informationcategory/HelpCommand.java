@@ -2,7 +2,6 @@ package commands.runnables.informationcategory;
 
 import commands.*;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.listeners.OnAlertListener;
 import commands.runnables.*;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
@@ -13,6 +12,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.Program;
 import core.TextManager;
+import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
@@ -25,9 +25,14 @@ import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -45,9 +50,11 @@ import java.util.function.Function;
         emoji = "❕",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "commands" }
+        aliases = {"commands"}
 )
 public class HelpCommand extends NavigationAbstract {
+
+    public static final String BUTTON_ID_BROWSE = "browse";
 
     private static final int STATE_NOT_DEFAULT = 1;
 
@@ -67,16 +74,35 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
-        if (!input.isEmpty() && buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
-            searchTerm = input;
-            return MessageInputResponse.SUCCESS;
-        }
-        return null;
-    }
-
-    @Override
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
+        if (event.getComponentId().equals(BUTTON_ID_BROWSE)) {
+            TextInput textInput = TextInput.create("text", getString("trigger"), TextInputStyle.SHORT)
+                    .setMinLength(1)
+                    .setMaxLength(50)
+                    .build();
+
+            Modal modal = ModalMediator.createDrawableCommandModal(this, getString("command_button"), e -> {
+                        String input = e.getValues().get(0).getAsString().toLowerCase();
+                        String prefix = getGuildEntity().getPrefix();
+                        if (input.startsWith(prefix.toLowerCase())) {
+                            input = input.substring(prefix.length());
+                        }
+
+                        String finalInput = input;
+                        if (buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(finalInput))) {
+                            searchTerm = input;
+                        } else {
+                            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+                        }
+                        return null;
+                    })
+                    .addActionRow(textInput)
+                    .build();
+
+            event.replyModal(modal).queue();
+            return false;
+        }
+
         String key = buttonMap.get(i);
         if (key != null) {
             searchTerm = key;
@@ -249,7 +275,10 @@ public class HelpCommand extends NavigationAbstract {
                     default -> categoryDefault(member, channel, eb, category);
                 }
 
-                setComponents(generateSelectMenu(member, channel, category));
+                setActionRows(
+                        ActionRow.of(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_BROWSE, getString("command_button"))),
+                        ActionRow.of(generateCategoriesSelectMenu(member, channel, category))
+                );
                 return eb;
             }
         }
@@ -473,7 +502,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private void addIconDescriptions(GuildMessageChannel channel, EmbedBuilder eb, boolean includeLocked, boolean includeAlerts, boolean includeNSFW, boolean includePatreon) {
-        StringBuilder sb = new StringBuilder(getString("commandproperties")).append("\n\n");
+        StringBuilder sb = new StringBuilder();
         if (includeLocked) {
             sb.append(getString("commandproperties_LOCKED", CommandIcon.LOCKED.get(channel))).append("\n");
         }
@@ -514,11 +543,11 @@ public class HelpCommand extends NavigationAbstract {
             ), true);
         }
 
-        setComponents(generateSelectMenu(member, channel, null));
+        setComponents(generateCategoriesSelectMenu(member, channel, null));
         return eb;
     }
 
-    private SelectMenu generateSelectMenu(Member member, GuildMessageChannel channel, Category currentCategory) {
+    private SelectMenu generateCategoriesSelectMenu(Member member, GuildMessageChannel channel, Category currentCategory) {
         StringSelectMenu.Builder builder = StringSelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
