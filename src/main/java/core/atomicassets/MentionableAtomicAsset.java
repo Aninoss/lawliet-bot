@@ -20,21 +20,15 @@ public interface MentionableAtomicAsset<T extends IMentionable> {
     Optional<String> getPrefixedNameRaw();
 
     default String getPrefixedNameInField(Locale locale) {
+        if (getIdLong() == 0L) {
+            return TextManager.getString(locale, TextManager.GENERAL, "notset");
+        }
         return "`" + StringUtil.escapeMarkdownInField(getPrefixedName(locale)) + "`";
-    }
-
-    default String getPrefixedNameInFieldOrElse(String elseString) {
-        return "`" + StringUtil.escapeMarkdownInField(getPrefixedNameOrElse(elseString)) + "`";
     }
 
     default String getPrefixedName(Locale locale) {
         return getPrefixedNameRaw()
                 .orElseGet(() -> TextManager.getString(locale, TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
-    }
-
-    default String getPrefixedNameOrElse(String elseString) {
-        return getPrefixedNameRaw()
-                .orElse(elseString);
     }
 
     Optional<String> getNameRaw();

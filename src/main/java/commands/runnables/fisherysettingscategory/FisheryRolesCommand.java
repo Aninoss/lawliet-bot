@@ -2,31 +2,38 @@ package commands.runnables.fisherysettingscategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.GuildChannelsStateProcessor;
+import commands.stateprocessor.RolesStateProcessor;
 import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
 import core.ListGen;
-import core.TextManager;
 import core.atomicassets.AtomicRole;
+import core.modals.ModalMediator;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
+import modules.fishery.FisheryStatus;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "fisheryroles",
@@ -36,11 +43,14 @@ import java.util.Locale;
         emoji = "📜",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "fishingroles", "fishroles", "fisheryr", "fisheryrole" }
+        aliases = {"fishingroles", "fishroles", "fisheryr", "fisheryrole"}
 )
 public class FisheryRolesCommand extends NavigationAbstract {
 
-    public static final int MAX_ROLES = 50;
+    public static final int MAX_ROLES = 25;
+
+    public static final int STATE_SET_ROLES = 1,
+            STATE_SET_ANNOUNCEMENT_CHANNEL = 2;
 
     public FisheryRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -49,207 +59,140 @@ public class FisheryRolesCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         checkRolesWithLog(event.getGuild(), getRoles());
-        registerNavigationListener(event.getMember());
+        registerNavigationListener(event.getMember(), List.of(
+                new RolesStateProcessor(this, STATE_SET_ROLES, DEFAULT_STATE, getString("state0_mroles"))
+                        .setCheckAccess(true)
+                        .setMinMax(0, MAX_ROLES)
+                        .setDescription(getString("state1_description"))
+                        .enableHibernateTransaction()
+                        .setGetter(() -> getRoles().stream().map(ISnowflake::getIdLong).collect(Collectors.toList()))
+                        .setSetter(roleIds -> {
+                            FisheryEntity fishery = getGuildEntity().getFishery();
+                            ArrayList<Long> addedRoleIds = new ArrayList<>();
+                            ArrayList<Long> removedRoleIds = new ArrayList<>();
+
+                            for (long newRoleId : roleIds) {
+                                if (!fishery.getRoleIds().contains(newRoleId)) {
+                                    addedRoleIds.add(newRoleId);
+                                }
+                            }
+                            for (long oldRoleId : fishery.getRoleIds()) {
+                                if (!roleIds.contains(oldRoleId)) {
+                                    removedRoleIds.add(oldRoleId);
+                                }
+                            }
+
+                            if (fishery.getFisheryStatus() == FisheryStatus.STOPPED) {
+                                fishery.setRoleIds(roleIds);
+                                BotLogEntity.log(fishery.getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), addedRoleIds, removedRoleIds);
+                            } else {
+                                fishery.getRoleIds().addAll(addedRoleIds);
+                                BotLogEntity.log(fishery.getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), addedRoleIds, null);
+                            }
+                        }),
+                new GuildChannelsStateProcessor(this, STATE_SET_ANNOUNCEMENT_CHANNEL, DEFAULT_STATE, getString("state0_mannouncementchannel"))
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
+                        .setMinMax(0, 1)
+                        .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setDescription(getString("state2_description"))
+                        .setLogEvent(BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL)
+                        .setSingleGetter(() -> getGuildEntity().getFishery().getRoleUpgradeChannelId())
+                        .setSingleSetter(channelId -> getGuildEntity().getFishery().setRoleUpgradeChannelId(channelId))
+        ));
         return true;
     }
 
-    @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
+    @ControllerButton(state = DEFAULT_STATE)
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
         FisheryEntity fishery = getGuildEntity().getFishery();
+        switch (i) {
+            case -1:
+                deregisterListenersWithComponentMessage();
+                return false;
 
-        switch (state) {
+            case 0:
+                setState(STATE_SET_ROLES);
+                return true;
+
             case 1:
-                List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-                if (roleList.isEmpty()) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return MessageInputResponse.FAILED;
-                } else {
-                    if (!checkRolesWithLog(event.getMember(), roleList)) {
-                        return MessageInputResponse.FAILED;
-                    }
+                fishery.beginTransaction();
+                fishery.setSingleRoles(!fishery.getSingleRoles());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_SINGLE_ROLES, event.getMember(), null, fishery.getSingleRoles());
+                fishery.commitTransaction();
 
-                    List<Role> roles = getRoles();
-                    int existingRoles = 0;
-                    for (Role role : roleList) {
-                        if (roles.contains(role)) {
-                            existingRoles++;
-                        }
-                    }
+                setLog(LogStatus.SUCCESS, getString("singleroleset", fishery.getSingleRoles()));
+                return true;
 
-                    if (existingRoles >= roleList.size()) {
-                        setLog(LogStatus.FAILURE, getString("roleexists", roleList.size() != 1));
-                        return MessageInputResponse.FAILED;
-                    }
-
-                    ArrayList<String> roleIds = new ArrayList<>();
-                    fishery.beginTransaction();
-                    for (Role role : roleList) {
-                        if (!roles.contains(role)) {
-                            fishery.getRoleIds().add(role.getIdLong());
-                            roleIds.add(role.getId());
-                        }
-                    }
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), roleIds, null);
-                    fishery.commitTransaction();
-
-                    int rolesAdded = roleIds.size();
-                    setLog(LogStatus.SUCCESS, getString("roleadd", (rolesAdded - existingRoles) != 1, String.valueOf(rolesAdded)));
-                    setState(0);
-                    return MessageInputResponse.SUCCESS;
-                }
+            case 2:
+                setState(STATE_SET_ANNOUNCEMENT_CHANNEL);
+                return true;
 
             case 3:
-                List<GuildMessageChannel> channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
-                if (channelList.isEmpty()) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return MessageInputResponse.FAILED;
-                } else {
-                    GuildMessageChannel channel = channelList.get(0);
-                    if (checkWriteEmbedInChannelWithLog(channel)) {
-                        fishery.beginTransaction();
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), channel.getIdLong());
-                        fishery.setRoleUpgradeChannelId(channel.getIdLong());
-                        fishery.commitTransaction();
+                String minId = "min";
+                TextInput textMin = TextInput.create(minId, getString("firstprice"), TextInputStyle.SHORT)
+                        .setValue(StringUtil.numToString(fishery.getRolePriceMin()))
+                        .setMinLength(1)
+                        .setMaxLength(16)
+                        .build();
 
-                        setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
-                        setState(0);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        return MessageInputResponse.FAILED;
-                    }
-                }
+                String maxId = "max";
+                TextInput textMax = TextInput.create(maxId, getString("lastprice"), TextInputStyle.SHORT)
+                        .setValue(StringUtil.numToString(fishery.getRolePriceMax()))
+                        .setMinLength(1)
+                        .setMaxLength(16)
+                        .build();
 
-            case 4:
-                if (input.contains("-") && !input.replaceFirst("-", "").contains("-")) {
-                    String[] parts = (input + " ").split("-");
-                    long priceMin = MentionUtil.getAmountExt(parts[0]);
-                    long priceMax = MentionUtil.getAmountExt(parts[1]);
+                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("state0_mroleprices"), e -> {
+                            String minStr = e.getValue(minId).getAsString();
+                            long priceMin = MentionUtil.getAmountExt(minStr);
+                            if (priceMin < 0 || priceMin > Settings.FISHERY_MAX) {
+                                setLog(LogStatus.FAILURE, getString("invalid_min", StringUtil.escapeMarkdown(minStr)));
+                                return null;
+                            }
 
-                    if (priceMin >= -1 && priceMax >= -1 && priceMin <= Settings.FISHERY_MAX && priceMax <= Settings.FISHERY_MAX) {
-                        if (priceMin == -1) priceMin = fishery.getRolePriceMin();
-                        if (priceMax == -1) priceMax = fishery.getRolePriceMax();
+                            String maxStr = e.getValue(maxId).getAsString();
+                            long priceMax = MentionUtil.getAmountExt(maxStr);
+                            if (priceMax < 0 || priceMax > Settings.FISHERY_MAX) {
+                                setLog(LogStatus.FAILURE, getString("invalid_max", StringUtil.escapeMarkdown(maxStr)));
+                                return null;
+                            }
+                            if (priceMin > priceMax) {
+                                setLog(LogStatus.FAILURE, getString("invalid_outoforder"));
+                                return null;
+                            }
 
-                        fishery.beginTransaction();
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_PRICE_MIN, event.getMember(), fishery.getRolePriceMin(), priceMin);
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_PRICE_MAX, event.getMember(), fishery.getRolePriceMax(), priceMax);
-                        fishery.setRolePriceMin(priceMin);
-                        fishery.setRolePriceMax(priceMax);
-                        fishery.commitTransaction();
+                            FisheryEntity newFishery = getGuildEntity().getFishery();
+                            newFishery.beginTransaction();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_PRICE_MIN, e.getMember(), newFishery.getRolePriceMin(), priceMin);
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_PRICE_MAX, e.getMember(), newFishery.getRolePriceMax(), priceMax);
+                            newFishery.setRolePriceMin(priceMin);
+                            newFishery.setRolePriceMax(priceMax);
+                            newFishery.commitTransaction();
 
-                        setLog(LogStatus.SUCCESS, getString("pricesset"));
-                        setState(0);
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "0", StringUtil.numToString(Settings.FISHERY_MAX)));
-                        return MessageInputResponse.FAILED;
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, getString("prices_wrongvalues"));
-                    return MessageInputResponse.FAILED;
-                }
+                            setLog(LogStatus.SUCCESS, getString("pricesset"));
+                            return null;
+                        })
+                        .addActionRows(ActionRow.of(textMin), ActionRow.of(textMax))
+                        .build();
+
+                event.replyModal(modal).queue();
+                return false;
 
             default:
-                return null;
+                return false;
         }
     }
 
-    @Override
-    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
+    @Draw(state = DEFAULT_STATE)
+    public EmbedBuilder drawDefault(Member member) {
         FisheryEntity fishery = getGuildEntity().getFishery();
 
-        switch (state) {
-            case 0:
-                switch (i) {
-                    case -1:
-                        deregisterListenersWithComponentMessage();
-                        return false;
-
-                    case 0:
-                        if (getRoles().size() < MAX_ROLES) {
-                            setState(1);
-                            return true;
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("toomanyroles", String.valueOf(MAX_ROLES)));
-                            return true;
-                        }
-
-                    case 1:
-                        if (!getRoles().isEmpty()) {
-                            setState(2);
-                            return true;
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("norolesset"));
-                            return true;
-                        }
-
-                    case 2:
-                        fishery.beginTransaction();
-                        fishery.setSingleRoles(!fishery.getSingleRoles());
-                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_SINGLE_ROLES, event.getMember(), null, fishery.getSingleRoles());
-                        fishery.commitTransaction();
-
-                        setLog(LogStatus.SUCCESS, getString("singleroleset", fishery.getSingleRoles()));
-                        return true;
-
-                    case 3:
-                        setState(3);
-                        return true;
-
-                    case 4:
-                        setState(4);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 1:
-
-            case 4:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                }
-                return false;
-
-            case 2:
-                List<Role> roles = getRoles();
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                } else if (i < roles.size()) {
-                    fishery.beginTransaction();
-                    fishery.getRoleIds().remove(roles.get(i).getIdLong());
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), null, roles.get(i).getId());
-                    fishery.commitTransaction();
-
-                    setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    if (getRoles().isEmpty()) {
-                        setState(0);
-                    }
-                    return true;
-                }
-                return false;
-
-            case 3:
-                if (i == -1) {
-                    setState(0);
-                    return true;
-                } else if (i == 0) {
-                    fishery.beginTransaction();
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), null);
-                    fishery.setRoleUpgradeChannelId(null);
-                    fishery.commitTransaction();
-
-                    setState(0);
-                    setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
-                    return true;
-                }
-                return false;
-
-            default:
-                return false;
-        }
+        setComponents(getString("state0_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
+                .addField(getString("state0_mroles"), new ListGen<Role>().getList(getRoles(), getLocale(), this::getRoleString), false)
+                .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), fishery.getSingleRoles())), getString("state0_msinglerole_desc"), false)
+                .addField(getString("state0_mannouncementchannel"), fishery.getRoleUpgradeChannel().getPrefixedNameInField(getLocale()), true)
+                .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(fishery.getRolePriceMin()), StringUtil.numToString(fishery.getRolePriceMax())), true);
     }
 
     private String getRoleString(Role role) {
@@ -261,56 +204,6 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 new AtomicRole(role).getPrefixedNameInField(getLocale()),
                 StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), roles.size(), n))
         );
-    }
-
-    private String getRoleString2(Role role) {
-        List<Role> roles = getRoles();
-        int n = roles.indexOf(role);
-        FisheryEntity fishery = getGuildEntity().getFishery();
-        return getString(
-                "state2_rolestring",
-                role.getName(), StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), roles.size(), n))
-        );
-    }
-
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
-        FisheryEntity fishery = getGuildEntity().getFishery();
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-
-        switch (state) {
-            case 0:
-                setComponents(getString("state0_options").split("\n"));
-
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
-                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(getRoles(), getLocale(), this::getRoleString), false)
-                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), fishery.getSingleRoles())), getString("state0_msinglerole_desc"), false)
-                        .addField(getString("state0_mannouncementchannel"), fishery.getRoleUpgradeChannel().getPrefixedNameInFieldOrElse(notSet), true)
-                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(fishery.getRolePriceMin()), StringUtil.numToString(fishery.getRolePriceMax())), true);
-
-            case 1:
-                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
-
-            case 2:
-                List<Role> roles = getRoles();
-                String[] roleStrings = new String[roles.size()];
-                for (int i = 0; i < roleStrings.length; i++) {
-                    roleStrings[i] = getRoleString2(roles.get(i));
-                }
-                setComponents(roleStrings);
-
-                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
-
-            case 3:
-                setComponents(getString("state3_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
-
-            case 4:
-                return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
-
-            default:
-                return null;
-        }
     }
 
     private List<Role> getRoles() {

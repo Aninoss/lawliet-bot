@@ -135,11 +135,12 @@ public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor
             entityManager.getTransaction().begin();
         }
 
+        T old = getter.call();
         if (logEvent != null) {
             if (t instanceof List<?>) {
-                addBotLogEntryForList(entityManager, command.getGuildId().get(), command.getMemberId().get(), (List<?>) getter.call(), (List<?>) t);
+                addBotLogEntryForList(entityManager, command.getGuildId().get(), command.getMemberId().get(), (List<?>) old, (List<?>) t);
             } else {
-                addBotLogEntry(entityManager, command.getGuildId().get(), command.getMemberId().get(), getter.call(), t);
+                addBotLogEntry(entityManager, command.getGuildId().get(), command.getMemberId().get(), old, t);
             }
         }
 
@@ -148,7 +149,11 @@ public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor
             entityManager.getTransaction().commit();
         }
 
-        command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", propertyName));
+        if (!getter.call().equals(old)) {
+            command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", propertyName));
+        } else {
+            command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_notchanged", propertyName));
+        }
         command.setState(stateBack);
     }
 
