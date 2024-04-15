@@ -3,29 +3,31 @@ package commands.runnables.fisherycategory;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
-import commands.listeners.OnMessageInputListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.modals.ModalMediator;
 import core.utils.EmojiUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryGear;
 import mysql.modules.autowork.DBAutoWork;
-import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,11 +42,14 @@ import java.util.Random;
         emoji = "💼",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "working", "salary", "w" }
+        aliases = {"working", "salary", "w"}
 )
-public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
+public class WorkCommand extends Command implements FisheryInterface, OnButtonListener {
 
-    private final String[] EMOJIS = new String[] {
+    public static String BUTTON_ID_SET = "set";
+    public static String BUTTON_ID_CANCEL = "cancel";
+
+    private final String[] EMOJIS = new String[]{
             EmojiUtil.getEmojiFromOverride("🐟", "WORKCOUNT1"),
             EmojiUtil.getEmojiFromOverride("🐠", "WORKCOUNT2"),
             EmojiUtil.getEmojiFromOverride("🐡", "WORKCOUNT3"),
@@ -68,7 +73,6 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
         if (nextWork.isEmpty()) {
             setArea();
             registerButtonListener(event.getMember());
-            registerMessageInputListener(event.getMember(), false);
             return true;
         } else {
             EmbedBuilder eb;
@@ -86,36 +90,46 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) {
-        if (StringUtil.stringIsInt(input)) {
-            int number = Integer.parseInt(input);
-            if (number >= 0 && number <= area.length * area[0].length) {
-                if (number == fishCounter) {
-                    deregisterListenersWithComponents();
-                    active = false;
-                    long coins = fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect();
-                    setAdditionalEmbeds(fisheryMemberData.changeValuesEmbed(event.getMember(), 0, coins, getGuildEntity()).build());
-                    fisheryMemberData.completeWork();
-                    setLog(LogStatus.SUCCESS, getString("right"));
-                    return MessageInputResponse.SUCCESS;
-                } else {
-                    setArea();
-                    setLog(LogStatus.FAILURE, getString("wrong"));
-                    return MessageInputResponse.FAILED;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        deregisterListenersWithComponents();
-        active = false;
-        fisheryMemberData.removeWork();
-        setLog(null, getString("canceled"));
-        return true;
+        if (event.getComponentId().equals(BUTTON_ID_SET)) {
+            String id = "text";
+            TextInput textInput = TextInput.create(id, getString("number"), TextInputStyle.SHORT)
+                    .setRequiredRange(1, 3)
+                    .build();
+
+            Modal modal = ModalMediator.createDrawableCommandModal(this, getString("set"), e -> {
+                        String input = e.getValue(id).getAsString();
+                        if (!StringUtil.stringIsInt(input)) {
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
+                            return null;
+                        }
+
+                        if (Integer.parseInt(input) == fishCounter) {
+                            deregisterListenersWithComponents();
+                            active = false;
+                            long coins = fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect();
+                            setAdditionalEmbeds(fisheryMemberData.changeValuesEmbed(event.getMember(), 0, coins, getGuildEntity()).build());
+                            fisheryMemberData.completeWork();
+                            setLog(LogStatus.SUCCESS, getString("right"));
+                        } else {
+                            setArea();
+                            setLog(LogStatus.FAILURE, getString("wrong"));
+                        }
+                        return null;
+                    })
+                    .addActionRow(textInput)
+                    .build();
+
+            event.replyModal(modal).queue();
+            return false;
+        } else if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
+            deregisterListenersWithComponents();
+            active = false;
+            fisheryMemberData.removeWork();
+            setLog(null, getString("canceled"));
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -133,7 +147,10 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, areaBuilder.toString());
         if (active) {
             eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("instructions", StringUtil.escapeMarkdown(member.getEffectiveName()), EMOJIS[fishFocus]), false);
-            setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
+            setComponents(
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_SET, getString("set"), Emoji.fromFormatted(EMOJIS[fishFocus])),
+                    Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
+            );
         }
 
         return eb;

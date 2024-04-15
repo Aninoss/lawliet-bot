@@ -117,7 +117,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnStr
         );
 
         return EmbedFactory.getEmbedDefault(this, template)
-                .addField(getString("dmreminders"), getString("dmreminders_desc"), false);
+                .addField(getString("dmreminders"), "⬇️ " + getString("dmreminders_desc"), false);
     }
 
     private String getRemainingTimeDaily() {
