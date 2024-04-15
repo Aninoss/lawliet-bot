@@ -3,7 +3,6 @@ package commands.runnables.fisherysettingscategory;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
@@ -14,6 +13,7 @@ import core.TextManager;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
+import core.modals.ModalMediator;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.fishery.FisheryGear;
@@ -26,9 +26,11 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +46,7 @@ import java.util.stream.Collectors;
         patreonRequired = true,
         usesExtEmotes = true,
         requiresFullMemberCache = true,
-        aliases = { "fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager", "fm", "managefishery" }
+        aliases = {"fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager", "fm", "managefishery"}
 )
 public class FisheryManageCommand extends NavigationAbstract implements FisheryInterface {
 
@@ -128,28 +130,8 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     }
 
     @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
-        if (state >= 1) {
-            String valueBefore = valueOfProperty(state - 1);
-            if (!FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), getGuildEntity(), state - 1, input)) {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                return MessageInputResponse.FAILED;
-            }
-            String valueNow = valueOfProperty(state - 1);
-            logUpdate(state - 1, event.getMember(), valueBefore, valueNow);
-            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getUsernames(getLocale()), nameOfProperty(state - 1), valueBefore, valueNow));
-            resetLog = true;
-            setState(0);
-
-            return MessageInputResponse.SUCCESS;
-        }
-
-        return null;
-    }
-
-    @Override
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) throws Throwable {
-        if (state == 0) {
+        if (state == DEFAULT_STATE) {
             int posDelete = 3 + FisheryGear.values().length;
             if (i == -1) {
                 deregisterListenersWithComponentMessage();
@@ -167,20 +149,50 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                     logReset(event.getMember());
                     resetLog = true;
                     setLog(LogStatus.SUCCESS, getString("reset_log", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getUsernames(getLocale())));
-                    setState(0);
+                    setState(DEFAULT_STATE);
                 }
                 return true;
             }
-        } else if (i == -1) {
-            setState(0);
-            return true;
+        } else {
+            if (i == -1) {
+                setState(DEFAULT_STATE);
+                return true;
+            } else if (i == 0) {
+                String id = "text";
+                TextInput textInput = TextInput.create(id, getString("textfield"), TextInputStyle.SHORT)
+                        .setRequiredRange(1, 50)
+                        .setPlaceholder("+0")
+                        .build();
+
+                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("state1_option"), e -> {
+                            String input = e.getValue(id).getAsString();
+
+                            String valueBefore = valueOfProperty(state - 1);
+                            if (!FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), getGuildEntity(), state - 1, input)) {
+                                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
+                                return null;
+                            }
+
+                            String valueNow = valueOfProperty(state - 1);
+                            logUpdate(state - 1, event.getMember(), valueBefore, valueNow);
+                            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getUsernames(getLocale()), nameOfProperty(state - 1), valueBefore, valueNow));
+                            resetLog = true;
+                            setState(DEFAULT_STATE);
+                            return null;
+                        })
+                        .addActionRow(textInput)
+                        .build();
+
+                event.replyModal(modal).queue();
+                return false;
+            }
         }
         return false;
     }
 
     @Override
     public EmbedBuilder draw(Member member, int state) throws Throwable {
-        if (state == 0) {
+        if (state == DEFAULT_STATE) {
             String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getUsernames(getLocale()));
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc);
 
@@ -216,6 +228,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             setComponents(buttons);
             return eb;
         } else {
+            setComponents(getString("state1_option"));
             return EmbedFactory.getEmbedDefault(
                     this,
                     getString("state1_description", emojiOfProperty(state - 1), nameOfProperty(state - 1), valueOfProperty(state - 1)),
