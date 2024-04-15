@@ -25,7 +25,7 @@ public class ButtonClickFeatureRequests extends ButtonClickAbstract {
                 TextInput textInput = TextInput.create("text", "Reason", TextInputStyle.PARAGRAPH)
                         .build();
 
-                Modal modal = ModalMediator.createModal("Deny Feature Request", (e, em) -> {
+                Modal modal = ModalMediator.createModal(event.getMember().getIdLong(), "Deny Feature Request", (e, em) -> {
                             SendEvent.sendFeatureRequestAction(id, false, e.getValues().get(0).getAsString()).join();
                             event.getMessage().delete().queue();
                             e.deferEdit().queue();

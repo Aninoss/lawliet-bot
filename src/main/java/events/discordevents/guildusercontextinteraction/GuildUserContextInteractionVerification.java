@@ -47,7 +47,7 @@ public class GuildUserContextInteractionVerification extends GuildUserContextInt
                 .setValue("Schalte andere Mitglieder nur frei, wenn du sie persönlich kennst. Sollte diese Person negativ auffallen, kannst du für die Folgen mitverantwortlich gemacht werden.")
                 .build();
 
-        Modal modal = ModalMediator.createModal("Verifizieren", (e, em) -> {
+        Modal modal = ModalMediator.createModal(event.getMember().getIdLong(), "Verifizieren", (e, em) -> {
                     verificationRole.getGuild().addRoleToMember(event.getTargetMember(), verificationRole).queue();
                     verificationChannel.sendMessage(String.format("%s wurde von %s verifiziert!", event.getTargetMember().getAsMention(), event.getMember().getAsMention())).queue();
 

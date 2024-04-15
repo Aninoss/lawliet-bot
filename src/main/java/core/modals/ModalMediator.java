@@ -7,7 +7,6 @@ import commands.listeners.Drawable;
 import commands.runnables.NavigationAbstract;
 import core.ExceptionLogger;
 import core.utils.ExceptionUtil;
-import core.utils.RandomUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -17,18 +16,17 @@ import java.util.function.Function;
 
 public class ModalMediator {
 
-    private static final Cache<String, ModalConsumer> cache = CacheBuilder.newBuilder()
+    private static final Cache<Long, ModalConsumer> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(1))
             .build();
 
-    public static Modal.Builder createModal(String title, ModalConsumer consumer) {
-        String customId = RandomUtil.generateRandomString(20);
-        cache.put(customId, consumer);
-        return Modal.create(customId, title);
+    public static Modal.Builder createModal(long userId, String title, ModalConsumer consumer) {
+        cache.put(userId, consumer);
+        return Modal.create("modal", title);
     }
 
     public static Modal.Builder createDrawableCommandModal(Command command, String title, Function<ModalInteractionEvent, EmbedBuilder> consumer) {
-        return createModal(title, (e, guildEntity) -> {
+        return createModal(command.getMemberId().get(), title, (e, guildEntity) -> {
             e.deferEdit().queue();
             command.setGuildEntity(guildEntity);
 
@@ -52,9 +50,9 @@ public class ModalMediator {
         });
     }
 
-    public static ModalConsumer get(String customId) {
-        ModalConsumer consumer = cache.getIfPresent(customId);
-        cache.invalidate(customId);
+    public static ModalConsumer get(long userId) {
+        ModalConsumer consumer = cache.getIfPresent(userId);
+        cache.invalidate(userId);
         return consumer;
     }
 

@@ -87,7 +87,7 @@ public abstract class AbstractModalBuilder<T, U extends AbstractModalBuilder<T, 
                 .setRequired(minLength > 0)
                 .build();
 
-        Modal.Builder builder = ModalMediator.createModal(TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName), (e, guildEntity) -> {
+        Modal.Builder builder = ModalMediator.createModal(command.getMemberId().get(), TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName), (e, guildEntity) -> {
             e.deferEdit().queue();
             command.setGuildEntity(guildEntity);
 

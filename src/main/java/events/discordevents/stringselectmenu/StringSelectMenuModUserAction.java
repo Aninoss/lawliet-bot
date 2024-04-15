@@ -100,15 +100,15 @@ public class StringSelectMenuModUserAction extends StringSelectMenuAbstract impl
         if (event.isAcknowledged()) {
             replyError(event, guildEntity.getLocale(), TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "user_interaction_error_timeout"));
         } else {
-            Modal modal = generateModal(guildEntity.getLocale(), modCommand, targetUserId, actionRowList);
+            Modal modal = generateModal(guildEntity.getLocale(), modCommand, event.getMember().getIdLong(), targetUserId, actionRowList);
             event.replyModal(modal).queue();
         }
         return false;
     }
 
     @NotNull
-    private static Modal generateModal(Locale locale, WarnCommand modCommand, long targetUserId, ArrayList<ActionRow> actionRowList) {
-        return ModalMediator.createModal(TextManager.getString(locale, Category.MODERATION, "user_interaction"), (event, guildEntity) -> {
+    private static Modal generateModal(Locale locale, WarnCommand modCommand, long memberId, long targetUserId, ArrayList<ActionRow> actionRowList) {
+        return ModalMediator.createModal(memberId, TextManager.getString(locale, Category.MODERATION, "user_interaction"), (event, guildEntity) -> {
                     try {
                         EmbedBuilder modalErrorEmbed = ModUserInteractionManager.checkAccess(guildEntity, event.getMember(), event.getGuildChannel(), modCommand, targetUserId);
                         if (modalErrorEmbed != null) {

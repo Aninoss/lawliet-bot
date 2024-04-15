@@ -12,7 +12,7 @@ public class ModalInteractionMediator extends ModalInteractionAbstract {
 
     @Override
     public boolean onModalInteraction(ModalInteractionEvent event, EntityManagerWrapper entityManager) {
-        ModalConsumer consumer = ModalMediator.get(event.getModalId());
+        ModalConsumer consumer = ModalMediator.get(event.getMember().getIdLong());
         if (consumer != null) {
             consumer.accept(event, entityManager.findGuildEntity(event.getGuild().getIdLong()));
             return false;
