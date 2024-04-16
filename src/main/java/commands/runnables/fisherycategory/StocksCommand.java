@@ -2,7 +2,6 @@ package commands.runnables.fisherycategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
@@ -11,28 +10,27 @@ import constants.Settings;
 import core.EmbedFactory;
 import core.LocalFile;
 import core.Program;
-import core.TextManager;
+import core.modals.AmountModalBuilder;
 import core.utils.FileUtil;
-import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.fishery.Stock;
 import modules.fishery.StockMarket;
 import modules.graphics.StockMarketGraphics;
-import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryMemberStocksData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,9 +49,8 @@ import java.util.concurrent.ExecutionException;
 )
 public class StocksCommand extends NavigationAbstract implements FisheryInterface {
 
-    private final int MAIN = 0,
-            BUY = 1,
-            SELL = 2;
+    private final int STATE_BUY = 1,
+            STATE_SELL = 2;
 
     private Stock currentStock;
     private FisheryMemberData fisheryMemberData;
@@ -71,30 +68,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         return true;
     }
 
-    @ControllerMessage(state = BUY)
-    public MessageInputResponse onMessageBuy(MessageReceivedEvent event, String input) {
-        long maxValue = (long) Math.floor((double) fisheryMemberData.getCoins() / StockMarket.getValue(currentStock) / (1 + Settings.FISHERY_SHARES_FEES / 100.0));
-        return onMessageBuySell(input, Math.min(maxValue, Settings.FISHERY_SHARES_MAX));
-    }
-
-    @ControllerMessage(state = SELL)
-    public MessageInputResponse onMessageSell(MessageReceivedEvent event, String input) {
-        long maxValue = fisheryMemberData.getStocks(currentStock).getShareSize();
-        return onMessageBuySell(input, maxValue);
-    }
-
-    private MessageInputResponse onMessageBuySell(String input, long maxValue) {
-        long amount = MentionUtil.getAmountExt(input, maxValue);
-        if (amount > 0 && amount <= Settings.FISHERY_SHARES_MAX) {
-            sharesNum = (int) amount;
-            return MessageInputResponse.SUCCESS;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(1), StringUtil.numToString(Settings.FISHERY_SHARES_MAX)));
-            return MessageInputResponse.FAILED;
-        }
-    }
-
-    @ControllerButton(state = MAIN)
+    @ControllerButton(state = DEFAULT_STATE)
     public boolean onButtonMain(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1 -> {
@@ -104,7 +78,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             case 0 -> {
                 if (fisheryMemberData.getStocks(currentStock).getShareSize() < Settings.FISHERY_SHARES_MAX) {
                     sharesNum = 0;
-                    setState(BUY);
+                    setState(STATE_BUY);
                 } else {
                     setLog(LogStatus.FAILURE, getString("buy_toomany", StringUtil.numToString(Settings.FISHERY_SHARES_MAX)));
                 }
@@ -113,7 +87,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             case 1 -> {
                 if (fisheryMemberData.getStocks(currentStock).getShareSize() > 0) {
                     sharesNum = 0;
-                    setState(SELL);
+                    setState(STATE_SELL);
                 } else {
                     setLog(LogStatus.FAILURE, getString("sell_none"));
                 }
@@ -125,58 +99,92 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         }
     }
 
-    @ControllerButton(state = BUY)
+    @ControllerButton(state = STATE_BUY)
     public boolean onButtonBuy(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(MAIN);
-            return true;
-        } else if (i == 0 && sharesNum > 0) {
-            FisheryMemberStocksData stocksData = fisheryMemberData.getStocks(currentStock);
-            long totalPrice = Math.round(sharesNum * StockMarket.getValue(currentStock) * (1 + Settings.FISHERY_SHARES_FEES / 100.0));
-            if (fisheryMemberData.getCoins() >= totalPrice) {
-                if (sharesNum <= Settings.FISHERY_SHARES_MAX - stocksData.getShareSize()) {
-                    fisheryMemberData.addCoinsRaw(-totalPrice);
-                    stocksData.add(sharesNum);
-                    setLog(LogStatus.SUCCESS, getString("buy_success", sharesNum != 1, StringUtil.numToString(sharesNum), currentStock.getName()));
-                    setState(MAIN);
+        switch (i) {
+            case -1 -> {
+                setState(DEFAULT_STATE);
+                return true;
+            }
+            case 0 -> {
+                long maxValue = (long) Math.floor((double) fisheryMemberData.getCoins() / StockMarket.getValue(currentStock) / (1 + Settings.FISHERY_SHARES_FEES / 100.0));
+                Modal modal = new AmountModalBuilder(this, getString("shares"))
+                        .setMinMax(1, Math.min(maxValue, Settings.FISHERY_SHARES_MAX))
+                        .setGetter(() -> sharesNum != 0 ? (long) sharesNum : null)
+                        .setSetterOptionalLogs(value -> {
+                            sharesNum = value.intValue();
+                            return false;
+                        })
+                        .build();
+
+                event.replyModal(modal).queue();
+                return false;
+            }
+            case 1 -> {
+                FisheryMemberStocksData stocksData = fisheryMemberData.getStocks(currentStock);
+                long totalPrice = Math.round(sharesNum * StockMarket.getValue(currentStock) * (1 + Settings.FISHERY_SHARES_FEES / 100.0));
+                if (fisheryMemberData.getCoins() >= totalPrice) {
+                    if (sharesNum <= Settings.FISHERY_SHARES_MAX - stocksData.getShareSize()) {
+                        fisheryMemberData.addCoinsRaw(-totalPrice);
+                        stocksData.add(sharesNum);
+                        setLog(LogStatus.SUCCESS, getString("buy_success", sharesNum != 1, StringUtil.numToString(sharesNum), currentStock.getName()));
+                        setState(DEFAULT_STATE);
+                    } else {
+                        setLog(LogStatus.FAILURE, getString("buy_toomany", StringUtil.numToString(Settings.FISHERY_SHARES_MAX)));
+                    }
                 } else {
-                    setLog(LogStatus.FAILURE, getString("buy_toomany", StringUtil.numToString(Settings.FISHERY_SHARES_MAX)));
+                    setLog(LogStatus.FAILURE, getString("buy_notenough"));
                 }
-            } else {
-                setLog(LogStatus.FAILURE, getString("buy_notenough"));
+                return true;
             }
-            return true;
         }
         return false;
     }
 
-    @ControllerButton(state = SELL)
+    @ControllerButton(state = STATE_SELL)
     public boolean onButtonSell(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(MAIN);
-            return true;
-        } else if (i == 0 && sharesNum > 0) {
-            FisheryMemberStocksData stocksData = fisheryMemberData.getStocks(currentStock);
-            if (sharesNum <= stocksData.getShareSize()) {
-                fisheryMemberData.addCoinsRaw(sharesNum * StockMarket.getValue(currentStock));
-                stocksData.add(-sharesNum);
-                setLog(LogStatus.SUCCESS, getString("sell_success", sharesNum != 1, StringUtil.numToString(sharesNum), currentStock.getName()));
-                setState(MAIN);
-            } else {
-                setLog(LogStatus.FAILURE, getString("sell_notenough"));
+        switch (i) {
+            case  -1 -> {
+                setState(DEFAULT_STATE);
+                return true;
             }
-            return true;
+            case 0 -> {
+                long maxValue = fisheryMemberData.getStocks(currentStock).getShareSize();
+                Modal modal = new AmountModalBuilder(this, getString("shares"))
+                        .setMinMax(1, maxValue)
+                        .setGetter(() -> sharesNum != 0 ? (long) sharesNum : null)
+                        .setSetterOptionalLogs(value -> {
+                            sharesNum = value.intValue();
+                            return false;
+                        })
+                        .build();
+
+                event.replyModal(modal).queue();
+                return false;
+            }
+            case 1 -> {
+                FisheryMemberStocksData stocksData = fisheryMemberData.getStocks(currentStock);
+                if (sharesNum <= stocksData.getShareSize()) {
+                    fisheryMemberData.addCoinsRaw(sharesNum * StockMarket.getValue(currentStock));
+                    stocksData.add(-sharesNum);
+                    setLog(LogStatus.SUCCESS, getString("sell_success", sharesNum != 1, StringUtil.numToString(sharesNum), currentStock.getName()));
+                    setState(DEFAULT_STATE);
+                } else {
+                    setLog(LogStatus.FAILURE, getString("sell_notenough"));
+                }
+                return true;
+            }
         }
         return false;
     }
 
-    @ControllerStringSelectMenu(state = MAIN)
+    @ControllerStringSelectMenu(state = DEFAULT_STATE)
     public boolean onSelectMenuMain(StringSelectInteractionEvent event, int i) {
         currentStock = Stock.values()[i];
         return true;
     }
 
-    @Draw(state = MAIN)
+    @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawMain(Member member) throws IOException, ExecutionException, InterruptedException {
         long coins = fisheryMemberData.getCoins();
         long totalShares = fisheryMemberData.getStocksTotalShares();
@@ -219,15 +227,14 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 .setImage(getStockGraphUrl() + "?" + TimeUtil.currentHour());
     }
 
-    @Draw(state = BUY)
+    @Draw(state = STATE_BUY)
     public EmbedBuilder onDrawBuy(Member member) {
         long coins = fisheryMemberData.getCoins();
         long price = StockMarket.getValue(currentStock);
         long pricePrevious = StockMarket.getValue(currentStock, -1);
         String desc = getString("buy", StringUtil.numToString(coins));
         String attr = getString(
-                "buy_attr",
-                sharesNum > 0,
+                sharesNum > 0 ? "buy_attr" : "buy_attr_empty",
                 StringUtil.numToString(price),
                 generateChangeArrow(pricePrevious, price),
                 StringUtil.numToString(sharesNum),
@@ -235,14 +242,16 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 String.valueOf(Settings.FISHERY_SHARES_FEES)
         );
 
-        if (sharesNum > 0) {
-            setComponents(getString("buy_confirm"));
+        String[] options = getString("buy_options").split("\n");
+        if (sharesNum == 0) {
+            options[1] = "";
         }
+        setComponents(options, new int[]{1}, new int[0]);
         return EmbedFactory.getEmbedDefault(this, desc, getString("buy_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), attr, false);
     }
 
-    @Draw(state = SELL)
+    @Draw(state = STATE_SELL)
     public EmbedBuilder onDrawSell(Member member) {
         long shares = fisheryMemberData.getStocks(currentStock).getShareSize();
         long price = StockMarket.getValue(currentStock);
@@ -254,17 +263,18 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 currentStock.getName()
         );
         String attr = getString(
-                "sell_attr",
-                sharesNum > 0,
+                sharesNum > 0 ? "sell_attr" : "sell_attr_empty",
                 StringUtil.numToString(price),
                 generateChangeArrow(pricePrevious, price),
                 StringUtil.numToString(sharesNum),
                 StringUtil.numToString(Math.min(sharesNum * price, Settings.FISHERY_MAX))
         );
 
-        if (sharesNum > 0) {
-            setComponents(getString("sell_confirm"));
+        String[] options = getString("sell_options").split("\n");
+        if (sharesNum == 0) {
+            options[1] = "";
         }
+        setComponents(options, new int[]{1}, new int[0]);
         return EmbedFactory.getEmbedDefault(this, desc, getString("sell_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), attr, false);
     }
