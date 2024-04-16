@@ -3,7 +3,6 @@ package commands.runnables.fisherycategory;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
@@ -27,7 +26,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,11 +88,6 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         registerNavigationListener(event.getMember());
         return true;
-    }
-
-    @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String inputString, int state) throws Throwable {
-        return null;
     }
 
     @Override

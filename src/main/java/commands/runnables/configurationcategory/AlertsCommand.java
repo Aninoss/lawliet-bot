@@ -302,7 +302,7 @@ public class AlertsCommand extends NavigationAbstract {
                 }
 
                 Modal modal = new DurationModalBuilder(this, getString("dashboard_mininterval"))
-                        .setMinMaxMinutes(1, Long.MAX_VALUE)
+                        .setMinMinutes(1)
                         .setSetterOptionalLogs(minutes -> {
                             GuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
                             if (channel == null) {

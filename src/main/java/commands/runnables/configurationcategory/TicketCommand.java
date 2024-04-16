@@ -2,7 +2,6 @@ package commands.runnables.configurationcategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.listeners.OnStaticButtonListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
@@ -17,6 +16,7 @@ import core.TextManager;
 import core.atomicassets.AtomicRole;
 import core.cache.ServerPatreonBoostCache;
 import core.interactionresponse.ComponentInteractionResponse;
+import core.modals.DurationModalBuilder;
 import core.utils.*;
 import events.discordevents.modalinteraction.ModalInteractionTicket;
 import kotlin.Pair;
@@ -34,7 +34,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChanne
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
@@ -107,30 +106,6 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         .setSetter(input -> getGuildEntity().getTickets().setGreetingText(input))
         ));
         return true;
-    }
-
-    @ControllerMessage(state = STATE_SET_CLOSE_ON_INACTIVITY)
-    public MessageInputResponse onMessageCloseOnInactivity(MessageReceivedEvent event, String input) {
-        int hours = (int) (MentionUtil.getTimeMinutes(input).getValue() / 60);
-        if (hours > 0) {
-            TicketsEntity tickets = getGuildEntity().getTickets();
-            Integer autoCloseMinutes = tickets.getAutoCloseHoursEffectively();
-            if (autoCloseMinutes != null) {
-                autoCloseMinutes *= 60;
-            }
-
-            tickets.beginTransaction();
-            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_AUTO_CLOSE, event.getMember(), autoCloseMinutes, hours * 60);
-            tickets.setAutoCloseHours(hours);
-            tickets.commitTransaction();
-
-            setLog(LogStatus.SUCCESS, getString("autoclose_set"));
-            setState(DEFAULT_STATE);
-            return MessageInputResponse.SUCCESS;
-        } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
-            return MessageInputResponse.FAILED;
-        }
     }
 
     @ControllerButton(state = DEFAULT_STATE)
@@ -241,24 +216,54 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @ControllerButton(state = STATE_SET_CLOSE_ON_INACTIVITY)
     public boolean onButtonCloseOnInactivity(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(DEFAULT_STATE);
-            return true;
-        } else if (i == 0) {
-            TicketsEntity tickets = getGuildEntity().getTickets();
-            Integer autoCloseMinutes = tickets.getAutoCloseHoursEffectively();
-            if (autoCloseMinutes != null) {
-                autoCloseMinutes *= 60;
+        switch (i) {
+            case -1 -> {
+                setState(DEFAULT_STATE);
+                return true;
             }
+            case 0 -> {
+                Modal modal = new DurationModalBuilder(this, getString("state7_mticketage"))
+                        .setMinMinutes(60)
+                        .enableHibernateTransaction()
+                        .setGetterInt(() -> {
+                            Integer autoCloseMinutes = getGuildEntity().getTickets().getAutoCloseHoursEffectively();
+                            if (autoCloseMinutes != null) {
+                                autoCloseMinutes *= 60;
+                            }
+                            return autoCloseMinutes;
+                        })
+                        .setSetter(minutes -> {
+                            TicketsEntity tickets = getGuildEntity().getTickets();
+                            Integer autoCloseMinutes = tickets.getAutoCloseHoursEffectively();
+                            if (autoCloseMinutes != null) {
+                                autoCloseMinutes *= 60;
+                            }
 
-            tickets.beginTransaction();
-            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_AUTO_CLOSE, event.getMember(), autoCloseMinutes, null);
-            tickets.setAutoCloseHours(null);
-            tickets.commitTransaction();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_AUTO_CLOSE, event.getMember(), autoCloseMinutes, minutes);
+                            tickets.setAutoCloseHours((int) (minutes / 60));
+                            setState(DEFAULT_STATE);
+                        })
+                        .build();
 
-            setLog(LogStatus.SUCCESS, getString("autoclose_set"));
-            setState(DEFAULT_STATE);
-            return true;
+                event.replyModal(modal).queue();
+                return false;
+            }
+            case 1 -> {
+                TicketsEntity tickets = getGuildEntity().getTickets();
+                Integer autoCloseMinutes = tickets.getAutoCloseHoursEffectively();
+                if (autoCloseMinutes != null) {
+                    autoCloseMinutes *= 60;
+                }
+
+                tickets.beginTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_AUTO_CLOSE, event.getMember(), autoCloseMinutes, null);
+                tickets.setAutoCloseHours(null);
+                tickets.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("autoclose_set"));
+                setState(DEFAULT_STATE);
+                return true;
+            }
         }
         return false;
     }
@@ -303,46 +308,6 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 .addField(getString("state0_mcreatemessage"), StringUtil.shortenString(tickets.getGreetingText() != null ? StringUtil.escapeMarkdown(tickets.getGreetingText()) : notSet, 1024), false)
                 .addField(getString("state0_mcreateoptions"), generateCreateOptionsField(tickets), false)
                 .addField(getString("state0_mcloseoptions"), generateCloseOptionsField(tickets), false);
-    }
-
-    private String getCloseOnInactivityValue(TicketsEntity tickets) {
-        Integer autoCloseMinutes = tickets.getAutoCloseHoursEffectively();
-        if (autoCloseMinutes == null) {
-            return StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), false);
-        } else {
-            return TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(autoCloseMinutes));
-        }
-    }
-
-    private String generateCreateOptionsField(TicketsEntity tickets) {
-        return generateOptionsString(
-                List.of(
-                        new Pair<>(getString("state0_mping"), tickets.getPingStaffRoles()),
-                        new Pair<>(getString("state0_mtextinput"), tickets.getEnforceModal())
-                )
-        );
-    }
-
-    private String generateCloseOptionsField(TicketsEntity tickets) {
-        return generateOptionsString(
-                List.of(
-                        new Pair<>(getString("state0_mmembercanclose"), tickets.getMembersCanCloseTickets()),
-                        new Pair<>(getString("state0_mprotocol") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), tickets.getProtocolsEffectively()),
-                        new Pair<>(getString("state0_mdeletechannel"), tickets.getDeleteChannelsOnClose())
-                )
-        );
-    }
-
-    private String generateOptionsString(List<Pair<String, Boolean>> attributesList) {
-        StringBuilder sb = new StringBuilder();
-        for (Pair<String, Boolean> attribute : attributesList) {
-            sb.append("- ")
-                    .append(attribute.getFirst())
-                    .append(": ")
-                    .append(StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), attribute.getSecond()))
-                    .append("\n");
-        }
-        return sb.toString();
     }
 
     @Draw(state = STATE_SET_ASSIGNMENT_MODE)
@@ -494,6 +459,46 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             }
         }
         new ComponentInteractionResponse(event).complete();
+    }
+
+    private String getCloseOnInactivityValue(TicketsEntity tickets) {
+        Integer autoCloseHours = tickets.getAutoCloseHoursEffectively();
+        if (autoCloseHours == null) {
+            return StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), false);
+        } else {
+            return TimeUtil.getDurationString(getLocale(), Duration.ofHours(autoCloseHours));
+        }
+    }
+
+    private String generateCreateOptionsField(TicketsEntity tickets) {
+        return generateOptionsString(
+                List.of(
+                        new Pair<>(getString("state0_mping"), tickets.getPingStaffRoles()),
+                        new Pair<>(getString("state0_mtextinput"), tickets.getEnforceModal())
+                )
+        );
+    }
+
+    private String generateCloseOptionsField(TicketsEntity tickets) {
+        return generateOptionsString(
+                List.of(
+                        new Pair<>(getString("state0_mmembercanclose"), tickets.getMembersCanCloseTickets()),
+                        new Pair<>(getString("state0_mprotocol") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), tickets.getProtocolsEffectively()),
+                        new Pair<>(getString("state0_mdeletechannel"), tickets.getDeleteChannelsOnClose())
+                )
+        );
+    }
+
+    private String generateOptionsString(List<Pair<String, Boolean>> attributesList) {
+        StringBuilder sb = new StringBuilder();
+        for (Pair<String, Boolean> attribute : attributesList) {
+            sb.append("- ")
+                    .append(attribute.getFirst())
+                    .append(": ")
+                    .append(StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), attribute.getSecond()))
+                    .append("\n");
+        }
+        return sb.toString();
     }
 
     private boolean memberIsStaff(Member member, List<Long> staffRoleIds) {

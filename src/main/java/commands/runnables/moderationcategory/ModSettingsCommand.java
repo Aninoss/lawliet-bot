@@ -241,7 +241,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
             case 0:
                 Modal modal = new DurationModalBuilder(this, getString("automod_duration"))
-                        .setMinMaxMinutes(1, Integer.MAX_VALUE)
+                        .setMinMinutes(1)
                         .enableHibernateTransaction()
                         .setGetterInt(() -> getGuildEntity().getModeration().getAutoMute().getDurationMinutes())
                         .setSetterIntOptionalLogs(value -> {
@@ -360,7 +360,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
             case 0:
                 Modal modal = new DurationModalBuilder(this, getString("automod_duration"))
-                        .setMinMaxMinutes(1, Integer.MAX_VALUE)
+                        .setMinMinutes(1)
                         .enableHibernateTransaction()
                         .setGetterInt(() -> getGuildEntity().getModeration().getAutoJail().getDurationMinutes())
                         .setSetterIntOptionalLogs(value -> {
@@ -563,7 +563,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
             case 0:
                 Modal modal = new DurationModalBuilder(this, getString("automod_duration"))
-                        .setMinMaxMinutes(1, Integer.MAX_VALUE)
+                        .setMinMinutes(1)
                         .enableHibernateTransaction()
                         .setGetterInt(() -> getGuildEntity().getModeration().getAutoBan().getDurationMinutes())
                         .setSetterIntOptionalLogs(value -> {

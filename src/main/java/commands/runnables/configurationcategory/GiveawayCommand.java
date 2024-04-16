@@ -61,7 +61,6 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public final static int DESC_LENGTH_MAX = MessageEmbed.VALUE_MAX_LENGTH;
     public final static int WINNERS_MIN = 1;
     public final static int WINNERS_MAX = 20;
-    public final static long DURATION_MINUTES_MAX = 999 * 24 * 60;
 
     private final static int
             STATE_SET_CHANNEL = 1,
@@ -247,7 +246,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             case 2:
                 if (!editMode) {
                     modal = new DurationModalBuilder(this, getString("state3_mduration"))
-                            .setMinMaxMinutes(1, DURATION_MINUTES_MAX)
+                            .setMinMinutes(1)
                             .setGetter(() -> durationMinutes)
                             .setSetter(value -> durationMinutes = value)
                             .build();

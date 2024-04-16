@@ -15,16 +15,16 @@ import java.util.function.Function;
 
 public class DurationModalBuilder extends AbstractModalBuilder<Long, DurationModalBuilder> {
 
+    private static long MAX_MINUTES = Duration.ofDays(1000).toMinutes() - 1;
+
     private long minMinutes = 0;
-    private long maxMinutes = Long.MAX_VALUE;
 
     public DurationModalBuilder(NavigationAbstract command, String propertyName) {
         super(command, propertyName, TextInputStyle.SHORT);
     }
 
-    public DurationModalBuilder setMinMaxMinutes(long minMinutes, long maxMinutes) {
+    public DurationModalBuilder setMinMinutes(long minMinutes) {
         this.minMinutes = minMinutes;
-        this.maxMinutes = maxMinutes;
         setMinMaxLength(minMinutes > 0 ? 1 : 0, 12);
         return this;
     }
@@ -44,10 +44,10 @@ public class DurationModalBuilder extends AbstractModalBuilder<Long, DurationMod
         }
 
         newValueLong = newValueLong != -1 ? newValueLong : 0L;
-        if (newValueLong < minMinutes || newValueLong > maxMinutes) {
+        if (newValueLong < minMinutes || newValueLong > MAX_MINUTES) {
             getCommand().setLog(LogStatus.FAILURE, TextManager.getString(getCommand().getLocale(), TextManager.COMMANDS, "stateprocessor_duration_outofrange",
                     TimeUtil.getDurationString(Duration.ofMinutes(minMinutes)),
-                    TimeUtil.getDurationString(Duration.ofMinutes(maxMinutes))
+                    TimeUtil.getDurationString(Duration.ofMinutes(MAX_MINUTES))
             ));
             draw(member);
             return;

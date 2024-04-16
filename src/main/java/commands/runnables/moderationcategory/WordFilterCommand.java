@@ -3,7 +3,6 @@ package commands.runnables.moderationcategory;
 import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import commands.stateprocessor.MembersStateProcessor;
 import constants.LogStatus;
@@ -11,6 +10,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
+import core.modals.ModalMediator;
 import core.utils.StringUtil;
 import modules.automod.WordFilter;
 import mysql.hibernate.entity.BotLogEntity;
@@ -19,7 +19,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -73,16 +75,6 @@ public class WordFilterCommand extends NavigationAbstract {
         return true;
     }
 
-    @ControllerMessage(state = STATE_ADD_WORDS)
-    public MessageInputResponse onMessageAddWords(MessageReceivedEvent event, String input) {
-        String[] wordArray = WordFilter.translateString(input).split(" ");
-        List<String> wordList = Arrays.stream(wordArray)
-                .filter(str -> !str.isEmpty())
-                .map(str -> str.substring(0, Math.min(MAX_LETTERS_PER_WORD, str.length())))
-                .collect(Collectors.toList());
-        return wordsNavigationHelper.addData(wordList, input, event.getMember(), 0, BotLogEntity.Event.WORD_FILTER_WORDS);
-    }
-
     @ControllerButton(state = DEFAULT_STATE)
     public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
         switch (i) {
@@ -109,8 +101,27 @@ public class WordFilterCommand extends NavigationAbstract {
                 return true;
 
             case 3:
-                wordsNavigationHelper.startDataAdd(STATE_ADD_WORDS);
-                return true;
+                String id = "text";
+                TextInput textInput = TextInput.create(id, getString("state0_mwords"), TextInputStyle.SHORT)
+                        .setRequiredRange(1, MAX_LETTERS_PER_WORD)
+                        .build();
+
+                Modal modal = ModalMediator.createDrawableCommandModal(this, getString("state3_title"), e -> {
+                            String input = e.getValue(id).getAsString();
+
+                            String[] wordArray = WordFilter.translateString(input).split(" ");
+                            List<String> wordList = Arrays.stream(wordArray)
+                                    .filter(str -> !str.isEmpty())
+                                    .map(str -> str.substring(0, Math.min(MAX_LETTERS_PER_WORD, str.length())))
+                                    .collect(Collectors.toList());
+                            wordsNavigationHelper.addData(wordList, input, event.getMember(), 0, BotLogEntity.Event.WORD_FILTER_WORDS);
+                            return null;
+                        })
+                        .addActionRow(textInput)
+                        .build();
+
+                event.replyModal(modal).queue();
+                return false;
 
             case 4:
                 wordsNavigationHelper.startDataRemove(STATE_REMOVE_WORDS);

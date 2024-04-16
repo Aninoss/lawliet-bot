@@ -167,7 +167,7 @@ public class ReminderManageCommand extends NavigationAbstract {
                 }
 
                 Modal modal = new DurationModalBuilder(this, getString("manage_interval"))
-                        .setMinMaxMinutes(0, Long.MAX_VALUE)
+                        .setMinMinutes(0)
                         .setGetter(() -> intervalMinutes != null ? intervalMinutes.longValue() : null)
                         .setSetterOptionalLogs(intervalMinutes -> {
                             if (intervalMinutes == null) {
