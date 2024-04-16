@@ -2,14 +2,13 @@ package commands.runnables.invitetrackingcategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.GuildChannelsStateProcessor;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
-import core.utils.BotPermissionUtil;
-import core.utils.MentionUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.invitetracking.InviteTracking;
 import mysql.hibernate.entity.BotLogEntity;
@@ -18,9 +17,7 @@ import mysql.modules.invitetracking.InviteTrackingData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -41,8 +38,7 @@ import java.util.Locale;
 )
 public class InviteTrackingCommand extends NavigationAbstract {
 
-    private final int MAIN = 0,
-            SET_LOGCHANNEL = 1;
+    private final int STATE_SET_LOGCHANNEL = 1;
 
     private InviteTrackingData inviteTrackingData;
     private boolean resetLog = true;
@@ -54,34 +50,16 @@ public class InviteTrackingCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener(event.getMember());
+        registerNavigationListener(event.getMember(), List.of(
+                new GuildChannelsStateProcessor(this, STATE_SET_LOGCHANNEL, DEFAULT_STATE, getString("state0_mchannel"))
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+                        .setMinMax(0, 1)
+                        .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setLogEvent(BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL)
+                        .setSingleGetter(() -> inviteTrackingData.getChannelId().orElse(null))
+                        .setSingleSetter(channelId -> inviteTrackingData.setChannelId(channelId))
+        ));
         return true;
-    }
-
-    @ControllerMessage(state = SET_LOGCHANNEL)
-    public MessageInputResponse onMessageSetLogChannel(MessageReceivedEvent event, String input) {
-        List<GuildMessageChannel> channelList = MentionUtil.getGuildMessageChannels(event.getGuild(), input).getList();
-        if (channelList.isEmpty()) {
-            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-            return MessageInputResponse.FAILED;
-        } else {
-            GuildMessageChannel channel = channelList.get(0);
-            if (BotPermissionUtil.canWriteEmbed(channel)) {
-                long newChannelId = channelList.get(0).getIdLong();
-
-                getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, event.getMember(), inviteTrackingData.getChannelId().orElse(null), newChannelId);
-                getEntityManager().getTransaction().commit();
-
-                inviteTrackingData.setChannelId(channelList.get(0).getIdLong());
-                setLog(LogStatus.SUCCESS, getString("channelset"));
-                setState(0);
-                return MessageInputResponse.SUCCESS;
-            } else {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission", StringUtil.escapeMarkdownInField(channel.getName())));
-                return MessageInputResponse.FAILED;
-            }
-        }
     }
 
     @ControllerButton(state = DEFAULT_STATE)
@@ -106,7 +84,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
                 return true;
             }
             case 1 -> {
-                setState(1);
+                setState(STATE_SET_LOGCHANNEL);
                 resetLog = true;
                 return true;
             }
@@ -146,7 +124,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
                     inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
                     resetLog = true;
                     setLog(LogStatus.SUCCESS, getString("reset"));
-                    setState(0);
+                    setState(DEFAULT_STATE);
                 }
                 return true;
             }
@@ -154,25 +132,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
         return false;
     }
 
-    @ControllerButton(state = SET_LOGCHANNEL)
-    public boolean onButtonLogChannel(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(0);
-            return true;
-        } else if (i == 0) {
-            getEntityManager().getTransaction().begin();
-            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, event.getMember(), inviteTrackingData.getChannelId().orElse(null), null);
-            getEntityManager().getTransaction().commit();
-
-            inviteTrackingData.setChannelId(null);
-            setLog(LogStatus.SUCCESS, getString("channelset"));
-            setState(0);
-            return true;
-        }
-        return false;
-    }
-
-    @Draw(state = MAIN)
+    @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawMain(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         String[] options = getString("state0_options").split("\n");
@@ -191,12 +151,6 @@ public class InviteTrackingCommand extends NavigationAbstract {
                 .addField(getString("state0_mchannel"), inviteTrackingData.getChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
                 .addField(getString("state0_mping"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), inviteTrackingData.getPing()), true)
                 .addField(getString("state0_madvanced"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), inviteTrackingData.isAdvanced()), true);
-    }
-
-    @Draw(state = SET_LOGCHANNEL)
-    public EmbedBuilder onDrawLogChannel(Member member) {
-        setComponents(getString("state1_clear"));
-        return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
     }
 
 }
