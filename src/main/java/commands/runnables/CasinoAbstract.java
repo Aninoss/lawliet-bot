@@ -4,9 +4,7 @@ import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
 import commands.CommandManager;
-import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
-import commands.listeners.OnMessageInputListener;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -20,14 +18,13 @@ import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
 import mysql.modules.casinostats.DBCasinoStats;
 import mysql.modules.casinotracking.DBCasinoTracking;
-import mysql.redis.fisheryusers.FisheryUserManager;
-import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.gamestatistics.DBGameStatistics;
 import mysql.modules.gamestatistics.GameStatisticsData;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +33,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 
-public abstract class CasinoAbstract extends Command implements OnButtonListener, OnMessageInputListener {
+public abstract class CasinoAbstract extends Command implements OnButtonListener {
 
     public enum Status { ACTIVE, WON, LOST, DRAW, CANCELED }
 
@@ -89,7 +86,6 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 coinsInput = 0;
                 trackingActive = false;
                 registerButtonListener(event.getMember());
-                registerMessageInputListener(event.getMember(), false);
                 return true;
             }
 
@@ -97,7 +93,6 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 coinsInput = 0;
                 trackingActive = false;
                 registerButtonListener(event.getMember());
-                registerMessageInputListener(event.getMember(), false);
                 return true;
             }
 
@@ -109,7 +104,6 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 trackingActive = coinsInput > 0 && DBCasinoTracking.getInstance().retrieve().isActive(event.getUser().getIdLong());
                 memberBean.addCoinsHidden(coinsInput);
                 registerButtonListener(event.getMember());
-                registerMessageInputListener(event.getMember(), false);
                 return true;
             }
 
@@ -118,7 +112,6 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 trackingActive = coinsInput > 0 && DBCasinoTracking.getInstance().retrieve().isActive(event.getUser().getIdLong());
                 memberBean.addCoinsHidden(coinsInput);
                 registerButtonListener(event.getMember());
-                registerMessageInputListener(event.getMember(), false);
                 return true;
             } else {
                 drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0")))
@@ -265,18 +258,6 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             return false;
         }
         return false;
-    }
-
-    public MessageInputResponse onMessageInputCasino(MessageReceivedEvent event, String input) throws Throwable {
-        return null;
-    }
-
-    @Override
-    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) throws Throwable {
-        if (status == Status.ACTIVE) {
-            return onMessageInputCasino(event, input);
-        }
-        return null;
     }
 
     @Override

@@ -3,20 +3,24 @@ package commands.runnables.casinocategory;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.runnables.CasinoAbstract;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.FileManager;
 import core.LocalFile;
 import core.TextManager;
+import core.modals.ModalMediator;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,7 +31,7 @@ import java.util.*;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "hm" }
+        aliases = {"hm"}
 )
 public class HangmanCommand extends CasinoAbstract {
 
@@ -54,8 +58,57 @@ public class HangmanCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onButtonCasino(ButtonInteractionEvent event) throws Throwable {
-        return true;
+    public boolean onButtonCasino(ButtonInteractionEvent event) {
+        String id = "text";
+        TextInput textInput = TextInput.create(id, getString("letterorword"), TextInputStyle.SHORT)
+                .setRequiredRange(1, 100)
+                .build();
+
+        Modal modal = ModalMediator.createDrawableCommandModal(this, getString("guessletter"), e -> {
+                    String input = e.getValue(id).getAsString().toUpperCase();
+
+                    if (input.length() != 1) {
+                        used.add(input);
+                        if (answer.equals(input)) {
+                            Arrays.fill(progress, true);
+                            onRight(event.getMember(), input);
+                        } else {
+                            onWrong(event.getMember(), input);
+                        }
+                        return null;
+                    }
+
+                    char inputChar = input.charAt(0);
+                    if (!Character.isLetter(inputChar)) {
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
+                        return null;
+                    }
+                    if (used.contains(String.valueOf(inputChar))) {
+                        setLog(LogStatus.FAILURE, getString("used", input));
+                        return null;
+                    }
+
+                    used.add(String.valueOf(inputChar));
+                    boolean successful = false;
+                    for (int i = 0; i < answer.length(); i++) {
+                        if (answer.charAt(i) == inputChar) {
+                            progress[i] = true;
+                            successful = true;
+                        }
+                    }
+
+                    if (!successful) {
+                        onWrong(event.getMember(), String.valueOf(inputChar));
+                    } else {
+                        onRight(event.getMember(), String.valueOf(inputChar));
+                    }
+                    return null;
+                })
+                .addActionRow(textInput)
+                .build();
+
+        event.replyModal(modal).queue();
+        return false;
     }
 
     @Override
@@ -87,7 +140,10 @@ public class HangmanCommand extends CasinoAbstract {
 
         wrongAnswer = false;
         if (getStatus() == Status.ACTIVE) {
-            setComponents(BUTTON_CANCEL);
+            setComponents(
+                    Button.of(ButtonStyle.PRIMARY, "0", getString("guessletter")),
+                    BUTTON_CANCEL
+            );
         }
         return eb;
     }
@@ -117,51 +173,6 @@ public class HangmanCommand extends CasinoAbstract {
         return sb.toString();
     }
 
-    @Override
-    public MessageInputResponse onMessageInputCasino(MessageReceivedEvent event, String input) {
-        input = input.toUpperCase();
-
-        if (input.length() != 1) {
-            if (!stringCouldMatch(input)) { //if input can't be right return
-                return null;
-            }
-
-            used.add(input);
-            if (answer.equals(input)) { //if input is right win game
-                Arrays.fill(progress, true);
-                onRight(event.getMember(), input);
-            } else { //input is wrong
-                onWrong(event.getMember(), input);
-            }
-            return MessageInputResponse.SUCCESS;
-        }
-
-        char inputChar = input.charAt(0);
-        if (!Character.isLetter(inputChar)) {
-            return null;
-        }
-
-        if (!used.contains(String.valueOf(inputChar))) {
-            used.add(String.valueOf(inputChar));
-            boolean successful = false;
-            for (int i = 0; i < answer.length(); i++) {
-                if (answer.charAt(i) == inputChar) {
-                    progress[i] = true;
-                    successful = true;
-                }
-            }
-
-            if (!successful) {
-                onWrong(event.getMember(), String.valueOf(inputChar));
-            } else {
-                onRight(event.getMember(), String.valueOf(inputChar));
-            }
-        } else {
-            setLog(LogStatus.FAILURE, getString("used", input));
-        }
-        return MessageInputResponse.SUCCESS;
-    }
-
     private void onWrong(Member member, String input) {
         health--;
         wrongAnswer = true;
@@ -187,32 +198,6 @@ public class HangmanCommand extends CasinoAbstract {
         } else {
             win(member, (double) health / (double) MAX_HEALTH);
         }
-    }
-
-    private boolean stringCouldMatch(String input) { //input should be uppercase
-        if (input.length() != answer.length()) //string can't be right
-        {
-            return false;
-        }
-
-        char[] inputChars = input.toCharArray();
-        char[] answerChars = answer.toCharArray();
-
-        for (int i = 0; i < inputChars.length; i++) {
-            if (!Character.isLetter(inputChars[i])) return false;
-            if (progress[i]) { //char has been solved
-                if (inputChars[i] != answerChars[i])  //string can't be right
-                {
-                    return false;
-                }
-            } else { //hasn't been solved
-                if (used.contains(String.valueOf(inputChars[i]))) //string can't be right
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
 }
