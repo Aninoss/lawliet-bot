@@ -13,8 +13,8 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
-import dashboard.components.DashboardMemberComboBox
 import dashboard.components.DashboardChannelComboBox
+import dashboard.components.DashboardMemberComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -99,7 +99,8 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 getString(Category.INVITE_TRACKING, "invitetracking_state0_mchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 inviteTrackingData.channelId.orElse(null),
-                true
+                true,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
         ) {
             if (!anyCommandsAreAccessible(InviteTrackingCommand::class)) {
                 return@DashboardChannelComboBox ActionResult()

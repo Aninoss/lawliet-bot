@@ -153,7 +153,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 channelLabel,
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 channelId,
-                false
+                false,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
         ) {
             if (mode != Mode.OVERVIEW) {
                 return@DashboardChannelComboBox ActionResult()

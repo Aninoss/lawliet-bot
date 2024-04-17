@@ -96,21 +96,14 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 welcomeData.welcomeChannelId,
-                false
+                false,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)
         ) {
-            val channelId = it.data.toLong()
-            val channel = guild.getChannelById(GuildMessageChannel::class.java, channelId)!!
-            if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) { /* no permissions in channel */
-                return@DashboardChannelComboBox ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
-            }
-
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_CHANNEL, atomicMember, welcomeData.welcomeChannelId, channelId)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_CHANNEL, atomicMember, welcomeData.welcomeChannelId, it.data.toLong())
             entityManager.transaction.commit()
 
-            welcomeData.welcomeChannelId = channelId
+            welcomeData.welcomeChannelId = it.data.toLong()
             ActionResult()
                     .withRedraw()
         }
@@ -293,16 +286,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 welcomeData.goodbyeChannelId,
-                false
+                false,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)
         ) {
-            val channelId = it.data.toLong()
-            val channel = guild.getChannelById(GuildMessageChannel::class.java, channelId)!!
-            if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) { /* no permissions in channel */
-                return@DashboardChannelComboBox ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
-            }
-
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_CHANNEL, atomicMember, welcomeData.goodbyeChannelId, it.data.toLong())
             entityManager.transaction.commit()

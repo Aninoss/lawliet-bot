@@ -108,28 +108,12 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 getString(Category.MODERATION, "mod_state0_mchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 moderationEntity.logChannelId,
-                true
+                true,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
         ) { e ->
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 return@DashboardChannelComboBox ActionResult()
                         .withRedraw()
-            }
-
-            if (e.data != null) {
-                val channel = atomicGuild.get()
-                        .map { it.getChannelById(GuildMessageChannel::class.java, e.data) }
-                        .orElse(null)
-
-                if (channel == null) {
-                    return@DashboardChannelComboBox ActionResult()
-                            .withRedraw()
-                }
-
-                if (!BotPermissionUtil.canWriteEmbed(channel)) {
-                    return@DashboardChannelComboBox ActionResult()
-                            .withRedraw()
-                            .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
-                }
             }
 
             moderationEntity.beginTransaction()
@@ -178,28 +162,12 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 getString(Category.MODERATION, "mod_dashboard_banappeallogchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 moderationEntity.banAppealLogChannelIdEffectively,
-                true
+                true,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
         ) { e ->
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 return@DashboardChannelComboBox ActionResult()
                         .withRedraw()
-            }
-
-            if (e.data != null) {
-                val channel = atomicGuild.get()
-                        .map { it.getChannelById(GuildMessageChannel::class.java, e.data) }
-                        .orElse(null)
-
-                if (channel == null) {
-                    return@DashboardChannelComboBox ActionResult()
-                            .withRedraw()
-                }
-
-                if (!BotPermissionUtil.canWriteEmbed(channel)) {
-                    return@DashboardChannelComboBox ActionResult()
-                            .withRedraw()
-                            .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
-                }
             }
 
             moderationEntity.beginTransaction()

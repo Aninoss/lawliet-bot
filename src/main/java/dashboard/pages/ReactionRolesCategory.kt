@@ -144,7 +144,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                 channelLabel,
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 if (configuration.messageChannelId == 0L) null else configuration.messageChannelId,
-                false
+                false,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
         ) {
             if (editMode) {
                 return@DashboardChannelComboBox ActionResult()

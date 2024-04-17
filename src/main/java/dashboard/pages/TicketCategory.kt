@@ -4,7 +4,6 @@ import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.TicketCommand
 import core.TextManager
-import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -21,7 +20,6 @@ import mysql.hibernate.entity.guild.GuildEntity
 import mysql.hibernate.entity.guild.TicketsEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel
 import java.util.*
 
@@ -66,7 +64,8 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 "",
                 DashboardComboBox.DataType.STANDARD_GUILD_MESSAGE_CHANNELS,
                 createMessageChannelId,
-                false
+                false,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
         ) {
             createMessageChannelId = it.data.toLong()
             ActionResult()
@@ -108,27 +107,12 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 getString(Category.CONFIGURATION, "ticket_state0_mannouncement"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 ticketsEntity.logChannelId,
-                true
-        ) { e ->
-            val channel = if (e.data != null) {
-                atomicGuild.get().map { it.getChannelById(GuildMessageChannel::class.java, e.data.toLong()) }
-                        .orElse(null)
-            } else {
-                null
-            }
-
-            if (channel != null) {
-                val channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
-                if (channelMissingPerms != null) {
-                    return@DashboardChannelComboBox ActionResult()
-                            .withRedraw()
-                            .withErrorMessage(channelMissingPerms)
-                }
-            }
-
+                true,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+        ) {
             ticketsEntity.beginTransaction()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_LOG_CHANNEL, atomicMember, ticketsEntity.logChannelId, channel?.idLong)
-            ticketsEntity.logChannelId = channel?.idLong
+            BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_LOG_CHANNEL, atomicMember, ticketsEntity.logChannelId, it.data?.toLong())
+            ticketsEntity.logChannelId = it.data?.toLong()
             ticketsEntity.commitTransaction()
             return@DashboardChannelComboBox ActionResult()
         }

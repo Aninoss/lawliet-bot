@@ -50,28 +50,13 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
                 DashboardComboBox.DataType.VOICE_CHANNELS,
                 DBAutoChannel.getInstance().retrieve(guild.idLong).parentChannelId.orElse(null),
                 false,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS),
+                arrayOf(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)
         ) {
             val channel = atomicGuild.get().get().getVoiceChannelById(it.data)
             if (channel == null) {
                 return@DashboardChannelComboBox ActionResult()
                         .withRedraw()
-            }
-
-            val channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
-            if (channelMissingPerms != null) {
-                return@DashboardChannelComboBox ActionResult()
-                        .withErrorMessage(channelMissingPerms)
-                        .withRedraw()
-            }
-
-            val parent = channel.getParentCategory()
-            if (parent != null) {
-                val categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, parent, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)
-                if (categoryMissingPerms != null) {
-                    return@DashboardChannelComboBox ActionResult()
-                            .withErrorMessage(categoryMissingPerms)
-                            .withRedraw()
-                }
             }
 
             val autoChannelData = DBAutoChannel.getInstance().retrieve(guild.idLong)

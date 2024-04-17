@@ -53,19 +53,8 @@ class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 DBSuggestions.getInstance().retrieve(guild.idLong).channelId.orElse(null),
                 false,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)
         ) {
-            val channel = atomicGuild.get().get().getChannelById(GuildMessageChannel::class.java, it.data)
-            if (channel == null) {
-                return@DashboardChannelComboBox ActionResult()
-                        .withRedraw()
-            }
-
-            if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
-                return@DashboardChannelComboBox ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_history", "#${channel.getName()}"))
-            }
-
             val suggestionsData = DBSuggestions.getInstance().retrieve(guild.idLong)
 
             entityManager.transaction.begin()

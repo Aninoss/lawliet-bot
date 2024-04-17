@@ -84,7 +84,14 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         horizontalContainerer.allowWrap = true
 
         val channelLabel = getString(Category.CONFIGURATION, "ccshortcuts_add_channel")
-        val channelComboBox = DashboardChannelComboBox(this, channelLabel, DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS, null, false) {
+        val channelComboBox = DashboardChannelComboBox(
+                this,
+                channelLabel,
+                DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
+                null,
+                false,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
+        ) {
             channelId = it.data.toLong()
             ActionResult()
                     .withRedraw()

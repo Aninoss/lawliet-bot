@@ -22,8 +22,8 @@ import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
-import dashboard.components.DashboardMultiMembersComboBox
 import dashboard.components.DashboardMultiChannelsComboBox
+import dashboard.components.DashboardMultiMembersComboBox
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
@@ -302,7 +302,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_mannouncementchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 fisheryEntity.roleUpgradeChannelId,
-                true
+                true,
+                arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
         ) {
             if (!anyCommandsAreAccessible(FisheryRolesCommand::class)) {
                 return@DashboardChannelComboBox ActionResult()

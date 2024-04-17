@@ -53,7 +53,7 @@ public class Ticket {
 
     public static String sendTicketMessage(GuildEntity guildEntity, Locale locale, StandardGuildMessageChannel channel) {
         String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel,
-                Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY
+                Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS
         );
         if (channelMissingPerms != null) {
             return channelMissingPerms;
