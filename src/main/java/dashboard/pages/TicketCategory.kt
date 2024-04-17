@@ -32,6 +32,8 @@ import java.util.*
 class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     var createMessageChannelId: Long? = null
+    var createMessageContent: String = ""
+    var createMessageContentChanged: Boolean = false
 
     val ticketsEntity: TicketsEntity
         get() = guildEntity.tickets
@@ -41,6 +43,10 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        if (createMessageContent.isEmpty()) {
+            createMessageContent = TextManager.getString(guildEntity.locale, Category.CONFIGURATION, "ticket_message_content")
+        }
+
         mainContainer.add(
                 generateTicketMessageField(),
                 generateGeneralField(),
@@ -55,9 +61,18 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         container.isCard = true
         container.putCssProperties("margin-bottom", "1rem")
 
-        val innerContainer = HorizontalContainer()
-        innerContainer.alignment = HorizontalContainer.Alignment.CENTER
-        innerContainer.allowWrap = true
+        val messageContentTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "ticket_state4_mtext"), 1, TicketCommand.MAX_CREATE_MESSAGE_CONTENT_LENGTH) {
+            createMessageContent = it.data
+            createMessageContentChanged = true
+            ActionResult()
+        }
+        messageContentTextField.editButton = false
+        messageContentTextField.value = createMessageContent
+        container.add(messageContentTextField)
+
+        val channelButtonContainer = HorizontalContainer()
+        channelButtonContainer.alignment = HorizontalContainer.Alignment.CENTER
+        channelButtonContainer.allowWrap = true
 
         val channelComboBox = DashboardChannelComboBox(
                 this,
@@ -74,7 +89,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         channelComboBox.putCssProperties("margin-top", "0.5em")
 
         val sendButton = DashboardButton(getString(category = Category.CONFIGURATION, "ticket_state4_title")) {
-            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getChannelById(StandardGuildMessageChannel::class.java, createMessageChannelId!!))
+            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getChannelById(StandardGuildMessageChannel::class.java, createMessageChannelId!!), createMessageContent, createMessageContentChanged)
             if (error == null) {
                 entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, atomicMember, createMessageChannelId!!)
@@ -91,11 +106,11 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         sendButton.style = DashboardButton.Style.PRIMARY
         sendButton.setCanExpand(false)
 
-        innerContainer.add(
+        channelButtonContainer.add(
                 channelComboBox,
                 sendButton
         )
-        container.add(innerContainer)
+        container.add(channelButtonContainer)
         return container
     }
 

@@ -51,8 +51,10 @@ import java.util.stream.Collectors;
 
 public class Ticket {
 
-    public static String sendTicketMessage(GuildEntity guildEntity, Locale locale, StandardGuildMessageChannel channel) {
-        String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel,
+    public static String sendTicketMessage(GuildEntity guildEntity, Locale userLocale, StandardGuildMessageChannel channel,
+                                           String createMessageContent, boolean createMessageContentChanged
+    ) {
+        String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(userLocale, channel,
                 Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS
         );
         if (channelMissingPerms != null) {
@@ -61,7 +63,7 @@ public class Ticket {
 
         net.dv8tion.jda.api.entities.channel.concrete.Category parent = channel.getParentCategory();
         if (parent != null) {
-            String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, parent, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MANAGE_CHANNEL);
+            String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(userLocale, parent, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MANAGE_CHANNEL);
             if (categoryMissingPerms != null) {
                 return categoryMissingPerms;
             }
@@ -70,7 +72,10 @@ public class Ticket {
         String emoji = Command.getCommandProperties(TicketCommand.class).emoji();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(emoji + " " + Command.getCommandLanguage(TicketCommand.class, guildEntity.getLocale()).getTitle())
-                .setDescription(TextManager.getString(guildEntity.getLocale(), Category.CONFIGURATION, "ticket_message_content"));
+                .setDescription(createMessageContent);
+        if (createMessageContentChanged) {
+            eb.setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "serverstaff_text"));
+        }
 
         channel.sendMessageEmbeds(eb.build())
                 .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_CREATE, TextManager.getString(guildEntity.getLocale(), Category.CONFIGURATION, "ticket_button_create"))))

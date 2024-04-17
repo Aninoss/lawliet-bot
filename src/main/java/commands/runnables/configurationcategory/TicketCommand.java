@@ -14,6 +14,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
+import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.interactionresponse.ComponentInteractionResponse;
 import core.modals.DurationModalBuilder;
@@ -33,10 +34,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -62,6 +61,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     public final static int MAX_STAFF_ROLES = 10;
     public final static int MAX_GREETING_TEXT_LENGTH = 1000;
+    public final static int MAX_CREATE_MESSAGE_CONTENT_LENGTH = 1000;
 
     public final static UnicodeEmoji TICKET_CLOSE_EMOJI = Emojis.X;
     public final static String BUTTON_ID_CREATE = "create";
@@ -72,9 +72,15 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             STATE_SET_LOG_CHANNEL = 1,
             STATE_SET_STAFF_ROLES = 2,
             STATE_CREATE_TICKET_MESSAGE = 4,
+            STATE_SET_CREATE_MESSATE_CHANNEL = 8,
+            STATE_SET_CREATE_MESSAGE_CONTENT = 9,
             STATE_SET_GREETING_TEXT = 5,
             STATE_SET_ASSIGNMENT_MODE = 6,
             STATE_SET_CLOSE_ON_INACTIVITY = 7;
+
+    private AtomicStandardGuildMessageChannel createMessageAtomicChannel;
+    private String createMessageContent;
+    private boolean createMessageContentChanged = false;
 
     public TicketCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -103,7 +109,21 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         .setMax(MAX_GREETING_TEXT_LENGTH)
                         .setLogEvent(BotLogEntity.Event.TICKETS_GREETING_TEXT)
                         .setGetter(() -> getGuildEntity().getTickets().getGreetingText())
-                        .setSetter(input -> getGuildEntity().getTickets().setGreetingText(input))
+                        .setSetter(input -> getGuildEntity().getTickets().setGreetingText(input)),
+                new GuildChannelsStateProcessor(this, STATE_SET_CREATE_MESSATE_CHANNEL, STATE_CREATE_TICKET_MESSAGE, getString("state4_mchannel"))
+                        .setMinMax(1, 1)
+                        .setChannelTypes(JDAUtil.STANDARD_GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
+                        .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
+                        .setSingleGetter(() -> createMessageAtomicChannel != null ? createMessageAtomicChannel.getIdLong() : null)
+                        .setSingleSetter(channelId -> createMessageAtomicChannel = new AtomicStandardGuildMessageChannel(getGuildId().get(), channelId)),
+                new StringStateProcessor(this, STATE_SET_CREATE_MESSAGE_CONTENT, STATE_CREATE_TICKET_MESSAGE, getString("state4_mtext"))
+                        .setClearButton(false)
+                        .setMax(MAX_CREATE_MESSAGE_CONTENT_LENGTH)
+                        .setGetter(() -> createMessageContent)
+                        .setSetter(input -> {
+                            createMessageContent = input;
+                            createMessageContentChanged = true;
+                        })
         ));
         return true;
     }
@@ -187,6 +207,9 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
             }
             case 10 -> {
+                createMessageAtomicChannel = new AtomicStandardGuildMessageChannel(event.getGuild().getIdLong(), 0L);
+                createMessageContent = getString("message_content");
+                createMessageContentChanged = false;
                 setState(STATE_CREATE_TICKET_MESSAGE);
                 return true;
             }
@@ -270,28 +293,42 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @ControllerButton(state = STATE_CREATE_TICKET_MESSAGE)
     public boolean onButtonCreateTicketMessage(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(0);
-            return true;
+        switch (i) {
+            case -1 -> {
+                setState(DEFAULT_STATE);
+                return true;
+            }
+            case 0 -> {
+                setState(STATE_SET_CREATE_MESSATE_CHANNEL);
+                return true;
+            }
+            case 1 -> {
+                setState(STATE_SET_CREATE_MESSAGE_CONTENT);
+                return true;
+            }
+            case 2 -> {
+                StandardGuildMessageChannel channel = createMessageAtomicChannel.get().orElse(null);
+                if (channel == null) {
+                    createMessageAtomicChannel = null;
+                    return true;
+                }
+
+                String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), channel, createMessageContent, createMessageContentChanged);
+                if (error != null) {
+                    setLog(LogStatus.FAILURE, error);
+                    return true;
+                }
+
+                getEntityManager().getTransaction().begin();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, event.getMember(), channel.getId());
+                getEntityManager().getTransaction().commit();
+
+                setLog(LogStatus.SUCCESS, getString("message_sent"));
+                setState(DEFAULT_STATE);
+                return true;
+            }
         }
         return false;
-    }
-
-    @ControllerEntitySelectMenu(state = STATE_CREATE_TICKET_MESSAGE)
-    public boolean onSelectMenuCreateTicketMessage(EntitySelectInteractionEvent event) {
-        StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getMentions().getChannels().get(0);
-        String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), channel);
-        if (error == null) {
-            getEntityManager().getTransaction().begin();
-            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, event.getMember(), channel.getId());
-            getEntityManager().getTransaction().commit();
-
-            setLog(LogStatus.SUCCESS, getString("message_sent"));
-            setState(DEFAULT_STATE);
-        } else {
-            setLog(LogStatus.FAILURE, error);
-        }
-        return true;
     }
 
     @Draw(state = DEFAULT_STATE)
@@ -332,17 +369,15 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @Draw(state = STATE_CREATE_TICKET_MESSAGE)
     public EmbedBuilder onDrawCreateTicketMessage(Member member) {
-        EntitySelectMenu entitySelectMenu = EntitySelectMenu.create("channel", EntitySelectMenu.SelectTarget.CHANNEL)
-                .setChannelTypes(JDAUtil.STANDARD_GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
-                .setRequiredRange(1, 1)
-                .build();
-        setComponents(entitySelectMenu);
+        String[] options = getString("state4_options").split("\n");
+        if (createMessageAtomicChannel.get().isEmpty()) {
+            options[2] = "";
+        }
+        setComponents(options, new int[]{2}, new int[0]);
 
-        return EmbedFactory.getEmbedDefault(
-                this,
-                getString("state4_description"),
-                getString("state4_title")
-        );
+        return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"))
+                .addField(getString("state4_mchannel"), createMessageAtomicChannel.getPrefixedNameInField(getLocale()), true)
+                .addField(getString("state4_mtext"), createMessageContent, true);
     }
 
     @Override
