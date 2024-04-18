@@ -43,7 +43,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public abstract class Command implements OnTriggerListener {
 
@@ -125,25 +124,36 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public void setComponents(String... options) {
-        setComponents(options, new int[0], new int[0]);
+        setComponents(options, null, null, null);
     }
 
-    public void setComponents(String[] options, int[] successIndexes, int[] dangerIndexes) {
+    public void setComponents(String[] options, Set<Integer> successIndexes) {
+        setComponents(options, successIndexes, null, null);
+    }
+
+    public void setComponents(String[] options, Set<Integer> successIndexes, Set<Integer> dangerIndexes) {
+        setComponents(options, successIndexes, dangerIndexes, null);
+    }
+
+    public void setComponents(String[] options, Set<Integer> successIndexes, Set<Integer> dangerIndexes, Set<Integer> disabledIndexes) {
+        if (successIndexes == null) {
+            successIndexes = Collections.emptySet();
+        }
+        if (dangerIndexes == null) {
+            dangerIndexes = Collections.emptySet();
+        }
+        if (disabledIndexes == null) {
+            disabledIndexes = Collections.emptySet();
+        }
+
         if (options != null) {
-            setComponents(optionsToButtons(options, successIndexes, dangerIndexes));
+            setComponents(optionsToButtons(options, successIndexes, dangerIndexes, disabledIndexes));
         } else {
             setActionRows();
         }
     }
 
-    public List<Button> optionsToButtons(String[] options, int[] successIndexes, int[] dangerIndexes) {
-        HashSet<Integer> successSet = Arrays.stream(successIndexes)
-                .boxed()
-                .collect(Collectors.toCollection(HashSet::new));
-        HashSet<Integer> dangerSet = Arrays.stream(dangerIndexes)
-                .boxed()
-                .collect(Collectors.toCollection(HashSet::new));
-
+    public List<Button> optionsToButtons(String[] options, Set<Integer> successIndexes, Set<Integer> dangerIndexes, Set<Integer> disabledIndexes) {
         ArrayList<Button> buttonList = new ArrayList<>();
         if (options != null) {
             for (int i = 0; i < options.length; i++) {
@@ -152,19 +162,22 @@ public abstract class Command implements OnTriggerListener {
                 }
 
                 ButtonStyle buttonStyle = ButtonStyle.PRIMARY;
-                if (successSet.contains(i)) {
+                if (successIndexes.contains(i)) {
                     buttonStyle = ButtonStyle.SUCCESS;
-                } else if (dangerSet.contains(i)) {
+                } else if (dangerIndexes.contains(i)) {
                     buttonStyle = ButtonStyle.DANGER;
                 }
 
-                buttonList.add(
-                        Button.of(
-                                buttonStyle,
-                                String.valueOf(i),
-                                StringUtil.shortenString(options[i], Button.LABEL_MAX_LENGTH)
-                        )
+                Button button = Button.of(
+                        buttonStyle,
+                        String.valueOf(i),
+                        StringUtil.shortenString(options[i], Button.LABEL_MAX_LENGTH)
                 );
+                if (disabledIndexes.contains(i)) {
+                    button = button.asDisabled();
+                }
+
+                buttonList.add(button);
             }
         }
         return buttonList;

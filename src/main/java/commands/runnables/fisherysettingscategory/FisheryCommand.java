@@ -261,7 +261,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         FisheryEntity fishery = getGuildEntity().getFishery();
 
         String[] options = getString("state0_options_" + fishery.getFisheryStatus().ordinal()).split("\n");
-        setComponents(options, fishery.getFisheryStatus() == FisheryStatus.ACTIVE ? new int[0] : new int[]{6}, new int[]{7});
+        setComponents(options, fishery.getFisheryStatus() == FisheryStatus.ACTIVE ? null : Set.of(6), Set.of(7));
 
         GuildMessageChannel channel = getGuildMessageChannel().get();
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))

@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 @CommandProperties(
         trigger = "mcdisplays",
@@ -179,7 +180,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     @Draw(state = STATE_ADD)
     public EmbedBuilder drawAdd(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        setComponents(getString("state1_options").split("\n"), new int[]{2}, new int[0]);
+        setComponents(getString("state1_options").split("\n"), Set.of(2));
         return EmbedFactory.getEmbedDefault(this, null)
                 .addField(getString("dashboard_vc"), currentChannel != null ? currentChannel.getPrefixedNameInField(getLocale()) : notSet, true)
                 .addField(getString("dashboard_mask"), highlightVariables(currentNameMask), true);

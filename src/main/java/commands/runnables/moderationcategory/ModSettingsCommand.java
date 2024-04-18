@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -629,7 +630,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
     @Draw(state = STATE_SET_AUTO_MUTE_WARNS)
     public EmbedBuilder drawAutoMuteWarns(Member member) {
-        setComponents(getString("automod_warns_options").split("\n"), new int[0], new int[]{1});
+        setComponents(getString("automod_warns_options").split("\n"), null, Set.of(1));
         return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
     }
 
@@ -647,7 +648,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
     @Draw(state = STATE_SET_AUTO_JAIL_WARNS)
     public EmbedBuilder drawAutoJailWarns(Member member) {
-        setComponents(getString("automod_warns_options").split("\n"), new int[0], new int[]{1});
+        setComponents(getString("automod_warns_options").split("\n"), null, Set.of(1));
         setLog(LogStatus.WARNING, getString("state13_warning"));
         return EmbedFactory.getEmbedDefault(this, getString("state13_description"), getString("state13_title"));
     }
@@ -666,7 +667,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
     @Draw(state = STATE_SET_AUTO_KICK_WARNS)
     public EmbedBuilder drawAutoKickWarns(Member member) {
-        setComponents(getString("automod_warns_options").split("\n"), new int[0], new int[]{1});
+        setComponents(getString("automod_warns_options").split("\n"), null, Set.of(1));
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 
@@ -678,7 +679,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
 
     @Draw(state = STATE_SET_AUTO_BAN_WARNS)
     public EmbedBuilder drawAutoBanWarns(Member member) {
-        setComponents(getString("automod_warns_options").split("\n"), new int[0], new int[]{1});
+        setComponents(getString("automod_warns_options").split("\n"), null, Set.of(1));
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
     }
 

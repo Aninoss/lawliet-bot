@@ -26,10 +26,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @CommandProperties(
         trigger = "ccshortcuts",
@@ -195,10 +192,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         String[] options = getString("add_options").split("\n");
-        if (atomicChannel == null || trigger == null) {
-            options[2] = "";
-        }
-        setComponents(options, new int[]{2}, new int[0]);
+        setComponents(options, Set.of(2), null, atomicChannel == null || trigger == null ? Set.of(2) : null);
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,

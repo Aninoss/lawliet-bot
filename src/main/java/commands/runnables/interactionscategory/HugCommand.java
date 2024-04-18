@@ -1,12 +1,13 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "hug",
-        emoji = "\uD83D\uDC50",
+        emoji = "👐",
         executableWithoutArgs = true,
         requiresFullMemberCache = true
 )

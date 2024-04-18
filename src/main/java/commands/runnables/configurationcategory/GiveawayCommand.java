@@ -43,6 +43,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -484,7 +485,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (!editMode) {
             options[7] = "";
         }
-        setComponents(options, new int[]{7, 8}, new int[0]);
+        setComponents(options, Set.of(7, 8));
 
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + (editMode ? "edit" : "new")))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(item.isEmpty() ? notSet : item), false)
@@ -504,7 +505,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @Draw(state = STATE_REROLL)
     public EmbedBuilder onDrawRerollNumber(Member member) {
-        setComponents(getString("state13_options").split("\n"), new int[]{2}, new int[]{0});
+        setComponents(getString("state13_options").split("\n"), Set.of(2));
         return EmbedFactory.getEmbedDefault(
                 this,
                 getString("state13_description", rerollGiveawayData.getTitle(), StringUtil.numToString(rerollWinners)),

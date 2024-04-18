@@ -44,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -370,10 +371,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     @Draw(state = STATE_CREATE_TICKET_MESSAGE)
     public EmbedBuilder onDrawCreateTicketMessage(Member member) {
         String[] options = getString("state4_options").split("\n");
-        if (createMessageAtomicChannel.get().isEmpty()) {
-            options[2] = "";
-        }
-        setComponents(options, new int[]{2}, new int[0]);
+        setComponents(options, Set.of(2), null, createMessageAtomicChannel.get().isEmpty() ? Set.of(2) : null);
 
         return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"))
                 .addField(getString("state4_mchannel"), createMessageAtomicChannel.getPrefixedNameInField(getLocale()), true)

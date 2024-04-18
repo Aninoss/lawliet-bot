@@ -498,11 +498,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (configuration.getComponentType() == ReactionRoleEntity.ComponentType.REACTIONS) {
             options[10] = "";
         }
-        setComponents(
-                options,
-                new int[]{12},
-                new int[0]
-        );
+        setComponents(options, Set.of(12));
 
         GuildMessageChannel currentChannel = getGuildMessageChannel().get();
         String linkString = ReactionRoles.generateSlotOverview(configuration.getSlots());
@@ -527,7 +523,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public EmbedBuilder onDrawAddSlot(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         String[] options = getString("addslot_options").split("\n");
-        setComponents(options, new int[]{3}, new int[0]);
+        setComponents(options, Set.of(3));
 
         List<AtomicRole> atomicRoles = new ListAdapter<>(slotConfiguration.getRoleIds(), roleId -> new AtomicRole(member.getGuild().getIdLong(), roleId), AtomicRole::getIdLong);
         return EmbedFactory.getEmbedDefault(this)

@@ -24,10 +24,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @CommandProperties(
         trigger = "customconfig",
@@ -209,13 +206,10 @@ public class CustomConfigCommand extends NavigationAbstract {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         if (updateMode) {
-            setComponents(getString("add_update_options").split("\n"), new int[]{2}, new int[]{3});
+            setComponents(getString("add_update_options").split("\n"), Set.of(2), Set.of(3));
         } else {
             String[] options = getString("add_options").split("\n");
-            if (trigger == null || textResponse == null) {
-                options[2] = "";
-            }
-            setComponents(options, new int[]{2}, new int[0]);
+            setComponents(options, Set.of(2), null, trigger == null || textResponse == null ? Set.of(2) : null);
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(

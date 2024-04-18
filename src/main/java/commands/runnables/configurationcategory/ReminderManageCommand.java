@@ -34,10 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -320,7 +317,7 @@ public class ReminderManageCommand extends NavigationAbstract {
         if (type == ReminderEntity.Type.DM_REMINDER) {
             options[0] = "";
         }
-        setComponents(options, new int[]{3}, new int[]{4});
+        setComponents(options, Set.of(3), Set.of(4));
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, null,
                 getString(type == ReminderEntity.Type.DM_REMINDER ? "manage_dm_title" : "manage_guild_title")

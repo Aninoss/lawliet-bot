@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -243,10 +244,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         );
 
         String[] options = getString("buy_options").split("\n");
-        if (sharesNum == 0) {
-            options[1] = "";
-        }
-        setComponents(options, new int[]{1}, new int[0]);
+        setComponents(options, Set.of(1), null, sharesNum == 0 ? Set.of(1) : null);
         return EmbedFactory.getEmbedDefault(this, desc, getString("buy_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), attr, false);
     }
@@ -271,10 +269,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         );
 
         String[] options = getString("sell_options").split("\n");
-        if (sharesNum == 0) {
-            options[1] = "";
-        }
-        setComponents(options, new int[]{1}, new int[0]);
+        setComponents(options, Set.of(1), null, sharesNum == 0 ? Set.of(1) : null);
         return EmbedFactory.getEmbedDefault(this, desc, getString("sell_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), attr, false);
     }
