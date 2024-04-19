@@ -7,6 +7,8 @@ import mysql.hibernate.entity.ReactionRoleEntity
 import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.template.HibernateEntity
+import org.hibernate.annotations.NotFound
+import org.hibernate.annotations.NotFoundAction
 import org.hibernate.annotations.SortNatural
 import java.time.LocalDate
 import javax.persistence.*
@@ -90,6 +92,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     val disabledCommandsAndCategories = mutableSetOf<String>()
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     var reactionRoles: Map<Long, ReactionRoleEntity> = mutableMapOf()
 
     val reminders: List<ReminderEntity>

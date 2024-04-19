@@ -5,6 +5,8 @@ import core.atomicassets.AtomicRole
 import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEntity
 import org.hibernate.annotations.GenericGenerator
+import org.hibernate.annotations.NotFound
+import org.hibernate.annotations.NotFoundAction
 import javax.persistence.*
 
 
@@ -42,6 +44,7 @@ class ReactionRoleEntity : HibernateEntity(), HibernateDiscordInterface {
         }
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     var slots: MutableList<ReactionRoleSlotEntity> = mutableListOf()
 
     @ElementCollection
