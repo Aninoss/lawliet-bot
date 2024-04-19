@@ -4,6 +4,8 @@ import commands.*;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
+import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
+import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
 import commands.runnables.utilitycategory.CustomCommand;
 import core.AsyncTimer;
 import core.MainLogger;
@@ -21,7 +23,7 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.MessageQuote;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.guild.CustomCommandEntity;
+import mysql.hibernate.entity.CustomRolePlayEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autoquote.DBAutoQuote;
 import net.dv8tion.jda.api.entities.Message;
@@ -100,12 +102,13 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             Class<? extends Command> clazz;
             clazz = CommandContainer.getCommandMap().get(commandTrigger);
 
-            if (clazz == null) {
-                CustomCommandEntity customCommand = guildEntity.getCustomCommands().get(commandTrigger);
-                if (customCommand != null) {
-                    clazz = CustomCommand.class;
-                    args = commandTrigger;
-                }
+            CustomRolePlayEntity customRolePlayEntity;
+            if (clazz == null && guildEntity.getCustomCommands().get(commandTrigger) != null) {
+                clazz = CustomCommand.class;
+                args = commandTrigger;
+            } else if (clazz == null && (customRolePlayEntity = guildEntity.getCustomRolePlayCommandsEffectively().get(commandTrigger)) != null) {
+                clazz = customRolePlayEntity.getNsfw() ? CustomRolePlayNsfwCommand.class : CustomRolePlaySfwCommand.class;
+                args = commandTrigger + " " + args;
             }
 
             if (clazz != null) {

@@ -81,16 +81,7 @@ public abstract class RolePlayAbstract extends Command {
             quote = "\n\n>>> " + args;
         }
 
-        String gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
-        EmbedBuilder eb;
-        if (mentionPresent) {
-            eb = EmbedFactory.getEmbedDefault(this, getString("template", mention.isMultiple(), mention.getMentionText(), authorString) + quote);
-        } else {
-            eb = EmbedFactory.getEmbedDefault(this, getString("template_single", authorString) + quote);
-        }
-
-        eb.setImage(gifUrl);
-        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_footer").replace("{PREFIX}", getPrefix()));
+        EmbedBuilder eb = generateEmbed(event.getGuild().getIdLong(), mentionPresent, mention, authorString, quote);
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
@@ -110,6 +101,21 @@ public abstract class RolePlayAbstract extends Command {
 
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
+    }
+
+    protected EmbedBuilder generateEmbed(long guildId, boolean mentionPresent, Mention mention, String authorString, String quote) throws ExecutionException, InterruptedException {
+        String gifUrl = gifs[RandomPicker.pick(getTrigger(), guildId, gifs.length).get()];
+
+        EmbedBuilder eb;
+        if (mentionPresent) {
+            eb = EmbedFactory.getEmbedDefault(this, getString("template", mention.isMultiple(), mention.getMentionText(), authorString) + quote);
+        } else {
+            eb = EmbedFactory.getEmbedDefault(this, getString("template_single", authorString) + quote);
+        }
+
+        eb.setImage(gifUrl);
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_footer").replace("{PREFIX}", getPrefix()));
+        return eb;
     }
 
     private boolean containsBlockedUsers(long callerUserId, List<ISnowflake> users) {

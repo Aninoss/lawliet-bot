@@ -254,7 +254,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         container.add(winnersEmojiContainer, DashboardSeparator())
 
         if (mode != Mode.REROLL) {
-            val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "giveaway_dashboard_includedimage"), "giveaway") {
+            val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "giveaway_dashboard_includedimage"), "giveaway", 1) {
                 image = it.data
                 imageCdn?.delete()
                 imageCdn = LocalFile(LocalFile.Directory.CDN, "giveaway/${image!!.split("/")[5]}")

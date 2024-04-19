@@ -247,7 +247,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         )
         container.add(roleRequirementsComboBox, DashboardText(getString(Category.CONFIGURATION, "reactionroles_dashboard_rolerequirements")), DashboardSeparator())
 
-        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "reactionroles_dashboard_includedimage"), "reactionroles") {
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "reactionroles_dashboard_includedimage"), "reactionroles", 1) {
             configuration.imageUrl = it.data
             imageCdn?.delete()
             imageCdn = LocalFile(LocalFile.Directory.CDN, "reactionroles/${configuration.imageFilename}")

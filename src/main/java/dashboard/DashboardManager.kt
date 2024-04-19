@@ -37,6 +37,7 @@ object DashboardManager {
                 MemberCountDisplaysCategory::class,
                 CustomCommandsCategory::class,
                 CommandChannelShortcutsCategory::class,
+                CustomRolePlayCategory::class,
                 BotLogsCategory::class
         )
     }

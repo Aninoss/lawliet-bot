@@ -15,6 +15,7 @@
         <class>mysql.hibernate.entity.BotLogEntity</class>
         <class>mysql.hibernate.entity.ReactionRoleEntity</class>
         <class>mysql.hibernate.entity.ReactionRoleSlotEntity</class>
+        <class>mysql.hibernate.entity.CustomRolePlayEntity</class>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
             <property name="hibernate.ogm.datastore.database" value="Lawliet" />

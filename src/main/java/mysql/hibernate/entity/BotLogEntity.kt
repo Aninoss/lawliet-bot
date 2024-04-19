@@ -200,6 +200,9 @@ class BotLogEntity(
         REVOKE_ROLES(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.ROLE),
         SET_NSFW(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
         SET_NOT_NSFW(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
+        CUSTOM_ROLE_PLAY_ADD(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
+        CUSTOM_ROLE_PLAY_EDIT(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
+        CUSTOM_ROLE_PLAY_DELETE(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
     }
 
 

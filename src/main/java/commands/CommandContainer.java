@@ -93,6 +93,7 @@ public class CommandContainer {
         commandList.add(GiveawayCommand.class);
         commandList.add(CommandChannelShortcutsCommand.class);
         commandList.add(RolePlayBlockCommand.class);
+        commandList.add(CustomRolePlayCommand.class);
 
         //UTILITY
         commandList.add(VoteCommand.class);

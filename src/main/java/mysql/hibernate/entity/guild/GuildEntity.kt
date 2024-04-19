@@ -3,6 +3,7 @@ package mysql.hibernate.entity.guild
 import constants.Language
 import core.assets.GuildAsset
 import core.cache.ServerPatreonBoostCache
+import mysql.hibernate.entity.CustomRolePlayEntity
 import mysql.hibernate.entity.ReactionRoleEntity
 import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.entity.assets.LanguageAsset
@@ -97,6 +98,12 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
 
     val reminders: List<ReminderEntity>
         get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", guildId.toLong())
+
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    val customRolePlayCommands: MutableMap<String, CustomRolePlayEntity> = sortedMapOf()
+    val customRolePlayCommandsEffectively: Map<String, CustomRolePlayEntity>
+        get() = if (ServerPatreonBoostCache.get(guildId.toLong())) customRolePlayCommands else mapOf()
 
 
     constructor() : this("0")

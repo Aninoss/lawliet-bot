@@ -214,7 +214,7 @@ public class CustomConfigCommand extends NavigationAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
-                getString("add_desc"), getString("add_title")
+                getString("add_desc"), getString("add_title", updateMode)
         );
         eb.addField(getString("add_trigger"), trigger != null ? "`" + trigger + "`" : notSet, true);
         eb.addField(getString("add_textresponse"), textResponse != null ? StringUtil.shortenString(StringUtil.escapeMarkdown(textResponse), MAX_TEXT_RESPONSE_LENGTH) : notSet, true);

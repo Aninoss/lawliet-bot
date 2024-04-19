@@ -20,6 +20,7 @@ import org.glassfish.jersey.internal.util.Producer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor<T, U>> {
@@ -149,7 +150,7 @@ public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor
             entityManager.getTransaction().commit();
         }
 
-        if (!getter.call().equals(old)) {
+        if (!Objects.equals(getter.call(), old)) {
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", propertyName));
         } else {
             command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_notchanged", propertyName));

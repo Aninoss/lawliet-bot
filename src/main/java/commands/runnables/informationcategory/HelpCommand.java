@@ -4,6 +4,8 @@ import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.runnables.*;
+import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
+import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
@@ -17,12 +19,14 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
+import mysql.hibernate.entity.CustomRolePlayEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -38,10 +42,7 @@ import org.json.JSONObject;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -293,6 +294,10 @@ public class HelpCommand extends NavigationAbstract {
 
         eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
         addRolePlayCommandList(member, eb, Category.INTERACTIONS, RolePlayAbstract::isInteractive, counter);
+
+        eb.addBlankField(false);
+        eb.addField(getString("roleplay_custom_title"), getString("roleplay_custom_desc"), false);
+        addCustomRolePlayCommandList(member, eb, CustomRolePlaySfwCommand.class, false);
     }
 
     private void categoryNSFWRolePlay(Member member, EmbedBuilder eb) {
@@ -301,6 +306,10 @@ public class HelpCommand extends NavigationAbstract {
         AtomicInteger counter = new AtomicInteger(0);
         eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
         addRolePlayCommandList(member, eb, Category.NSFW_INTERACTIONS, command -> true, counter);
+
+        eb.addBlankField(false);
+        eb.addField(getString("roleplay_custom_title"), getString("roleplay_custom_desc"), false);
+        addCustomRolePlayCommandList(member, eb, CustomRolePlayNsfwCommand.class, true);
     }
 
     private void addRolePlayCommandList(Member member, EmbedBuilder eb, Category category, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter, AtomicInteger counter) {
@@ -328,6 +337,40 @@ public class HelpCommand extends NavigationAbstract {
                     stringBuilder = new StringBuilder();
                     i = 0;
                 }
+            }
+        }
+        if (!stringBuilder.isEmpty()) {
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
+        }
+    }
+
+    private void addCustomRolePlayCommandList(Member member, EmbedBuilder eb, Class<? extends CustomRolePlaySfwCommand> clazz, boolean nsfw) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int i = 0;
+        for (Map.Entry<String, CustomRolePlayEntity> entry : getGuildEntity().getCustomRolePlayCommandsEffectively().entrySet()) {
+            if (!CommandManager.commandIsEnabledEffectively(getGuildEntity(), clazz, member, getGuildMessageChannel().get()) ||
+                    entry.getValue().getNsfw() != nsfw
+            ) {
+                continue;
+            }
+
+            stringBuilder.append("- `");
+            if (entry.getValue().getEmoji() instanceof UnicodeEmoji) {
+                stringBuilder.append(entry.getValue().getEmojiFormatted())
+                        .append("⠀");
+            }
+            stringBuilder.append(getPrefix())
+                    .append(entry.getKey())
+                    .append("`")
+                    .append("\n");
+
+            i++;
+            if (i >= 10) {
+                if (!stringBuilder.isEmpty()) {
+                    eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
+                }
+                stringBuilder = new StringBuilder();
+                i = 0;
             }
         }
         if (!stringBuilder.isEmpty()) {
