@@ -45,22 +45,24 @@ public class MuteRefresh implements ExceptionRunnable {
                     .forEach(serverMuteData -> {
                         try {
                             Member member = MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).get();
-                            if (member != null && member.getTimeOutEnd() != null) {
-                                Instant timeOutEnd = member.getTimeOutEnd().toInstant();
-                                Instant expirationMax = Instant.now().plus(Duration.ofDays(27));
-                                Instant expiration = serverMuteData.getExpirationTime().orElse(Instant.MAX);
-                                if (expiration.isAfter(expirationMax)) {
-                                    expiration = expirationMax;
-                                }
-                                if (expiration.isAfter(timeOutEnd)) {
-                                    Thread.sleep(2000 + r.nextInt(3000));
-                                    counter.incrementAndGet();
-                                    if (!BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
-                                        Locale locale = entityManager.findGuildEntity(serverMuteData.getGuildId()).getLocale();
-                                        member.timeoutUntil(expiration)
-                                                .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
-                                                .complete();
-                                    }
+                            if (member == null || member.getTimeOutEnd() == null || !member.getGuild().getSelfMember().canInteract(member)) {
+                                return;
+                            }
+
+                            Instant timeOutEnd = member.getTimeOutEnd().toInstant();
+                            Instant expirationMax = Instant.now().plus(Duration.ofDays(27));
+                            Instant expiration = serverMuteData.getExpirationTime().orElse(Instant.MAX);
+                            if (expiration.isAfter(expirationMax)) {
+                                expiration = expirationMax;
+                            }
+                            if (expiration.isAfter(timeOutEnd)) {
+                                Thread.sleep(2000 + r.nextInt(3000));
+                                counter.incrementAndGet();
+                                if (!BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
+                                    Locale locale = entityManager.findGuildEntity(serverMuteData.getGuildId()).getLocale();
+                                    member.timeoutUntil(expiration)
+                                            .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
+                                            .complete();
                                 }
                             }
                         } catch (Throwable e) {
