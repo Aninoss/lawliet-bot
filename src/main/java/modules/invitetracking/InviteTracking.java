@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 public class InviteTracking {
@@ -172,10 +173,21 @@ public class InviteTracking {
                 }
             }
 
-            /* remove invalid invites from database */
-            for (GuildInvite guildInvite : new ArrayList<>(databaseInvites.values())) {
-                if (guildInvite != null && !inviteCodes.contains(guildInvite.getCode())) {
-                    databaseInvites.remove(guildInvite.getCode());
+            int tries = 3;
+            while (true) {
+                try {
+                    /* remove invalid invites from database */
+                    for (GuildInvite guildInvite : new ArrayList<>(databaseInvites.values())) {
+                        if (guildInvite != null && !inviteCodes.contains(guildInvite.getCode())) {
+                            databaseInvites.remove(guildInvite.getCode());
+                        }
+                    }
+                    break;
+                } catch (CompletionException | ArrayIndexOutOfBoundsException e) {
+                    //ignore
+                    if (--tries <= 0) {
+                        throw e;
+                    }
                 }
             }
         }
