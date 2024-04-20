@@ -98,7 +98,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         .setCheckAccess(false)
                         .setLogEvent(BotLogEntity.Event.TICKETS_STAFF_ROLES)
                         .setGetter(() -> getGuildEntity().getTickets().getStaffRoleIds())
-                        .setSetter(roleIds -> getGuildEntity().getTickets().setStaffRoleIds(roleIds)),
+                        .setSetter(roleIds -> CollectionUtil.replace(getGuildEntity().getTickets().getStaffRoleIds(), roleIds)),
                 new StringStateProcessor(this, STATE_SET_GREETING_TEXT, DEFAULT_STATE, getString("state0_mcreatemessage"))
                         .setClearButton(true)
                         .setMax(MAX_GREETING_TEXT_LENGTH)

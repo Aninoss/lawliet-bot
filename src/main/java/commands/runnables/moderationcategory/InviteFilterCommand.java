@@ -10,6 +10,7 @@ import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicGuildChannel;
 import core.atomicassets.AtomicMember;
+import core.utils.CollectionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import kotlin.Pair;
@@ -24,7 +25,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -74,7 +74,7 @@ public class InviteFilterCommand extends NavigationAbstract {
 
                     inviteFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
-                    inviteFilter.setExcludedMemberIds(newMemberIds);
+                    CollectionUtil.replace(inviteFilter.getExcludedMemberIds(), newMemberIds);
                     inviteFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
@@ -96,7 +96,7 @@ public class InviteFilterCommand extends NavigationAbstract {
 
                     inviteFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
-                    inviteFilter.setExcludedChannelIds(newChannelIds);
+                    CollectionUtil.replace(inviteFilter.getExcludedChannelIds(), newChannelIds);
                     inviteFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
@@ -118,7 +118,7 @@ public class InviteFilterCommand extends NavigationAbstract {
 
                     inviteFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
-                    inviteFilter.setLogReceiverUserIds(newMemberIds);
+                    CollectionUtil.replace(inviteFilter.getLogReceiverUserIds(), newMemberIds);
                     inviteFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
@@ -178,7 +178,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                 } else if (i == 0) {
                     inviteFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS, event.getMember(), null, inviteFilter.getExcludedMemberIds());
-                    inviteFilter.setExcludedMemberIds(Collections.emptyList());
+                    inviteFilter.getExcludedMemberIds().clear();
                     inviteFilter.commitTransaction();
 
                     setState(0);
@@ -194,7 +194,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                 } else if (i == 0) {
                     inviteFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS, event.getMember(), null, inviteFilter.getExcludedChannelIds());
-                    inviteFilter.setExcludedChannelIds(Collections.emptyList());
+                    inviteFilter.getExcludedChannelIds().clear();
                     inviteFilter.commitTransaction();
 
                     setState(0);
@@ -210,7 +210,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                 } else if (i == 0) {
                     inviteFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS, event.getMember(), null, inviteFilter.getLogReceiverUserIds());
-                    inviteFilter.setLogReceiverUserIds(Collections.emptyList());
+                    inviteFilter.getLogReceiverUserIds().clear();
                     inviteFilter.commitTransaction();
 
                     setState(0);

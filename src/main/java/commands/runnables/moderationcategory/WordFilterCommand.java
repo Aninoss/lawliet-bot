@@ -10,6 +10,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
+import core.utils.CollectionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import kotlin.Pair;
@@ -25,7 +26,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -80,7 +80,7 @@ public class WordFilterCommand extends NavigationAbstract {
 
                     wordFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
-                    wordFilter.setExcludedMemberIds(newMemberIds);
+                    CollectionUtil.replace(wordFilter.getExcludedMemberIds(), newMemberIds);
                     wordFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
@@ -102,7 +102,7 @@ public class WordFilterCommand extends NavigationAbstract {
 
                     wordFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
-                    wordFilter.setLogReceiverUserIds(newMemberIds);
+                    CollectionUtil.replace(wordFilter.getLogReceiverUserIds(), newMemberIds);
                     wordFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
@@ -170,7 +170,7 @@ public class WordFilterCommand extends NavigationAbstract {
                 } else if (i == 0) {
                     wordFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS, event.getMember(), null, wordFilter.getExcludedMemberIds());
-                    wordFilter.setExcludedMemberIds(Collections.emptyList());
+                    wordFilter.getExcludedMemberIds().clear();
                     wordFilter.commitTransaction();
 
                     setState(0);
@@ -186,7 +186,7 @@ public class WordFilterCommand extends NavigationAbstract {
                 } else if (i == 0) {
                     wordFilter.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS, event.getMember(), null, wordFilter.getLogReceiverUserIds());
-                    wordFilter.setLogReceiverUserIds(Collections.emptyList());
+                    wordFilter.getLogReceiverUserIds().clear();
                     wordFilter.commitTransaction();
 
                     setState(0);

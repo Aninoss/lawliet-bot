@@ -16,6 +16,7 @@ import commands.runnables.moderationcategory.WordFilterCommand
 import core.MainLogger
 import core.ShardManager
 import core.atomicassets.AtomicMember
+import core.utils.CollectionUtil
 import mysql.hibernate.EntityManagerWrapper
 import mysql.hibernate.template.HibernateEntity
 import net.dv8tion.jda.api.entities.Member
@@ -278,7 +279,7 @@ class BotLogEntity(
 
                     when (event.valuesRelationship) {
                         ValuesRelationship.EMPTY -> {}
-                        ValuesRelationship.OLD_AND_NEW -> logEntity.values1 = newValues1
+                        ValuesRelationship.OLD_AND_NEW -> CollectionUtil.replace(logEntity.values1, newValues1)
                         ValuesRelationship.SINGLE_VALUE_COLUMN -> {
                             for (v in newValues0) {
                                 if (!logEntity.values0.contains(v)) {
