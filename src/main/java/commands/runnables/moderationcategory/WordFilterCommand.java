@@ -11,6 +11,7 @@ import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
 import core.modals.ModalMediator;
+import core.utils.CollectionUtil;
 import core.utils.StringUtil;
 import modules.automod.WordFilter;
 import mysql.hibernate.entity.BotLogEntity;
@@ -65,12 +66,12 @@ public class WordFilterCommand extends NavigationAbstract {
                         .setMinMax(0, MAX_EXCLUDED_MEMBERS)
                         .setLogEvent(BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS)
                         .setGetter(() -> getGuildEntity().getWordFilter().getExcludedMemberIds())
-                        .setSetter(userIds -> getGuildEntity().getWordFilter().setExcludedMemberIds(userIds)),
+                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getWordFilter().getExcludedMemberIds(),userIds)),
                 new MembersStateProcessor(this, STATE_SET_LOG_RECEIVERS, DEFAULT_STATE, getString("state0_mlogreciever"))
                         .setMinMax(0, MAX_LOG_RECEIVERS)
                         .setLogEvent(BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS)
                         .setGetter(() -> getGuildEntity().getWordFilter().getLogReceiverUserIds())
-                        .setSetter(userIds -> getGuildEntity().getWordFilter().setLogReceiverUserIds(userIds))
+                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getWordFilter().getLogReceiverUserIds(), userIds))
         ));
         return true;
     }

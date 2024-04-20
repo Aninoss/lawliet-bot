@@ -11,6 +11,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.atomicassets.AtomicRole;
 import core.modals.ModalMediator;
+import core.utils.CollectionUtil;
 import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -83,7 +84,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                             }
 
                             if (fishery.getFisheryStatus() == FisheryStatus.STOPPED) {
-                                fishery.setRoleIds(roleIds);
+                                CollectionUtil.replace(fishery.getRoleIds(), roleIds);
                                 BotLogEntity.log(fishery.getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), addedRoleIds, removedRoleIds);
                             } else {
                                 fishery.getRoleIds().addAll(addedRoleIds);

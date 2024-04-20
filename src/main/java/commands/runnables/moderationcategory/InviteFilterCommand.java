@@ -10,6 +10,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.atomicassets.AtomicGuildChannel;
 import core.atomicassets.AtomicMember;
+import core.utils.CollectionUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.InviteFilterEntity;
@@ -55,18 +56,18 @@ public class InviteFilterCommand extends NavigationAbstract {
                         .setMinMax(0, MAX_EXCLUDED_MEMBERS)
                         .setLogEvent(BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS)
                         .setGetter(() -> getGuildEntity().getInviteFilter().getExcludedMemberIds())
-                        .setSetter(userIds -> getGuildEntity().getInviteFilter().setExcludedMemberIds(userIds)),
+                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getInviteFilter().getExcludedMemberIds(), userIds)),
                 new GuildChannelsStateProcessor(this, STATE_SET_EXCLUDED_CHANNELS, DEFAULT_STATE, getString("state0_mignoredchannels"))
                         .setMinMax(0, MAX_EXCLUDED_CHANNELS)
                         .setChannelTypes(Collections.emptyList())
                         .setLogEvent(BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS)
                         .setGetter(() -> getGuildEntity().getInviteFilter().getExcludedChannelIds())
-                        .setSetter(userIds -> getGuildEntity().getInviteFilter().setExcludedChannelIds(userIds)),
+                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getInviteFilter().getExcludedChannelIds(), userIds)),
                 new MembersStateProcessor(this, STATE_SET_LOG_RECEIVERS, DEFAULT_STATE, getString("state0_mlogreciever"))
                         .setMinMax(0, MAX_LOG_RECEIVERS)
                         .setLogEvent(BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS)
                         .setGetter(() -> getGuildEntity().getInviteFilter().getLogReceiverUserIds())
-                        .setSetter(userIds -> getGuildEntity().getInviteFilter().setLogReceiverUserIds(userIds))
+                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getInviteFilter().getLogReceiverUserIds(), userIds))
         ));
         return true;
     }

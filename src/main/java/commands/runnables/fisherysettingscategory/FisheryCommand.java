@@ -16,6 +16,7 @@ import core.atomicassets.AtomicGuildChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
+import core.utils.CollectionUtil;
 import core.utils.NumberUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
@@ -85,7 +86,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .setDescription(getString("excludedchannels"))
                         .setLogEvent(BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS)
                         .setGetter(() -> getGuildEntity().getFishery().getExcludedChannelIds())
-                        .setSetter(channelIds -> getGuildEntity().getFishery().setExcludedChannelIds(channelIds))
+                        .setSetter(channelIds -> CollectionUtil.replace(getGuildEntity().getFishery().getExcludedChannelIds(), channelIds))
         ));
         return true;
     }

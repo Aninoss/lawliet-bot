@@ -7,6 +7,7 @@ import commands.stateprocessor.RolesStateProcessor;
 import core.EmbedFactory;
 import core.ListGen;
 import core.atomicassets.AtomicRole;
+import core.utils.CollectionUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -45,7 +46,7 @@ public class StickyRolesCommand extends NavigationAbstract {
                         .setCheckAccess(true)
                         .setLogEvent(BotLogEntity.Event.STICKY_ROLES)
                         .setGetter(() -> getGuildEntity().getStickyRoles().getRoleIds())
-                        .setSetter(roleIds -> getGuildEntity().getStickyRoles().setRoleIds(roleIds))
+                        .setSetter(roleIds -> CollectionUtil.replace(getGuildEntity().getStickyRoles().getRoleIds(), roleIds))
         ));
         return true;
     }

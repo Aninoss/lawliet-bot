@@ -98,7 +98,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         .setCheckAccess(true)
                         .setLogEvent(BotLogEntity.Event.MOD_JAIL_ROLES)
                         .setGetter(() -> getGuildEntity().getModeration().getJailRoleIds())
-                        .setSetter(roleIds -> getGuildEntity().getModeration().setJailRoleIds(roleIds)),
+                        .setSetter(roleIds -> CollectionUtil.replace(getGuildEntity().getModeration().getJailRoleIds(), roleIds)),
                 new GuildChannelsStateProcessor(this, STATE_SET_BAN_APPEAL_LOG_CHANNEL, DEFAULT_STATE, getString("state0_mbanappeallogchannel"))
                         .setMinMax(0, 1)
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
