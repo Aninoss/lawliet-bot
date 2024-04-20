@@ -95,6 +95,7 @@ public class BotLogs {
         for (String value : values) {
             String extracted = switch (valueType) {
                 case INTEGER -> StringUtil.numToString(Integer.parseInt(value));
+                case LONG -> StringUtil.numToString(Long.parseLong(value));
                 case DOUBLE -> StringUtil.doubleToString(Double.parseDouble(value), 2, locale);
                 case BOOLEAN -> TextManager.getString(locale, TextManager.GENERAL, "onoff", Boolean.parseBoolean(value));
                 case STRING -> value;

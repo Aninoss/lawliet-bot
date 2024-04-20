@@ -42,7 +42,7 @@ class BotLogEntity(
 ) : HibernateEntity() {
 
     enum class ValueType {
-        INTEGER, DOUBLE, BOOLEAN, STRING,
+        INTEGER, LONG, DOUBLE, BOOLEAN, STRING,
         TEXT_KEY, COMMAND_CATEGORY, DURATION,
         CHANNEL, ROLE, USER
     }
@@ -74,8 +74,8 @@ class BotLogEntity(
         FISHERY_VOICE_HOURS_LIMIT(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER, VCTimeCommand::class.java),
         FISHERY_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, FisheryRolesCommand::class.java, "fisheryroles_state0_mroles"),
         FISHERY_ROLES_UPGRADE_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, FisheryRolesCommand::class.java, "fisheryroles_state0_mannouncementchannel"),
-        FISHERY_ROLES_PRICE_MIN(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER, FisheryRolesCommand::class.java, "fisheryroles_firstprice"),
-        FISHERY_ROLES_PRICE_MAX(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER, FisheryRolesCommand::class.java, "fisheryroles_lastprice"),
+        FISHERY_ROLES_PRICE_MIN(ValuesRelationship.OLD_AND_NEW, ValueType.LONG, FisheryRolesCommand::class.java, "fisheryroles_firstprice"),
+        FISHERY_ROLES_PRICE_MAX(ValuesRelationship.OLD_AND_NEW, ValueType.LONG, FisheryRolesCommand::class.java, "fisheryroles_lastprice"),
         FISHERY_ROLES_SINGLE_ROLES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryRolesCommand::class.java, "fisheryroles_state0_msinglerole_raw"),
         FISHERY_MANAGE_FISH(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "fisherymanage_type_fish"),
         FISHERY_MANAGE_COINS(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "fisherymanage_type_coins"),
