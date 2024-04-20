@@ -23,29 +23,31 @@ public class CleanGuilds implements ExceptionRunnable {
     public static void execute() throws InterruptedException {
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(CleanGuilds.class)) {
             MainLogger.get().info("Starting guild cleaner");
-            updateGuilds(entityManager);
+            long counter = updateGuilds(entityManager);
+            MainLogger.get().info("{} guild dates have been updated", counter);
 
             if (!ShardManager.isEverythingConnected()) {
-                MainLogger.get().error("Guild cleaner failed due to missing connections");
+                MainLogger.get().error("Guild cleaner stopped due to missing connections");
                 return;
             }
 
             //TODO: Implement cleanup
-            MainLogger.get().info("Guild cleaner completed");
         }
     }
 
-    private static void updateGuilds(EntityManagerWrapper entityManager) {
+    private static long updateGuilds(EntityManagerWrapper entityManager) {
+        long counter = 0;
         for (Guild guild : ShardManager.getLocalGuilds()) {
             GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
             if (guildEntity.getLatestPresentDate() == null || !guildEntity.getLatestPresentDate().equals(LocalDate.now())) {
                 guildEntity.beginTransaction();
                 guildEntity.setLatestPresentDate(LocalDate.now());
                 guildEntity.commitTransaction();
-                MainLogger.get().info("Guild {} latest present date has been updated", guild.getIdLong());
+                counter++;
             }
             entityManager.clear();
         }
+        return counter;
     }
 
 }
