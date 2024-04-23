@@ -1,8 +1,9 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "yuricuddle",
@@ -27,7 +28,8 @@ public class YuriCuddleCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280178623250568/yuricuddle.gif",
                 "https://cdn.discordapp.com/attachments/736280073379774536/829471458212052992/yuricuddle.gif",
                 "https://cdn.discordapp.com/attachments/736280073379774536/834849068630671450/yuricuddle.gif",
-                "https://cdn.discordapp.com/attachments/736280073379774536/834849079427203112/yuricuddle.gif"
+                "https://cdn.discordapp.com/attachments/736280073379774536/834849079427203112/yuricuddle.gif",
+                "https://cdn.discordapp.com/attachments/736280073379774536/1232306116994793503/yuricuddle.gif"
         );
     }
 
