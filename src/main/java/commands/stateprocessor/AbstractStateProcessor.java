@@ -137,8 +137,13 @@ public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor
         }
 
         T old = getter.call();
+        if (old instanceof List<?>) {
+            //noinspection unchecked
+            old = (T) List.copyOf((List<?>) old);
+        }
+
         if (logEvent != null) {
-            if (t instanceof List<?>) {
+            if (t instanceof List<?> && old instanceof List<?>) {
                 addBotLogEntryForList(entityManager, command.getGuildId().get(), command.getMemberId().get(), (List<?>) old, (List<?>) t);
             } else {
                 addBotLogEntry(entityManager, command.getGuildId().get(), command.getMemberId().get(), old, t);
