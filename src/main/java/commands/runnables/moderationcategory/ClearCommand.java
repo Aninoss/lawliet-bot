@@ -124,7 +124,7 @@ public class ClearCommand extends Command implements OnButtonListener {
             restAction = event.getMessageChannel().deleteMessageById(messageId);
         }
         restAction.submitAfter(8, TimeUnit.SECONDS)
-                .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.MISSING_ACCESS));
+                .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.MISSING_ACCESS, ExceptionIds.THREAD_ARCHIVED));
         return true;
     }
 

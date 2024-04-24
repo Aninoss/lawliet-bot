@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.attribute.ICategorizableChannel;
 import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.managers.channel.attribute.IPermissionContainerManager;
@@ -23,10 +24,10 @@ public class BotPermissionUtil {
                                                                    Permission[] userGuildPermissions, Permission[] userChannelPermissions,
                                                                    Permission[] botGuildPermissions, Permission[] botChannelPermissions
     ) {
-        List<Permission> userPermission = new ArrayList<>(getMissingPermissions(member, userGuildPermissions));
+        HashSet<Permission> userPermission = new HashSet<>(getMissingPermissions(member, userGuildPermissions));
         userPermission.addAll(getMissingPermissions(channel, member, userChannelPermissions));
 
-        List<Permission> botPermission = new ArrayList<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
+        HashSet<Permission> botPermission = new HashSet<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
         botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
 
         return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
@@ -72,10 +73,14 @@ public class BotPermissionUtil {
     }
 
     public static List<Permission> getMissingPermissions(GuildChannel channel, Member member, Permission... permissions) {
-        permissions = Arrays.copyOf(permissions, permissions.length + 1);
-        permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
+        LinkedHashSet<Permission> permissionSet = new LinkedHashSet<>(Arrays.asList(permissions));
+        permissionSet.add(Permission.VIEW_CHANNEL);
 
-        return Arrays.stream(permissions)
+        if (channel instanceof ThreadChannel && permissionSet.contains(Permission.MESSAGE_SEND)) {
+            permissionSet.add(Permission.MESSAGE_SEND_IN_THREADS);
+        }
+
+        return permissionSet.stream()
                 .filter(permission -> !member.hasPermission(channel, permission))
                 .collect(Collectors.toList());
     }
@@ -86,7 +91,7 @@ public class BotPermissionUtil {
                 .collect(Collectors.toList());
     }
 
-    public static EmbedBuilder getUserPermissionMissingEmbed(Locale locale, List<Permission> userPermissions, List<Permission> botPermissions) {
+    public static EmbedBuilder getUserPermissionMissingEmbed(Locale locale, Collection<Permission> userPermissions, Collection<Permission> botPermissions) {
         EmbedBuilder eb = null;
         if (!userPermissions.isEmpty() || !botPermissions.isEmpty()) {
             eb = EmbedFactory.getEmbedError()
@@ -137,14 +142,7 @@ public class BotPermissionUtil {
     }
 
     public static boolean can(Guild guild, Permission... permissions) {
-        return Arrays.stream(permissions)
-                .allMatch(permission -> guild.getSelfMember().hasPermission(permissions));
-    }
-
-    public static boolean can(GuildChannel channel, Permission... permissions) {
-        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.VIEW_CHANNEL) &&
-                Arrays.stream(permissions)
-                        .allMatch(permission -> channel.getGuild().getSelfMember().hasPermission(channel, permissions));
+        return can(guild.getSelfMember(), permissions);
     }
 
     public static boolean can(Member member, Permission... permissions) {
@@ -152,35 +150,47 @@ public class BotPermissionUtil {
                 .allMatch(permission -> member.hasPermission(permissions));
     }
 
+    public static boolean can(GuildChannel channel, Permission... permissions) {
+        return can(channel.getGuild().getSelfMember(), channel, permissions);
+    }
+
     public static boolean can(Member member, GuildChannel channel, Permission... permissions) {
+        if (channel instanceof ThreadChannel) {
+            ThreadChannel threadChannel = (ThreadChannel) channel;
+            if (threadChannel.isArchived()) {
+                return false;
+            }
+
+            if (Arrays.stream(permissions).anyMatch(p -> p == Permission.MESSAGE_SEND) &&
+                    !member.hasPermission(channel, Permission.MESSAGE_SEND_IN_THREADS)
+            ) {
+                return false;
+            }
+        }
+
         return member.hasPermission(channel, Permission.VIEW_CHANNEL) &&
                 Arrays.stream(permissions)
                         .allMatch(permission -> member.hasPermission(channel, permissions));
     }
 
     public static boolean canReadHistory(GuildChannel channel, Permission... permissions) {
-        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_HISTORY) &&
-                can(channel, permissions);
+        return can(channel, CollectionUtil.arrayConcat(permissions, Permission.MESSAGE_HISTORY));
     }
 
     public static boolean canWrite(GuildChannel channel, Permission... permissions) {
-        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND) &&
-                can(channel, permissions);
+        return can(channel, CollectionUtil.arrayConcat(permissions, Permission.MESSAGE_SEND));
     }
 
     public static boolean canWrite(Member member, GuildChannel channel, Permission... permissions) {
-        return member.hasPermission(channel, Permission.MESSAGE_SEND) &&
-                can(member, channel, permissions);
+        return can(member, channel, CollectionUtil.arrayConcat(permissions, Permission.MESSAGE_SEND));
     }
 
     public static boolean canWriteEmbed(GuildChannel channel, Permission... permissions) {
-        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_EMBED_LINKS) &&
-                canWrite(channel, permissions);
+        return canWrite(channel, CollectionUtil.arrayConcat(permissions, Permission.MESSAGE_EMBED_LINKS));
     }
 
     public static boolean canWriteEmbed(Member member, GuildChannel channel, Permission... permissions) {
-        return member.hasPermission(channel, Permission.MESSAGE_EMBED_LINKS) &&
-                canWrite(member, channel, permissions);
+        return canWrite(member, channel, CollectionUtil.arrayConcat(permissions, Permission.MESSAGE_EMBED_LINKS));
     }
 
     public static boolean canInteract(Guild guild, User targetUser) {
@@ -277,8 +287,8 @@ public class BotPermissionUtil {
     }
 
     private static <T extends GuildChannel> ChannelAction<T> addPermission(ICategorizableChannel parentChannel, ChannelAction<T> channelAction,
-                                                                          PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
-                                                                          long id, Permission... permissions
+                                                                           PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
+                                                                           long id, Permission... permissions
     ) {
         long allowRaw = 0L;
         long denyRaw = 0L;
@@ -319,15 +329,15 @@ public class BotPermissionUtil {
     }
 
     public static IPermissionContainerManager<?, ?> addPermission(IPermissionContainer parentChannel, IPermissionContainerManager<?, ?> channelManager,
-                                                                          PermissionOverride permissionOverride, boolean allow, Permission... permissions
+                                                                  PermissionOverride permissionOverride, boolean allow, Permission... permissions
     ) {
         return addPermission(parentChannel, channelManager, permissionOverride, allow,
                 permissionOverride.isMemberOverride(), permissionOverride.getIdLong(), permissions);
     }
 
     private static IPermissionContainerManager<?, ?> addPermission(IPermissionContainer parentChannel, IPermissionContainerManager<?, ?> channelManager,
-                                                                         PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
-                                                                         long id, Permission... permissions
+                                                                   PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
+                                                                   long id, Permission... permissions
     ) {
         long allowRaw = 0L;
         long denyRaw = 0L;

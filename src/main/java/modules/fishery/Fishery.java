@@ -127,7 +127,7 @@ public class Fishery {
 
                     MainScheduler.schedule(Duration.ofMinutes(Settings.FISHERY_POWERUP_TIMEOUT_MINUTES), () -> {
                         if (unusedPowerUpSet.contains(m.getIdLong())) {
-                            m.delete().submit().exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
+                            m.delete().submit().exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.THREAD_ARCHIVED));
                             deregisterPowerUp(m.getIdLong());
                         }
                     });
