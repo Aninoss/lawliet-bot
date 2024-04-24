@@ -105,6 +105,8 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     val customRolePlayCommandsEffectively: Map<String, CustomRolePlayEntity>
         get() = if (ServerPatreonBoostCache.get(guildId.toLong())) customRolePlayCommands else mapOf()
 
+    @ElementCollection
+    val slashPermissions = mutableListOf<SlashPermissionEntity>()
 
     constructor() : this("0")
 

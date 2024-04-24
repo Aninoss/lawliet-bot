@@ -49,15 +49,16 @@ public class CommandPermissionsCommand extends Command implements OnButtonListen
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        getEntityManager().getTransaction().begin();
+        getGuildEntity().beginTransaction();
         BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_PERMISSIONS_TRANSFER, event.getMember());
-        getEntityManager().getTransaction().commit();
 
-        if (CommandPermissions.transferCommandPermissions(event.getGuild())) {
+        if (CommandPermissions.transferCommandPermissions(event.getGuild(), getGuildEntity())) {
             setLog(LogStatus.SUCCESS, getString("success"));
         } else {
             setLog(LogStatus.FAILURE, getString("failed"));
         }
+
+        getGuildEntity().commitTransaction();
         synched = true;
         deregisterListeners();
         return true;

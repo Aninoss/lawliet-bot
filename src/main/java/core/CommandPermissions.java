@@ -5,26 +5,25 @@ import commands.Command;
 import commands.CommandContainer;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
-import mysql.modules.slashpermissions.DBSlashPermissions;
-import mysql.modules.slashpermissions.SlashPermissionsSlot;
+import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.guild.SlashPermissionEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.interactions.commands.privileges.IntegrationPrivilege;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class CommandPermissions {
 
-    public static boolean transferCommandPermissions(Guild guild) {
-        Map<String, List<IntegrationPrivilege>> externalMap = guild.retrieveCommandPrivileges().complete().getAsMap();
-        HashMap<String, List<SlashPermissionsSlot>> internalMap = new HashMap<>();
+    public static boolean transferCommandPermissions(Guild guild, GuildEntity guildEntity) {
+        guildEntity.getSlashPermissions().clear();
 
+        Map<String, List<IntegrationPrivilege>> externalMap = guild.retrieveCommandPrivileges().complete().getAsMap();
         for (String commandId : externalMap.keySet()) {
             String commandName = commandId.equals(guild.getSelfMember().getId())
                     ? ""
@@ -33,67 +32,75 @@ public class CommandPermissions {
                 continue;
             }
 
-            List<SlashPermissionsSlot> internalList = externalMap.get(commandId).stream()
-                    .map(e -> new SlashPermissionsSlot(
-                            guild.getIdLong(),
-                            commandName,
-                            e.getIdLong(),
-                            mapPermissionType(e.getType()),
-                            e.isEnabled()
-                    ))
-                    .filter(e -> e.getType() != null)
-                    .collect(Collectors.toList());
-            internalMap.put(commandName, internalList);
+            for (IntegrationPrivilege integrationPrivilege : externalMap.get(commandId)) {
+                SlashPermissionEntity entity = new SlashPermissionEntity();
+                entity.setCommand(commandName);
+                entity.setObjectId(integrationPrivilege.getIdLong());
+                entity.setType(mapPermissionType(integrationPrivilege.getType()));
+                entity.setEnabled(integrationPrivilege.isEnabled());
+
+                if (entity.getType() != SlashPermissionEntity.Type.UNKNOWN) {
+                    guildEntity.getSlashPermissions().add(entity);
+                }
+            }
         }
 
-        DBSlashPermissions.getInstance().retrieve(guild.getIdLong()).setPermissionMap(internalMap);
         return true;
     }
 
-    public static boolean hasAccess(Category category, Member member, Channel channel, boolean ignoreAdmin) {
+    public static boolean hasAccess(GuildEntity guildEntity, Category category, Member member, GuildChannel channel, boolean ignoreAdmin) {
         if (CommandContainer.getCommandCategoryMap().containsKey(category)) {
             return CommandContainer.getCommandCategoryMap().get(category).stream()
-                    .anyMatch(clazz -> hasAccess(clazz, member, channel, ignoreAdmin));
+                    .anyMatch(clazz -> hasAccess(guildEntity, clazz, member, channel, ignoreAdmin));
         } else {
             return true;
         }
     }
 
-    public static boolean hasAccess(Class<? extends Command> clazz, Member member, Channel channel, boolean ignoreAdmin) {
+    public static boolean hasAccess(GuildEntity guildEntity, Class<? extends Command> clazz, Member member, GuildChannel channel, boolean ignoreAdmin) {
         if (!ignoreAdmin && (BotPermissionUtil.can(member, Permission.ADMINISTRATOR) || member.isOwner())) {
             return true;
         }
 
-        Map<String, List<SlashPermissionsSlot>> permissionMap = DBSlashPermissions.getInstance().retrieve(member.getGuild().getIdLong())
-                .getPermissionMap();
+        ArrayList<SlashPermissionEntity> commandSlashPermissions = new ArrayList<>();
+        ArrayList<SlashPermissionEntity> generalSlashPermissions = new ArrayList<>();
+
         String commandName = SlashAssociations.findName(clazz);
-        if (commandName != null && permissionMap.containsKey(commandName)) {
-            return checkCommandAccess(permissionMap.get(commandName), member, channel);
-        } else if (permissionMap.containsKey("")) {
-            return checkCommandAccess(permissionMap.get(""), member, channel);
+        for (SlashPermissionEntity slashPermission : guildEntity.getSlashPermissions()) {
+            if (commandName != null && slashPermission.getCommand().equals(commandName)) {
+                commandSlashPermissions.add(slashPermission);
+            } else if (slashPermission.getCommand().isEmpty()) {
+                generalSlashPermissions.add(slashPermission);
+            }
+        }
+
+        if (!commandSlashPermissions.isEmpty()) {
+            return checkCommandAccess(commandSlashPermissions, member, channel);
+        } else if (!generalSlashPermissions.isEmpty()) {
+            return checkCommandAccess(generalSlashPermissions, member, channel);
         } else {
             return true;
         }
     }
 
-    private static boolean checkCommandAccess(List<SlashPermissionsSlot> commandPermissions, Member member, Channel channel) {
-        return checkPermissionsRolesAndUsers(commandPermissions, member) &&
-                (channel == null || checkPermissionsChannels(commandPermissions, channel));
+    private static boolean checkCommandAccess(List<SlashPermissionEntity> slashPermissions, Member member, GuildChannel channel) {
+        return checkPermissionsRolesAndUsers(slashPermissions, member) &&
+                (channel == null || checkPermissionsChannels(slashPermissions, channel));
     }
 
-    private static boolean checkPermissionsRolesAndUsers(List<SlashPermissionsSlot> commandPermissions, Member member) {
+    private static boolean checkPermissionsRolesAndUsers(List<SlashPermissionEntity> commandPermissions, Member member) {
         Boolean allowed = null;
-        for (SlashPermissionsSlot commandPermission : commandPermissions) {
-            if (commandPermission.getType() == SlashPermissionsSlot.Type.USER && commandPermission.getObjectId() == member.getIdLong()) {
-                return commandPermission.isAllowed();
+        for (SlashPermissionEntity commandPermission : commandPermissions) {
+            if (commandPermission.getType() == SlashPermissionEntity.Type.USER && commandPermission.getObjectId() == member.getIdLong()) {
+                return commandPermission.getEnabled();
             }
-            if (commandPermission.getType() == SlashPermissionsSlot.Type.ROLE) {
-                if (commandPermission.isDefaultObject()) {
-                    if (allowed == null && !commandPermission.isAllowed()) {
+            if (commandPermission.getType() == SlashPermissionEntity.Type.ROLE) {
+                if (commandPermission.isDefaultObject(member.getGuild().getIdLong())) {
+                    if (allowed == null && !commandPermission.getEnabled()) {
                         allowed = false;
                     }
-                } else if (member.getRoles().stream().anyMatch(r -> r.getIdLong() == commandPermission.getRoleId())) {
-                    if (commandPermission.isAllowed()) {
+                } else if (member.getRoles().stream().anyMatch(r -> r.getIdLong() == commandPermission.getObjectId())) {
+                    if (commandPermission.getEnabled()) {
                         allowed = true;
                     } else if (allowed == null) {
                         allowed = false;
@@ -104,15 +111,15 @@ public class CommandPermissions {
         return Objects.requireNonNullElse(allowed, true);
     }
 
-    private static boolean checkPermissionsChannels(List<SlashPermissionsSlot> commandPermissions, Channel channel) {
+    private static boolean checkPermissionsChannels(List<SlashPermissionEntity> commandPermissions, GuildChannel channel) {
         boolean allowed = true;
-        for (SlashPermissionsSlot commandPermission : commandPermissions) {
-            if (commandPermission.getType() == SlashPermissionsSlot.Type.CHANNEL) {
-                if (commandPermission.isDefaultObject()) {
-                    allowed = commandPermission.isAllowed();
+        for (SlashPermissionEntity commandPermission : commandPermissions) {
+            if (commandPermission.getType() == SlashPermissionEntity.Type.CHANNEL) {
+                if (commandPermission.isDefaultObject(channel.getGuild().getIdLong())) {
+                    allowed = commandPermission.getEnabled();
                 } else {
-                    if (JDAUtil.channelOrParentEqualsId(channel, commandPermission.getGuildChannelId())) {
-                        return commandPermission.isAllowed();
+                    if (JDAUtil.channelOrParentEqualsId(channel, commandPermission.getObjectId())) {
+                        return commandPermission.getEnabled();
                     }
                 }
             }
@@ -120,12 +127,12 @@ public class CommandPermissions {
         return allowed;
     }
 
-    private static SlashPermissionsSlot.Type mapPermissionType(IntegrationPrivilege.Type type) {
+    private static SlashPermissionEntity.Type mapPermissionType(IntegrationPrivilege.Type type) {
         return switch (type) {
-            case ROLE -> SlashPermissionsSlot.Type.ROLE;
-            case USER -> SlashPermissionsSlot.Type.USER;
-            case CHANNEL -> SlashPermissionsSlot.Type.CHANNEL;
-            default -> null;
+            case ROLE -> SlashPermissionEntity.Type.ROLE;
+            case USER -> SlashPermissionEntity.Type.USER;
+            case CHANNEL -> SlashPermissionEntity.Type.CHANNEL;
+            default -> SlashPermissionEntity.Type.UNKNOWN;
         };
     }
 

@@ -252,7 +252,7 @@ public class CommandManager {
     }
 
     private static boolean checkCommandPermissions(CommandEvent event, GuildEntity guildEntity, Command command) {
-        if (CommandPermissions.hasAccess(command.getClass(), event.getMember(), event.getMessageChannel(), false)) {
+        if (CommandPermissions.hasAccess(guildEntity, command.getClass(), event.getMember(), event.getMessageChannel(), false)) {
             return true;
         }
 
@@ -488,34 +488,34 @@ public class CommandManager {
     }
 
     public static boolean commandIsEnabledIgnoreAdmin(GuildEntity guildEntity, Command command, Member member, GuildMessageChannel channel) {
-        return CommandPermissions.hasAccess(command.getClass(), member, channel, true) &&
+        return CommandPermissions.hasAccess(guildEntity, command.getClass(), member, channel, true) &&
                 DisabledCommands.commandIsEnabled(guildEntity, command);
     }
 
     public static boolean commandIsEnabledEffectively(GuildEntity guildEntity, Command command, Member member, GuildMessageChannel channel) {
-        return CommandPermissions.hasAccess(command.getClass(), member, channel, false) &&
+        return CommandPermissions.hasAccess(guildEntity, command.getClass(), member, channel, false) &&
                 DisabledCommands.commandIsEnabledEffectively(guildEntity, command, member);
     }
 
     public static boolean commandIsEnabledIgnoreAdmin(GuildEntity guildEntity, Class<? extends Command> clazz, Member member, GuildMessageChannel channel) {
-        return CommandPermissions.hasAccess(clazz, member, channel, true) &&
+        return CommandPermissions.hasAccess(guildEntity, clazz, member, channel, true) &&
                 DisabledCommands.elementIsEnabled(guildEntity, Command.getCommandProperties(clazz).trigger()) &&
                 DisabledCommands.elementIsEnabled(guildEntity, Command.getCategory(clazz).getId());
     }
 
     public static boolean commandIsEnabledEffectively(GuildEntity guildEntity, Class<? extends Command> clazz, Member member, GuildMessageChannel channel) {
-        return CommandPermissions.hasAccess(clazz, member, channel, false) &&
+        return CommandPermissions.hasAccess(guildEntity, clazz, member, channel, false) &&
                 DisabledCommands.elementIsEnabledEffectively(guildEntity, Command.getCommandProperties(clazz).trigger(), member) &&
                 DisabledCommands.elementIsEnabledEffectively(guildEntity, Command.getCategory(clazz).getId(), member);
     }
 
     public static boolean commandCategoryIsEnabledIgnoreAdmin(GuildEntity guildEntity, Category category, Member member, GuildMessageChannel channel) {
-        return CommandPermissions.hasAccess(category, member, channel, true) &&
+        return CommandPermissions.hasAccess(guildEntity, category, member, channel, true) &&
                 DisabledCommands.commandCategoryIsEnabled(guildEntity, category);
     }
 
     public static boolean commandCategoryIsEnabledEffectively(GuildEntity guildEntity, Category category, Member member, GuildMessageChannel channel) {
-        return CommandPermissions.hasAccess(category, member, channel, false) &&
+        return CommandPermissions.hasAccess(guildEntity, category, member, channel, false) &&
                 DisabledCommands.commandCategoryIsEnabledEffectively(guildEntity, category, member);
     }
 

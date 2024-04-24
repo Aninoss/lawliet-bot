@@ -67,14 +67,16 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
 
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_PERMISSIONS_TRANSFER, atomicMember)
-            entityManager.transaction.commit()
 
             val actionResult = ActionResult()
-            if (CommandPermissions.transferCommandPermissions(guild)) {
+            if (CommandPermissions.transferCommandPermissions(guild, guildEntity)) {
                 actionResult.withSuccessMessage(getString(Category.CONFIGURATION, "cperms_success"))
             } else {
                 actionResult.withErrorMessage(getString(Category.CONFIGURATION, "cperms_failed"))
             }
+
+            entityManager.transaction.commit()
+            return@DashboardButton actionResult
         }
         button.style = DashboardButton.Style.PRIMARY
         val buttonField = HorizontalContainer()

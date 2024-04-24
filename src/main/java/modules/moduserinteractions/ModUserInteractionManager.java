@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -48,7 +47,7 @@ public class ModUserInteractionManager {
     public static EmbedBuilder checkAccess(GuildEntity guildEntity, Member member, GuildChannel channel, WarnCommand modCommand, long targetUserId) throws Throwable {
         EmbedBuilder errorEmbed;
         if ((errorEmbed = checkCommandTurnedOn(guildEntity, member, modCommand)) != null ||
-                (errorEmbed = checkCommandPermissions(member, channel, modCommand)) != null ||
+                (errorEmbed = checkCommandPermissions(guildEntity, member, channel, modCommand)) != null ||
                 (errorEmbed = checkPermissions(member, modCommand)) != null
         ) {
             return errorEmbed;
@@ -75,8 +74,8 @@ public class ModUserInteractionManager {
                 .setDescription(desc);
     }
 
-    private static EmbedBuilder checkCommandPermissions(Member member, Channel channel, Command command) {
-        if (CommandPermissions.hasAccess(command.getClass(), member, channel, false)) {
+    private static EmbedBuilder checkCommandPermissions(GuildEntity guildEntity, Member member, GuildChannel channel, Command command) {
+        if (CommandPermissions.hasAccess(guildEntity, command.getClass(), member, channel, false)) {
             return null;
         }
 
