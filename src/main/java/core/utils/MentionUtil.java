@@ -390,9 +390,12 @@ public class MentionUtil {
     }
 
     private static Mention getMentionStringOfMentions(ArrayList<String> mentions, Locale locale, String filteredOriginalText,
-                                                      boolean multi, boolean containedBlockedUser, List<ISnowflake> elementList
+                                                      boolean multi, boolean containedBlockedUser, boolean markdown,
+                                                      List<ISnowflake> elementList
     ) {
-        if (mentions.size() > 1 && !multi) multi = true;
+        if (mentions.size() > 1 && !multi) {
+            multi = true;
+        }
 
         int size = Math.min(5, mentions.size());
         StringBuilder sb = new StringBuilder();
@@ -403,13 +406,17 @@ public class MentionUtil {
                         : " " + TextManager.getString(locale, TextManager.GENERAL, "and") + " "
                 );
             }
-            sb.append("**");
+            if (markdown) {
+                sb.append("**");
+            }
             if (i < 4 || mentions.size() <= 5) {
                 sb.append(mentions.get(i));
             } else {
                 sb.append(TextManager.getString(locale, TextManager.GENERAL, "and_more", StringUtil.numToString(mentions.size() - 4)));
             }
-            sb.append("**");
+            if (markdown) {
+                sb.append("**");
+            }
         }
 
         return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser, elementList);
@@ -454,7 +461,7 @@ public class MentionUtil {
                     .replace("@here", "");
         }
 
-        return getMentionStringOfMentions(mentions, locale, args, multi, containedBlockedUser.get(), elementList);
+        return getMentionStringOfMentions(mentions, locale, args, multi, containedBlockedUser.get(), true, elementList);
     }
 
     public static Mention getMentionedStringOfGuilds(Locale locale, Collection<Guild> guildList) {
@@ -464,7 +471,7 @@ public class MentionUtil {
             mentions.add(StringUtil.escapeMarkdown(guild.getName()));
             elementList.add(guild);
         });
-        return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
+        return getMentionStringOfMentions(mentions, locale, null, false, false, true, elementList);
     }
 
     public static Mention getMentionedStringOfMembers(Locale locale, Collection<Member> memberList) {
@@ -474,17 +481,21 @@ public class MentionUtil {
             mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName()));
             elementList.add(member);
         });
-        return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
+        return getMentionStringOfMentions(mentions, locale, null, false, false, true, elementList);
     }
 
     public static Mention getMentionedStringOfUsernames(Locale locale, Collection<User> userList) {
+        return getMentionedStringOfUsernames(locale, userList, true);
+    }
+
+    public static Mention getMentionedStringOfUsernames(Locale locale, Collection<User> userList, boolean markdown) {
         ArrayList<String> mentions = new ArrayList<>();
         ArrayList<ISnowflake> elementList = new ArrayList<>();
         userList.forEach(user -> {
-            mentions.add(StringUtil.escapeMarkdown(user.getName()));
+            mentions.add(markdown ? StringUtil.escapeMarkdown(user.getName()) : user.getName());
             elementList.add(user);
         });
-        return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
+        return getMentionStringOfMentions(mentions, locale, null, false, false, markdown, elementList);
     }
 
     public static Mention getMentionedStringOfRoles(Locale locale, Collection<Role> roleList) {
@@ -494,7 +505,7 @@ public class MentionUtil {
             mentions.add(StringUtil.escapeMarkdown(role.getName()));
             elementList.add(role);
         });
-        return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
+        return getMentionStringOfMentions(mentions, locale, null, false, false, true, elementList);
     }
 
     public static long getAmountExt(String str) {
