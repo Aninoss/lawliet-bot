@@ -18,6 +18,7 @@ import core.cache.ServerPatreonBoostCache;
 import core.collectionadapters.ListAdapter;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
+import core.modals.IntModalBuilder;
 import core.modals.StringModalBuilder;
 import core.utils.*;
 import modules.ReactionRoles;
@@ -83,10 +84,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             STATE_CONFIG = 3,
             STATE_SET_DESC = 4,
             STATE_SET_IMAGE = 5,
-            STATE_ADD_SLOT = 6,
+            STATE_CONFIG_SLOT = 6,
             STATE_ADD_SLOT_SET_EMOJI = 7,
             STATE_ADD_SLOT_SET_ROLES = 8,
-            STATE_REMOVE_SLOTS = 9,
+            STATE_EDIT_SLOT = 9,
             STATE_SET_ROLE_REQUIREMENTS = 10,
             STATE_UPDATE_COMPONENT_TYPE = 11,
             STATE_EXAMPLE = 12;
@@ -95,7 +96,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private ReactionRoleEntity configuration;
     private String previousTitle;
     private ReactionRoleSlotEntity slotConfiguration;
+    private int slotPosition;
+    private int previousSlotPosition;
     private boolean editMode = false;
+    private boolean slotEditMode = false;
     private File imageCdn = null;
 
     private static final Cache<Long, Boolean> BLOCK_CACHE = CacheBuilder.newBuilder()
@@ -113,8 +117,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         resetRoleMessage(event.getGuild().getIdLong());
 
-        emojiStateProcessor = new EmojiStateProcessor(this, STATE_ADD_SLOT_SET_EMOJI, STATE_ADD_SLOT, getString("addslot_emoji"))
+        emojiStateProcessor = new EmojiStateProcessor(this, STATE_ADD_SLOT_SET_EMOJI, STATE_CONFIG_SLOT, getString("addslot_emoji"))
                 .setClearButton(true)
+                .setGetter(() -> slotConfiguration.getEmoji())
                 .setSetter(emoji -> {
                     if (emoji != null) {
                         slotConfiguration.setEmojiFormatted(emoji.getFormatted());
@@ -131,6 +136,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"))
                         .setClearButton(true)
                         .setAllowGifs(true)
+                        .setGetter(() -> configuration.getImageFilename())
                         .setSetter(attachment -> {
                             if (attachment != null) {
                                 LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
@@ -147,7 +153,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                         .setGetter(() -> configuration.getRoleRequirementIds())
                         .setSetter(roleIds -> configuration.setRoleRequirementIds(roleIds)),
                 emojiStateProcessor,
-                new RolesStateProcessor(this, STATE_ADD_SLOT_SET_ROLES, STATE_ADD_SLOT, getString("addslot_roles"))
+                new RolesStateProcessor(this, STATE_ADD_SLOT_SET_ROLES, STATE_CONFIG_SLOT, getString("addslot_roles"))
                         .setMinMax(1, MAX_ROLES)
                         .setCheckAccess(true)
                         .setGetter(() -> slotConfiguration.getRoleIds())
@@ -276,7 +282,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             case 3:
                 if (configuration.getSlots().size() < MAX_SLOTS_TOTAL) {
                     slotConfiguration = new ReactionRoleSlotEntity();
-                    setState(STATE_ADD_SLOT);
+                    slotPosition = configuration.getSlots().size();
+                    previousSlotPosition = slotPosition;
+                    slotEditMode = false;
+                    setState(STATE_CONFIG_SLOT);
                 } else {
                     setLog(LogStatus.FAILURE, getString("toomanyshortcuts", StringUtil.numToString(MAX_SLOTS_TOTAL)));
                 }
@@ -284,7 +293,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
             case 4:
                 if (!configuration.getSlots().isEmpty()) {
-                    setState(STATE_REMOVE_SLOTS);
+                    setState(STATE_EDIT_SLOT);
                 } else {
                     setLog(LogStatus.FAILURE, getString("noshortcuts"));
                 }
@@ -355,11 +364,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         }
     }
 
-    @ControllerButton(state = STATE_ADD_SLOT)
+    @ControllerButton(state = STATE_CONFIG_SLOT)
     public boolean onButtonAddSlot(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1 -> {
-                setState(STATE_CONFIG);
+                setState(slotEditMode ? STATE_EDIT_SLOT : STATE_CONFIG);
                 return true;
             }
             case 0 -> {
@@ -380,6 +389,15 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return false;
             }
             case 3 -> {
+                Modal modal = new IntModalBuilder(this, getString("addslot_position"))
+                        .setMinMax(1, configuration.getSlots().size() + (slotEditMode ? 0 : 1))
+                        .setGetter(() -> slotPosition + 1)
+                        .setSetter(position -> slotPosition = position - 1)
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+            }
+            case 4 -> {
                 if (slotConfiguration.getRoleIds().isEmpty()) {
                     setLog(LogStatus.FAILURE, getString("addslot_noroles"));
                     return true;
@@ -389,9 +407,18 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                     return true;
                 }
 
-                configuration.getSlots().add(slotConfiguration);
-                setState(STATE_CONFIG);
-                setLog(LogStatus.SUCCESS, getString("linkadded"));
+                if (slotEditMode) {
+                    configuration.getSlots().remove(previousSlotPosition);
+                }
+                configuration.getSlots().add(slotPosition, slotConfiguration);
+                setState(slotEditMode ? STATE_EDIT_SLOT : STATE_CONFIG);
+                setLog(LogStatus.SUCCESS, getString(slotEditMode ? "linkedited" : "linkadded"));
+                return true;
+            }
+            case 5 -> {
+                configuration.getSlots().remove(previousSlotPosition);
+                setLog(LogStatus.SUCCESS, getString("linkremoved"));
+                setState(configuration.getSlots().isEmpty() ? STATE_CONFIG : STATE_EDIT_SLOT);
                 return true;
             }
         }
@@ -426,18 +453,18 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return emojiStateProcessor.handleReactionEvent(event);
     }
 
-    @ControllerButton(state = STATE_REMOVE_SLOTS)
+    @ControllerButton(state = STATE_EDIT_SLOT)
     public boolean onButtonRemoveSlot(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(STATE_CONFIG);
             return true;
         }
         if (i < configuration.getSlots().size() && i != -2) {
-            configuration.getSlots().remove(i);
-            setLog(LogStatus.SUCCESS, getString("linkremoved"));
-            if (configuration.getSlots().isEmpty()) {
-                setState(STATE_CONFIG);
-            }
+            slotConfiguration = configuration.getSlots().get(i).copy();
+            slotPosition = i;
+            previousSlotPosition = slotPosition;
+            slotEditMode = true;
+            setState(STATE_CONFIG_SLOT);
             return true;
         }
         return false;
@@ -519,21 +546,25 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 );
     }
 
-    @Draw(state = STATE_ADD_SLOT)
+    @Draw(state = STATE_CONFIG_SLOT)
     public EmbedBuilder onDrawAddSlot(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         String[] options = getString("addslot_options").split("\n");
-        setComponents(options, Set.of(3));
+        if (!slotEditMode) {
+            options[5] = "";
+        }
+        setComponents(options, Set.of(4), Set.of(5));
 
         List<AtomicRole> atomicRoles = new ListAdapter<>(slotConfiguration.getRoleIds(), roleId -> new AtomicRole(member.getGuild().getIdLong(), roleId), AtomicRole::getIdLong);
         return EmbedFactory.getEmbedDefault(this)
                 .setTitle(getString("addslot_title"))
                 .addField(getString("addslot_emoji"), Objects.requireNonNullElse(slotConfiguration.getEmojiFormatted(), notSet), true)
                 .addField(getString("addslot_roles"), new ListGen<AtomicRole>().getList(atomicRoles, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
-                .addField(getString("addslot_customlabel"), Objects.requireNonNullElse(slotConfiguration.getCustomLabel(), notSet), true);
+                .addField(getString("addslot_customlabel"), Objects.requireNonNullElse(slotConfiguration.getCustomLabel(), notSet), true)
+                .addField(getString("addslot_position"), StringUtil.numToString(slotPosition + 1) + "/" + StringUtil.numToString(configuration.getSlots().size() + (slotEditMode ? 0 : 1)), true);
     }
 
-    @Draw(state = STATE_REMOVE_SLOTS)
+    @Draw(state = STATE_EDIT_SLOT)
     public EmbedBuilder onDrawRemoveSlot(Member member) {
         ArrayList<Button> buttons = new ArrayList<>();
         for (int i = 0; i < configuration.getSlots().size(); i++) {
