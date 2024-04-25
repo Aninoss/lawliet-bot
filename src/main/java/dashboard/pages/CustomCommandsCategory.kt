@@ -2,7 +2,10 @@ package dashboard.pages
 
 import commands.Category
 import commands.runnables.configurationcategory.CustomConfigCommand
+import core.ShardManager
+import core.TextManager
 import core.cache.ServerPatreonBoostCache
+import core.utils.MentionUtil
 import core.utils.StringUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
@@ -18,6 +21,7 @@ import mysql.hibernate.entity.guild.CustomCommandEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import java.util.*
 
 @DashboardProperties(
@@ -29,7 +33,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
     var trigger: String? = null
     var oldTrigger: String? = null
-    var textResponse: String? = null
+    var config: CustomCommandEntity = CustomCommandEntity()
     var updateMode = false
 
     val customCommands: MutableMap<String, CustomCommandEntity>
@@ -67,7 +71,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
             updateMode = true
             trigger = it.data
             oldTrigger = trigger
-            textResponse = entity.textResponse
+            config = entity.copy()
 
             ActionResult()
                     .withRedraw()
@@ -105,14 +109,62 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         triggerTextField.editButton = false
         textFieldsContainer.add(triggerTextField)
 
+        val titleTextField = DashboardTextField(getString(Category.CONFIGURATION, "customconfig_add_header_title"), 0, CustomConfigCommand.MAX_COMMAND_TITLE_LENGTH) {
+            config.title = it.data
+            return@DashboardTextField ActionResult()
+        }
+        titleTextField.value = config.title ?: ""
+        titleTextField.editButton = false
+        textFieldsContainer.add(titleTextField)
+
+        val emojiField = DashboardTextField(getString(Category.CONFIGURATION, "customconfig_add_emoji"), 0, 100) {
+            if (it.data.isEmpty()) {
+                config.emojiFormatted = null
+                return@DashboardTextField ActionResult()
+            }
+
+            val emojis = MentionUtil.getEmojis(atomicGuild.get().get(), it.data).list
+            if (emojis.isEmpty()) {
+                return@DashboardTextField ActionResult()
+                        .withRedraw()
+                        .withErrorMessage(getString(Category.CONFIGURATION, "customconfig_error_noemoji"))
+            } else {
+                val emoji = emojis[0]
+                if (emoji is CustomEmoji && !ShardManager.customEmojiIsKnown(emoji)) {
+                    return@DashboardTextField ActionResult()
+                            .withRedraw()
+                            .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
+                }
+
+                config.emojiFormatted = emoji.formatted
+                return@DashboardTextField ActionResult()
+                        .withRedraw()
+            }
+        }
+        emojiField.editButton = false
+        emojiField.value = config.emojiFormatted ?: ""
+        textFieldsContainer.add(emojiField)
+        container.add(textFieldsContainer, DashboardSeparator())
+
         val textResponseTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customconfig_add_textresponse"), 1, CustomConfigCommand.MAX_TEXT_RESPONSE_LENGTH) {
-            this.textResponse = it.data
+            config.textResponse = it.data
             return@DashboardMultiLineTextField ActionResult()
         }
-        textResponseTextField.value = textResponse ?: ""
+        textResponseTextField.value = config.textResponse
         textResponseTextField.editButton = false
-        textFieldsContainer.add(textResponseTextField)
-        container.add(textFieldsContainer)
+        container.add(textResponseTextField, DashboardSeparator())
+
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "customconfig_add_image"), "custom", 1) { e ->
+            if (e.type == "add") {
+                config.imageFilename = e.data.split("/")[5]
+            } else if (e.type == "remove") {
+                config.imageFilename = null
+            }
+            return@DashboardImageUpload ActionResult()
+                    .withRedraw()
+        }
+        imageUpload.values = if (config.imageUrl != null) listOf(config.imageUrl) else emptyList()
+        container.add(imageUpload, DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
         val button = DashboardButton(getString(Category.CONFIGURATION, if (updateMode) "customconfig_dashboard_button_update" else "customconfig_dashboard_button_add")) {
@@ -120,7 +172,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.CONFIGURATION, "customconfig_dashboard_error_notrigger"))
             }
-            if (textResponse == null) {
+            if (config.textResponse.isEmpty()) {
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.CONFIGURATION, "customconfig_dashboard_error_noresponse"))
             }
@@ -134,7 +186,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
             }
 
             guildEntity.beginTransaction()
-            customCommands[trigger!!] = CustomCommandEntity(textResponse!!)
+            customCommands[trigger!!] = config.copy()
             if (oldTrigger != null && trigger != oldTrigger) {
                 customCommands.remove(oldTrigger)
             }
@@ -170,6 +222,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
                         .withSuccessMessage(successMessage)
             }
             deleteButton.style = DashboardButton.Style.DANGER
+            deleteButton.enableConfirmationMessage(getString(Category.CONFIGURATION, "customconfig_dashboard_delete_areyousure"))
             buttonContainer.add(deleteButton)
 
             val cancelButton = DashboardButton(getString(Category.CONFIGURATION, "customconfig_dashboard_button_cancel")) {
@@ -181,7 +234,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
 
         buttonContainer.add(HorizontalPusher())
-        container.add(DashboardSeparator(), buttonContainer)
+        container.add(buttonContainer)
 
         return container
     }
@@ -189,7 +242,8 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
     private fun resetValues() {
         updateMode = false
         trigger = null
-        textResponse = null
+        oldTrigger = null
+        config = CustomCommandEntity()
     }
 
 }

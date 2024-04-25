@@ -270,6 +270,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
     private fun resetValues() {
         updateMode = false
         trigger = null
+        oldTrigger = null
         config = CustomRolePlayEntity()
         config.title = TextManager.getString(guildEntity.locale, Category.CONFIGURATION, "customrp_title")
         config.emojiFormatted = Command.getCommandProperties(CustomRolePlayCommand::class.java).emoji

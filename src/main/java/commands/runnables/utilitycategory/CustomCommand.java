@@ -52,10 +52,23 @@ public class CustomCommand extends Command {
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, StringUtil.shortenString(customCommand.getTextResponse(), MessageEmbed.VALUE_MAX_LENGTH))
-                .setTitle(null);
+                .setTitle(getTitle(customCommand))
+                .setImage(customCommand.getImageFilename() != null ? customCommand.getImageUrl() : null);
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "serverstaff_text"));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
+    }
+
+    private String getTitle(CustomCommandEntity customCommand) {
+        StringBuilder sb = new StringBuilder();
+        if (customCommand.getEmojiFormatted() != null) {
+            sb.append(customCommand.getEmojiFormatted())
+                    .append(" ");
+        }
+        if (customCommand.getTitle() != null) {
+            sb.append(customCommand.getTitle());
+        }
+        return sb.isEmpty() ? null : sb.toString().trim();
     }
 
 }
