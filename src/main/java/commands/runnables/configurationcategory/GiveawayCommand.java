@@ -101,16 +101,19 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         giveawayMap = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         emojiStateProcessor = new EmojiStateProcessor(this, STATE_SET_EMOJI, STATE_CONFIG, getString("state3_memoji"))
                 .setClearButton(false)
+                .setGetter(() -> this.emoji)
                 .setSetter(emoji -> this.emoji = emoji);
 
         registerNavigationListener(event.getMember(), List.of(
                 new StringStateProcessor(this, STATE_SET_DESC, STATE_CONFIG, getString("state3_mdescription"))
                         .setClearButton(true)
                         .setMax(DESC_LENGTH_MAX)
+                        .setGetter(() -> description)
                         .setSetter(value -> description = value != null ? value : ""),
                 new FileStateProcessor(this, STATE_SET_IMAGE, STATE_CONFIG, getString("dashboard_includedimage"))
                         .setClearButton(true)
                         .setAllowGifs(true)
+                        .setGetter(() -> imageUrl)
                         .setSetter(attachment -> {
                             if (attachment != null) {
                                 LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));

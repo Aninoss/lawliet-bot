@@ -59,6 +59,7 @@ public class CustomConfigCommand extends NavigationAbstract {
                 new StringStateProcessor(this, STATE_SET_TEXT_RESPONSE, STATE_ADD_AND_UPDATE, getString("add_textresponse"))
                         .setMax(MAX_TEXT_RESPONSE_LENGTH)
                         .setClearButton(false)
+                        .setGetter(() -> textResponse)
                         .setSetter(input -> textResponse = input)
         ));
         return true;

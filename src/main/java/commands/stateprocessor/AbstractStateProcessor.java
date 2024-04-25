@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor<T, U>> {
+public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProcessor<T, U, V>> {
 
     public static final String BUTTON_ID_CLEAR = "clear";
 
@@ -35,8 +35,8 @@ public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor
     private boolean clearButton = false;
     private BotLogEntity.Event logEvent = null;
     private boolean hibernateTransaction = false;
-    private Producer<T> getter = () -> null;
-    private Consumer<T> setter = newValue -> {
+    private Producer<T> getter = null;
+    private Consumer<U> setter = newValue -> {
     };
 
     public AbstractStateProcessor(NavigationAbstract command, int state, int stateBack, String propertyName, String description) {
@@ -55,37 +55,37 @@ public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor
         return command;
     }
 
-    public U setDescription(String description) {
+    public V setDescription(String description) {
         this.description = description;
-        return (U) this;
+        return (V) this;
     }
 
-    public U setClearButton(boolean clearButton) {
+    public V setClearButton(boolean clearButton) {
         this.clearButton = clearButton;
-        return (U) this;
+        return (V) this;
     }
 
-    public U setLogEvent(BotLogEntity.Event logEvent) {
+    public V setLogEvent(BotLogEntity.Event logEvent) {
         this.logEvent = logEvent;
         if (logEvent != null) {
             enableHibernateTransaction();
         }
-        return (U) this;
+        return (V) this;
     }
 
-    public U enableHibernateTransaction() {
+    public V enableHibernateTransaction() {
         this.hibernateTransaction = true;
-        return (U) this;
+        return (V) this;
     }
 
-    public U setGetter(Producer<T> getter) {
+    public V setGetter(Producer<T> getter) {
         this.getter = getter;
-        return (U) this;
+        return (V) this;
     }
 
-    public U setSetter(Consumer<T> setter) {
+    public V setSetter(Consumer<U> setter) {
         this.setter = setter;
-        return (U) this;
+        return (V) this;
     }
 
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input) throws Throwable {
@@ -127,35 +127,35 @@ public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor
     }
 
     protected T get() {
-        return getter.call();
+        return getter != null ? getter.call() : null;
     }
 
-    protected void set(T t) {
+    protected void set(U u) {
         EntityManagerWrapper entityManager = command.getEntityManager();
         if (hibernateTransaction) {
             entityManager.getTransaction().begin();
         }
 
-        T old = getter.call();
+        T old = get();
         if (old instanceof List<?>) {
             //noinspection unchecked
             old = (T) List.copyOf((List<?>) old);
         }
 
         if (logEvent != null) {
-            if (t instanceof List<?> && old instanceof List<?>) {
-                addBotLogEntryForList(entityManager, command.getGuildId().get(), command.getMemberId().get(), (List<?>) old, (List<?>) t);
+            if (old instanceof List<?> && u instanceof List<?>) {
+                addBotLogEntryForList(entityManager, command.getGuildId().get(), command.getMemberId().get(), (List<?>) old, (List<?>) u);
             } else {
-                addBotLogEntry(entityManager, command.getGuildId().get(), command.getMemberId().get(), old, t);
+                addBotLogEntry(entityManager, command.getGuildId().get(), command.getMemberId().get(), old, u);
             }
         }
 
-        setter.accept(t);
+        setter.accept(u);
         if (hibernateTransaction) {
             entityManager.getTransaction().commit();
         }
 
-        if (!Objects.equals(getter.call(), old)) {
+        if (getter == null || !Objects.equals(getter.call(), old)) {
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_success", propertyName));
         } else {
             command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_notchanged", propertyName));
@@ -163,7 +163,7 @@ public abstract class AbstractStateProcessor<T, U extends AbstractStateProcessor
         command.setState(stateBack);
     }
 
-    private void addBotLogEntry(EntityManagerWrapper entityManager, long guildId, long memberId, T oldValue, T newValue) {
+    private void addBotLogEntry(EntityManagerWrapper entityManager, long guildId, long memberId, T oldValue, U newValue) {
         BotLogEntity.log(entityManager, logEvent, guildId, memberId, oldValue, newValue);
     }
 

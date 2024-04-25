@@ -71,6 +71,7 @@ public class ReminderManageCommand extends NavigationAbstract {
                 new StringStateProcessor(this, STATE_SET_MESSAGE, STATE_MANAGE, getString("manage_message"))
                         .setClearButton(false)
                         .setMax(ReminderCommand.MESSAGE_CONTENT_MAX_LENGTH)
+                        .setGetter(() -> this.message)
                         .setSetter(input -> this.message = input),
                 new GuildChannelsStateProcessor(this, STATE_SET_CHANNEL, STATE_MANAGE, getString("manage_channel"))
                         .setMinMax(1, 1)

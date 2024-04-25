@@ -82,6 +82,22 @@ public class WelcomeCommand extends NavigationAbstract {
                         .setClearButton(false)
                         .setMax(MAX_TEXT_LENGTH)
                         .enableHibernateTransaction()
+                        .setGetter(() -> {
+                            switch (category) {
+                                case 0 -> {
+                                    return welcomeMessageData.getWelcomeText();
+                                }
+                                case 1 -> {
+                                    return welcomeMessageData.getDmText();
+                                }
+                                case 2 -> {
+                                    return welcomeMessageData.getGoodbyeText();
+                                }
+                                default -> {
+                                    return null;
+                                }
+                            }
+                        })
                         .setSetter(input -> {
                             switch (category) {
                                 case 0 -> {

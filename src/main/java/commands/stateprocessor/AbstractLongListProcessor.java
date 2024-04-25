@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class AbstractLongListProcessor<T extends AbstractStateProcessor<List<Long>, T>> extends AbstractStateProcessor<List<Long>, T> {
+public class AbstractLongListProcessor<T extends AbstractStateProcessor<List<Long>, List<Long>, T>> extends AbstractStateProcessor<List<Long>, List<Long>, T> {
 
     public static final String SELECT_MENU_ID = "entities";
 

@@ -8,7 +8,7 @@ import core.utils.InternetUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class FileStateProcessor extends AbstractStateProcessor<Message.Attachment, FileStateProcessor> {
+public class FileStateProcessor extends AbstractStateProcessor<String, Message.Attachment, FileStateProcessor> {
 
     private boolean allowGifs = true;
 
