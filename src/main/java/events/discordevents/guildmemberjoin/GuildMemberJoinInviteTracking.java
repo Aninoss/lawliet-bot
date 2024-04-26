@@ -75,7 +75,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                 }
 
                 String created = TimeFormat.RELATIVE.atInstant(member.getTimeCreated().toInstant()).toString();
-                String text = TextManager.getString(locale, Category.INVITE_TRACKING, "invitetracking_log", n, invitedName, created, invitedName, code, uses);
+                String text = TextManager.getString(locale, Category.INVITE_TRACKING, "invitetracking_log", n, invitedName, created, inviterName, code, uses);
 
                 MessageCreateAction messageAction;
                 if (inviteTrackingData.isAdvanced()) {
