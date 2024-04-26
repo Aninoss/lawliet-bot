@@ -1,11 +1,12 @@
 package mysql.hibernate.entity.guild
 
 import mysql.hibernate.entity.CustomRolePlayEntity
+import mysql.hibernate.entity.assets.CdnImageAsset
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import javax.persistence.Embeddable
 
 @Embeddable
-class CustomCommandEntity {
+class CustomCommandEntity: CdnImageAsset {
 
     var title: String? = null
 
@@ -15,16 +16,7 @@ class CustomCommandEntity {
 
     var textResponse: String = ""
 
-    var imageFilename: String? = null
-    var imageUrl: String?
-        get() = if (imageFilename != null) "https://lawlietbot.xyz/cdn/custom/$imageFilename" else null
-        set(value) {
-            if (value == null || value.isEmpty()) {
-                imageFilename = null
-            } else {
-                imageFilename = value.split("/")[5]
-            }
-        }
+    override var imageFilename: String? = null
 
 
     fun copy(): CustomCommandEntity {
@@ -34,6 +26,10 @@ class CustomCommandEntity {
         copy.textResponse = textResponse
         copy.imageFilename = imageFilename
         return copy
+    }
+
+    override fun getFileDir(): String {
+        return "custom"
     }
 
 }

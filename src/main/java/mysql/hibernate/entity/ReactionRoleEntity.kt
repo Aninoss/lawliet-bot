@@ -2,6 +2,7 @@ package mysql.hibernate.entity
 
 import core.atomicassets.AtomicGuildMessageChannel
 import core.atomicassets.AtomicRole
+import mysql.hibernate.entity.assets.CdnImageAsset
 import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEntity
 import org.hibernate.annotations.GenericGenerator
@@ -11,7 +12,7 @@ import javax.persistence.*
 
 
 @Entity(name = "ReactionRole")
-class ReactionRoleEntity : HibernateEntity(), HibernateDiscordInterface {
+class ReactionRoleEntity : HibernateEntity(), HibernateDiscordInterface, CdnImageAsset {
 
     enum class ComponentType { REACTIONS, BUTTONS, SELECT_MENU }
 
@@ -32,16 +33,7 @@ class ReactionRoleEntity : HibernateEntity(), HibernateDiscordInterface {
 
     var description: String? = null
 
-    var imageFilename: String? = null
-    var imageUrl: String?
-        get() = if (imageFilename != null) "https://lawlietbot.xyz/cdn/reactionroles/$imageFilename" else null
-        set(value) {
-            if (value == null || value.isEmpty()) {
-                imageFilename = null
-            } else {
-                imageFilename = value.split("/")[5]
-            }
-        }
+    override var imageFilename: String? = null
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     @NotFound(action = NotFoundAction.IGNORE)
@@ -86,6 +78,10 @@ class ReactionRoleEntity : HibernateEntity(), HibernateDiscordInterface {
         copy.componentType = componentType
         copy.roleCounters = roleCounters
         return copy
+    }
+
+    override fun getFileDir(): String {
+        return "reactionroles"
     }
 
 }

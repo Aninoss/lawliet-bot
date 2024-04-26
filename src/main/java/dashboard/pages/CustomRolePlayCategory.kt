@@ -179,19 +179,16 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         nsfwSwitch.isChecked = config.nsfw
         container.add(nsfwSwitch, DashboardSeparator())
 
-        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "customrp_config_property_attachments"), "customrp", CustomRolePlayCommand.MAX_ATTACHMENTS - config.imageAttachments.size) { e ->
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "customrp_config_property_attachments"), "customrp", CustomRolePlayCommand.MAX_ATTACHMENTS - config.imageFilenames.size) { e ->
             if (e.type == "add") {
-                val newImages = e.data.split(",")
-                        .map { it.split("/")[5] }
-
-                config.imageAttachments += newImages
+                config.imageUrls += e.data.split(",")
             } else if (e.type == "remove") {
-                config.imageAttachments.removeIf { e.data.endsWith(it) }
+                config.imageUrls -= e.data
             }
             return@DashboardImageUpload ActionResult()
                     .withRedraw()
         }
-        imageUpload.values = config.imageAttachmentUrls
+        imageUpload.values = config.imageUrls
         container.add(imageUpload, DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
@@ -204,7 +201,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.CONFIGURATION, "customrp_error_notrigger"))
             }
-            if (config.imageAttachments.isEmpty()) {
+            if (config.imageFilenames.isEmpty()) {
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.CONFIGURATION, "customrp_error_noattachments"))
             }

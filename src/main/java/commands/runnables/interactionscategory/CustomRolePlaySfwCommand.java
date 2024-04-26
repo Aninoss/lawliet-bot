@@ -45,7 +45,7 @@ public class CustomRolePlaySfwCommand extends RolePlayAbstract {
     @Override
     protected EmbedBuilder generateEmbed(long guildId, boolean mentionPresent, Mention mention, String authorString, String quote) throws ExecutionException, InterruptedException {
         FeatureLogger.inc(PremiumFeature.CUSTOM_ROLE_PLAY, guildId);
-        String gifUrl = customRolePlayEntity.getImageAttachmentUrls().get(RandomPicker.pick(trigger, guildId, customRolePlayEntity.getImageAttachments().size()).get());
+        String gifUrl = customRolePlayEntity.getImageUrls().get(RandomPicker.pick(trigger, guildId, customRolePlayEntity.getImageFilenames().size()).get());
 
         String text;
         if (mentionPresent) {

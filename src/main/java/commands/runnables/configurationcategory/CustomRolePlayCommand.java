@@ -119,7 +119,7 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                     FileUtil.downloadImageAttachment(attachment, tempFile);
                     return tempFile;
                 })
-                .limit(MAX_ATTACHMENTS - config.getImageAttachments().size())
+                .limit(MAX_ATTACHMENTS - config.getImageFilenames().size())
                 .collect(Collectors.toList());
 
         if (attachments.isEmpty()) {
@@ -127,7 +127,7 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
             return MessageInputResponse.FAILED;
         }
 
-        config.getImageAttachments().addAll(attachments.stream().map(File::getName).collect(Collectors.toList()));
+        config.getImageFilenames().addAll(attachments.stream().map(File::getName).collect(Collectors.toList()));
         attachmentFiles.addAll(attachments);
         setLog(LogStatus.SUCCESS, getString("log_addattachment", attachments.size() != 1, StringUtil.numToString(attachments.size())));
         setState(STATE_CONFIG);
@@ -245,7 +245,7 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                 return true;
             }
             case 7 -> {
-                if (config.getImageAttachments().size() >= MAX_ATTACHMENTS) {
+                if (config.getImageFilenames().size() >= MAX_ATTACHMENTS) {
                     setLog(LogStatus.FAILURE, getString("error_attachmentlimitreached"));
                     return true;
                 }
@@ -305,7 +305,6 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CUSTOM_ROLE_PLAY_DELETE, event.getMember(), oldTrigger);
                 guildEntity.commitTransaction();
 
-                config.getImageAttachmentFiles().forEach(File::delete);
                 attachmentFiles.clear();
                 setLog(LogStatus.SUCCESS, getString("log_deleted", oldTrigger));
                 setState(customRolePlay.isEmpty() ? DEFAULT_STATE : STATE_EDIT_SELECT);
@@ -335,12 +334,12 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
             case 0 -> {
                 currentImage -= 1;
                 if (currentImage < 0) {
-                    currentImage = config.getImageAttachments().size() - 1;
+                    currentImage = config.getImageFilenames().size() - 1;
                 }
                 return true;
             }
             case 1 -> {
-                int attachmentsSize = config.getImageAttachments().size();
+                int attachmentsSize = config.getImageFilenames().size();
                 String textId = "page";
                 String textLabel = getString("goto_label", String.valueOf(attachmentsSize));
                 TextInput message = TextInput.create(textId, textLabel, TextInputStyle.SHORT)
@@ -364,15 +363,15 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
             }
             case 2 -> {
                 currentImage += 1;
-                if (currentImage >= config.getImageAttachments().size()) {
+                if (currentImage >= config.getImageFilenames().size()) {
                     currentImage = 0;
                 }
                 return true;
             }
             case 3 -> {
-                config.getImageAttachments().remove(currentImage);
-                currentImage = Math.min(currentImage, config.getImageAttachments().size() - 1);
-                if (config.getImageAttachments().isEmpty()) {
+                config.getImageFilenames().remove(currentImage);
+                currentImage = Math.min(currentImage, config.getImageFilenames().size() - 1);
+                if (config.getImageFilenames().isEmpty()) {
                     setState(STATE_CONFIG);
                 }
                 setLog(LogStatus.SUCCESS, getString("log_removeattachment"));
@@ -402,7 +401,7 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
         if (!updateMode) {
             options[10] = "";
         }
-        setComponents(options, Set.of(9), Set.of(10), trigger == null || config.getImageAttachments().isEmpty() ? Set.of(9) : null);
+        setComponents(options, Set.of(9), Set.of(10), trigger == null || config.getImageFilenames().isEmpty() ? Set.of(9) : null);
 
         return EmbedFactory.getEmbedDefault(this, getString("config_desc"), getString("config_title", updateMode))
                 .addField(getString("config_property_trigger"), trigger != null ? "`" + trigger + "`" : notSet, true)
@@ -412,7 +411,7 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                 .addField(getString("config_property_textsingle"), config.getTextSingleMember() != null ? stressVariables(config.getTextSingleMember()) : notSet, false)
                 .addField(getString("config_property_textmulti"), config.getTextMultiMembers() != null ? stressVariables(config.getTextMultiMembers()) : notSet, false)
                 .addField(getString("config_property_nsfw"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), config.getNsfw()), true)
-                .addField(getString("config_property_attachments"), StringUtil.numToString(config.getImageAttachments().size()), true);
+                .addField(getString("config_property_attachments"), StringUtil.numToString(config.getImageFilenames().size()), true);
     }
 
     @Draw(state = STATE_EDIT_SELECT)
@@ -436,9 +435,9 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
         };
         setComponents(options, null, Set.of(3));
         return EmbedFactory.getEmbedDefault(this, getString("removeattachments_current",
-                        StringUtil.numToString(currentImage + 1), StringUtil.numToString(config.getImageAttachments().size())),
+                        StringUtil.numToString(currentImage + 1), StringUtil.numToString(config.getImageFilenames().size())),
                         getString("removeattachments_title")
-                ).setImage(config.getImageAttachmentUrls().get(currentImage));
+                ).setImage(config.getImageUrls().get(currentImage));
     }
 
     private String stressVariables(String text) {
