@@ -1,9 +1,5 @@
 package core;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
@@ -16,6 +12,11 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class PermissionCheckRuntime {
 
@@ -85,7 +86,7 @@ public class PermissionCheckRuntime {
             }
         }
 
-        if (unreachableRoles.size() == 0) {
+        if (unreachableRoles.isEmpty()) {
             return true;
         }
 

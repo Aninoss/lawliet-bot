@@ -1,9 +1,11 @@
 package modules.schedulers;
 
 import commands.Category;
+import commands.Command;
 import commands.runnables.configurationcategory.GiveawayCommand;
 import constants.Emojis;
 import core.*;
+import core.atomicassets.AtomicRole;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
@@ -14,9 +16,7 @@ import mysql.hibernate.entity.GiveawayEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageReaction;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 import java.time.Instant;
@@ -107,7 +107,7 @@ public class GiveawayScheduler {
                                         int numberOfWinners, boolean reroll
     ) {
         GuildMessageChannel channel = (GuildMessageChannel) message.getChannel();
-        MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).join();
+        List<Member> members = MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).join();
 
         users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
         Collections.shuffle(users);
@@ -155,6 +155,15 @@ public class GiveawayScheduler {
             } else {
                 channel.sendMessageEmbeds(eb.build())
                         .setContent(!winners.isEmpty() ? mentions.toString() : null)
+                        .queue();
+            }
+        }
+
+        List<Role> roles = AtomicRole.to(giveaway.getPrizeRoles());
+        if (!roles.isEmpty() && !members.isEmpty() && PermissionCheckRuntime.botCanManageRoles(locale, GiveawayCommand.class, roles)) {
+            for (Member member : members) {
+                channel.getGuild().modifyMemberRoles(member, roles, Collections.emptySet())
+                        .reason(Command.getCommandLanguage(GiveawayCommand.class, locale).getTitle())
                         .queue();
             }
         }

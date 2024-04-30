@@ -6,12 +6,15 @@ import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
 import commands.stateprocessor.EmojiStateProcessor;
 import commands.stateprocessor.FileStateProcessor;
+import commands.stateprocessor.RolesStateProcessor;
 import commands.stateprocessor.StringStateProcessor;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ListGen;
 import core.LocalFile;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
+import core.atomicassets.AtomicRole;
 import core.modals.DurationModalBuilder;
 import core.modals.IntModalBuilder;
 import core.modals.StringModalBuilder;
@@ -47,6 +50,7 @@ import java.util.stream.Collectors;
         trigger = "giveaway",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         userGuildPermissions = Permission.MANAGE_SERVER,
+        botGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "🎆",
         releaseDate = {2020, 10, 28},
         executableWithoutArgs = true,
@@ -59,6 +63,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public final static int DESC_LENGTH_MAX = MessageEmbed.VALUE_MAX_LENGTH;
     public final static int WINNERS_MIN = 1;
     public final static int WINNERS_MAX = 20;
+    public final static int MAX_ROLE_PRIZES = 10;
 
     private final static int
             STATE_SET_CHANNEL = 1,
@@ -68,6 +73,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             STATE_SET_DESC = 5,
             STATE_SET_EMOJI = 6,
             STATE_SET_IMAGE = 7,
+            STATE_SET_ROLE_PRIZES = 10,
             STATE_EXAMPLE = 8,
             STATE_REROLL = 9;
 
@@ -108,7 +114,13 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                                 config.setImageFilename(null);
                             }
                         }),
-                emojiStateProcessor
+                emojiStateProcessor,
+                new RolesStateProcessor(this, STATE_SET_ROLE_PRIZES, STATE_CONFIG, getString("state3_mprizeroles"))
+                        .setCheckAccess(true)
+                        .setMinMax(0, MAX_ROLE_PRIZES)
+                        .setDescription(getString("state10_description"))
+                        .setGetter(() -> config.getPrizeRoleIds())
+                        .setSetter(roleIds -> config.setPrizeRoleIds(roleIds))
         ));
         registerReactionListener(event.getMember());
         return true;
@@ -254,12 +266,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 6:
-                if (config.getItem().isEmpty()) {
-                    setLog(LogStatus.FAILURE, getString("noitem"));
-                    return true;
-                }
-
-                setState(STATE_EXAMPLE);
+                setState(STATE_SET_ROLE_PRIZES);
                 return true;
 
             case 7:
@@ -268,10 +275,19 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                     return true;
                 }
 
-                submit(event.getMember(), true);
+                setState(STATE_EXAMPLE);
                 return true;
 
             case 8:
+                if (config.getItem().isEmpty()) {
+                    setLog(LogStatus.FAILURE, getString("noitem"));
+                    return true;
+                }
+
+                submit(event.getMember(), true);
+                return true;
+
+            case 9:
                 if (config.getItem().isEmpty()) {
                     setLog(LogStatus.FAILURE, getString("noitem"));
                     return true;
@@ -397,9 +413,9 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
         String[] options = getString("state3_options").split("\n");
         if (!editMode) {
-            options[7] = "";
+            options[8] = "";
         }
-        setComponents(options, Set.of(7, 8));
+        setComponents(options, Set.of(8, 9));
 
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + (editMode ? "edit" : "new")))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(config.getItem().isEmpty() ? notSet : config.getItem()), false)
@@ -407,7 +423,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 .addField(getString("state3_mduration"), TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(config.getDurationMinutes())), true)
                 .addField(getString("state3_mwinners"), String.valueOf(config.getWinners()), true)
                 .addField(getString("state3_memoji"), config.getEmojiFormatted(), true)
-                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), config.getImageFilename() != null), true);
+                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), config.getImageFilename() != null), true)
+                .addField(getString("state3_mprizeroles"), new ListGen<AtomicRole>().getList(config.getPrizeRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
     }
 
     @Draw(state = STATE_EXAMPLE)
@@ -418,11 +435,15 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = STATE_REROLL)
     public EmbedBuilder onDrawRerollNumber(Member member) {
         setComponents(getString("state13_options").split("\n"), Set.of(2), Set.of(0));
-        return EmbedFactory.getEmbedDefault(
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
                 getString("state13_description", config.getItem(), StringUtil.numToString(rerollWinners)),
                 getString("state13_title")
         );
+        if (!config.getPrizeRoleIds().isEmpty()) {
+            eb.addField(getString("state3_mprizeroles"), new ListGen<AtomicRole>().getList(config.getPrizeRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
+        }
+        return eb;
     }
 
     private List<GiveawayEntity> getActiveGiveaways() {

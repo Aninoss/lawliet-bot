@@ -1,5 +1,6 @@
 package mysql.hibernate.entity
 
+import core.atomicassets.AtomicRole
 import mysql.hibernate.InstantConverter
 import mysql.hibernate.entity.assets.CdnImageAsset
 import mysql.hibernate.entity.assets.NonNullEmojiAsset
@@ -8,10 +9,7 @@ import mysql.hibernate.template.HibernateEntity
 import org.hibernate.annotations.GenericGenerator
 import java.time.Duration
 import java.time.Instant
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
+import javax.persistence.*
 
 
 @Entity(name = "Giveaway")
@@ -40,6 +38,11 @@ class GiveawayEntity : HibernateEntity(), HibernateDiscordInterface, CdnImageAss
 
     override var imageFilename: String? = null
 
+    @ElementCollection
+    var prizeRoleIds = mutableListOf<Long>()
+    val prizeRoles: MutableList<AtomicRole>
+        get() = getAtomicRoleList(prizeRoleIds)
+
     @Convert(converter = InstantConverter::class)
     var created: Instant = Instant.MIN
     val end: Instant
@@ -59,6 +62,7 @@ class GiveawayEntity : HibernateEntity(), HibernateDiscordInterface, CdnImageAss
         copy.winners = winners
         copy.emojiFormatted = emojiFormatted
         copy.imageFilename = imageFilename
+        copy.prizeRoleIds = ArrayList(prizeRoleIds)
         copy.created = created
         copy.active = active
         return copy
