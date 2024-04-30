@@ -1,8 +1,8 @@
 package mysql.hibernate.entity
 
 import mysql.hibernate.entity.assets.CdnImageListAsset
+import mysql.hibernate.entity.assets.NonNullEmojiAsset
 import mysql.hibernate.template.HibernateEntity
-import net.dv8tion.jda.api.entities.emoji.Emoji
 import org.hibernate.annotations.GenericGenerator
 import javax.persistence.ElementCollection
 import javax.persistence.Entity
@@ -10,7 +10,7 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 
 @Entity(name = "CustomRolePlay")
-class CustomRolePlayEntity : HibernateEntity(), CdnImageListAsset {
+class CustomRolePlayEntity : HibernateEntity(), CdnImageListAsset, NonNullEmojiAsset {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -19,9 +19,7 @@ class CustomRolePlayEntity : HibernateEntity(), CdnImageListAsset {
 
     var title: String = ""
 
-    var emojiFormatted: String = ""
-    val emoji: Emoji
-        get() = Emoji.fromFormatted(emojiFormatted)
+    override var emojiFormatted: String = ""
 
     var textNoMembers: String? = null
     var textSingleMember: String? = null

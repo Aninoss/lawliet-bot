@@ -1,8 +1,8 @@
 package mysql.hibernate.entity
 
+import mysql.hibernate.entity.assets.NullableEmojiAsset
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Role
-import net.dv8tion.jda.api.entities.emoji.Emoji
 import org.hibernate.annotations.GenericGenerator
 import javax.persistence.ElementCollection
 import javax.persistence.Entity
@@ -11,16 +11,14 @@ import javax.persistence.Id
 
 
 @Entity(name = "ReactionRoleSlot")
-class ReactionRoleSlotEntity {
+class ReactionRoleSlotEntity : NullableEmojiAsset {
 
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private var id: String? = null
 
-    var emojiFormatted: String? = null
-    val emoji: Emoji?
-        get() = if (emojiFormatted != null) Emoji.fromFormatted(emojiFormatted!!) else null
+    override var emojiFormatted: String? = null
 
     @ElementCollection
     var roleIds: MutableList<Long> = mutableListOf()

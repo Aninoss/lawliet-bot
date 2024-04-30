@@ -34,8 +34,7 @@ class WordFilterEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscor
     var words: MutableList<String> = mutableListOf()
 
 
-    override fun getGuildId(): Long {
-        return hibernateEntity.guildId
-    }
+    override val guildId: Long
+        get() = hibernateEntity.guildId
 
 }

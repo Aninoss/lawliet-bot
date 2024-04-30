@@ -46,8 +46,7 @@ class ModerationEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscor
     val banAppeals = mutableMapOf<Long, BanAppealEntity>()
 
 
-    override fun getGuildId(): Long {
-        return hibernateEntity.guildId
-    }
+    override val guildId: Long
+        get() = hibernateEntity.guildId
 
 }

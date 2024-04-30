@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public class DurationModalBuilder extends AbstractModalBuilder<Long, DurationModalBuilder> {
 
-    private static long MAX_MINUTES = Duration.ofDays(1000).toMinutes() - 1;
+    private static final long MAX_MINUTES = Duration.ofDays(1000).toMinutes() - 1;
 
     private long minMinutes = 0;
 

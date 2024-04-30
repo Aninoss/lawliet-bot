@@ -58,9 +58,8 @@ class ReactionRoleEntity : HibernateEntity(), HibernateDiscordInterface, CdnImag
     var newGeneration: Boolean = true
 
 
-    override fun getGuildId(): Long {
-        return messageGuildId
-    }
+    override val guildId: Long
+        get() = messageGuildId
 
     fun copy(): ReactionRoleEntity {
         val copy = ReactionRoleEntity()

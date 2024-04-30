@@ -46,8 +46,7 @@ class InviteFilterEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDisc
         get() = getAtomicMemberList(logReceiverUserIds)
 
 
-    override fun getGuildId(): Long {
-        return hibernateEntity.guildId
-    }
+    override val guildId: Long
+        get() = hibernateEntity.guildId
 
 }

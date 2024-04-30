@@ -4,6 +4,7 @@ import constants.Language
 import core.assets.GuildAsset
 import core.cache.ServerPatreonBoostCache
 import mysql.hibernate.entity.CustomRolePlayEntity
+import mysql.hibernate.entity.GiveawayEntity
 import mysql.hibernate.entity.ReactionRoleEntity
 import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.entity.assets.LanguageAsset
@@ -107,6 +108,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
 
     @ElementCollection
     val slashPermissions = mutableListOf<SlashPermissionEntity>()
+
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    var giveaways: MutableMap<Long, GiveawayEntity> = mutableMapOf()
 
     constructor() : this("0")
 

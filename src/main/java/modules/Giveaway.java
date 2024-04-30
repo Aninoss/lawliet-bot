@@ -4,8 +4,8 @@ import commands.Category;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
+import mysql.hibernate.entity.GiveawayEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.Duration;
@@ -14,31 +14,34 @@ import java.util.Locale;
 
 public class Giveaway {
 
-    public static EmbedBuilder getMessageEmbed(Locale locale, String title, String desc, int amountOfWinners,
-                                               Emoji emoji, long durationMinutes, String imageUrl, Instant instant) {
+    public static EmbedBuilder getMessageEmbed(Locale locale, GiveawayEntity giveaway) {
+        return getMessageEmbed(locale, giveaway, giveaway.getCreated());
+    }
+
+    public static EmbedBuilder getMessageEmbed(Locale locale, GiveawayEntity giveaway, Instant created) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(title)
-                .setDescription(desc)
+                .setTitle(giveaway.getItem())
+                .setDescription(giveaway.getDescription())
                 .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
         String tutText = TextManager.getString(
                 locale,
                 Category.CONFIGURATION,
                 "giveaway_tutorial",
-                amountOfWinners != 1,
-                emoji.getFormatted(),
-                String.valueOf(amountOfWinners),
-                TimeFormat.RELATIVE.atInstant(instant.plus(Duration.ofMinutes(durationMinutes))).toString()
+                giveaway.getWinners() != 1,
+                giveaway.getEmojiFormatted(),
+                String.valueOf(giveaway.getWinners()),
+                TimeFormat.RELATIVE.atInstant(created.plus(Duration.ofMinutes(giveaway.getDurationMinutes()))).toString()
         );
 
-        if (desc == null || desc.isEmpty()) {
+        if (giveaway.getDescription() == null) {
             eb.setDescription(tutText);
         } else {
             eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), tutText, false);
         }
 
-        if (imageUrl != null) {
-            eb.setImage(imageUrl);
+        if (giveaway.getImageFilename() != null) {
+            eb.setImage(giveaway.getImageUrl());
         }
         return eb;
     }

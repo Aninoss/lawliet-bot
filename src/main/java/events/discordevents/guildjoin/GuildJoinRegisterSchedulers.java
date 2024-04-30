@@ -6,8 +6,6 @@ import events.discordevents.eventtypeabstracts.GuildJoinAbstract;
 import modules.schedulers.*;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.giveaway.DBGiveaway;
-import mysql.modules.giveaway.GiveawayData;
 import mysql.modules.jails.DBJails;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.tempban.DBTempBan;
@@ -22,9 +20,8 @@ public class GuildJoinRegisterSchedulers extends GuildJoinAbstract {
         if (!Program.publicInstance()) {
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
 
-            DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong()).values().stream()
-                    .filter(GiveawayData::isActive)
-                    .forEach(GiveawayScheduler::loadGiveawayBean);
+            guildEntity.getGiveaways().values()
+                            .forEach(GiveawayScheduler::loadGiveaway);
             DBJails.getInstance().retrieve(event.getGuild().getIdLong()).values()
                     .forEach(JailScheduler::loadJail);
             guildEntity.getReminders()

@@ -13,9 +13,11 @@ import modules.schedulers.*;
 import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GiveawayEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.guild.SlashPermissionEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.slashpermissions.DBSlashPermissions;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -95,6 +97,7 @@ public class DiscordConnector {
         MessageRequest.setDefaultMentionRepliedUser(false);
 
         transferSlashPermissions();
+        transferGiveaways();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -209,6 +212,32 @@ public class DiscordConnector {
                                 entity.setType(SlashPermissionEntity.Type.valueOf(slot.getType().name()));
                                 entity.setEnabled(slot.isAllowed());
                                 guildEntity.getSlashPermissions().add(entity);
+                            });
+                }
+        );
+    }
+
+    private static void transferGiveaways() {
+        transferSqlToHibernate(
+                "Giveaways",
+                guildEntity -> guildEntity,
+                guildEntity -> !guildEntity.getGiveaways().isEmpty(),
+                guildEntity -> {
+                    DBGiveaway.getInstance().retrieve(guildEntity.getGuildId()).values()
+                            .forEach(data -> {
+                                GiveawayEntity entity = new GiveawayEntity();
+                                entity.setGuildId(data.getGuildId());
+                                entity.setChannelId(data.getGuildMessageChannelId());
+                                entity.setMessageId(data.getMessageId());
+                                entity.setItem(data.getTitle());
+                                entity.setDescription(data.getDescription());
+                                entity.setDurationMinutes((int) data.getDurationMinutes());
+                                entity.setWinners(data.getWinners());
+                                entity.setEmojiFormatted(data.getEmoji());
+                                entity.setImageUrl(data.getImageUrl().orElse(null));
+                                entity.setCreated(data.getStart());
+                                entity.setActive(data.isActive());
+                                guildEntity.getGiveaways().put(entity.getMessageId(), entity);
                             });
                 }
         );

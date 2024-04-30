@@ -1,17 +1,17 @@
 package modules.schedulers;
 
 import commands.Category;
-import commands.Command;
-import commands.listeners.CommandProperties;
 import commands.runnables.configurationcategory.GiveawayCommand;
 import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
+import core.utils.BotPermissionUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GiveawayEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.giveaway.DBGiveaway;
-import mysql.modules.giveaway.GiveawayData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -20,78 +20,91 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 
 public class GiveawayScheduler {
 
     public static void start() {
-        try {
-            DBGiveaway.getInstance().retrieveAll().stream()
-                    .filter(GiveawayData::isActive)
-                    .forEach(GiveawayScheduler::loadGiveawayBean);
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(GiveawayScheduler.class)) {
+            entityManager.findAllForResponsibleIds(GiveawayEntity.class, "guildId")
+                    .forEachRemaining(giveaway -> {
+                        if (giveaway.getActive()) {
+                            loadGiveaway(giveaway);
+                        }
+                    });
         } catch (Throwable e) {
-            MainLogger.get().error("Could not start giveaway", e);
+            MainLogger.get().error("Could not start giveaways", e);
         }
     }
 
-    public static void loadGiveawayBean(GiveawayData slot) {
-        loadGiveawayBean(slot.getGuildId(), slot.getMessageId(), slot.getEnd());
+    public static void loadGiveaway(GiveawayEntity giveaway) {
+        loadGiveaway(giveaway.getGuildId(), giveaway.getMessageId(), giveaway.getEnd());
     }
 
-    public static void loadGiveawayBean(long guildId, long messageId, Instant due) {
+    public static void loadGiveaway(long guildId, long messageId, Instant due) {
         MainScheduler.schedule(due, () -> {
-            CustomObservableMap<Long, GiveawayData> map = DBGiveaway.getInstance().retrieve(guildId);
-            if (map.containsKey(messageId) && ShardManager.guildIsManaged(guildId)) {
-                onGiveawayDue(map.get(messageId));
+            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId, GiveawayScheduler.class)) {
+                Map<Long, GiveawayEntity> giveaways = guildEntity.getGiveaways();
+                if (giveaways.containsKey(messageId) && ShardManager.guildIsManaged(guildId)) {
+                    onGiveawayDue(giveaways.get(messageId), guildEntity);
+                }
             }
         });
     }
 
-    private static void onGiveawayDue(GiveawayData giveawayData) {
-        if (giveawayData.isActive()) {
-            ShardManager.getLocalGuildById(giveawayData.getGuildId())
-                    .map(guild -> guild.getChannelById(GuildMessageChannel.class, giveawayData.getGuildMessageChannelId()))
-                    .ifPresent(channel -> {
-                        try {
-                            processGiveawayUsers(giveawayData, giveawayData.getWinners(), false);
-                        } catch (Throwable e) {
-                            MainLogger.get().error("Error in giveaway", e);
-                        }
-                    });
+    private static void onGiveawayDue(GiveawayEntity giveaway, GuildEntity guildEntity) {
+       if (!giveaway.getActive()) {
+            return;
         }
-    }
 
-    public static CompletableFuture<Boolean> processGiveawayUsers(GiveawayData giveawayData, int numberOfWinners, boolean reroll) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        giveawayData.retrieveMessage()
-                .exceptionally(e -> {
-                    future.complete(false);
-                    giveawayData.stop();
-                    return null;
-                })
-                .thenAccept(message -> {
-                    future.complete(true);
-                    for (MessageReaction reaction : message.getReactions()) {
-                        if (reaction.getEmoji().getFormatted().equals(giveawayData.getEmoji())) {
-                            reaction.retrieveUsers().queue(users -> {
-                                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(giveawayData.getGuildId(), GiveawayScheduler.class)) {
-                                            processGiveaway(giveawayData, guildEntity, message, new ArrayList<>(users), numberOfWinners, reroll);
-                                        }
-                                    }
-                            );
-                            break;
-                        }
+        guildEntity.beginTransaction();
+        giveaway.setActive(false);
+        guildEntity.commitTransaction();
+
+        ShardManager.getLocalGuildById(giveaway.getGuildId())
+                .map(guild -> guild.getChannelById(GuildMessageChannel.class, giveaway.getChannelId()))
+                .ifPresent(channel -> {
+                    try {
+                        processGiveawayUsers(giveaway, guildEntity.getLocale(), giveaway.getWinners(), false);
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Error in giveaway", e);
                     }
                 });
-        return future;
     }
 
-    private static void processGiveaway(GiveawayData giveawayData, GuildEntity guildEntity, Message message, ArrayList<User> users, int numberOfWinners,
-                                        boolean reroll
+    public static boolean processGiveawayUsers(GiveawayEntity giveaway, Locale locale, int winners, boolean reroll) {
+        Message message;
+        try {
+            message = ShardManager.getLocalGuildById(giveaway.getGuildId())
+                    .map(guild -> guild.getChannelById(GuildMessageChannel.class, giveaway.getChannelId()))
+                    .map(channel -> {
+                        if (BotPermissionUtil.canReadHistory(channel)) {
+                            return channel.retrieveMessageById(giveaway.getMessageId()).complete();
+                        } else {
+                            return null;
+                        }
+                    }).orElse(null);
+        } catch (Throwable e) {
+            //ignore
+            return false;
+        }
+        if (message == null) {
+            return false;
+        }
+
+        for (MessageReaction reaction : message.getReactions()) {
+            if (EmojiUtil.equals(reaction.getEmoji(), giveaway.getEmoji())) {
+                List<User> users = reaction.retrieveUsers().complete();
+                processGiveaway(giveaway, locale, message, new ArrayList<>(users), winners, reroll);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void processGiveaway(GiveawayEntity giveaway, Locale locale, Message message, ArrayList<User> users,
+                                        int numberOfWinners, boolean reroll
     ) {
         GuildMessageChannel channel = (GuildMessageChannel) message.getChannel();
         MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).join();
@@ -99,19 +112,25 @@ public class GiveawayScheduler {
         users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
         Collections.shuffle(users);
         List<User> winners = users.subList(0, Math.min(users.size(), numberOfWinners));
-        Locale locale = guildEntity.getLocale();
 
         StringBuilder mentions = new StringBuilder();
         for (User user : winners) {
             mentions.append(user.getAsMention()).append(" ");
         }
 
-        CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
+        String title = giveaway.getItem();
+        if (reroll) {
+            title += " " + TextManager.getString(locale, Category.CONFIGURATION, "giveaway_results_reroll");
+        }
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(TextManager.getString(locale, Category.CONFIGURATION, "giveaway_results_title", reroll, commandProps.emoji(), giveawayData.getTitle()))
+                .setTitle(title)
                 .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "giveaway_results", winners.size() != 1))
                 .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
-        giveawayData.getImageUrl().ifPresent(eb::setImage);
+
+        if (giveaway.getImageUrl() != null) {
+            eb.setImage(giveaway.getImageUrl());
+        }
+
         if (!winners.isEmpty()) {
             eb.addField(
                     Emojis.ZERO_WIDTH_SPACE.getFormatted(),
@@ -121,7 +140,6 @@ public class GiveawayScheduler {
         } else {
             eb.setDescription(TextManager.getString(locale, Category.CONFIGURATION, "giveaway_results_empty"));
         }
-        giveawayData.stop();
 
         if (PermissionCheckRuntime.botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             if (!reroll) {

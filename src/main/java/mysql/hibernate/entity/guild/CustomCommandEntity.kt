@@ -1,18 +1,15 @@
 package mysql.hibernate.entity.guild
 
-import mysql.hibernate.entity.CustomRolePlayEntity
 import mysql.hibernate.entity.assets.CdnImageAsset
-import net.dv8tion.jda.api.entities.emoji.Emoji
+import mysql.hibernate.entity.assets.NullableEmojiAsset
 import javax.persistence.Embeddable
 
 @Embeddable
-class CustomCommandEntity: CdnImageAsset {
+class CustomCommandEntity: CdnImageAsset, NullableEmojiAsset {
 
     var title: String? = null
 
-    var emojiFormatted: String? = null
-    val emoji: Emoji?
-        get() = if (emojiFormatted != null) Emoji.fromFormatted(emojiFormatted!!) else null
+    override var emojiFormatted: String? = null
 
     var textResponse: String = ""
 

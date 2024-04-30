@@ -1,13 +1,14 @@
 package mysql.hibernate.template
 
-import core.assets.GuildAsset
 import core.atomicassets.AtomicGuildChannel
 import core.atomicassets.AtomicGuildMessageChannel
 import core.atomicassets.AtomicMember
 import core.atomicassets.AtomicRole
 import core.collectionadapters.ListAdapter
 
-interface HibernateDiscordInterface : GuildAsset {
+interface HibernateDiscordInterface {
+
+    val guildId: Long
 
     fun getAtomicGuildChannelList(channelIdList: List<Long>): MutableList<AtomicGuildChannel> {
         return ListAdapter(channelIdList, { AtomicGuildChannel(guildId, it) }, { it.idLong })

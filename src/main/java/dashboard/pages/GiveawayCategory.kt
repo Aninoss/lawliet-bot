@@ -3,8 +3,6 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.GiveawayCommand
-import core.CustomObservableMap
-import core.LocalFile
 import core.ShardManager
 import core.TextManager
 import core.atomicassets.AtomicGuildMessageChannel
@@ -20,18 +18,14 @@ import dashboard.data.GridRow
 import modules.Giveaway
 import modules.schedulers.GiveawayScheduler
 import mysql.hibernate.entity.BotLogEntity
+import mysql.hibernate.entity.GiveawayEntity
 import mysql.hibernate.entity.guild.GuildEntity
-import mysql.modules.giveaway.DBGiveaway
-import mysql.modules.giveaway.GiveawayData
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji
-import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import net.dv8tion.jda.api.exceptions.ErrorResponseException
-import java.io.File
-import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -45,80 +39,75 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
     enum class Mode { OVERVIEW, EDIT, REROLL }
 
-    var channelId: Long? = null
-    var previousArticle: String? = null
-    var article: String? = null
-    var desc: String = ""
-    var duration: Long = Duration.ofDays(7).toMinutes()
-    var winners: Long = 1
-    var emoji: Emoji = Emoji.fromUnicode("🎉")
-    var image: String? = null
-    var messageId: Long? = null
-    var startInstant: Instant? = null
-    var imageCdn: File? = null
-
+    lateinit var config: GiveawayEntity
+    var previousItem: String? = null
     var mode: Mode = Mode.OVERVIEW
+
+    val giveawayEntities: MutableMap<Long, GiveawayEntity>
+        get() = guildEntity.giveaways
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(GiveawayCommand::class.java, locale).title
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val giveawayDataMap = DBGiveaway.getInstance().retrieve(atomicGuild.idLong)
+        if (previousItem == null) {
+            switchMode(Mode.OVERVIEW)
+        }
 
         if (mode == Mode.OVERVIEW) {
             mainContainer.add(
-                generateOngoingGiveawaysTable(guild, giveawayDataMap),
-                generateCompletedGiveawaysTable(guild, giveawayDataMap),
+                generateOngoingGiveawaysTable(guild),
+                generateCompletedGiveawaysTable(guild),
             )
         }
 
         mainContainer.add(generateGiveawayDataField(guild))
     }
 
-    private fun generateOngoingGiveawaysTable(guild: Guild, giveawayDataMap: CustomObservableMap<Long, GiveawayData>): DashboardComponent {
+    private fun generateOngoingGiveawaysTable(guild: Guild): DashboardComponent {
         return generateGiveawaysTable(
             guild,
-            giveawayDataMap,
             getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_title"),
             getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_button"),
-            { it.isActive }
+            { it.active }
         ) {
-            val giveawayDataTemp = DBGiveaway.getInstance().retrieve(atomicGuild.idLong).get(it.data.toLong())
-            if (giveawayDataTemp != null && giveawayDataTemp.isActive) {
-                readValuesFromGiveawayData(giveawayDataTemp)
+            val giveaway = giveawayEntities.get(it.data.toLong())
+            if (giveaway != null && giveaway.active) {
+                config = giveaway.copy()
+                previousItem = config.item
                 switchMode(Mode.EDIT)
             }
         }
     }
 
-    private fun generateCompletedGiveawaysTable(guild: Guild, giveawayDataMap: CustomObservableMap<Long, GiveawayData>): DashboardComponent {
+    private fun generateCompletedGiveawaysTable(guild: Guild): DashboardComponent {
         return generateGiveawaysTable(
             guild,
-            giveawayDataMap,
             getString(Category.CONFIGURATION, "giveaway_dashboard_completed_title"),
             getString(Category.CONFIGURATION, "giveaway_dashboard_completed_button"),
-            { !it.isActive }
+            { !it.active }
         ) {
-            val giveawayDataTemp = DBGiveaway.getInstance().retrieve(atomicGuild.idLong).get(it.data.toLong())
-            if (giveawayDataTemp != null && !giveawayDataTemp.isActive) {
-                readValuesFromGiveawayData(giveawayDataTemp)
+            val giveaway = giveawayEntities.get(it.data.toLong())
+            if (giveaway != null && !giveaway.active) {
+                config = giveaway.copy()
+                previousItem = config.item
                 switchMode(Mode.REROLL)
             }
         }
     }
 
-    private fun generateGiveawaysTable(guild: Guild, giveawayDataMap: CustomObservableMap<Long, GiveawayData>, title: String, rowButton: String,
-                                       filter: (GiveawayData) -> Boolean, action: (DashboardEvent<String>) -> Any
+    private fun generateGiveawaysTable(guild: Guild, title: String, rowButton: String,
+                                       filter: (GiveawayEntity) -> Boolean, action: (DashboardEvent<String>) -> Any
     ): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardTitle(title))
 
-        val rows = giveawayDataMap.values
+        val rows = giveawayEntities.values
             .filter(filter)
             .map {
-                val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.guildMessageChannelId)
-                val values = arrayOf(it.title, atomicChannel.getPrefixedName(locale))
+                val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.channelId)
+                val values = arrayOf(it.item, atomicChannel.getPrefixedName(locale))
                 GridRow(it.messageId.toString(), values)
             }
 
@@ -152,7 +141,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 this,
                 channelLabel,
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
-                channelId,
+                if (config.channelId != 0L) config.channelId else null,
                 false,
                 arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
         ) {
@@ -160,7 +149,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 return@DashboardChannelComboBox ActionResult()
             }
 
-            channelId = it.data.toLong()
+            config.channelId = it.data.toLong()
             ActionResult()
         }
         channelComboBox.isEnabled = mode == Mode.OVERVIEW
@@ -171,12 +160,10 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 return@DashboardTextField ActionResult()
             }
 
-            article = it.data
+            config.item = it.data
             ActionResult()
         }
-        if (article != null) {
-            articleTextfield.value = article
-        }
+        articleTextfield.value = config.item
         articleTextfield.editButton = false
         articleTextfield.placeholder = getString(Category.CONFIGURATION, "giveaway_dashboard_article_placeholder")
         articleTextfield.isEnabled = mode != Mode.REROLL
@@ -189,11 +176,11 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                     return@DashboardMultiLineTextField ActionResult()
                 }
 
-                desc = it.data
+                config.description = it.data
                 ActionResult()
             }
-        if (!desc.isEmpty()) {
-            descTextfield.value = desc
+        if (config.description != null) {
+            descTextfield.value = config.description
         }
         descTextfield.editButton = false
         descTextfield.placeholder = getString(Category.CONFIGURATION, "giveaway_dashboard_desc_placeholder")
@@ -205,10 +192,10 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 return@DashboardDurationField ActionResult()
             }
 
-            duration = it.data.toLong()
+            config.durationMinutes = it.data.toInt()
             ActionResult()
         }
-        durationField.value = duration
+        durationField.value = config.durationMinutes.toLong()
         durationField.editButton = false
         durationField.isEnabled = mode == Mode.OVERVIEW
         container.add(durationField)
@@ -218,10 +205,10 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         val winnersField =
             DashboardNumberField(getString(Category.CONFIGURATION, "giveaway_state3_mwinners"), GiveawayCommand.WINNERS_MIN.toLong(), GiveawayCommand.WINNERS_MAX.toLong()) {
-                winners = it.data.toLong()
+                config.winners = it.data.toInt()
                 ActionResult()
             }
-        winnersField.value = winners
+        winnersField.value = config.winners.toLong()
         winnersField.editButton = false
         winnersEmojiContainer.add(winnersField)
 
@@ -238,7 +225,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             } else {
                 val emoji = emojis[0]
                 if (emoji is UnicodeEmoji || ShardManager.customEmojiIsKnown(emoji as CustomEmoji)) {
-                    this.emoji = emoji
+                    config.emoji = emoji
                     ActionResult()
                         .withRedraw()
                 } else {
@@ -248,27 +235,23 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 }
             }
         }
-        emojiField.value = emoji.formatted
+        emojiField.value = config.emojiFormatted
         emojiField.isEnabled = mode == Mode.OVERVIEW
         winnersEmojiContainer.add(emojiField)
         container.add(winnersEmojiContainer, DashboardSeparator())
 
         if (mode != Mode.REROLL) {
             val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "giveaway_dashboard_includedimage"), "giveaway", 1) {
-                image = it.data
-                imageCdn?.delete()
-                imageCdn = LocalFile(LocalFile.Directory.CDN, "giveaway/${image!!.split("/")[5]}")
+                config.imageUrl = it.data
                 ActionResult()
                     .withRedraw()
             }
             container.add(imageUpload)
 
-            if (image != null) {
-                container.add(DashboardImage(image))
+            if (config.imageFilename != null) {
+                container.add(DashboardImage(config.imageUrl))
                 val removeImageButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_removeimage")) {
-                    image = null
-                    imageCdn?.delete()
-                    imageCdn = null
+                    config.imageFilename = null
                     ActionResult()
                         .withRedraw()
                 }
@@ -280,30 +263,21 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         val buttonContainer = HorizontalContainer()
         buttonContainer.allowWrap = true
 
-        val sendButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_send", mode.ordinal)) {
+        val sendButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_send", mode == Mode.REROLL)) {
             if (mode != Mode.REROLL) {
-                imageCdn = null
-                entityManager.transaction.begin()
-                if (mode == Mode.OVERVIEW) {
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_ADD, atomicMember, article)
-                } else {
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_EDIT, atomicMember, previousArticle)
-                }
-                entityManager.transaction.commit()
-                return@DashboardButton confirm(guild, false)
+                return@DashboardButton submit(guild, false)
             } else {
-                val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
-                val giveawayData = giveawayMap.get(messageId)
-                if (giveawayData == null) {
+                val giveaway = giveawayEntities.get(config.messageId)
+                if (giveaway == null) {
                     switchMode(Mode.OVERVIEW)
                     return@DashboardButton ActionResult()
                         .withRedrawScrollToTop()
                 }
 
-                val messageExists = GiveawayScheduler.processGiveawayUsers(giveawayData, winners.toInt(), true).get()
+                val messageExists = GiveawayScheduler.processGiveawayUsers(giveaway, locale, config.winners, true)
                 if (messageExists) {
                     entityManager.transaction.begin()
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REROLL, atomicMember, article)
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REROLL, atomicMember, config.item)
                     entityManager.transaction.commit()
 
                     switchMode(Mode.OVERVIEW)
@@ -322,11 +296,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         if (mode == Mode.EDIT) {
             val endPrematurelyButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_endpre")) {
-                entityManager.transaction.begin()
-                BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_END, atomicMember, previousArticle)
-                entityManager.transaction.commit()
-
-                return@DashboardButton confirm(guild, true)
+                return@DashboardButton submit(guild, true)
             }
             endPrematurelyButton.style = DashboardButton.Style.PRIMARY
             buttonContainer.add(endPrematurelyButton)
@@ -335,10 +305,10 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         if (mode == Mode.REROLL) {
             val removeButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_state13_delete")) {
                 entityManager.transaction.begin()
-                BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REMOVE, atomicMember, article)
+                BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REMOVE, atomicMember, config.item)
+                guildEntity.giveaways -= config.messageId
                 entityManager.transaction.commit()
 
-                DBGiveaway.getInstance().retrieve(guild.getIdLong()).remove(messageId)
                 switchMode(Mode.OVERVIEW)
                 ActionResult()
                     .withRedrawScrollToTop()
@@ -361,14 +331,13 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         return container
     }
 
-    private fun confirm(guild: Guild, endPrematurely: Boolean): ActionResult {
+    private fun submit(guild: Guild, endPrematurely: Boolean): ActionResult {
         val errorActionResponse = checkFieldValidity(guild)
         if (errorActionResponse != null) {
             return errorActionResponse
         }
 
-        val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
-        if (mode == Mode.EDIT && (!giveawayMap.containsKey(messageId) || !giveawayMap[messageId]!!.isActive)) {
+        if (mode == Mode.EDIT && (!giveawayEntities.containsKey(config.messageId) || !giveawayEntities[config.messageId]!!.active)) {
             switchMode(Mode.OVERVIEW)
             return ActionResult()
                 .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_toolate"))
@@ -376,15 +345,12 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         }
 
         if (mode == Mode.OVERVIEW) {
-            startInstant = Instant.now()
-        }
-
-        if (endPrematurely) {
-            duration = 0
+            config.created = Instant.now()
         }
 
         try {
-            messageId = sendMessage(guild, channelId!!, startInstant!!)
+            val messageId = sendMessage(guild, config.channelId)
+            config.messageId = messageId
         } catch (e: ErrorResponseException) {
             if (mode != Mode.OVERVIEW) {
                 return ActionResult()
@@ -393,10 +359,27 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             }
         }
 
-        val giveawayData = generateGiveawayData(guild)
-        val previousGiveawayData = giveawayMap.put(messageId, giveawayData);
-        if (endPrematurely || previousGiveawayData == null) {
-            GiveawayScheduler.loadGiveawayBean(giveawayData)
+        val giveaway = config.copy()
+        if (endPrematurely) {
+            giveaway.durationMinutes = 0
+        }
+
+        entityManager.transaction.begin()
+        if (endPrematurely) {
+            BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_END, atomicMember, previousItem)
+        } else {
+            if (mode == Mode.OVERVIEW) {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_ADD, atomicMember, config.item)
+            } else {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_EDIT, atomicMember, previousItem)
+            }
+        }
+
+        val newGiveaway = giveawayEntities.put(config.messageId, giveaway) == null
+        entityManager.transaction.commit()
+
+        if (endPrematurely || newGiveaway) {
+            GiveawayScheduler.loadGiveaway(giveaway)
             if (endPrematurely) {
                 TimeUnit.SECONDS.sleep(3)
             }
@@ -410,7 +393,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
     }
 
     private fun checkFieldValidity(guild: Guild): ActionResult? {
-        val channel = channelId?.let { guild.getChannelById(GuildMessageChannel::class.java, it.toString()) }
+        val channel = guild.getChannelById(GuildMessageChannel::class.java, config.channelId.toString())
         if (channel == null) { /* invalid channel */
             return ActionResult()
                 .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_invalidchannel"))
@@ -420,7 +403,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_reactions", "#${channel.getName()}"))
         }
 
-        if (article == null || article!!.isBlank()) { /* invalid article */
+        if (config.item.isEmpty()) { /* invalid article */
             return ActionResult()
                 .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_noitem"))
         }
@@ -428,67 +411,29 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         return null
     }
 
-    private fun sendMessage(guild: Guild, channelId: Long, instant: Instant): Long {
+    private fun sendMessage(guild: Guild, channelId: Long): Long {
         val channel = guild.getChannelById(GuildMessageChannel::class.java, channelId)
-        val eb = Giveaway.getMessageEmbed(guildEntity.locale, article, desc, winners.toInt(), emoji, duration, image, instant)
+        val eb = Giveaway.getMessageEmbed(guildEntity.locale, config)
 
         if (mode == Mode.OVERVIEW) {
             val message = channel!!.sendMessageEmbeds(eb.build()).complete()
             if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
-                message.addReaction(emoji).queue()
+                message.addReaction(config.emoji).queue()
             }
             return message.idLong
         } else {
-            channel!!.editMessageEmbedsById(messageId!!, eb.build()).complete()
-            return messageId!!
+            channel!!.editMessageEmbedsById(config.messageId, eb.build()).complete()
+            return config.messageId
         }
     }
 
     private fun switchMode(newMode: Mode) {
         mode = newMode
         if (mode == Mode.OVERVIEW) {
-            channelId = null
-            article = null
-            previousArticle = null
-            desc = ""
-            duration = Duration.ofDays(7).toMinutes()
-            winners = 1
-            emoji = Emoji.fromUnicode("🎉")
-            image = null
-            messageId = null
-            startInstant = null
+            config = GiveawayEntity()
+            previousItem = config.item
+            config.guildId = atomicGuild.idLong
         }
-        imageCdn?.delete()
-        imageCdn = null
-    }
-
-    private fun readValuesFromGiveawayData(giveawayData: GiveawayData) {
-        channelId = giveawayData.guildMessageChannelId
-        article = giveawayData.title
-        previousArticle = article
-        desc = giveawayData.description
-        duration = giveawayData.durationMinutes
-        winners = giveawayData.winners.toLong()
-        emoji = Emoji.fromFormatted(giveawayData.emoji)
-        image = giveawayData.imageUrl.orElse(null)
-        messageId = giveawayData.messageId
-        startInstant = giveawayData.start
-    }
-
-    private fun generateGiveawayData(guild: Guild): GiveawayData {
-        return GiveawayData(
-            guild.idLong,
-            channelId!!,
-            messageId!!,
-            emoji.formatted,
-            winners.toInt(),
-            startInstant,
-            duration,
-            article,
-            desc,
-            image,
-            true
-        )
     }
 
 }

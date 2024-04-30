@@ -93,10 +93,8 @@ class TicketsEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     var ticketChannels = mutableMapOf<Long, TicketChannelEntity>()
 
 
-    override fun getGuildId(): Long {
-        return hibernateEntity.guildId
-    }
-
+    override val guildId: Long
+        get() = hibernateEntity.guildId
 
     companion object {
 

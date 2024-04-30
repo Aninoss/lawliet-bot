@@ -142,8 +142,7 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
         get() = if (ServerPatreonBoostCache.get(guildId)) voiceHoursLimit else 5
 
 
-    override fun getGuildId(): Long {
-        return hibernateEntity.guildId
-    }
+    override val guildId: Long
+        get() = hibernateEntity.guildId
 
 }

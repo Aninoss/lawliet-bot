@@ -38,8 +38,7 @@ class StickyRolesEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDisco
     }
 
 
-    override fun getGuildId(): Long {
-        return hibernateEntity.guildId
-    }
+    override val guildId: Long
+        get() = hibernateEntity.guildId
 
 }
