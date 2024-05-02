@@ -27,7 +27,7 @@ public class GiveawayScheduler {
     public static void start() {
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(GiveawayScheduler.class)) {
             entityManager.findAllForResponsibleIds(GiveawayEntity.class, "guildId")
-                    .forEachRemaining(giveaway -> {
+                    .forEach(giveaway -> {
                         if (giveaway.getActive()) {
                             loadGiveaway(giveaway);
                         }

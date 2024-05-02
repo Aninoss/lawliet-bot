@@ -33,7 +33,7 @@ public class ReminderScheduler {
     public static void start() {
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(ReminderScheduler.class)) {
             entityManager.findAllForResponsibleIds(ReminderEntity.class, "confirmationMessageGuildId")
-                    .forEachRemaining(ReminderScheduler::loadReminder);
+                    .forEach(ReminderScheduler::loadReminder);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start reminders", e);
         }

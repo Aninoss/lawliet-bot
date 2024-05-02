@@ -2,7 +2,6 @@ package mysql.hibernate;
 
 import core.*;
 import core.utils.ExceptionUtil;
-import mysql.hibernate.entity.QueryIterator;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.user.UserEntity;
 import mysql.hibernate.template.HibernateEntity;
@@ -166,7 +165,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
                 .executeUpdate();
     }
 
-    public <T extends HibernateEntity> Iterator<T> findAllForResponsibleIds(Class<T> entityClass, String fieldName) {
+    public <T extends HibernateEntity> List<T> findAllForResponsibleIds(Class<T> entityClass, String fieldName) {
         if (Program.publicInstance()) {
             String queryString = """
                     {
@@ -181,11 +180,14 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
                     .replace(":shardIntervalMin", String.valueOf(ShardManager.getShardIntervalMin()))
                     .replace(":shardIntervalMax", String.valueOf(ShardManager.getShardIntervalMax()));
 
-            return new QueryIterator<>(this, 1000, () -> createNativeQuery(queryString, entityClass));
+            List<T> resultList = createNativeQuery(queryString, entityClass)
+                    .getResultList();
+            resultList.forEach(h -> h.setEntityManager(this));
+            return resultList;
         } else {
             List<Guild> guilds = ShardManager.getLocalGuilds();
             if (guilds.isEmpty()) {
-                return Collections.emptyIterator();
+                return Collections.emptyList();
             }
 
             StringBuilder whereStringBuilder = new StringBuilder(fieldName)
@@ -198,11 +200,10 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
             }
             whereStringBuilder.append(")");
 
-            return createQuery("FROM " + entityClass.getName() + " WHERE " + whereStringBuilder, entityClass)
-                    .getResultList()
-                    .stream()
-                    .peek(h -> h.setEntityManager(this))
-                    .iterator();
+            List<T> resultList = createQuery("FROM " + entityClass.getName() + " WHERE " + whereStringBuilder, entityClass)
+                    .getResultList();
+            resultList.forEach(h -> h.setEntityManager(this));
+            return resultList;
         }
     }
 
