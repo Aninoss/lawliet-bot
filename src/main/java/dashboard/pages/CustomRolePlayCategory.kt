@@ -54,15 +54,21 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         if (config.emojiFormatted.isEmpty()) {
             resetValues()
         }
-        if (!updateMode) {
-            mainContainer.add(generateActiveListField())
+        if (!updateMode && customRolePlayCommands.isNotEmpty()) {
+            mainContainer.add(
+                    DashboardTitle(getString(Category.CONFIGURATION, "customrp_dashboard_active")),
+                    generateActiveListField()
+            )
         }
-        mainContainer.add(generateConfigField())
+        mainContainer.add(
+                DashboardTitle(getString(Category.CONFIGURATION, if (updateMode) "customrp_dashboard_edit" else "customrp_dashboard_add")),
+                generateConfigField()
+        )
     }
 
     private fun generateActiveListField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.CONFIGURATION, "customrp_dashboard_active")))
+        container.isCard = true
 
         val rows = customRolePlayCommands.entries
                 .map {
@@ -92,7 +98,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
     private fun generateConfigField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.CONFIGURATION, if (updateMode) "customrp_dashboard_edit" else "customrp_dashboard_add")))
+        container.isCard = true
 
         val textFieldsContainer = HorizontalContainer()
         textFieldsContainer.allowWrap = true

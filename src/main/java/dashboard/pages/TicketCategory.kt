@@ -48,11 +48,15 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         }
 
         mainContainer.add(
-                generateTicketMessageField(),
                 generateGeneralField(),
+                DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcreateoptions")),
                 generateTicketCreateOptionsField(),
+                DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcloseoptions")),
                 generateTicketCloseOptionsField(),
-                generateAutoCloseOnInactivityField()
+                DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcloseoninactivity")),
+                generateAutoCloseOnInactivityField(),
+                DashboardTitle(getString(Category.CONFIGURATION, "ticket_state4_title")),
+                generateTicketMessageField()
         )
     }
 
@@ -116,6 +120,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     private fun generateGeneralField(): DashboardComponent {
         val container = VerticalContainer()
+        container.isCard = true
 
         val logChannel = DashboardChannelComboBox(
                 this,
@@ -172,7 +177,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     private fun generateAutoCloseOnInactivityField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcloseoninactivity")))
+        container.isCard = true
 
         val active = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_dashboard_active")) {
             ticketsEntity.beginTransaction()
@@ -220,7 +225,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     private fun generateTicketCreateOptionsField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcreateoptions")))
+        container.isCard = true
 
         val pingStaff = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mping")) {
             ticketsEntity.beginTransaction()
@@ -266,7 +271,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     private fun generateTicketCloseOptionsField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcloseoptions")))
+        container.isCard = true
 
         val membersCanCloseTickets = DashboardSwitch(getString(Category.CONFIGURATION, "ticket_state0_mmembercanclose")) {
             ticketsEntity.beginTransaction()

@@ -64,34 +64,47 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         clearAttributes()
 
         if (anyCommandsAreAccessible(FisheryCommand::class)) {
-            mainContainer.add(
+            val innerContainer = VerticalContainer(
                     generateStateField(),
-                    generateStateButtons(),
                     DashboardSeparator(),
-                    generateSwitches(),
+                    generateSwitches()
+            )
+            innerContainer.isCard = true
+            mainContainer.add(innerContainer)
+
+            mainContainer.add(
+                    DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels")),
                     generateExcludeChannelsField()
             )
         }
 
         if (anyCommandsAreAccessible(VCTimeCommand::class)) {
-            mainContainer.add(generateVoiceLimitField())
+            mainContainer.add(
+                    DashboardTitle(Command.getCommandLanguage(VCTimeCommand::class.java, locale).title),
+                    generateVoiceLimitField()
+            )
         }
 
         if (anyCommandsAreAccessible(FisheryRolesCommand::class)) {
             mainContainer.add(
+                    DashboardTitle(Command.getCommandLanguage(FisheryRolesCommand::class.java, locale).title),
                     generateFisheryRolesField(),
+                    DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisheryroles_preview")),
                     generateFisheryRolesPreviewField()
             )
         }
 
         if (anyCommandsAreAccessible(FisheryManageCommand::class)) {
-            mainContainer.add(generateFisheryManageField())
+            mainContainer.add(
+                    DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisherymanage_title")),
+                    generateFisheryManageField()
+            )
         }
     }
 
     private fun generateFisheryManageField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisherymanage_title")))
+        container.isCard = true
 
         if (fisheryEntity.fisheryStatus == FisheryStatus.ACTIVE) {
             container.add(
@@ -255,20 +268,18 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
     private fun generateFisheryRolesPreviewField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisheryroles_preview")))
+        container.isCard = true
 
         val roles = fisheryEntity.roles
-        if (roles.isNotEmpty()) {
-            val rows = roles.mapIndexed { n, role ->
-                val values = arrayOf((n + 1).toString(), role.name, StringUtil.numToString(Fishery.getFisheryRolePrice(fisheryEntity.rolePriceMin, fisheryEntity.rolePriceMax, roles.size, n)))
-                GridRow(n.toString(), values)
-            }
-            val grid = DashboardGrid(
-                    getString(Category.FISHERY_SETTINGS, "fisheryroles_grid_title").split("\n").toTypedArray(),
-                    rows
-            )
-            container.add(grid)
+        val rows = roles.mapIndexed { n, role ->
+            val values = arrayOf(role.name, StringUtil.numToString(Fishery.getFisheryRolePrice(fisheryEntity.rolePriceMin, fisheryEntity.rolePriceMax, roles.size, n)))
+            GridRow(n.toString(), values)
         }
+        val grid = DashboardGrid(
+                getString(Category.FISHERY_SETTINGS, "fisheryroles_grid_title").split("\n").toTypedArray(),
+                rows
+        )
+        container.add(grid)
 
         val refreshButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fisheryroles_refresh")) {
             ActionResult()
@@ -280,10 +291,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
     private fun generateFisheryRolesField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(
-                DashboardTitle(Command.getCommandLanguage(FisheryRolesCommand::class.java, locale).title),
-                DashboardText(getString(Category.FISHERY_SETTINGS, "fisheryroles_exp"))
-        )
+        container.isCard = true
+        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fisheryroles_exp")))
 
         val rolesComboBox = DashboardMultiRolesComboBox(
                 this,
@@ -381,7 +390,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
     private fun generateVoiceLimitField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(Command.getCommandLanguage(VCTimeCommand::class.java, locale).title))
+        container.isCard = true
 
         val horizontalContainer = HorizontalContainer()
         horizontalContainer.allowWrap = true
@@ -435,7 +444,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
     private fun generateExcludeChannelsField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels")))
+        container.isCard = true
         val comboBox = DashboardMultiChannelsComboBox(
                 this,
                 "",
@@ -645,18 +654,17 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     }
 
     private fun generateStateField(): DashboardComponent {
-        val container = VerticalContainer()
-        container.isCard = true
-
         val statusContainer = HorizontalContainer()
-        val statusTextKey = getString(Category.FISHERY_SETTINGS, "fishery_state0_mstatus")
+        statusContainer.allowWrap = true
+        statusContainer.alignment = HorizontalContainer.Alignment.CENTER
+
         val statusTextValue = getString(Category.FISHERY_SETTINGS, "fishery_state0_status").split("\n")[fisheryEntity.fisheryStatus.ordinal].substring(2)
         statusContainer.add(
-                DashboardText("$statusTextKey:"),
-                DashboardText(statusTextValue)
+                DashboardText(statusTextValue),
+                HorizontalPusher(),
+                generateStateButtons()
         )
-        container.add(statusContainer)
-        return container
+        return statusContainer
     }
 
     fun clearAttributes() {

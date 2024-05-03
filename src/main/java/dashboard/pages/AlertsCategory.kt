@@ -52,9 +52,16 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val alertMap = DBTracker.getInstance().retrieve(guild.idLong)
+        if (alertMap.isNotEmpty()) {
+            val innerContainer = VerticalContainer(
+                    DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_desc")),
+                    generateAlertGrid(guild, alertMap)
+            )
+            innerContainer.isCard = true
+            mainContainer.add(innerContainer)
+        }
         mainContainer.add(
-                DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_desc")),
-                generateAlertGrid(guild, alertMap),
+                DashboardTitle(getString(Category.CONFIGURATION, "alerts_state5_title")),
                 generateNewAlertField(guild, alertMap)
         )
     }
@@ -97,10 +104,8 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     fun generateNewAlertField(guild: Guild, alertMap: CustomObservableMap<Int, TrackerData>): DashboardComponent {
         val container = VerticalContainer()
-        container.add(
-                DashboardTitle(getString(Category.CONFIGURATION, "alerts_state5_title")),
-                generateCommandPropertiesField()
-        )
+        container.isCard = true
+        container.add(generateCommandPropertiesField())
 
         val attachmentField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "alerts_dashboard_attachment"), 0, 1000) {
             if (isPremium) {

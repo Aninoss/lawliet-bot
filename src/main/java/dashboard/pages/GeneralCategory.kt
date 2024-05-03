@@ -40,6 +40,8 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        mainContainer.isCard = true
+
         if (anyCommandsAreAccessible(LanguageCommand::class, PrefixCommand::class)) {
             mainContainer.add(
                 generateTextFields(guild),

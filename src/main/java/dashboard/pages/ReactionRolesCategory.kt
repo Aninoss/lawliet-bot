@@ -62,20 +62,29 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             reset()
         }
         if (!editMode) {
-            mainContainer.add(
-                    DashboardText(getString(Category.CONFIGURATION, "reactionroles_state0_description", StringUtil.numToString(ReactionRolesCommand.MAX_ROLE_MESSAGES_FREE))),
-                    generateReactionRolesTable(guild)
-            )
+            mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "reactionroles_state0_description", StringUtil.numToString(ReactionRolesCommand.MAX_ROLE_MESSAGES_FREE))))
+            if (reactionRoleEntities.isNotEmpty()) {
+                mainContainer.add(
+                        DashboardTitle(getString(Category.CONFIGURATION, "reactionroles_dashboard_active_title")),
+                        generateReactionRolesTable(guild)
+                )
+            }
         }
-        mainContainer.add(generateReactionRolesDataField(guild))
+
+        val headerTitle = if (editMode) {
+            getString(Category.CONFIGURATION, "reactionroles_state2_title")
+        } else {
+            getString(Category.CONFIGURATION, "reactionroles_state1_title")
+        }
+        mainContainer.add(
+                DashboardTitle(headerTitle),
+                generateReactionRolesDataField(guild)
+        )
     }
 
     private fun generateReactionRolesTable(guild: Guild): DashboardComponent {
-        val title = getString(Category.CONFIGURATION, "reactionroles_dashboard_active_title")
-        val rowButton = getString(Category.CONFIGURATION, "reactionroles_dashboard_active_button")
-
         val container = VerticalContainer()
-        container.add(DashboardTitle(title))
+        container.isCard = true
 
         val rows = reactionRoleEntities.values
                 .map {
@@ -119,7 +128,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             ActionResult()
                     .withRedrawScrollToTop()
         }
-        grid.rowButton = rowButton
+        grid.rowButton = getString(Category.CONFIGURATION, "reactionroles_dashboard_active_button")
         container.add(grid)
 
         return container
@@ -127,13 +136,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
 
     private fun generateReactionRolesDataField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
-
-        val headerTitle = if (editMode) {
-            getString(Category.CONFIGURATION, "reactionroles_state2_title")
-        } else {
-            getString(Category.CONFIGURATION, "reactionroles_state1_title")
-        }
-        container.add(DashboardTitle(headerTitle))
+        container.isCard = true
 
         val channelTitleContainer = HorizontalContainer()
         channelTitleContainer.allowWrap = true
@@ -224,7 +227,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
 
         val rows = configuration.slots
                 .mapIndexed { i, slot ->
-                    val values = arrayOf(slot.emojiFormatted ?: "", StringUtil.shortenString(slot.customLabel ?: AtomicRole(atomicGuild.idLong, slot.roleIds[0]).getPrefixedName(locale), 50))
+                    val values = arrayOf(slot.emojiFormatted ?: "", StringUtil.shortenString(slot.customLabel
+                            ?: AtomicRole(atomicGuild.idLong, slot.roleIds[0]).getPrefixedName(locale), 50))
                     GridRow(i.toString(), values)
                 }
 

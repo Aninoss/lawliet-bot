@@ -3,7 +3,6 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.AutoChannelCommand
-import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
@@ -30,6 +29,8 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        mainContainer.isCard = true
+
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "autochannel_state0_mactive")) {
             if (it.data != DBAutoChannel.getInstance().retrieve(guild.idLong).isActive) {
                 val autoChannelData = DBAutoChannel.getInstance().retrieve(guild.idLong)

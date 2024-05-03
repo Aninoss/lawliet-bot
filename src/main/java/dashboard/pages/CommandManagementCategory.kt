@@ -43,21 +43,27 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         }
 
         if (anyCommandsAreAccessible(WhiteListCommand::class)) {
-            mainContainer.add(generateChannelWhitelistField(guild))
+            val whitelistText = Command.getCommandLanguage(WhiteListCommand::class.java, locale).title
+            mainContainer.add(
+                    DashboardTitle(whitelistText),
+                    generateChannelWhitelistField(guild)
+            )
         }
 
         if (anyCommandsAreAccessible(CommandPermissionsCommand::class)) {
-            mainContainer.add(generateCommandPermissionsField(guild))
+            val commandPermissionsText = Command.getCommandLanguage(CommandPermissionsCommand::class.java, locale).title
+            mainContainer.add(
+                    DashboardTitle(commandPermissionsText),
+                    generateCommandPermissionsField(guild)
+            )
         }
     }
 
     private fun generateCommandPermissionsField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
-        val commandPermissionsText = Command.getCommandLanguage(CommandPermissionsCommand::class.java, locale).title
-        container.add(
-                DashboardTitle(commandPermissionsText),
-                DashboardText(getString(Category.CONFIGURATION, "cperms_message0").replace("**", "") + "\n" + getString(Category.CONFIGURATION, "cperms_message1")),
-        )
+        container.isCard = true
+
+        container.add(DashboardText(getString(Category.CONFIGURATION, "cperms_message0").replace("**", "") + "\n" + getString(Category.CONFIGURATION, "cperms_message1")))
 
         val button = DashboardButton(getString(Category.CONFIGURATION, "cperms_button")) {
             if (!anyCommandsAreAccessible(CommandPermissionsCommand::class)) {
@@ -88,11 +94,8 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
 
     private fun generateChannelWhitelistField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
-        val whitelistText = Command.getCommandLanguage(WhiteListCommand::class.java, locale).title
-        container.add(
-                DashboardTitle(whitelistText),
-                DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description"))
-        )
+        container.isCard = true
+        container.add(DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description")))
 
         val obsoleteWarning = DashboardText(getString(Category.CONFIGURATION, "cperms_obsolete_dashboard"))
         obsoleteWarning.style = DashboardText.Style.ERROR
@@ -116,6 +119,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
 
     private fun generateCommandManagementField(): DashboardComponent {
         val container = VerticalContainer()
+        container.isCard = true
         container.add(DashboardText(getString(Category.CONFIGURATION, "cman_state0_desc")))
 
         val commandCategoryValues = Category.independentValues().map { DiscordEntity(it.id, getString(TextManager.COMMANDS, it.id)) }

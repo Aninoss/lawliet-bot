@@ -44,16 +44,22 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        if (!updateMode) {
-            mainContainer.add(generateActiveCustomCommandsField())
+        if (!updateMode && customCommands.isNotEmpty()) {
+            mainContainer.add(
+                    DashboardTitle(getString(Category.CONFIGURATION, "customconfig_dashboard_active")),
+                    generateActiveCustomCommandsField()
+            )
         }
 
-        mainContainer.add(generateCustomCommandField())
+        mainContainer.add(
+                DashboardTitle(getString(Category.CONFIGURATION, if (updateMode) "customconfig_dashboard_edit" else "customconfig_dashboard_add")),
+                generateCustomCommandField()
+        )
     }
 
     private fun generateActiveCustomCommandsField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.CONFIGURATION, "customconfig_dashboard_active")))
+        container.isCard = true
 
         val rows = customCommands.entries
                 .map {
@@ -84,7 +90,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
     private fun generateCustomCommandField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.CONFIGURATION, if (updateMode) "customconfig_dashboard_edit" else "customconfig_dashboard_add")))
+        container.isCard = true
         container.add(DashboardText(getString(Category.CONFIGURATION, "customconfig_dashboard_desc", StringUtil.numToString(CustomConfigCommand.MAX_COMMANDS_FREE))))
 
         val textFieldsContainer = HorizontalContainer()

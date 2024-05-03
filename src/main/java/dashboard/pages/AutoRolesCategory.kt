@@ -38,6 +38,8 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        mainContainer.isCard = true
+
         val descText = DashboardText(getString(Category.CONFIGURATION, "autoroles_state0_description"))
         val rolesComboBox = DashboardMultiRolesComboBox(
                 this,

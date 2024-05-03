@@ -58,19 +58,34 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         }
 
         if (mode == Mode.OVERVIEW) {
-            mainContainer.add(
-                    generateOngoingGiveawaysTable(guild),
-                    generateCompletedGiveawaysTable(guild),
-            )
+            if (giveawayEntities.any { it.value.active }) {
+                mainContainer.add(
+                        DashboardTitle(getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_title")),
+                        generateOngoingGiveawaysTable(guild)
+                )
+            }
+            if (giveawayEntities.any { !it.value.active }) {
+                mainContainer.add(
+                        DashboardTitle(getString(Category.CONFIGURATION, "giveaway_dashboard_completed_title")),
+                        generateCompletedGiveawaysTable(guild)
+                )
+            }
         }
 
-        mainContainer.add(generateGiveawayDataField(guild))
+        val title = when (mode) {
+            Mode.OVERVIEW -> getString(Category.CONFIGURATION, "giveaway_state1_title")
+            Mode.EDIT -> getString(Category.CONFIGURATION, "giveaway_state2_title")
+            Mode.REROLL -> getString(Category.CONFIGURATION, "giveaway_state12_title")
+        }
+        mainContainer.add(
+                DashboardTitle(title),
+                generateGiveawayDataField(guild)
+        )
     }
 
     private fun generateOngoingGiveawaysTable(guild: Guild): DashboardComponent {
         return generateGiveawaysTable(
                 guild,
-                getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_title"),
                 getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_button"),
                 { it.active }
         ) {
@@ -86,7 +101,6 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
     private fun generateCompletedGiveawaysTable(guild: Guild): DashboardComponent {
         return generateGiveawaysTable(
                 guild,
-                getString(Category.CONFIGURATION, "giveaway_dashboard_completed_title"),
                 getString(Category.CONFIGURATION, "giveaway_dashboard_completed_button"),
                 { !it.active }
         ) {
@@ -99,11 +113,9 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         }
     }
 
-    private fun generateGiveawaysTable(guild: Guild, title: String, rowButton: String,
-                                       filter: (GiveawayEntity) -> Boolean, action: (DashboardEvent<String>) -> Any
-    ): DashboardComponent {
+    private fun generateGiveawaysTable(guild: Guild, rowButton: String, filter: (GiveawayEntity) -> Boolean, action: (DashboardEvent<String>) -> Any): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(title))
+        container.isCard = true
 
         val rows = giveawayEntities.values
                 .filter(filter)
@@ -127,13 +139,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
     private fun generateGiveawayDataField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
-
-        val title = when (mode) {
-            Mode.OVERVIEW -> getString(Category.CONFIGURATION, "giveaway_state1_title")
-            Mode.EDIT -> getString(Category.CONFIGURATION, "giveaway_state2_title")
-            Mode.REROLL -> getString(Category.CONFIGURATION, "giveaway_state12_title")
-        }
-        container.add(DashboardTitle(title))
+        container.isCard = true
 
         val channelArticleContainer = HorizontalContainer()
         channelArticleContainer.allowWrap = true

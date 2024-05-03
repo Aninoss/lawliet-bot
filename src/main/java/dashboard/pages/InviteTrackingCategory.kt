@@ -50,14 +50,19 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         val inviteTrackingData = DBInviteTracking.getInstance().retrieve(atomicGuild.idLong)
 
         if (anyCommandsAreAccessible(InviteTrackingCommand::class)) {
+            val innerContainer = VerticalContainer(generateActiveSwitch(inviteTrackingData))
+            innerContainer.isCard = true
+
             mainContainer.add(
-                    generateActiveSwitch(inviteTrackingData),
+                    innerContainer,
+                    DashboardTitle(getString(Category.INVITE_TRACKING, "invitetracking_log_title")),
                     generateLogsField(inviteTrackingData)
             )
         }
 
         if (anyCommandsAreAccessible(InvitesManageCommand::class)) {
             mainContainer.add(
+                    DashboardTitle(getString(Category.INVITE_TRACKING, "invmanage_title")),
                     generateInvitesManageField(inviteTrackingData)
             )
         }
@@ -90,10 +95,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
     fun generateLogsField(inviteTrackingData: InviteTrackingData): DashboardComponent {
         val container = VerticalContainer()
-
-        val title = DashboardTitle(getString(Category.INVITE_TRACKING, "invitetracking_log_title"))
-        container.add(title)
-
+        container.isCard = true
         val channelComboBox = DashboardChannelComboBox(
                 this,
                 getString(Category.INVITE_TRACKING, "invitetracking_state0_mchannel"),
@@ -170,7 +172,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
     fun generateInvitesManageField(inviteTrackingData: InviteTrackingData): DashboardComponent {
         val premium = isPremium
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.INVITE_TRACKING, "invmanage_title")))
+        container.isCard = true
 
         if (inviteTrackingData.isActive) {
             container.add(generateInvitesManageMemberField(inviteTrackingData, premium))

@@ -3,7 +3,6 @@ package dashboard.pages
 import commands.Category
 import commands.runnables.configurationcategory.SuggestionConfigCommand
 import core.TextManager
-import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
@@ -18,7 +17,6 @@ import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.suggestions.DBSuggestions
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import java.util.*
 
 @DashboardProperties(
@@ -33,6 +31,8 @@ class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        mainContainer.isCard = true
+
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "suggconfig_state0_mactive")) {
             val suggestionsData = DBSuggestions.getInstance().retrieve(guild.idLong)
             if (it.data != suggestionsData.isActive) {

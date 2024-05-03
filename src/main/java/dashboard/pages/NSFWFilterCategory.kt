@@ -30,6 +30,7 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        mainContainer.isCard = true
         mainContainer.add(
             DashboardText(Command.getCommandLanguage(NSFWFilterCommand::class.java, locale).descShort),
             generateFilterComboBox(guild)

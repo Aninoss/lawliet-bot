@@ -6,7 +6,6 @@ import commands.runnables.moderationcategory.ModSettingsCommand
 import commands.runnables.moderationcategory.WordFilterCommand
 import constants.ExternalLinks
 import core.TextManager
-import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -25,7 +24,6 @@ import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.*
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import java.util.*
 
 @DashboardProperties(
@@ -58,30 +56,43 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             if (anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 mainContainer.add(
                         generateGeneralConfigurationField(),
+                        DashboardTitle(getString(Category.MODERATION, "mod_banappeals")),
                         generateBanAppealField(),
+                        DashboardTitle(getString(Category.MODERATION, "mod_state0_mautomod")),
                         generateAutoModField()
                 )
             }
 
             if (anyCommandsAreAccessible(InviteFilterCommand::class)) {
-                mainContainer.add(generateInviteFilterField())
+                mainContainer.add(
+                        DashboardTitle(getString(Category.MODERATION, "invitefilter_title")),
+                        generateInviteFilterField()
+                )
             }
 
             if (anyCommandsAreAccessible(WordFilterCommand::class)) {
-                mainContainer.add(generateWordFilterField())
+                mainContainer.add(
+                        DashboardTitle(getString(Category.MODERATION, "wordfilter_title")),
+                        generateWordFilterField()
+                )
             }
         } else {
-            mainContainer.add(
-                    generateAutoModConfigTitle(),
+            val innerContainer = VerticalContainer(
                     generateAutoModConfigText(),
                     generateAutoModConfigTextField(),
                     generateAutoModConfigButtons()
+            )
+            innerContainer.isCard = true
+            mainContainer.add(
+                    generateAutoModConfigTitle(),
+                    innerContainer
             )
         }
     }
 
     fun generateGeneralConfigurationField(): DashboardComponent {
         val container = VerticalContainer()
+        container.isCard = true
         container.add(
                 generateNotificationChannelComponent(),
                 DashboardSeparator(),
@@ -94,8 +105,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
     fun generateBanAppealField(): DashboardComponent {
         val container = VerticalContainer()
+        container.isCard = true
         container.add(
-                DashboardTitle(getString(Category.MODERATION, "mod_banappeals")),
                 DashboardText(getString(Category.MODERATION, "mod_banappeals_desc", ExternalLinks.BAN_APPEAL_URL + atomicGuild.idLong)),
                 generateBanAppealLogChannelComponent()
         )
@@ -190,8 +201,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
     fun generateAutoModField(): DashboardComponent {
         val container = VerticalContainer()
+        container.isCard = true
         container.add(
-                DashboardTitle(getString(Category.MODERATION, "mod_state0_mautomod")),
                 generateAutoModSlotField(AutoModSlots.MUTE),
                 DashboardSeparator(),
                 generateAutoModSlotField(AutoModSlots.JAIL),
@@ -266,8 +277,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
     private fun generateInviteFilterField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.MODERATION, "invitefilter_title")))
-
+        container.isCard = true
         val activeSwitch = DashboardSwitch(getString(Category.MODERATION, "invitefilter_state0_menabled")) {
             if (!anyCommandsAreAccessible(InviteFilterCommand::class)) {
                 return@DashboardSwitch ActionResult()
@@ -351,7 +361,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
     private fun generateWordFilterField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(DashboardTitle(getString(Category.MODERATION, "wordfilter_title")))
+        container.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.MODERATION, "wordfilter_state0_menabled")) {
             if (!anyCommandsAreAccessible(WordFilterCommand::class)) {

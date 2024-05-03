@@ -42,14 +42,18 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val welcomeData = DBWelcomeMessage.getInstance().retrieve(atomicGuild.idLong)
 
         mainContainer.add(
-                generateWelcomeField(guild, welcomeData),
+                DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_join")),
+                generateWelcomeField(welcomeData),
+                DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_dm")),
                 generateDMField(welcomeData),
-                generateLeaveField(guild, welcomeData)
+                DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_leave")),
+                generateLeaveField(welcomeData)
         )
     }
 
-    fun generateWelcomeField(guild: Guild, welcomeData: WelcomeMessageData): DashboardComponent {
-        val container = VerticalContainer(DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_join")))
+    fun generateWelcomeField(welcomeData: WelcomeMessageData): DashboardComponent {
+        val container = VerticalContainer()
+        container.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isWelcomeActive = it.data
@@ -146,7 +150,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_backgroundimage"), "temp", 1) {
             val segments = it.data.split('/')
             val localFile = LocalFile(LocalFile.Directory.CDN, String.format("temp/%s", segments[segments.size - 1]))
-            val destinationFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
+            val destinationFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", atomicGuild.idLong))
             destinationFile.delete()
             localFile.copyTo(destinationFile, true)
 
@@ -175,7 +179,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         previewButton.style = DashboardButton.Style.PRIMARY
 
         val resetButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_dashboard_resetbanner")) {
-            val backgroundFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
+            val backgroundFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", atomicGuild.idLong))
             backgroundFile.delete()
 
             entityManager.transaction.begin()
@@ -194,7 +198,8 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     }
 
     fun generateDMField(welcomeData: WelcomeMessageData): DashboardComponent {
-        val container = VerticalContainer(DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_dm")))
+        val container = VerticalContainer()
+        container.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isDmActive = it.data
@@ -238,8 +243,9 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         return container
     }
 
-    fun generateLeaveField(guild: Guild, welcomeData: WelcomeMessageData): DashboardComponent {
-        val container = VerticalContainer(DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_leave")))
+    fun generateLeaveField(welcomeData: WelcomeMessageData): DashboardComponent {
+        val container = VerticalContainer()
+        container.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
             welcomeData.isGoodbyeActive = it.data

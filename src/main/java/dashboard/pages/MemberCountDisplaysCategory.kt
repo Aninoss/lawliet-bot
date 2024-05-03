@@ -45,13 +45,20 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
             clearAttributes()
         }
 
+        if (DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.isNotEmpty()) {
+            mainContainer.add(generateGrid())
+        }
+
         mainContainer.add(
-                generateGrid(),
+                DashboardTitle(getString(Category.CONFIGURATION, "mcdisplays_state1_title")),
                 generateNewDisplayField()
         )
     }
 
     fun generateGrid(): DashboardComponent {
+        val container = VerticalContainer()
+        container.isCard = true
+
         val rows = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.values
                 .map {
                     val atomicVoiceChannel = AtomicVoiceChannel(atomicGuild.idLong, it.voiceChannelId)
@@ -73,15 +80,14 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
                     .withRedraw()
         }
         grid.rowButton = getString(Category.CONFIGURATION, "mcdisplays_dashboard_gridremove")
-        return grid
+        container.add(grid)
+        return container
     }
 
     fun generateNewDisplayField(): DashboardComponent {
         val container = VerticalContainer()
-        container.add(
-                DashboardTitle(getString(Category.CONFIGURATION, "mcdisplays_state1_title")),
-                generateNewDisplayPropertiesField()
-        )
+        container.isCard = true
+        container.add(generateNewDisplayPropertiesField())
 
         val buttonField = HorizontalContainer()
         val addButton = DashboardButton(getString(Category.CONFIGURATION, "mcdisplays_dashboard_add")) {

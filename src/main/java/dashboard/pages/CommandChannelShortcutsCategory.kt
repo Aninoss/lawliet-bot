@@ -42,14 +42,22 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "ccshortcuts_default_desc")))
+
+        if (commandChannelShortcuts.isNotEmpty()) {
+            mainContainer.add(generateShortcutGrid(guild))
+        }
+
         mainContainer.add(
-                DashboardText(getString(Category.CONFIGURATION, "ccshortcuts_default_desc")),
-                generateShortcutGrid(guild),
+                DashboardTitle(getString(Category.CONFIGURATION, "ccshortcuts_add_title")),
                 generateNewShortcutField(guild)
         )
     }
 
     fun generateShortcutGrid(guild: Guild): DashboardComponent {
+        val container = VerticalContainer()
+        container.isCard = true
+
         val rows = commandChannelShortcuts.entries
                 .map {
                     val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.key)
@@ -70,14 +78,13 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         grid.isEnabled = isPremium
         grid.rowButton = getString(Category.CONFIGURATION, "ccshortcuts_dashboard_remove")
 
-        return grid
+        container.add(grid)
+        return container
     }
 
     fun generateNewShortcutField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
-        container.add(
-                DashboardTitle(getString(Category.CONFIGURATION, "ccshortcuts_add_title")),
-        )
+        container.isCard = true
 
         val horizontalContainerer = HorizontalContainer()
         horizontalContainerer.alignment = HorizontalContainer.Alignment.BOTTOM
