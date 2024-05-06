@@ -58,7 +58,10 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                     generateAlertGrid(guild, alertMap)
             )
             innerContainer.isCard = true
-            mainContainer.add(innerContainer)
+            mainContainer.add(
+                DashboardTitle(getString(Category.CONFIGURATION, "alerts_dashboard_active")),
+                innerContainer
+            )
         }
         mainContainer.add(
                 DashboardTitle(getString(Category.CONFIGURATION, "alerts_state5_title")),

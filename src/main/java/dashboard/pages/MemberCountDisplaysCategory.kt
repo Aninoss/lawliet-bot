@@ -46,7 +46,10 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         }
 
         if (DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.isNotEmpty()) {
-            mainContainer.add(generateGrid())
+            mainContainer.add(
+                DashboardTitle(getString(Category.CONFIGURATION, "mcdisplays_dashboard_active")),
+                generateGrid()
+            )
         }
 
         mainContainer.add(

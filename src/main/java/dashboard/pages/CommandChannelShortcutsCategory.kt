@@ -45,7 +45,10 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "ccshortcuts_default_desc")))
 
         if (commandChannelShortcuts.isNotEmpty()) {
-            mainContainer.add(generateShortcutGrid(guild))
+            mainContainer.add(
+                DashboardTitle(getString(Category.CONFIGURATION, "ccshortcuts_dashboard_active")),
+                generateShortcutGrid(guild)
+            )
         }
 
         mainContainer.add(
