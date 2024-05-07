@@ -28,10 +28,10 @@ import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "general",
-    userPermissions = [Permission.MANAGE_SERVER, Permission.MESSAGE_MANAGE],
-    botPermissions = [Permission.MESSAGE_MANAGE],
-    commandAccessRequirements = [LanguageCommand::class, PrefixCommand::class, AutoQuoteCommand::class, TriggerDeleteCommand::class]
+        id = "general",
+        userPermissions = [Permission.MANAGE_SERVER, Permission.MESSAGE_MANAGE],
+        botPermissions = [Permission.MESSAGE_MANAGE],
+        commandAccessRequirements = [LanguageCommand::class, PrefixCommand::class, AutoQuoteCommand::class, TriggerDeleteCommand::class]
 )
 class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
@@ -43,23 +43,21 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         mainContainer.isCard = true
 
         if (anyCommandsAreAccessible(LanguageCommand::class, PrefixCommand::class)) {
-            mainContainer.add(
-                generateTextFields(guild),
-                DashboardSeparator()
-            )
+            mainContainer.add(generateTextFields(guild))
         }
 
         if (anyCommandsAreAccessible(AutoQuoteCommand::class)) {
-            mainContainer.add(
-                generateAutoQuoteSwitch(),
-                DashboardSeparator()
-            )
+            if (mainContainer.children.isNotEmpty()) {
+                mainContainer.add(DashboardSeparator())
+            }
+            mainContainer.add(generateAutoQuoteSwitch())
         }
 
         if (anyCommandsAreAccessible(TriggerDeleteCommand::class)) {
-            mainContainer.add(
-                generateTriggerDeleteSwitch()
-            )
+            if (mainContainer.children.isNotEmpty()) {
+                mainContainer.add(DashboardSeparator())
+            }
+            mainContainer.add(generateTriggerDeleteSwitch())
         }
     }
 
@@ -72,7 +70,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             val languageSelect = DashboardSelect(Command.getCommandLanguage(LanguageCommand::class.java, locale).title, languageEntityList, false) {
                 if (!anyCommandsAreAccessible(LanguageCommand::class)) {
                     return@DashboardSelect ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 }
 
                 val language = Language.valueOf(it.data)
@@ -93,7 +91,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             val prefixField = DashboardTextField(Command.getCommandLanguage(PrefixCommand::class.java, locale).title, 1, 5) {
                 if (!anyCommandsAreAccessible(PrefixCommand::class)) {
                     return@DashboardTextField ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 }
 
                 val prefix = it.data
@@ -112,7 +110,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val switch = DashboardSwitch(Command.getCommandLanguage(AutoQuoteCommand::class.java, locale).title) {
             if (!anyCommandsAreAccessible(AutoQuoteCommand::class)) {
                 return@DashboardSwitch ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             guildEntity.beginTransaction()
@@ -132,7 +130,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val switch = DashboardSwitch(getString(TextManager.GENERAL, "dashboard_premium", title)) {
             if (!anyCommandsAreAccessible(TriggerDeleteCommand::class)) {
                 return@DashboardSwitch ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             guildEntity.beginTransaction()

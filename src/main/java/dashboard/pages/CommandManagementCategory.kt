@@ -40,12 +40,13 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         return getString(TextManager.GENERAL, "dashboard_cman")
     }
 
+    override fun retrievePageDescription(): String {
+        return getString(Category.CONFIGURATION, "cman_state0_desc")
+    }
+
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         if (anyCommandsAreAccessible(CommandManagementCommand::class)) {
-            mainContainer.add(
-                    DashboardText(getString(Category.CONFIGURATION, "cman_state0_desc")),
-                    generateCommandManagementField()
-            )
+            mainContainer.add(generateCommandManagementField())
         }
 
         if (anyCommandsAreAccessible(WhiteListCommand::class)) {
@@ -61,14 +62,14 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
             val commandPermissionsText = Command.getCommandLanguage(CommandPermissionsCommand::class.java, locale).title
             mainContainer.add(
                     DashboardTitle(commandPermissionsText),
-                    DashboardText(getString(Category.CONFIGURATION, "cperms_message0").replace("**", "") + "\n" + getString(Category.CONFIGURATION, "cperms_message1")),
+                    DashboardText(getString(Category.CONFIGURATION, "cperms_message0").replace("**", "")),
                     generateCommandPermissionsField(guild)
             )
         }
     }
 
     private fun generateCommandPermissionsField(guild: Guild): DashboardComponent {
-        val container = VerticalContainer()
+        val container = VerticalContainer(DashboardText(getString(Category.CONFIGURATION, "cperms_message1")))
         container.isCard = true
 
         val button = DashboardButton(getString(Category.CONFIGURATION, "cperms_button")) {

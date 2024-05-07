@@ -42,6 +42,7 @@ public class OnDashboardInit implements SyncServerFunction {
                     JSONObject data = new JSONObject();
                     data.put("id", retrieveCategory.getProperties().id());
                     data.put("title", retrieveCategory.retrievePageTitle());
+                    data.put("description", retrieveCategory.retrievePageDescription());
                     titlesJson.put(data);
                 }
             }

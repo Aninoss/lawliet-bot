@@ -47,6 +47,10 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
 
     abstract fun retrievePageTitle(): String
 
+    open fun retrievePageDescription(): String? {
+        return null;
+    }
+
     abstract fun generateComponents(guild: Guild, mainContainer: VerticalContainer)
 
     fun draw(): DashboardContainer {
