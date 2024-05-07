@@ -9,6 +9,7 @@ import dashboard.DashboardProperties
 import dashboard.component.DashboardComboBox
 import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardSwitch
+import dashboard.component.DashboardText
 import dashboard.components.DashboardChannelComboBox
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.BotLogEntity
@@ -31,7 +32,10 @@ class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.isCard = true
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "suggconfig_state0_description")))
+
+        val innerContainer = VerticalContainer()
+        innerContainer.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "suggconfig_state0_mactive")) {
             val suggestionsData = DBSuggestions.getInstance().retrieve(guild.idLong)
@@ -45,7 +49,7 @@ class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
             ActionResult()
         }
         activeSwitch.isChecked = DBSuggestions.getInstance().retrieve(guild.idLong).isActive
-        mainContainer.add(activeSwitch, DashboardSeparator())
+        innerContainer.add(activeSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardChannelComboBox(
                 this,
@@ -64,7 +68,8 @@ class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
             suggestionsData.setChannelId(it.data.toLong())
             return@DashboardChannelComboBox ActionResult()
         }
-        mainContainer.add(channelComboBox)
+        innerContainer.add(channelComboBox)
+        mainContainer.add(innerContainer)
     }
 
 }

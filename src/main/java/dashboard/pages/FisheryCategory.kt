@@ -63,6 +63,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         clearAttributes()
 
+        mainContainer.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fishery_state0_description").replace("`", "\"")))
         if (anyCommandsAreAccessible(FisheryCommand::class)) {
             val innerContainer = VerticalContainer(
                     generateStateField(),
@@ -74,6 +75,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             mainContainer.add(
                     DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels")),
+                    DashboardText(getString(Category.FISHERY_SETTINGS, "fishery_excludedchannels")),
                     generateExcludeChannelsField()
             )
         }
@@ -81,6 +83,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         if (anyCommandsAreAccessible(VCTimeCommand::class)) {
             mainContainer.add(
                     DashboardTitle(Command.getCommandLanguage(VCTimeCommand::class.java, locale).title),
+                    DashboardText(getString(Category.FISHERY_SETTINGS, "vctime_explanation")),
                     generateVoiceLimitField()
             )
         }
@@ -88,6 +91,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         if (anyCommandsAreAccessible(FisheryRolesCommand::class)) {
             mainContainer.add(
                     DashboardTitle(Command.getCommandLanguage(FisheryRolesCommand::class.java, locale).title),
+                    DashboardText(getString(Category.FISHERY_SETTINGS, "fisheryroles_exp")),
                     generateFisheryRolesField(),
                     DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisheryroles_preview")),
                     generateFisheryRolesPreviewField()
@@ -97,6 +101,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         if (anyCommandsAreAccessible(FisheryManageCommand::class)) {
             mainContainer.add(
                     DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisherymanage_title")),
+                    DashboardText(getString(Category.FISHERY_SETTINGS, "fisherymanage_description")),
                     generateFisheryManageField()
             )
         }
@@ -292,7 +297,6 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     private fun generateFisheryRolesField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
-        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fisheryroles_exp")))
 
         val rolesComboBox = DashboardMultiRolesComboBox(
                 this,
@@ -431,7 +435,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         unlimitedButton.setCanExpand(false)
         horizontalContainer.add(unlimitedButton)
 
-        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "vctime_explanation")), horizontalContainer)
+        container.add(horizontalContainer)
 
         if (!isPremium) {
             val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
@@ -455,7 +459,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 FisheryCommand::class,
                 BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS
         )
-        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fishery_excludedchannels")), comboBox)
+        container.add(comboBox)
         return container
     }
 

@@ -48,6 +48,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         }
 
         mainContainer.add(
+                DashboardText(getString(Category.CONFIGURATION, "ticket_description")),
                 generateGeneralField(),
                 DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcreateoptions")),
                 generateTicketCreateOptionsField(),

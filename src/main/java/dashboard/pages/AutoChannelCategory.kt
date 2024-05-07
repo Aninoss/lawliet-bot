@@ -29,7 +29,10 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.isCard = true
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "autochannel_state0_description")))
+
+        val innerContainer = VerticalContainer()
+        innerContainer.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "autochannel_state0_mactive")) {
             if (it.data != DBAutoChannel.getInstance().retrieve(guild.idLong).isActive) {
@@ -43,7 +46,7 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
             return@DashboardSwitch ActionResult()
         }
         activeSwitch.isChecked = DBAutoChannel.getInstance().retrieve(guild.idLong).isActive
-        mainContainer.add(activeSwitch, DashboardSeparator())
+        innerContainer.add(activeSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardChannelComboBox(
                 this,
@@ -68,7 +71,7 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
             autoChannelData.setParentChannelId(it.data.toLong())
             return@DashboardChannelComboBox ActionResult()
         }
-        mainContainer.add(channelComboBox, DashboardSeparator())
+        innerContainer.add(channelComboBox, DashboardSeparator())
 
         val nameField = DashboardTextField(getString(Category.CONFIGURATION, "autochannel_state0_mchannelname"), 1, AutoChannelCommand.MAX_CHANNEL_NAME_LENGTH) {
             val autoChannelData = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong)
@@ -81,7 +84,7 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
             return@DashboardTextField ActionResult()
         }
         nameField.value = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong).nameMask
-        mainContainer.add(nameField, DashboardText(getString(Category.CONFIGURATION, "autochannel_vars")), DashboardSeparator())
+        innerContainer.add(nameField, DashboardText(getString(Category.CONFIGURATION, "autochannel_vars")), DashboardSeparator())
 
         val lockedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "autochannel_state0_mlocked")) {
             if (it.data != DBAutoChannel.getInstance().retrieve(guild.idLong).isLocked) {
@@ -96,7 +99,8 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         }
         lockedSwitch.isChecked = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong).isLocked
         lockedSwitch.subtitle = getString(Category.CONFIGURATION, "autochannel_dashboard_locked")
-        mainContainer.add(lockedSwitch)
+        innerContainer.add(lockedSwitch)
+        mainContainer.add(innerContainer)
     }
 
 }

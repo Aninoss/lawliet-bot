@@ -57,6 +57,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 mainContainer.add(
                         generateGeneralConfigurationField(),
                         DashboardTitle(getString(Category.MODERATION, "mod_banappeals")),
+                        DashboardText(getString(Category.MODERATION, "mod_banappeals_desc", ExternalLinks.BAN_APPEAL_URL + atomicGuild.idLong)),
                         generateBanAppealField(),
                         DashboardTitle(getString(Category.MODERATION, "mod_state0_mautomod")),
                         generateAutoModField()
@@ -66,6 +67,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             if (anyCommandsAreAccessible(InviteFilterCommand::class)) {
                 mainContainer.add(
                         DashboardTitle(getString(Category.MODERATION, "invitefilter_title")),
+                        DashboardText(getString(Category.MODERATION, "invitefilter_description")),
                         generateInviteFilterField()
                 )
             }
@@ -73,6 +75,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             if (anyCommandsAreAccessible(WordFilterCommand::class)) {
                 mainContainer.add(
                         DashboardTitle(getString(Category.MODERATION, "wordfilter_title")),
+                        DashboardText(getString(Category.MODERATION, "wordfilter_description")),
                         generateWordFilterField()
                 )
             }
@@ -106,10 +109,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     fun generateBanAppealField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
-        container.add(
-                DashboardText(getString(Category.MODERATION, "mod_banappeals_desc", ExternalLinks.BAN_APPEAL_URL + atomicGuild.idLong)),
-                generateBanAppealLogChannelComponent()
-        )
+        container.add(generateBanAppealLogChannelComponent())
         return container
     }
 

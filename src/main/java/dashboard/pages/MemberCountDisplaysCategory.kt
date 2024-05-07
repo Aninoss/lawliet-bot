@@ -45,6 +45,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
             clearAttributes()
         }
 
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "mcdisplays_state0_description")))
         if (DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.isNotEmpty()) {
             mainContainer.add(
                 DashboardTitle(getString(Category.CONFIGURATION, "mcdisplays_dashboard_active")),

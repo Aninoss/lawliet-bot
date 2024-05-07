@@ -27,9 +27,10 @@ class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.isCard = true
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "stickyroles_state0_description")))
 
-        val descText = DashboardText(getString(Category.CONFIGURATION, "stickyroles_state0_description"))
+        val innerContainer = VerticalContainer()
+        innerContainer.isCard = true
         val rolesComboBox = DashboardMultiRolesComboBox(
                 this,
                 Command.getCommandLanguage(StickyRolesCommand::class.java, locale).title,
@@ -41,7 +42,8 @@ class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
                 BotLogEntity.Event.STICKY_ROLES
         )
 
-        mainContainer.add(descText, rolesComboBox)
+        innerContainer.add(rolesComboBox)
+        mainContainer.add(innerContainer)
     }
 
 }

@@ -43,10 +43,13 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         mainContainer.add(
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_join")),
+                DashboardText(getString(Category.CONFIGURATION, "welcome_desc_welcome")),
                 generateWelcomeField(welcomeData),
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_dm")),
+                DashboardText(getString(Category.CONFIGURATION, "welcome_desc_dm")),
                 generateDMField(welcomeData),
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_leave")),
+                DashboardText(getString(Category.CONFIGURATION, "welcome_desc_leave")),
                 generateLeaveField(welcomeData)
         )
     }

@@ -30,7 +30,6 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.isCard = true
         mainContainer.add(
             DashboardText(Command.getCommandLanguage(NSFWFilterCommand::class.java, locale).descShort),
             generateFilterComboBox(guild)
@@ -38,6 +37,9 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     }
 
     private fun generateFilterComboBox(guild: Guild): DashboardComponent {
+        val container = VerticalContainer()
+        container.isCard = true
+
         val nsfwKeywords = DBNSFWFilters.getInstance().retrieve(guild.idLong).keywords
         val label = getString(Category.CONFIGURATION, "nsfwfilter_state0_mkeywords")
         val comboBox = DashboardComboBox(label, emptyList(), true, NSFWFilterCommand.MAX_FILTERS) {
@@ -62,7 +64,9 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         }
         comboBox.allowCustomValues = true
         comboBox.selectedValues = nsfwKeywords.map { DiscordEntity(it, it) }
-        return comboBox
+
+        container.add(comboBox)
+        return container
     }
 
 }

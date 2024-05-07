@@ -54,8 +54,10 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             innerContainer.isCard = true
 
             mainContainer.add(
+                    DashboardText(getString(Category.INVITE_TRACKING, "invitetracking_state0_description")),
                     innerContainer,
                     DashboardTitle(getString(Category.INVITE_TRACKING, "invitetracking_log_title")),
+                    DashboardText(getString(Category.INVITE_TRACKING, "invitetracking_log_desc")),
                     generateLogsField(inviteTrackingData)
             )
         }
@@ -63,6 +65,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         if (anyCommandsAreAccessible(InvitesManageCommand::class)) {
             mainContainer.add(
                     DashboardTitle(getString(Category.INVITE_TRACKING, "invmanage_title")),
+                    DashboardText(getString(Category.INVITE_TRACKING, "invmanage_description")),
                     generateInvitesManageField(inviteTrackingData)
             )
         }

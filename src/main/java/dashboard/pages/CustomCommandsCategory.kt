@@ -44,6 +44,8 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "customconfig_dashboard_desc", StringUtil.numToString(CustomConfigCommand.MAX_COMMANDS_FREE))))
+
         if (!updateMode && customCommands.isNotEmpty()) {
             mainContainer.add(
                     DashboardTitle(getString(Category.CONFIGURATION, "customconfig_dashboard_active")),
@@ -91,7 +93,6 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
     private fun generateCustomCommandField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
-        container.add(DashboardText(getString(Category.CONFIGURATION, "customconfig_dashboard_desc", StringUtil.numToString(CustomConfigCommand.MAX_COMMANDS_FREE))))
 
         val textFieldsContainer = HorizontalContainer()
         textFieldsContainer.allowWrap = true

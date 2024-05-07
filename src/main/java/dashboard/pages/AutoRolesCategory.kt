@@ -38,9 +38,11 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.isCard = true
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "autoroles_state0_description")))
 
-        val descText = DashboardText(getString(Category.CONFIGURATION, "autoroles_state0_description"))
+        val innerContainer = VerticalContainer()
+        innerContainer.isCard = true
+
         val rolesComboBox = DashboardMultiRolesComboBox(
                 this,
                 Command.getCommandLanguage(AutoRolesCommand::class.java, locale).title,
@@ -51,7 +53,7 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
                 null,
                 BotLogEntity.Event.AUTO_ROLES
         )
-        mainContainer.add(descText, rolesComboBox, DashboardSeparator())
+        innerContainer.add(rolesComboBox, DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
         val syncButton = DashboardButton(getString(Category.CONFIGURATION, "autoroles_dashboard_syncbutton")) {
@@ -74,13 +76,15 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
         syncButton.isEnabled = isPremium
         syncButton.style = DashboardButton.Style.PRIMARY
         buttonContainer.add(syncButton, HorizontalPusher())
-        mainContainer.add(buttonContainer)
+        innerContainer.add(buttonContainer)
 
         if (!isPremium) {
             val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
             text.style = DashboardText.Style.ERROR
-            mainContainer.add(text)
+            innerContainer.add(text)
         }
+
+        mainContainer.add(innerContainer)
     }
 
 }

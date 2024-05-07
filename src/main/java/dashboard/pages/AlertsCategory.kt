@@ -51,6 +51,8 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_description")))
+
         val alertMap = DBTracker.getInstance().retrieve(guild.idLong)
         if (alertMap.isNotEmpty()) {
             val innerContainer = VerticalContainer(

@@ -54,6 +54,8 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         if (config.emojiFormatted.isEmpty()) {
             resetValues()
         }
+
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "customrp_description")))
         if (!updateMode && customRolePlayCommands.isNotEmpty()) {
             mainContainer.add(
                     DashboardTitle(getString(Category.CONFIGURATION, "customrp_dashboard_active")),

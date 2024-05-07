@@ -57,6 +57,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             switchMode(Mode.OVERVIEW)
         }
 
+        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "giveaway_dashboard_desc")))
         if (mode == Mode.OVERVIEW) {
             if (giveawayEntities.any { it.value.active }) {
                 mainContainer.add(
