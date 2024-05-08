@@ -16,11 +16,11 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
-import dashboard.data.GridRow
 import modules.schedulers.AlertScheduler
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
@@ -50,19 +50,18 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         return Command.getCommandLanguage(AlertsCommand::class.java, locale).title
     }
 
-    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_description")))
+    override fun retrievePageDescription(): String? {
+        return getString(Category.CONFIGURATION, "alerts_dashboard_description")
+    }
 
+    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val alertMap = DBTracker.getInstance().retrieve(guild.idLong)
         if (alertMap.isNotEmpty()) {
-            val innerContainer = VerticalContainer(
-                    DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_desc")),
-                    generateAlertGrid(guild, alertMap)
-            )
+            val innerContainer = VerticalContainer(generateAlertList(guild, alertMap))
             innerContainer.isCard = true
             mainContainer.add(
-                DashboardTitle(getString(Category.CONFIGURATION, "alerts_dashboard_active")),
-                innerContainer
+                    DashboardTitle(getString(Category.CONFIGURATION, "alerts_dashboard_active")),
+                    generateAlertList(guild, alertMap)
             )
         }
         mainContainer.add(
@@ -71,8 +70,8 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         )
     }
 
-    fun generateAlertGrid(guild: Guild, alertMap: CustomObservableMap<Int, TrackerData>): DashboardComponent {
-        val rows = alertMap.values
+    fun generateAlertList(guild: Guild, alertMap: CustomObservableMap<Int, TrackerData>): DashboardComponent {
+        val items = alertMap.values
                 .filter { it.guildMessageChannel.isPresent }
                 .sortedWith { a0, a1 ->
                     val channelO: Long = a0.guildMessageChannelId
@@ -83,28 +82,34 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                         channelO.compareTo(channel1)
                     }
                 }
-                .map {
-                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.guildMessageChannelId)
-                    val values = arrayOf(it.commandTrigger, atomicChannel.getPrefixedName(locale), it.commandKey)
-                    GridRow(it.hashCode().toString(), values)
+                .map { trackerData ->
+                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, trackerData.guildMessageChannelId)
+                    val container = HorizontalContainer(
+                            DashboardText("${atomicChannel.getPrefixedName(locale)}: ${prefix}${trackerData.commandTrigger}"),
+                            HorizontalPusher()
+                    )
+                    container.alignment = HorizontalContainer.Alignment.CENTER
+
+                    val button = DashboardButton(getString(Category.CONFIGURATION, "alerts_dashboard_gridremove")) {
+                        val alertSlot = alertMap.get(trackerData.hashCode())
+                        if (alertSlot != null) {
+                            entityManager.transaction.begin()
+                            BotLogEntity.log(entityManager, BotLogEntity.Event.ALERTS, atomicMember, null, alertSlot.commandTrigger)
+                            entityManager.transaction.commit()
+                            alertSlot.delete()
+                        }
+                        ActionResult()
+                                .withRedraw()
+                    }
+                    button.enableConfirmationMessage(getString(Category.CONFIGURATION, "alerts_dashboard_gridconfirm"))
+                    button.style = DashboardButton.Style.DANGER
+                    container.add(button)
+                    return@map container
                 }
 
-        val headers = getString(Category.CONFIGURATION, "alerts_dashboard_gridheaders").split('\n').toTypedArray()
-        val grid = DashboardGrid(headers, rows) {
-            val alertSlot = alertMap.get(it.data.toInt())
-            if (alertSlot != null) {
-                entityManager.transaction.begin()
-                BotLogEntity.log(entityManager, BotLogEntity.Event.ALERTS, atomicMember, null, alertSlot.commandTrigger)
-                entityManager.transaction.commit()
-                alertSlot.delete()
-            }
-            ActionResult()
-                    .withRedraw()
-        }
-        grid.rowButton = getString(Category.CONFIGURATION, "alerts_dashboard_gridremove")
-        grid.enableConfirmationMessage(getString(Category.CONFIGURATION, "alerts_dashboard_gridconfirm"))
-
-        return grid
+        val container = DashboardListContainer()
+        container.add(items)
+        return container
     }
 
     fun generateNewAlertField(guild: Guild, alertMap: CustomObservableMap<Int, TrackerData>): DashboardComponent {
@@ -121,8 +126,8 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         attachmentField.value = userMessage
         attachmentField.isEnabled = isPremium
         attachmentField.editButton = false
-        container.add(DashboardSeparator(), attachmentField)
-        container.add(DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_attachment_help")))
+        container.add(DashboardSeparator(true), attachmentField)
+        container.add(DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_attachment_help"), DashboardText.Style.HINT))
 
         val minIntervalField = DashboardDurationField(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval")) {
             if (isPremium) {
@@ -133,9 +138,9 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         minIntervalField.value = minInterval.toLong()
         minIntervalField.isEnabled = isPremium
         minIntervalField.editButton = false
-        container.add(DashboardSeparator(), DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval")))
+        container.add(DashboardSeparator(true), DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval")))
         container.add(minIntervalField)
-        container.add(DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval_help")))
+        container.add(DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval_help"), DashboardText.Style.HINT))
 
         val buttonField = HorizontalContainer()
         val addButton = DashboardButton(getString(Category.CONFIGURATION, "alerts_dashboard_add")) {
@@ -221,7 +226,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         }
         addButton.style = DashboardButton.Style.PRIMARY
         buttonField.add(addButton, HorizontalPusher())
-        container.add(DashboardSeparator(), buttonField)
+        container.add(DashboardSeparator(true), buttonField)
         return container
     }
 

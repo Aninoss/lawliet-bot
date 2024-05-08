@@ -15,11 +15,11 @@ import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
 import dashboard.components.DashboardMemberComboBox
+import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
-import dashboard.data.GridRow
 import modules.invitetracking.InviteTracking
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
@@ -46,6 +46,10 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         return Command.getCommandLanguage(InviteTrackingCommand::class.java, locale).title
     }
 
+    override fun retrievePageDescription(): String? {
+        return getString(Category.INVITE_TRACKING, "invitetracking_state0_description")
+    }
+
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val inviteTrackingData = DBInviteTracking.getInstance().retrieve(atomicGuild.idLong)
 
@@ -54,10 +58,9 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             innerContainer.isCard = true
 
             mainContainer.add(
-                    DashboardText(getString(Category.INVITE_TRACKING, "invitetracking_state0_description")),
                     innerContainer,
                     DashboardTitle(getString(Category.INVITE_TRACKING, "invitetracking_log_title")),
-                    DashboardText(getString(Category.INVITE_TRACKING, "invitetracking_log_desc")),
+                    DashboardText(getString(Category.INVITE_TRACKING, "invitetracking_log_desc") + "\n\n" + getString(Category.INVITE_TRACKING, "invitetracking_dashboard_advancedstats_hint")),
                     generateLogsField(inviteTrackingData)
             )
         }
@@ -175,10 +178,25 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
     fun generateInvitesManageField(inviteTrackingData: InviteTrackingData): DashboardComponent {
         val premium = isPremium
         val container = VerticalContainer()
-        container.isCard = true
 
         if (inviteTrackingData.isActive) {
-            container.add(generateInvitesManageMemberField(inviteTrackingData, premium))
+            container.add(generateInvitesManageMemberField(premium))
+
+            if (manageMember != null) {
+                val invitedSlots = inviteTrackingData.inviteTrackingSlots.values
+                        .filter { it.inviterUserId == manageMember }
+
+                val listAddContainer = VerticalContainer()
+                listAddContainer.isCard = true
+                if (invitedSlots.isNotEmpty()) {
+                    listAddContainer.add(
+                            generateInvitesManageListField(inviteTrackingData, invitedSlots, premium),
+                            DashboardSeparator(true)
+                    )
+                }
+                listAddContainer.add(generateInvitesManageAddField(inviteTrackingData, premium))
+                container.add(listAddContainer)
+            }
         } else {
             container.add(DashboardText(getString(Category.INVITE_TRACKING, "invmanage_notactive")))
         }
@@ -191,9 +209,12 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         return container
     }
 
-    private fun generateInvitesManageMemberField(inviteTrackingData: InviteTrackingData, premium: Boolean): DashboardComponent {
+    private fun generateInvitesManageMemberField(premium: Boolean): DashboardComponent {
         val container = VerticalContainer()
+        container.isCard = true
+
         val memberContainer = HorizontalContainer()
+        memberContainer.allowWrap = true
         memberContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
         val manageMemberComboBox = DashboardMemberComboBox(
@@ -235,109 +256,120 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         memberContainer.add(vanityInviteButton)
 
         container.add(memberContainer)
+        return container
+    }
 
-        if (manageMember != null) {
-            val gridRows = inviteTrackingData.inviteTrackingSlots.values
-                    .filter { it.inviterUserId == manageMember }
-                    .map {
-                        val atomicMember = AtomicMember(atomicGuild.idLong, it.memberId)
-                        GridRow(it.memberId.toString(), arrayOf(atomicMember.getUsername(locale)))
-                    }
+    private fun generateInvitesManageListField(inviteTrackingData: InviteTrackingData, invitedSlots: List<InviteTrackingSlot>, premium: Boolean): DashboardComponent {
+        val container = VerticalContainer()
+        val itemRows = invitedSlots
+                .map { slot ->
+                    val atomicMember = AtomicMember(atomicGuild.idLong, slot.memberId)
 
-            if (!gridRows.isEmpty()) {
-                val invitesGrid = DashboardGrid(arrayOf(getString(Category.INVITE_TRACKING, "invmanage_invitedmember")), gridRows) {
-                    if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
-                        return@DashboardGrid ActionResult()
+                    val itemContainer = HorizontalContainer()
+                    itemContainer.alignment = HorizontalContainer.Alignment.CENTER
+                    itemContainer.add(DashboardText(atomicMember.getUsername(locale)), HorizontalPusher())
+
+                    val deleteButton = DashboardButton(getString(Category.INVITE_TRACKING, "invmanage_grid_delete")) {
+                        if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
+                            return@DashboardButton ActionResult()
+                                    .withRedraw()
+                        }
+
+                        entityManager.transaction.begin()
+                        BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, null, slot.memberId, listOf(manageMember!!))
+                        entityManager.transaction.commit()
+
+                        FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
+                        inviteTrackingData.inviteTrackingSlots.remove(slot.memberId)
+                        ActionResult()
                                 .withRedraw()
                     }
-
-                    entityManager.transaction.begin()
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, null, it.data, listOf(manageMember!!))
-                    entityManager.transaction.commit()
-
-                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
-                    inviteTrackingData.inviteTrackingSlots.remove(it.data.toLong())
-                    ActionResult()
-                            .withRedraw()
+                    deleteButton.isEnabled = premium
+                    deleteButton.style = DashboardButton.Style.DANGER
+                    itemContainer.add(deleteButton)
+                    return@map itemContainer
                 }
-                invitesGrid.isEnabled = premium
-                invitesGrid.rowButton = getString(Category.INVITE_TRACKING, "invmanage_grid_delete")
-                container.add(DashboardSeparator(), invitesGrid)
 
-                val resetAllButton = DashboardButton(getString(Category.INVITE_TRACKING, "invmanage_resetall")) {
-                    if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
-                        return@DashboardButton ActionResult()
-                                .withRedraw()
-                    }
+        val listCategory = DashboardListContainer()
+        listCategory.add(itemRows)
+        container.add(DashboardText(getString(Category.INVITE_TRACKING, "invitetracking_dashboard_invitedmembers")), listCategory)
 
-                    entityManager.transaction.begin()
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES_RESET, atomicMember, null, null, listOf(manageMember!!))
-                    entityManager.transaction.commit()
-
-                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
-                    DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(atomicGuild.idLong, manageMember!!.toLong())
-                    ActionResult()
-                            .withRedraw()
-                }
-                resetAllButton.style = DashboardButton.Style.DANGER
-                resetAllButton.isEnabled = premium
-                resetAllButton.enableConfirmationMessage(getString(Category.INVITE_TRACKING, "invmanage_resetall_danger"))
-                container.add(resetAllButton)
-            }
-
-            val addNewContainer = HorizontalContainer()
-            addNewContainer.allowWrap = true
-            addNewContainer.alignment = HorizontalContainer.Alignment.BOTTOM
-
-            val addInviteMemberComboBox = DashboardMemberComboBox(
-                    getString(Category.INVITE_TRACKING, "invmanage_invitedmember"),
-                    locale,
-                    atomicGuild.idLong,
-                    addInviteMember,
-                    true
-            ) {
-                addInviteMember = it.data?.toLong()
-                ActionResult()
+        val resetAllButton = DashboardButton(getString(Category.INVITE_TRACKING, "invmanage_resetall")) {
+            if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
+                return@DashboardButton ActionResult()
                         .withRedraw()
             }
-            manageMemberComboBox.isEnabled = premium
-            addNewContainer.add(addInviteMemberComboBox)
 
-            val addInviteButton = DashboardButton(getString(Category.INVITE_TRACKING, "invmanage_state1_title")) {
-                if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
-                    return@DashboardButton ActionResult()
-                            .withRedraw()
-                }
+            entityManager.transaction.begin()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES_RESET, atomicMember, null, null, listOf(manageMember!!))
+            entityManager.transaction.commit()
 
-                if (addInviteMember != null) {
-                    val inviteTrackingSlot =
-                            InviteTrackingSlot(atomicGuild.idLong, addInviteMember!!, manageMember!!, LocalDate.now(), LocalDate.now(), true)
+            FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
+            DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(atomicGuild.idLong, manageMember!!.toLong())
+            ActionResult()
+                    .withRedraw()
+        }
+        resetAllButton.style = DashboardButton.Style.DANGER
+        resetAllButton.isEnabled = premium
+        resetAllButton.enableConfirmationMessage(getString(Category.INVITE_TRACKING, "invmanage_resetall_danger"))
+        container.add(resetAllButton)
+        return container
+    }
 
-                    entityManager.transaction.begin()
-                    BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, addInviteMember!!, null, listOf(manageMember!!))
-                    entityManager.transaction.commit()
+    private fun generateInvitesManageAddField(inviteTrackingData: InviteTrackingData, premium: Boolean): DashboardComponent {
+        val container = VerticalContainer()
+        val addNewContainer = HorizontalContainer()
+        addNewContainer.allowWrap = true
+        addNewContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
-                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
-                    inviteTrackingData.inviteTrackingSlots[inviteTrackingSlot.memberId] = inviteTrackingSlot
-                    addInviteMember = null
-                    ActionResult()
-                            .withRedraw()
-                } else {
-                    ActionResult()
-                            .withErrorMessage(getString(Category.INVITE_TRACKING, "invmanage_unknownmember"))
-                }
+        val addInviteMemberComboBox = DashboardMemberComboBox(
+                getString(Category.INVITE_TRACKING, "invmanage_invitedmember"),
+                locale,
+                atomicGuild.idLong,
+                addInviteMember,
+                true
+        ) {
+            addInviteMember = it.data?.toLong()
+            ActionResult()
+                    .withRedraw()
+        }
+        addInviteMemberComboBox.isEnabled = premium
+        addNewContainer.add(addInviteMemberComboBox)
+
+        val addInviteButton = DashboardButton(getString(Category.INVITE_TRACKING, "invmanage_state1_title")) {
+            if (!anyCommandsAreAccessible(InvitesManageCommand::class)) {
+                return@DashboardButton ActionResult()
+                        .withRedraw()
             }
-            addInviteButton.style = DashboardButton.Style.PRIMARY
-            addInviteButton.isEnabled = premium
-            addInviteButton.setCanExpand(false)
-            addNewContainer.add(addInviteButton)
-            container.add(DashboardSeparator(), addNewContainer)
 
-            if (addInviteMember != null && inviteTrackingData.inviteTrackingSlots.containsKey(addInviteMember)) {
-                val text = DashboardText(getString(Category.INVITE_TRACKING, "invmanage_override"))
-                text.style = DashboardText.Style.ERROR
-                container.add(text)
+            if (addInviteMember != null) {
+                val inviteTrackingSlot =
+                        InviteTrackingSlot(atomicGuild.idLong, addInviteMember!!, manageMember!!, LocalDate.now(), LocalDate.now(), true)
+
+                entityManager.transaction.begin()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, addInviteMember!!, null, listOf(manageMember!!))
+                entityManager.transaction.commit()
+
+                FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
+                inviteTrackingData.inviteTrackingSlots[inviteTrackingSlot.memberId] = inviteTrackingSlot
+                addInviteMember = null
+                ActionResult()
+                        .withRedraw()
+            } else {
+                ActionResult()
+                        .withErrorMessage(getString(Category.INVITE_TRACKING, "invmanage_unknownmember"))
             }
+        }
+        addInviteButton.style = DashboardButton.Style.PRIMARY
+        addInviteButton.isEnabled = premium
+        addInviteButton.setCanExpand(false)
+        addNewContainer.add(addInviteButton)
+        container.add(addNewContainer)
+
+        if (addInviteMember != null && inviteTrackingData.inviteTrackingSlots.containsKey(addInviteMember)) {
+            val text = DashboardText(getString(Category.INVITE_TRACKING, "invmanage_override"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
         }
 
         return container

@@ -8,7 +8,6 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.DashboardComboBox
-import dashboard.component.DashboardText
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import mysql.hibernate.entity.BotLogEntity
@@ -29,11 +28,12 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         return Command.getCommandLanguage(NSFWFilterCommand::class.java, locale).title
     }
 
+    override fun retrievePageDescription(): String? {
+        return Command.getCommandLanguage(NSFWFilterCommand::class.java, locale).descShort
+    }
+
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(
-            DashboardText(Command.getCommandLanguage(NSFWFilterCommand::class.java, locale).descShort),
-            generateFilterComboBox(guild)
-        )
+        mainContainer.add(generateFilterComboBox(guild))
     }
 
     private fun generateFilterComboBox(guild: Guild): DashboardComponent {
@@ -64,6 +64,7 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         }
         comboBox.allowCustomValues = true
         comboBox.selectedValues = nsfwKeywords.map { DiscordEntity(it, it) }
+        comboBox.placeholder = getString(Category.CONFIGURATION, "nsfwfilter_dashboard_placeholder")
 
         container.add(comboBox)
         return container
