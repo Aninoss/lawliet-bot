@@ -5,7 +5,6 @@ import commands.Command
 import commands.runnables.configurationcategory.StickyRolesCommand
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
-import dashboard.component.DashboardText
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.BotLogEntity
@@ -26,9 +25,11 @@ class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         return Command.getCommandLanguage(StickyRolesCommand::class.java, locale).title
     }
 
-    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "stickyroles_state0_description")))
+    override fun retrievePageDescription(): String? {
+        return getString(Category.CONFIGURATION, "stickyroles_state0_description")
+    }
 
+    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val innerContainer = VerticalContainer()
         innerContainer.isCard = true
         val rolesComboBox = DashboardMultiRolesComboBox(

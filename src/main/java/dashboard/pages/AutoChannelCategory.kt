@@ -28,9 +28,11 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         return Command.getCommandLanguage(AutoChannelCommand::class.java, locale).title
     }
 
-    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "autochannel_state0_description")))
+    override fun retrievePageDescription(): String {
+        return getString(Category.CONFIGURATION, "autochannel_state0_description")
+    }
 
+    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val innerContainer = VerticalContainer()
         innerContainer.isCard = true
 
@@ -84,7 +86,11 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
             return@DashboardTextField ActionResult()
         }
         nameField.value = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong).nameMask
-        innerContainer.add(nameField, DashboardText(getString(Category.CONFIGURATION, "autochannel_vars")), DashboardSeparator())
+        innerContainer.add(
+                nameField,
+                DashboardText(getString(Category.CONFIGURATION, "autochannel_vars").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardSeparator()
+        )
 
         val lockedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "autochannel_state0_mlocked")) {
             if (it.data != DBAutoChannel.getInstance().retrieve(guild.idLong).isLocked) {

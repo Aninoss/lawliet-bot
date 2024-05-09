@@ -41,14 +41,16 @@ class BotLogsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         return Command.getCommandLanguage(BotLogsCommand::class.java, locale).title
     }
 
+    override fun retrievePageDescription(): String {
+        return getString(Category.INFORMATION, "botlogs_delete")
+    }
+
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         var entries: List<BotLogEntity>? = null
         if (entryIds.isEmpty()) {
             entries = findAll(entityManager, atomicGuild.idLong)
             entryIds = entries.map { it.id!! }
         }
-
-        mainContainer.add(DashboardText(getString(Category.INFORMATION, "botlogs_delete")))
 
         for (i in page * ENTRIES_PER_PAGE until min(entryIds.size, (page + 1) * ENTRIES_PER_PAGE)) {
             val botLogEntity: BotLogEntity? = if (entries != null) {

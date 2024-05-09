@@ -11,10 +11,10 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
-import dashboard.data.GridRow
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.CustomRolePlayEntity
 import mysql.hibernate.entity.guild.GuildEntity
@@ -43,6 +43,10 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         return getString(Category.CONFIGURATION, "customrp_title")
     }
 
+    override fun retrievePageDescription(): String {
+        return getString(Category.CONFIGURATION, "customrp_description")
+    }
+
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         if (!isPremium) {
             val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
@@ -55,7 +59,6 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
             resetValues()
         }
 
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "customrp_description")))
         if (!updateMode && customRolePlayCommands.isNotEmpty()) {
             mainContainer.add(
                     DashboardTitle(getString(Category.CONFIGURATION, "customrp_dashboard_active")),
@@ -72,30 +75,31 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         val container = VerticalContainer()
         container.isCard = true
 
-        val rows = customRolePlayCommands.entries
-                .map {
-                    GridRow(it.key, arrayOf(it.key))
+        val items = customRolePlayCommands.entries
+                .map { customRolePlay ->
+                    val button = DashboardButton(getString(Category.CONFIGURATION, "customrp_dashboard_grid_button")) {
+                        val entity = customRolePlayCommands[customRolePlay.key]
+                        if (entity == null) {
+                            return@DashboardButton ActionResult()
+                                    .withRedraw()
+                        }
+
+                        updateMode = true
+                        trigger = customRolePlay.key
+                        oldTrigger = trigger
+                        config = entity.copy()
+                        ActionResult()
+                                .withRedraw()
+                    }
+
+                    val itemContainer = HorizontalContainer(DashboardText(customRolePlay.key), HorizontalPusher(), button)
+                    itemContainer.alignment = HorizontalContainer.Alignment.CENTER
+                    return@map itemContainer
                 }
 
-        val headers = arrayOf(getString(Category.CONFIGURATION, "customrp_config_property_trigger"))
-        val grid = DashboardGrid(headers, rows) {
-            val entity = customRolePlayCommands[it.data]
-            if (entity == null) {
-                return@DashboardGrid ActionResult()
-                        .withRedraw()
-            }
-
-            updateMode = true
-            trigger = it.data
-            oldTrigger = trigger
-            config = entity.copy()
-            ActionResult()
-                    .withRedraw()
-        }
-        grid.rowButton = getString(Category.CONFIGURATION, "customrp_dashboard_grid_button")
-        container.add(grid)
-
-        return container
+        val listContainer = DashboardListContainer()
+        listContainer.add(items)
+        return listContainer
     }
 
     private fun generateConfigField(): DashboardComponent {
@@ -122,6 +126,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
         triggerTextField.value = trigger ?: ""
         triggerTextField.editButton = false
+        triggerTextField.placeholder = getString(Category.CONFIGURATION, "customrp_dashboard_trigger_placeholder")
         textFieldsContainer.add(triggerTextField)
 
         val titleTextField = DashboardTextField(getString(Category.CONFIGURATION, "customrp_config_property_title"), 1, CustomRolePlayCommand.MAX_COMMAND_TITLE_LENGTH) {
@@ -154,7 +159,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         emojiField.editButton = false
         emojiField.value = config.emojiFormatted
         textFieldsContainer.add(emojiField)
-        container.add(textFieldsContainer, DashboardSeparator())
+        container.add(textFieldsContainer, DashboardSeparator(true))
 
         val textNoMembersTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customrp_config_property_textno"), 1, CustomRolePlayCommand.MAX_TEXT_LENGTH) {
             config.textNoMembers = it.data
@@ -162,7 +167,12 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
         textNoMembersTextField.value = config.textNoMembers ?: ""
         textNoMembersTextField.editButton = false
-        container.add(textNoMembersTextField, DashboardText(getString(Category.CONFIGURATION, "customrp_placeholder_author")), DashboardSeparator())
+        textNoMembersTextField.placeholder = getString(Category.CONFIGURATION, "customrp_dashboard_text0_placeholder")
+        container.add(
+                textNoMembersTextField,
+                DashboardText(getString(Category.CONFIGURATION, "customrp_placeholder_author").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardSeparator(true)
+        )
 
         val textSingleMemberTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customrp_config_property_textsingle"), 1, CustomRolePlayCommand.MAX_TEXT_LENGTH) {
             config.textSingleMember = it.data
@@ -170,7 +180,12 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
         textSingleMemberTextField.value = config.textSingleMember ?: ""
         textSingleMemberTextField.editButton = false
-        container.add(textSingleMemberTextField, DashboardText(getString(Category.CONFIGURATION, "customrp_placeholders")), DashboardSeparator())
+        textSingleMemberTextField.placeholder = getString(Category.CONFIGURATION, "customrp_dashboard_text1_placeholder")
+        container.add(
+                textSingleMemberTextField,
+                DashboardText(getString(Category.CONFIGURATION, "customrp_placeholders").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardSeparator(true)
+        )
 
         val textMultiMembersTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customrp_config_property_textmulti"), 1, CustomRolePlayCommand.MAX_TEXT_LENGTH) {
             config.textMultiMembers = it.data
@@ -178,13 +193,19 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
         textMultiMembersTextField.value = config.textMultiMembers ?: ""
         textMultiMembersTextField.editButton = false
-        container.add(textMultiMembersTextField, DashboardText(getString(Category.CONFIGURATION, "customrp_placeholders")), DashboardSeparator())
+        textMultiMembersTextField.placeholder = getString(Category.CONFIGURATION, "customrp_dashboard_textmulti_placeholder")
+        container.add(
+                textMultiMembersTextField,
+                DashboardText(getString(Category.CONFIGURATION, "customrp_placeholders").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardSeparator()
+        )
 
         val nsfwSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "customrp_config_property_nsfw")) {
             config.nsfw = it.data
             return@DashboardSwitch ActionResult()
         }
         nsfwSwitch.isChecked = config.nsfw
+        nsfwSwitch.subtitle = getString(Category.CONFIGURATION, "customrp_dashboard_nsfw_hint")
         container.add(nsfwSwitch, DashboardSeparator())
 
         val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "customrp_config_property_attachments"), "customrp", CustomRolePlayCommand.MAX_ATTACHMENTS - config.imageFilenames.size) { e ->
@@ -197,7 +218,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     .withRedraw()
         }
         imageUpload.values = config.imageUrls
-        container.add(imageUpload, DashboardSeparator())
+        container.add(imageUpload, DashboardSeparator(true))
 
         val buttonContainer = HorizontalContainer()
         val button = DashboardButton(getString(Category.CONFIGURATION, "customrp_dashboard_submit")) {

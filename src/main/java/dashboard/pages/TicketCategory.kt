@@ -42,13 +42,16 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         return Command.getCommandLanguage(TicketCommand::class.java, locale).title
     }
 
+    override fun retrievePageDescription(): String? {
+        return getString(Category.CONFIGURATION, "ticket_description")
+    }
+
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         if (createMessageContent.isEmpty()) {
             createMessageContent = TextManager.getString(guildEntity.locale, Category.CONFIGURATION, "ticket_message_content")
         }
 
         mainContainer.add(
-                DashboardText(getString(Category.CONFIGURATION, "ticket_description")),
                 generateGeneralField(),
                 DashboardTitle(getString(Category.CONFIGURATION, "ticket_state0_mcreateoptions")),
                 generateTicketCreateOptionsField(),
@@ -137,7 +140,11 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
             ticketsEntity.commitTransaction()
             return@DashboardChannelComboBox ActionResult()
         }
-        container.add(logChannel)
+        container.add(
+                logChannel,
+                DashboardText(getString(Category.CONFIGURATION, "ticket_dashboard_logchannel_hint"), DashboardText.Style.HINT),
+                DashboardSeparator()
+        )
 
         val staffContainer = HorizontalContainer()
         staffContainer.allowWrap = true
@@ -171,7 +178,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         }
         assignmentMode.selectedValues = listOf(assignmentValues[ticketsEntity.assignmentMode.ordinal])
         staffContainer.add(assignmentMode)
-        container.add(staffContainer)
+        container.add(staffContainer, DashboardText(getString(Category.CONFIGURATION, "ticket_state6_values").replace("- ", ""), DashboardText.Style.HINT))
 
         return container
     }
@@ -248,6 +255,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
             return@DashboardSwitch ActionResult()
         }
         enforceTextInputs.isChecked = ticketsEntity.enforceModal
+        enforceTextInputs.subtitle = getString(Category.CONFIGURATION, "ticket_dashboard_enforcetext_hint")
         container.add(enforceTextInputs, DashboardSeparator())
 
         val greetingText = DashboardMultiLineTextField(

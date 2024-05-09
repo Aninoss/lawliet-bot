@@ -11,11 +11,11 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
-import dashboard.data.GridRow
 import modules.MemberCountDisplay
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
@@ -49,7 +49,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         if (DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.isNotEmpty()) {
             mainContainer.add(
                 DashboardTitle(getString(Category.CONFIGURATION, "mcdisplays_dashboard_active")),
-                generateGrid()
+                generateListContainer()
             )
         }
 
@@ -59,33 +59,33 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         )
     }
 
-    fun generateGrid(): DashboardComponent {
+    fun generateListContainer(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
 
-        val rows = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.values
-                .map {
-                    val atomicVoiceChannel = AtomicVoiceChannel(atomicGuild.idLong, it.voiceChannelId)
-                    val values = arrayOf(atomicVoiceChannel.getPrefixedName(locale), it.mask)
-                    GridRow(it.voiceChannelId.toString(), values)
+        val items = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.values
+                .map { slot ->
+                    val button = DashboardButton(getString(Category.CONFIGURATION, "mcdisplays_dashboard_gridremove")) {
+                        val removedSlot = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.remove(slot.voiceChannelId)
+                        if (removedSlot != null) {
+                            entityManager.transaction.begin()
+                            BotLogEntity.log(entityManager, BotLogEntity.Event.MEMBER_COUNT_DISPLAYS_DISCONNECT, atomicMember, removedSlot.voiceChannelId)
+                            entityManager.transaction.commit()
+                        }
+
+                        return@DashboardButton ActionResult()
+                                .withRedraw()
+                    }
+                    button.style = DashboardButton.Style.DANGER
+
+                    val itemContainer = HorizontalContainer(DashboardText(slot.mask), HorizontalPusher(), button)
+                    itemContainer.alignment = HorizontalContainer.Alignment.CENTER
+                    return@map itemContainer
                 }
 
-        val headers = getString(Category.CONFIGURATION, "mcdisplays_dashboard_gridheader").split('\n').toTypedArray()
-        val grid = DashboardGrid(headers, rows) {
-            val slot = DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.remove(it.data.toLong())
-
-            if (slot != null) {
-                entityManager.transaction.begin()
-                BotLogEntity.log(entityManager, BotLogEntity.Event.MEMBER_COUNT_DISPLAYS_DISCONNECT, atomicMember, slot.voiceChannelId)
-                entityManager.transaction.commit()
-            }
-
-            ActionResult()
-                    .withRedraw()
-        }
-        grid.rowButton = getString(Category.CONFIGURATION, "mcdisplays_dashboard_gridremove")
-        container.add(grid)
-        return container
+        val listContainer = DashboardListContainer()
+        listContainer.add(items)
+        return listContainer
     }
 
     fun generateNewDisplayField(): DashboardComponent {
@@ -117,7 +117,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         }
         addButton.style = DashboardButton.Style.PRIMARY
         buttonField.add(addButton, HorizontalPusher())
-        container.add(DashboardSeparator(), buttonField)
+        container.add(DashboardSeparator(true), buttonField)
         return container
     }
 
@@ -143,7 +143,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         if (atomicVoiceChannel != null) {
             channelComboBox.selectedValues = listOf(DiscordEntity(atomicVoiceChannel!!.idLong.toString(), atomicVoiceChannel!!.getPrefixedName(locale)))
         }
-        container.add(channelComboBox, DashboardSeparator())
+        container.add(channelComboBox, DashboardSeparator(true))
 
         val nameMaskLabel = getString(Category.CONFIGURATION, "mcdisplays_dashboard_mask")
         val nameMaskTextField = DashboardTextField(nameMaskLabel, 1, MemberCountDisplayCommand.MAX_NAME_MASK_LENGTH) {
@@ -158,7 +158,10 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         }
         nameMaskTextField.editButton = false
         nameMaskTextField.value = nameMask
-        container.add(nameMaskTextField, DashboardText(getString(Category.CONFIGURATION, "mcdisplays_vars").replace("-", "•")))
+        container.add(
+                nameMaskTextField,
+                DashboardText(getString(Category.CONFIGURATION, "mcdisplays_vars").replace("- ", ""), DashboardText.Style.HINT)
+        )
 
         return container;
     }

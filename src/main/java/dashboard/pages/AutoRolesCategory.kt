@@ -37,9 +37,11 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
         return Command.getCommandLanguage(AutoRolesCommand::class.java, locale).title
     }
 
-    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "autoroles_state0_description")))
+    override fun retrievePageDescription(): String? {
+        return getString(Category.CONFIGURATION, "autoroles_state0_description")
+    }
 
+    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val innerContainer = VerticalContainer()
         innerContainer.isCard = true
 
@@ -76,7 +78,7 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
         syncButton.isEnabled = isPremium
         syncButton.style = DashboardButton.Style.PRIMARY
         buttonContainer.add(syncButton, HorizontalPusher())
-        innerContainer.add(buttonContainer)
+        innerContainer.add(buttonContainer, DashboardText(getString(Category.CONFIGURATION, "autoroles_dashboard_sync_hint"), DashboardText.Style.HINT))
 
         if (!isPremium) {
             val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))

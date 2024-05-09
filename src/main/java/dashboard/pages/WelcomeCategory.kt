@@ -83,7 +83,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.welcomeText
-        container.add(descriptionField, DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("-", "•")), DashboardSeparator())
+        container.add(
+                descriptionField,
+                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardSeparator()
+        )
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.welcomeEmbed = it.data
@@ -95,6 +99,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         embedSwitch.isChecked = welcomeData.welcomeEmbed
+        embedSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_embeds_hint")
         container.add(embedSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardChannelComboBox(
@@ -113,7 +118,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
                     .withRedraw()
         }
-        container.add(channelComboBox)
+        container.add(channelComboBox, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_channel_hint"), DashboardText.Style.HINT))
 
         val channel = welcomeData.welcomeChannel.orElse(null)
         if (channel != null && !BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) {
@@ -133,6 +138,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         bannerSwitch.isChecked = welcomeData.banner
+        bannerSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_banners_hint")
         container.add(bannerSwitch, DashboardSeparator())
 
         val titleField = DashboardTextField(
@@ -229,7 +235,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.dmText
-        container.add(descriptionField, DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("-", "•")), DashboardSeparator())
+        container.add(
+                descriptionField,
+                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardSeparator()
+        )
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.dmEmbed = it.data
@@ -241,6 +251,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         embedSwitch.isChecked = welcomeData.dmEmbed
+        embedSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_embeds_hint")
         container.add(embedSwitch)
 
         return container
@@ -275,7 +286,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.goodbyeText
-        container.add(descriptionField, DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("-", "•")), DashboardSeparator())
+        container.add(
+                descriptionField,
+                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardSeparator()
+        )
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
             welcomeData.goodbyeEmbed = it.data
@@ -287,6 +302,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         embedSwitch.isChecked = welcomeData.goodbyeEmbed
+        embedSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_embeds_hint")
         container.add(embedSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardChannelComboBox(
@@ -305,7 +321,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
                     .withRedraw()
         }
-        container.add(channelComboBox)
+        container.add(channelComboBox, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_channel_hint"), DashboardText.Style.HINT))
 
         val channel = welcomeData.goodbyeChannel.orElse(null)
         if (channel != null && !BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) {

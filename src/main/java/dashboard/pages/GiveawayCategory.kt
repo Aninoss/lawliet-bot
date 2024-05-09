@@ -8,14 +8,17 @@ import core.TextManager
 import core.atomicassets.AtomicGuildMessageChannel
 import core.utils.BotPermissionUtil
 import core.utils.MentionUtil
-import dashboard.*
+import dashboard.ActionResult
+import dashboard.DashboardCategory
+import dashboard.DashboardComponent
+import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
 import dashboard.components.DashboardMultiRolesComboBox
+import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
-import dashboard.data.GridRow
 import modules.Giveaway
 import modules.schedulers.GiveawayScheduler
 import mysql.hibernate.entity.BotLogEntity
@@ -52,12 +55,15 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         return Command.getCommandLanguage(GiveawayCommand::class.java, locale).title
     }
 
+    override fun retrievePageDescription(): String? {
+        return getString(Category.CONFIGURATION, "giveaway_dashboard_desc")
+    }
+
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         if (previousItem == null) {
             switchMode(Mode.OVERVIEW)
         }
 
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "giveaway_dashboard_desc")))
         if (mode == Mode.OVERVIEW) {
             if (giveawayEntities.any { it.value.active }) {
                 mainContainer.add(
@@ -90,7 +96,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_button"),
                 { it.active }
         ) {
-            val giveaway = giveawayEntities.get(it.data.toLong())
+            val giveaway = giveawayEntities.get(it)
             if (giveaway != null && giveaway.active) {
                 config = giveaway.copy()
                 previousItem = config.item
@@ -105,7 +111,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                 getString(Category.CONFIGURATION, "giveaway_dashboard_completed_button"),
                 { !it.active }
         ) {
-            val giveaway = giveawayEntities.get(it.data.toLong())
+            val giveaway = giveawayEntities.get(it)
             if (giveaway != null && !giveaway.active) {
                 config = giveaway.copy()
                 previousItem = config.item
@@ -114,28 +120,29 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         }
     }
 
-    private fun generateGiveawaysTable(guild: Guild, rowButton: String, filter: (GiveawayEntity) -> Boolean, action: (DashboardEvent<String>) -> Any): DashboardComponent {
-        val container = VerticalContainer()
-        container.isCard = true
-
-        val rows = giveawayEntities.values
+    private fun generateGiveawaysTable(guild: Guild, rowButton: String, filter: (GiveawayEntity) -> Boolean, action: (Long) -> Any): DashboardComponent {
+        val items = giveawayEntities.values
                 .filter(filter)
-                .map {
-                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.channelId)
-                    val values = arrayOf(it.item, atomicChannel.getPrefixedName(locale))
-                    GridRow(it.messageId.toString(), values)
+                .map { giveaway ->
+                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, giveaway.channelId)
+                    val editButton = DashboardButton(rowButton) {
+                        action(giveaway.messageId)
+                        ActionResult()
+                                .withRedrawScrollToTop()
+                    }
+
+                    val itemContainer = HorizontalContainer(
+                            DashboardText("${atomicChannel.getPrefixedName(locale)}: ${giveaway.item}"),
+                            HorizontalPusher(),
+                            editButton
+                    )
+                    itemContainer.alignment = HorizontalContainer.Alignment.CENTER
+                    return@map itemContainer
                 }
 
-        val headers = getString(Category.CONFIGURATION, "giveaway_dashboard_header").split('\n').toTypedArray()
-        val grid = DashboardGrid(headers, rows) {
-            action(it)
-            ActionResult()
-                    .withRedrawScrollToTop()
-        }
-        grid.rowButton = rowButton
-        container.add(grid)
-
-        return container
+        val listContainer = DashboardListContainer()
+        listContainer.add(items)
+        return listContainer
     }
 
     private fun generateGiveawayDataField(guild: Guild): DashboardComponent {
@@ -194,7 +201,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         descTextfield.editButton = false
         descTextfield.placeholder = getString(Category.CONFIGURATION, "giveaway_dashboard_desc_placeholder")
         descTextfield.isEnabled = mode != Mode.REROLL
-        container.add(descTextfield, DashboardSeparator())
+        container.add(descTextfield, DashboardSeparator(true))
 
         val durationField = DashboardDurationField(getString(Category.CONFIGURATION, "giveaway_state3_mduration")) {
             if (mode != Mode.OVERVIEW) {
@@ -259,26 +266,23 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         rolesField.isEnabled = mode == Mode.OVERVIEW
         winnersEmojiRolesContainer.add(rolesField)
 
-        container.add(winnersEmojiRolesContainer, DashboardSeparator())
+        container.add(winnersEmojiRolesContainer, DashboardSeparator(true))
 
         if (mode != Mode.REROLL) {
-            val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "giveaway_dashboard_includedimage"), "giveaway", 1) {
-                config.imageUrl = it.data
-                ActionResult()
+            val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "giveaway_dashboard_includedimage"), "giveaway", 1) { e ->
+                if (e.type == "add") {
+                    config.imageUrl = e.data
+                } else if (e.type == "remove") {
+                    config.imageFilename = null
+                }
+                return@DashboardImageUpload ActionResult()
                         .withRedraw()
             }
-            container.add(imageUpload)
-
             if (config.imageFilename != null) {
-                container.add(DashboardImage(config.imageUrl))
-                val removeImageButton = DashboardButton(getString(Category.CONFIGURATION, "giveaway_dashboard_removeimage")) {
-                    config.imageFilename = null
-                    ActionResult()
-                            .withRedraw()
-                }
-                container.add(HorizontalContainer(removeImageButton, HorizontalPusher()))
+                imageUpload.values = listOf(config.imageUrl)
             }
-            container.add(DashboardSeparator())
+            container.add(imageUpload)
+            container.add(DashboardSeparator(true))
         }
 
         val buttonContainer = HorizontalContainer()

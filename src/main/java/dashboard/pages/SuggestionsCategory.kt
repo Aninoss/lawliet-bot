@@ -9,7 +9,6 @@ import dashboard.DashboardProperties
 import dashboard.component.DashboardComboBox
 import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardSwitch
-import dashboard.component.DashboardText
 import dashboard.components.DashboardChannelComboBox
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.BotLogEntity
@@ -31,9 +30,11 @@ class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         return getString(TextManager.GENERAL, "dashboard_suggestions")
     }
 
-    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "suggconfig_state0_description")))
+    override fun retrievePageDescription(): String {
+        return getString(Category.CONFIGURATION, "suggconfig_state0_description")
+    }
 
+    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val innerContainer = VerticalContainer()
         innerContainer.isCard = true
 

@@ -12,10 +12,10 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
-import dashboard.data.GridRow
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.CustomCommandEntity
 import mysql.hibernate.entity.guild.GuildEntity
@@ -43,9 +43,11 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         return getString(Category.CONFIGURATION, "customconfig_dashboard_title")
     }
 
-    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "customconfig_dashboard_desc", StringUtil.numToString(CustomConfigCommand.MAX_COMMANDS_FREE))))
+    override fun retrievePageDescription(): String {
+        return getString(Category.CONFIGURATION, "customconfig_dashboard_desc", StringUtil.numToString(CustomConfigCommand.MAX_COMMANDS_FREE))
+    }
 
+    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         if (!updateMode && customCommands.isNotEmpty()) {
             mainContainer.add(
                     DashboardTitle(getString(Category.CONFIGURATION, "customconfig_dashboard_active")),
@@ -60,34 +62,32 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
     }
 
     private fun generateActiveCustomCommandsField(): DashboardComponent {
-        val container = VerticalContainer()
-        container.isCard = true
+        val items = customCommands.entries
+                .map { customCommand ->
+                    val button = DashboardButton(getString(Category.CONFIGURATION, "customconfig_dashboard_grid_button")) {
+                        val entity = customCommands[customCommand.key]
+                        if (entity == null) {
+                            return@DashboardButton ActionResult()
+                                    .withRedraw()
+                        }
 
-        val rows = customCommands.entries
-                .map {
-                    GridRow(it.key, arrayOf(it.key))
+                        updateMode = true
+                        trigger = customCommand.key
+                        oldTrigger = trigger
+                        config = entity.copy()
+
+                        return@DashboardButton ActionResult()
+                                .withRedraw()
+                    }
+
+                    val itemContainer = HorizontalContainer(DashboardText(customCommand.key), HorizontalPusher(), button)
+                    itemContainer.alignment = HorizontalContainer.Alignment.CENTER
+                    return@map itemContainer
                 }
 
-        val headers = arrayOf(getString(Category.CONFIGURATION, "customconfig_add_trigger"))
-        val grid = DashboardGrid(headers, rows) {
-            val entity = customCommands[it.data]
-            if (entity == null) {
-                return@DashboardGrid ActionResult()
-                        .withRedraw()
-            }
-
-            updateMode = true
-            trigger = it.data
-            oldTrigger = trigger
-            config = entity.copy()
-
-            ActionResult()
-                    .withRedraw()
-        }
-        grid.rowButton = getString(Category.CONFIGURATION, "customconfig_dashboard_grid_button")
-        container.add(grid)
-
-        return container
+        val listContainer = DashboardListContainer()
+        listContainer.add(items)
+        return listContainer
     }
 
     private fun generateCustomCommandField(): DashboardComponent {
@@ -114,6 +114,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
         triggerTextField.value = trigger ?: ""
         triggerTextField.editButton = false
+        triggerTextField.placeholder = getString(Category.CONFIGURATION, "customconfig_dashboard_entertext")
         textFieldsContainer.add(triggerTextField)
 
         val titleTextField = DashboardTextField(getString(Category.CONFIGURATION, "customconfig_add_header_title"), 0, CustomConfigCommand.MAX_COMMAND_TITLE_LENGTH) {
@@ -122,6 +123,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
         titleTextField.value = config.title ?: ""
         titleTextField.editButton = false
+        titleTextField.placeholder = getString(Category.CONFIGURATION, "customconfig_dashboard_entertext")
         textFieldsContainer.add(titleTextField)
 
         val emojiField = DashboardTextField(getString(Category.CONFIGURATION, "customconfig_add_emoji"), 0, 100) {
@@ -150,8 +152,9 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
         emojiField.editButton = false
         emojiField.value = config.emojiFormatted ?: ""
+        emojiField.placeholder = getString(Category.CONFIGURATION, "customconfig_dashboard_enteremoji")
         textFieldsContainer.add(emojiField)
-        container.add(textFieldsContainer, DashboardSeparator())
+        container.add(textFieldsContainer, DashboardSeparator(true))
 
         val textResponseTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customconfig_add_textresponse"), 1, CustomConfigCommand.MAX_TEXT_RESPONSE_LENGTH) {
             config.textResponse = it.data
@@ -159,7 +162,12 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         }
         textResponseTextField.value = config.textResponse
         textResponseTextField.editButton = false
-        container.add(textResponseTextField, DashboardSeparator())
+        textResponseTextField.placeholder = getString(Category.CONFIGURATION, "customconfig_dashboard_entertext")
+        container.add(
+                textResponseTextField,
+                DashboardText(getString(Category.CONFIGURATION, "customconfig_dashboard_textresponse_hint"), DashboardText.Style.HINT),
+                DashboardSeparator(true)
+        )
 
         val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "customconfig_add_image"), "custom", 1) { e ->
             if (e.type == "add") {
@@ -171,7 +179,11 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     .withRedraw()
         }
         imageUpload.values = if (config.imageUrl != null) listOf(config.imageUrl) else emptyList()
-        container.add(imageUpload, DashboardSeparator())
+        container.add(
+                imageUpload,
+                DashboardText(getString(Category.CONFIGURATION, "customconfig_dashboard_image_hint"), DashboardText.Style.HINT),
+                DashboardSeparator(true)
+        )
 
         val buttonContainer = HorizontalContainer()
         val button = DashboardButton(getString(Category.CONFIGURATION, if (updateMode) "customconfig_dashboard_button_update" else "customconfig_dashboard_button_add")) {

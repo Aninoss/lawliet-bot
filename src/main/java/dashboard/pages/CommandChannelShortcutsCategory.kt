@@ -11,12 +11,16 @@ import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
-import dashboard.component.*
+import dashboard.component.DashboardButton
+import dashboard.component.DashboardComboBox
+import dashboard.component.DashboardText
+import dashboard.component.DashboardTitle
 import dashboard.components.DashboardChannelComboBox
+import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
+import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
-import dashboard.data.GridRow
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
@@ -41,13 +45,15 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         return Command.getCommandLanguage(CommandChannelShortcutsCommand::class.java, locale).title
     }
 
-    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "ccshortcuts_default_desc")))
+    override fun retrievePageDescription(): String {
+        return getString(Category.CONFIGURATION, "ccshortcuts_default_desc")
+    }
 
+    override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         if (commandChannelShortcuts.isNotEmpty()) {
             mainContainer.add(
                 DashboardTitle(getString(Category.CONFIGURATION, "ccshortcuts_dashboard_active")),
-                generateShortcutGrid(guild)
+                generateShortcutListContainer(guild)
             )
         }
 
@@ -57,32 +63,37 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
         )
     }
 
-    fun generateShortcutGrid(guild: Guild): DashboardComponent {
+    fun generateShortcutListContainer(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
 
-        val rows = commandChannelShortcuts.entries
-                .map {
-                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, it.key)
-                    val values = arrayOf(atomicChannel.getPrefixedName(locale), it.value)
-                    GridRow(it.key.toString(), values)
+        val items = commandChannelShortcuts.entries
+                .map { shortcut ->
+                    val button = DashboardButton(getString(Category.CONFIGURATION, "ccshortcuts_dashboard_remove")) {
+                        guildEntity.beginTransaction()
+                        commandChannelShortcuts.remove(shortcut.key)
+                        BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_DELETE, atomicMember, shortcut.key)
+                        guildEntity.commitTransaction()
+
+                        return@DashboardButton ActionResult()
+                                .withRedraw()
+                    }
+                    button.style = DashboardButton.Style.DANGER
+                    button.isEnabled = isPremium
+
+                    val atomicChannel = AtomicGuildMessageChannel(guild.idLong, shortcut.key)
+                    val itemContainer = HorizontalContainer(
+                            DashboardText("${atomicChannel.getPrefixedName(locale)}: ${shortcut.value}"),
+                            HorizontalPusher(),
+                            button
+                    )
+                    itemContainer.alignment = HorizontalContainer.Alignment.CENTER
+                    return@map itemContainer
                 }
 
-        val headers = arrayOf(getString(Category.CONFIGURATION, "ccshortcuts_add_channel"), getString(Category.CONFIGURATION, "ccshortcuts_add_command"))
-        val grid = DashboardGrid(headers, rows) {
-            guildEntity.beginTransaction()
-            commandChannelShortcuts.remove(it.data.toLong())
-            BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_CHANNEL_SHORTCUTS_DELETE, atomicMember, it.data.toLong())
-            guildEntity.commitTransaction()
-
-            ActionResult()
-                    .withRedraw()
-        }
-        grid.isEnabled = isPremium
-        grid.rowButton = getString(Category.CONFIGURATION, "ccshortcuts_dashboard_remove")
-
-        container.add(grid)
-        return container
+        val listContainer = DashboardListContainer()
+        listContainer.add(items)
+        return listContainer
     }
 
     fun generateNewShortcutField(guild: Guild): DashboardComponent {
