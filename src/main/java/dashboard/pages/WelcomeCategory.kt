@@ -45,6 +45,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_join")),
                 DashboardText(getString(Category.CONFIGURATION, "welcome_desc_welcome")),
                 generateWelcomeField(welcomeData),
+                generateWelcomeBannerField(welcomeData),
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_dm")),
                 DashboardText(getString(Category.CONFIGURATION, "welcome_desc_dm")),
                 generateDMField(welcomeData),
@@ -126,7 +127,19 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             warningText.style = DashboardText.Style.ERROR
             container.add(warningText)
         }
-        container.add(DashboardSeparator())
+
+        return container
+    }
+
+    fun generateWelcomeBannerField(welcomeData: WelcomeMessageData): DashboardComponent {
+        val container = VerticalContainer()
+
+        val bannerTitle = DashboardText(getString(Category.CONFIGURATION, "welcome_state0_mbanner"))
+        bannerTitle.putCssProperties("margin-top", "1.25rem")
+        container.add(bannerTitle)
+
+        val innerContainer = VerticalContainer()
+        innerContainer.isCard = true
 
         val bannerSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_mbanner")) {
             welcomeData.banner = it.data
@@ -139,7 +152,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
         bannerSwitch.isChecked = welcomeData.banner
         bannerSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_banners_hint")
-        container.add(bannerSwitch, DashboardSeparator())
+        innerContainer.add(bannerSwitch, DashboardSeparator())
 
         val titleField = DashboardTextField(
                 getString(Category.CONFIGURATION, "welcome_state0_mtitle"),
@@ -154,7 +167,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         titleField.value = welcomeData.welcomeTitle
-        container.add(titleField)
+        innerContainer.add(titleField, DashboardSeparator())
 
         val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_backgroundimage"), "temp", 1) {
             val segments = it.data.split('/')
@@ -171,13 +184,14 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
                     .withRedraw()
         }
-        container.add(imageUpload)
+        imageUpload.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_bannerimage_replace"))
+        innerContainer.add(imageUpload)
 
         if (renderBannerPreview) {
             renderBannerPreview = false
             val bannerUrl = InternetUtil.getUrlFromInputStream(WelcomeGraphics.createImageWelcome(atomicMember.get().get(), welcomeData.getWelcomeTitle()).get(), "png")
             val bannerImage = DashboardImage(bannerUrl)
-            container.add(bannerImage)
+            innerContainer.add(bannerImage)
         }
 
         val previewButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_dashboard_preview")) {
@@ -199,10 +213,11 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
                     .withRedraw()
         }
+        resetButton.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_reset"))
         resetButton.style = DashboardButton.Style.DANGER
 
-        container.add(HorizontalContainer(previewButton, resetButton, HorizontalPusher()))
-
+        innerContainer.add(HorizontalContainer(previewButton, resetButton, HorizontalPusher()))
+        container.add(innerContainer)
         return container
     }
 
