@@ -260,7 +260,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         manageMembers.isEnabled = premium
         container.add(manageMembers)
 
-        val manageRoles = DashboardMultiRolesComboBox(
+        val manageRolesComboBox = DashboardMultiRolesComboBox(
                 this,
                 getString(Category.FISHERY_SETTINGS, "fisherymanage_roles"),
                 { manageRoles },
@@ -268,8 +268,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 50,
                 false
         )
-        manageRoles.isEnabled = premium
-        container.add(manageRoles)
+        manageRolesComboBox.isEnabled = premium
+        container.add(manageRolesComboBox)
         return container
     }
 
@@ -313,7 +313,15 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 true,
                 FisheryRolesCommand::class,
                 BotLogEntity.Event.FISHERY_ROLES
-        )
+        ) { event ->
+            if (fisheryEntity.fisheryStatus != FisheryStatus.STOPPED && event.type == "remove") {
+                return@DashboardMultiRolesComboBox ActionResult()
+                        .withRedraw()
+                        .withErrorMessage(getString(Category.FISHERY_SETTINGS, "fisheryroles_roleremoveconditions"))
+            } else {
+                return@DashboardMultiRolesComboBox null
+            }
+        }
         container.add(rolesComboBox)
 
         val announcementChannelComboBox = DashboardChannelComboBox(

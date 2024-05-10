@@ -9,6 +9,7 @@ import core.atomicassets.AtomicRole
 import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
+import dashboard.DashboardEvent
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
 import mysql.hibernate.entity.BotLogEntity
@@ -27,7 +28,8 @@ class DashboardMultiRolesComboBox(
         max: Int,
         checkManageable: Boolean,
         commandAccessRequirement: KClass<out Command>? = null,
-        botLogEvent: BotLogEntity.Event? = null
+        botLogEvent: BotLogEntity.Event? = null,
+        customProcessor: ((DashboardEvent<String>) -> ActionResult?)? = null
 ) : DashboardComboBox(label, DataType.ROLES, canBeEmpty, max) {
 
     init {
@@ -40,6 +42,13 @@ class DashboardMultiRolesComboBox(
         }
 
         setActionListener { event ->
+            if (customProcessor != null) {
+                val actionResult = customProcessor(event)
+                if (actionResult != null) {
+                    return@setActionListener actionResult
+                }
+            }
+
             val guild: Guild = ShardManager.getLocalGuildById(guildId).orElse(null) ?: return@setActionListener ActionResult()
             val role: Role? = guild.getRoleById(event.data.toLong())
             val member: Member = MemberCacheController.getInstance().loadMember(guild, memberId).get() ?: return@setActionListener ActionResult()
