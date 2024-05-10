@@ -48,6 +48,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
     lateinit var previousTitle: String
     lateinit var slotConfiguration: ReactionRoleSlotEntity
     var editMode = false
+    var slotEditMode = false
+    var slotEditPosition = 0
     var imageCdn: File? = null
 
     val reactionRoleEntities: Map<Long, ReactionRoleEntity>
@@ -74,16 +76,24 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             }
         }
 
-        val headerTitle = if (editMode) {
-            getString(Category.CONFIGURATION, "reactionroles_state2_title")
+        if (slotEditMode) {
+            mainContainer.add(
+                    DashboardTitle(getString(Category.CONFIGURATION, "reactionroles_state7_title")),
+                    generateSlotAddContainer(guild)
+            )
         } else {
-            getString(Category.CONFIGURATION, "reactionroles_state1_title")
+            val headerTitle = if (editMode) {
+                getString(Category.CONFIGURATION, "reactionroles_state2_title")
+            } else {
+                getString(Category.CONFIGURATION, "reactionroles_state1_title")
+            }
+
+            mainContainer.add(
+                    DashboardTitle(headerTitle),
+                    generateReactionRolesDataField(),
+                    generateSlotsField(guild)
+            )
         }
-        mainContainer.add(
-                DashboardTitle(headerTitle),
-                generateReactionRolesDataField(),
-                generateReactionRolesSlotField(guild)
-        )
     }
 
     private fun generateReactionRolesListContainer(guild: Guild): DashboardComponent {
@@ -324,26 +334,46 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         return container
     }
 
-    private fun generateReactionRolesSlotField(guild: Guild): DashboardComponent {
+    private fun generateSlotsField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
 
-        val text = DashboardText(getString(Category.CONFIGURATION, "reactionroles_state3_mshortcuts"))
-        text.putCssProperties("margin-top", "1.25rem")
-        container.add(text)
+        val slotText = DashboardText(getString(Category.CONFIGURATION, "reactionroles_state3_mshortcuts"))
+        slotText.putCssProperties("margin-top", "1.25rem")
+        container.add(slotText)
 
         val items = config.slots
                 .mapIndexed { i, slot ->
                     val atomicRole = AtomicRole(atomicGuild.idLong, slot.roleIds[0])
-                    val button = DashboardButton(getString(Category.CONFIGURATION, "reactionroles_dashboard_slots_button")) {
-                        config.slots.removeAt(i)
+                    val editButton = DashboardButton(getString(Category.CONFIGURATION, "reactionroles_dashboard_slots_edit")) {
+                        slotConfiguration = config.slots[i].copy()
+                        slotEditMode = true
+                        slotEditPosition = i
+                        return@DashboardButton ActionResult()
+                                .withRedrawScrollToTop()
+                    }
+
+                    val upButton = DashboardButton("🡑") {
+                        config.slots.add(i - 1, config.slots.removeAt(i))
                         return@DashboardButton ActionResult()
                                 .withRedraw()
                     }
+                    upButton.style = DashboardButton.Style.TERTIARY
+                    upButton.isEnabled = i != 0
+
+                    val downButton = DashboardButton("🡓") {
+                        config.slots.add(i + 1, config.slots.removeAt(i))
+                        return@DashboardButton ActionResult()
+                                .withRedraw()
+                    }
+                    downButton.style = DashboardButton.Style.TERTIARY
+                    downButton.isEnabled = i != config.slots.size - 1
 
                     val itemContainer = HorizontalContainer(
                             DashboardText(if (slot.customLabel != null) slot.customLabel else atomicRole.getPrefixedName(locale)),
                             HorizontalPusher(),
-                            button
+                            upButton,
+                            editButton,
+                            downButton
                     )
                     itemContainer.alignment = HorizontalContainer.Alignment.CENTER
                     return@mapIndexed itemContainer
@@ -367,7 +397,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         propertiesContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
         val emojiField = DashboardTextField(getString(Category.CONFIGURATION, "reactionroles_addslot_emoji"), 0, 100) {
-            slotConfiguration.emojiFormatted = it.data
+            slotConfiguration.emojiFormatted = if (it.data.isNotEmpty()) it.data else null
             ActionResult()
         }
         emojiField.editButton = false
@@ -387,7 +417,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         container.add(propertiesContainer)
 
         val customLabelField = DashboardTextField(getString(Category.CONFIGURATION, "reactionroles_addslot_customlabel"), 0, ReactionRolesCommand.CUSTOM_LABEL_MAX_LENGTH) {
-            slotConfiguration.customLabel = it.data
+            slotConfiguration.customLabel = if (it.data.isNotEmpty()) it.data else null
             ActionResult()
         }
         customLabelField.editButton = false
@@ -400,7 +430,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         )
 
         val buttonContainer = HorizontalContainer()
-        val addButton = DashboardButton(getString(Category.CONFIGURATION, "reactionroles_dashboard_slots_add")) {
+        val addButton = DashboardButton(getString(Category.CONFIGURATION, "reactionroles_dashboard_slots_add", slotEditMode)) {
             val emojis = MentionUtil.getEmojis(guild, slotConfiguration.emojiFormatted ?: "").list
             val emoji = if (emojis.isEmpty()) {
                 null
@@ -415,7 +445,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
             }
-            if (config.slots.size >= ReactionRolesCommand.MAX_SLOTS_TOTAL) {
+            if (!slotEditMode && config.slots.size >= ReactionRolesCommand.MAX_SLOTS_TOTAL) {
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.CONFIGURATION, "reactionroles_toomanyshortcuts", ReactionRolesCommand.MAX_SLOTS_TOTAL.toString()))
             }
@@ -429,13 +459,42 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             }
 
             slotConfiguration.emojiFormatted = emoji?.formatted
-            config.slots += slotConfiguration.copy()
+            if (slotEditMode) {
+                config.slots[slotEditPosition] = slotConfiguration.copy()
+            } else {
+                config.slots += slotConfiguration.copy()
+            }
+
             slotConfiguration = ReactionRoleSlotEntity()
+            slotEditMode = false
             ActionResult()
                     .withRedraw()
         }
-        addButton.setCanExpand(false)
-        buttonContainer.add(addButton, HorizontalPusher())
+        buttonContainer.add(addButton)
+
+        if (slotEditMode) {
+            addButton.style = DashboardButton.Style.PRIMARY
+
+            val removeButton = DashboardButton(getString(Category.CONFIGURATION, "reactionroles_dashboard_slots_remove")) {
+                config.slots.removeAt(slotEditPosition)
+                slotConfiguration = ReactionRoleSlotEntity()
+                slotEditMode = false
+                return@DashboardButton ActionResult()
+                        .withRedraw()
+            }
+            removeButton.style = DashboardButton.Style.DANGER
+            buttonContainer.add(removeButton)
+
+            val cancelButton = DashboardButton(getString(Category.CONFIGURATION, "reactionroles_dashboard_slots_cancel")) {
+                slotConfiguration = ReactionRoleSlotEntity()
+                slotEditMode = false
+                return@DashboardButton ActionResult()
+                        .withRedraw()
+            }
+            buttonContainer.add(cancelButton)
+        }
+
+        buttonContainer.add(HorizontalPusher())
         container.add(buttonContainer)
         return container
     }
