@@ -50,6 +50,12 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        if (!isPremium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"), DashboardText.Style.ERROR)
+            mainContainer.add(text)
+            return
+        }
+
         if (commandChannelShortcuts.isNotEmpty()) {
             mainContainer.add(
                 DashboardTitle(getString(Category.CONFIGURATION, "ccshortcuts_dashboard_active")),
@@ -79,7 +85,6 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
                                 .withRedraw()
                     }
                     button.style = DashboardButton.Style.DANGER
-                    button.isEnabled = isPremium
 
                     val atomicChannel = AtomicGuildMessageChannel(guild.idLong, shortcut.key)
                     val itemContainer = HorizontalContainer(
@@ -117,7 +122,6 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
             ActionResult()
                     .withRedraw()
         }
-        channelComboBox.isEnabled = isPremium
         if (channelId != null) {
             val atomicChannel = AtomicGuildMessageChannel(atomicGuild.idLong, channelId!!)
             channelComboBox.selectedValues = listOf(DiscordEntity(channelId.toString(), atomicChannel.getPrefixedName(locale)))
@@ -136,14 +140,13 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
             ActionResult()
                     .withRedraw()
         }
-        commandComboBox.isEnabled = isPremium
         if (trigger != null) {
             commandComboBox.selectedValues = listOf(DiscordEntity(trigger!!, trigger!!))
         }
         horizontalContainerer.add(commandComboBox)
 
         val addButton = DashboardButton(getString(Category.CONFIGURATION, "ccshortcuts_dashboard_add")) {
-            if (!isPremium || channelId == null || trigger == null) {
+            if (channelId == null || trigger == null) {
                 return@DashboardButton ActionResult()
                         .withRedraw()
             }
@@ -173,17 +176,11 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
             ActionResult()
                     .withRedraw()
         }
-        addButton.isEnabled = isPremium && trigger != null && channelId != null
+        addButton.isEnabled = trigger != null && channelId != null
         addButton.style = DashboardButton.Style.PRIMARY
 
         horizontalContainerer.add(addButton)
         container.add(horizontalContainerer)
-
-        if (!isPremium) {
-            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
-            text.style = DashboardText.Style.ERROR
-            container.add(text)
-        }
         return container
     }
 

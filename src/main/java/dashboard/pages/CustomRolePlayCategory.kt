@@ -159,7 +159,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         emojiField.editButton = false
         emojiField.value = config.emojiFormatted
         textFieldsContainer.add(emojiField)
-        container.add(textFieldsContainer, DashboardSeparator(true))
+        container.add(textFieldsContainer, DashboardSeparator())
 
         val textNoMembersTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customrp_config_property_textno"), 1, CustomRolePlayCommand.MAX_TEXT_LENGTH) {
             config.textNoMembers = it.data
@@ -171,7 +171,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         container.add(
                 textNoMembersTextField,
                 DashboardText(getString(Category.CONFIGURATION, "customrp_placeholder_author").replace("- ", ""), DashboardText.Style.HINT),
-                DashboardSeparator(true)
+                DashboardSeparator()
         )
 
         val textSingleMemberTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customrp_config_property_textsingle"), 1, CustomRolePlayCommand.MAX_TEXT_LENGTH) {
@@ -184,7 +184,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         container.add(
                 textSingleMemberTextField,
                 DashboardText(getString(Category.CONFIGURATION, "customrp_placeholders").replace("- ", ""), DashboardText.Style.HINT),
-                DashboardSeparator(true)
+                DashboardSeparator()
         )
 
         val textMultiMembersTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customrp_config_property_textmulti"), 1, CustomRolePlayCommand.MAX_TEXT_LENGTH) {
@@ -218,7 +218,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     .withRedraw()
         }
         imageUpload.values = config.imageUrls
-        container.add(imageUpload, DashboardSeparator(true))
+        container.add(imageUpload, DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
         val button = DashboardButton(getString(Category.CONFIGURATION, "customrp_dashboard_submit")) {

@@ -154,7 +154,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         emojiField.value = config.emojiFormatted ?: ""
         emojiField.placeholder = getString(Category.CONFIGURATION, "customconfig_dashboard_enteremoji")
         textFieldsContainer.add(emojiField)
-        container.add(textFieldsContainer, DashboardSeparator(true))
+        container.add(textFieldsContainer, DashboardSeparator())
 
         val textResponseTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customconfig_add_textresponse"), 1, CustomConfigCommand.MAX_TEXT_RESPONSE_LENGTH) {
             config.textResponse = it.data
@@ -166,7 +166,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         container.add(
                 textResponseTextField,
                 DashboardText(getString(Category.CONFIGURATION, "customconfig_dashboard_textresponse_hint"), DashboardText.Style.HINT),
-                DashboardSeparator(true)
+                DashboardSeparator()
         )
 
         val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "customconfig_add_image"), "custom", 1) { e ->
@@ -182,7 +182,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         container.add(
                 imageUpload,
                 DashboardText(getString(Category.CONFIGURATION, "customconfig_dashboard_image_hint"), DashboardText.Style.HINT),
-                DashboardSeparator(true)
+                DashboardSeparator()
         )
 
         val buttonContainer = HorizontalContainer()

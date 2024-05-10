@@ -59,7 +59,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         return Command.getCommandLanguage(ReactionRolesCommand::class.java, locale).title
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return getString(Category.CONFIGURATION, "reactionroles_state0_description", StringUtil.numToString(ReactionRolesCommand.MAX_ROLE_MESSAGES_FREE))
     }
 
@@ -278,7 +278,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         if (config.imageFilename != null) {
             imageUpload.values = listOf(config.imageUrl)
         }
-        container.add(imageUpload, DashboardSeparator(true))
+        container.add(imageUpload, DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
         buttonContainer.allowWrap = true

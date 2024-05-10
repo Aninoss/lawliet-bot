@@ -25,7 +25,7 @@ class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         return Command.getCommandLanguage(StickyRolesCommand::class.java, locale).title
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return getString(Category.CONFIGURATION, "stickyroles_state0_description")
     }
 

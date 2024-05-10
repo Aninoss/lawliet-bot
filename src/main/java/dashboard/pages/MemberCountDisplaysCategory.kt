@@ -117,7 +117,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         }
         addButton.style = DashboardButton.Style.PRIMARY
         buttonField.add(addButton, HorizontalPusher())
-        container.add(DashboardSeparator(true), buttonField)
+        container.add(DashboardSeparator(), buttonField)
         return container
     }
 
@@ -143,7 +143,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         if (atomicVoiceChannel != null) {
             channelComboBox.selectedValues = listOf(DiscordEntity(atomicVoiceChannel!!.idLong.toString(), atomicVoiceChannel!!.getPrefixedName(locale)))
         }
-        container.add(channelComboBox, DashboardSeparator(true))
+        container.add(channelComboBox, DashboardSeparator())
 
         val nameMaskLabel = getString(Category.CONFIGURATION, "mcdisplays_dashboard_mask")
         val nameMaskTextField = DashboardTextField(nameMaskLabel, 1, MemberCountDisplayCommand.MAX_NAME_MASK_LENGTH) {

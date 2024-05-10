@@ -46,7 +46,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         return Command.getCommandLanguage(InviteTrackingCommand::class.java, locale).title
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return getString(Category.INVITE_TRACKING, "invitetracking_state0_description")
     }
 
@@ -198,14 +198,11 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 container.add(listAddContainer)
             }
         } else {
-            container.add(DashboardText(getString(Category.INVITE_TRACKING, "invmanage_notactive")))
+            val innerContainer = VerticalContainer(DashboardText(getString(Category.INVITE_TRACKING, "invmanage_notactive")))
+            innerContainer.isCard = true
+            container.add(innerContainer)
         }
 
-        if (!premium) {
-            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
-            text.style = DashboardText.Style.ERROR
-            container.add(text)
-        }
         return container
     }
 
@@ -256,6 +253,10 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         memberContainer.add(vanityInviteButton)
 
         container.add(memberContainer)
+        if (!premium) {
+            container.add(DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"), DashboardText.Style.ERROR))
+        }
+
         return container
     }
 

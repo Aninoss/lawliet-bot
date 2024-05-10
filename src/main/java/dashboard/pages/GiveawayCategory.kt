@@ -55,7 +55,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         return Command.getCommandLanguage(GiveawayCommand::class.java, locale).title
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return getString(Category.CONFIGURATION, "giveaway_dashboard_desc")
     }
 

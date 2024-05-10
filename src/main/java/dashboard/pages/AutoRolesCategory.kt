@@ -37,7 +37,7 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
         return Command.getCommandLanguage(AutoRolesCommand::class.java, locale).title
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return getString(Category.CONFIGURATION, "autoroles_state0_description")
     }
 

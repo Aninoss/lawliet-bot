@@ -28,7 +28,7 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         return Command.getCommandLanguage(NSFWFilterCommand::class.java, locale).title
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return Command.getCommandLanguage(NSFWFilterCommand::class.java, locale).descShort
     }
 

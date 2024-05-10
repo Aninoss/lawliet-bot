@@ -60,7 +60,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         return getString(TextManager.COMMANDS, "fishery_category")
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return getString(Category.FISHERY_SETTINGS, "fishery_state0_description").replace("`", "\"")
     }
 

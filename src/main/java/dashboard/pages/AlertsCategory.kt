@@ -50,7 +50,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         return Command.getCommandLanguage(AlertsCommand::class.java, locale).title
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return getString(Category.CONFIGURATION, "alerts_dashboard_description")
     }
 
@@ -126,8 +126,14 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         attachmentField.value = userMessage
         attachmentField.isEnabled = isPremium
         attachmentField.editButton = false
-        container.add(DashboardSeparator(true), attachmentField)
-        container.add(DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_attachment_help"), DashboardText.Style.HINT))
+        container.add(
+                DashboardSeparator(true),
+                attachmentField,
+                DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_attachment_help"), DashboardText.Style.HINT)
+        )
+        if (!isPremium) {
+            container.add(DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"), DashboardText.Style.ERROR))
+        }
 
         val minIntervalField = DashboardDurationField(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval")) {
             if (isPremium) {
@@ -138,9 +144,15 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         minIntervalField.value = minInterval.toLong()
         minIntervalField.isEnabled = isPremium
         minIntervalField.editButton = false
-        container.add(DashboardSeparator(true), DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval")))
-        container.add(minIntervalField)
-        container.add(DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval_help"), DashboardText.Style.HINT))
+        container.add(
+                DashboardSeparator(true),
+                DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval")),
+                minIntervalField,
+                DashboardText(getString(Category.CONFIGURATION, "alerts_dashboard_mininterval_help"), DashboardText.Style.HINT)
+        )
+        if (!isPremium) {
+            container.add(DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"), DashboardText.Style.ERROR))
+        }
 
         val buttonField = HorizontalContainer()
         val addButton = DashboardButton(getString(Category.CONFIGURATION, "alerts_dashboard_add")) {

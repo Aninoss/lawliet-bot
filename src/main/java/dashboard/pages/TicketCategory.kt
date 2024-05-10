@@ -42,7 +42,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         return Command.getCommandLanguage(TicketCommand::class.java, locale).title
     }
 
-    override fun retrievePageDescription(): String? {
+    override fun retrievePageDescription(): String {
         return getString(Category.CONFIGURATION, "ticket_description")
     }
 
