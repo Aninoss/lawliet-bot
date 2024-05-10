@@ -619,6 +619,16 @@ public class MentionUtil {
         return set;
     }
 
+    public static HashSet<Long> extractUserIds(String content) {
+        content = content.replace("<@!", "<@");
+        String[] groups = StringUtil.extractGroups(content, "<@", ">");
+        HashSet<Long> set = new HashSet<>();
+        for (String group : groups) {
+            set.add(Long.parseLong(group));
+        }
+        return set;
+    }
+
 
     private interface MentionFunction extends Function<Object, String> {
 

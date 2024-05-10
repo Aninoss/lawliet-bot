@@ -13,6 +13,7 @@ import core.interactionresponse.InteractionResponse
 import core.interactionresponse.SlashCommandResponse
 import core.schedule.MainScheduler
 import core.utils.ExceptionUtil
+import core.utils.MentionUtil
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.commandusages.DBCommandUsages
 import net.dv8tion.jda.api.Permission
@@ -46,6 +47,8 @@ interface OnTriggerListener {
             if (command.commandProperties.requiresFullMemberCache) {
                 MemberCacheController.getInstance().loadMembersFull(event.guild).get()
             }
+            MemberCacheController.getInstance().loadMembers(event.guild, MentionUtil.extractUserIds(args)).get()
+
             command.guildEntity = guildEntity
             return onTrigger(event, args)
         } catch (e: Throwable) {
