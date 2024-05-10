@@ -624,7 +624,9 @@ public class MentionUtil {
         String[] groups = StringUtil.extractGroups(content, "<@", ">");
         HashSet<Long> set = new HashSet<>();
         for (String group : groups) {
-            set.add(Long.parseLong(group));
+            if (StringUtil.stringIsLong(group)) {
+                set.add(Long.parseLong(group));
+            }
         }
         return set;
     }
