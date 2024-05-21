@@ -344,7 +344,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         val items = config.slots
                 .mapIndexed { i, slot ->
                     val atomicRole = AtomicRole(atomicGuild.idLong, slot.roleIds[0])
-                    val editButton = DashboardButton(getString(Category.CONFIGURATION, "reactionroles_dashboard_slots_edit")) {
+                    val editButton = DashboardButton("🖊️") {
                         slotConfiguration = config.slots[i].copy()
                         slotEditMode = true
                         slotEditPosition = i
