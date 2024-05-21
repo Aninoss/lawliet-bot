@@ -17,7 +17,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 public class InviteTracking {
@@ -160,35 +159,24 @@ public class InviteTracking {
     }
 
     private static void synchronizeGuildInvites(long guildId, CustomObservableMap<String, GuildInvite> databaseInvites, List<TempInvite> guildInvites) {
-        synchronized (databaseInvites) {
-            /* add missing invites to database */
-            HashSet<String> inviteCodes = new HashSet<>();
-            for (TempInvite invite : guildInvites) {
-                inviteCodes.add(invite.code);
-                if (!databaseInvites.containsKey(invite.code) ||
-                        invite.uses != databaseInvites.get(invite.code).getUses() ||
-                        (invite.maxAge != null && databaseInvites.get(invite.code).getMaxAge() == null)
-                ) {
-                    databaseInvites.put(invite.code, new GuildInvite(guildId, invite.code, invite.inviter, invite.uses, invite.maxAge));
-                }
+        /* add missing invites to database */
+        HashSet<String> inviteCodes = new HashSet<>();
+        for (TempInvite invite : guildInvites) {
+            inviteCodes.add(invite.code);
+            if (!databaseInvites.containsKey(invite.code) ||
+                    invite.uses != databaseInvites.get(invite.code).getUses() ||
+                    (invite.maxAge != null && databaseInvites.get(invite.code).getMaxAge() == null)
+            ) {
+                databaseInvites.put(invite.code, new GuildInvite(guildId, invite.code, invite.inviter, invite.uses, invite.maxAge));
             }
+        }
 
-            int tries = 3;
-            while (true) {
-                try {
-                    /* remove invalid invites from database */
-                    for (GuildInvite guildInvite : new ArrayList<>(databaseInvites.values())) {
-                        if (guildInvite != null && !inviteCodes.contains(guildInvite.getCode())) {
-                            databaseInvites.remove(guildInvite.getCode());
-                        }
-                    }
-                    break;
-                } catch (CompletionException | ArrayIndexOutOfBoundsException e) {
-                    //ignore
-                    if (--tries <= 0) {
-                        throw e;
-                    }
-                }
+        /* remove invalid invites from database */
+        Iterator<Map.Entry<String, GuildInvite>> iterator = databaseInvites.entrySet().iterator();
+        while (iterator.hasNext()) {
+            GuildInvite guildInvite = iterator.next().getValue();
+            if (guildInvite != null && !inviteCodes.contains(guildInvite.getCode())) {
+                iterator.remove();
             }
         }
     }
