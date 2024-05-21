@@ -1,13 +1,16 @@
 package events.scheduleevents.events;
 
 import constants.ExceptionRunnable;
+import core.LocalFile;
 import core.MainLogger;
 import core.Program;
 import core.ShardManager;
 import events.scheduleevents.ScheduleEventFixedRate;
+import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.time.LocalDate;
@@ -55,7 +58,7 @@ public class CleanGuilds implements ExceptionRunnable {
 
             List<GuildEntity> guildEntityList = entityManager.createNativeQuery(queryString, GuildEntity.class).getResultList();
             for (GuildEntity guildEntity : guildEntityList) {
-                /*guildEntity.setEntityManager(entityManager);
+                guildEntity.setEntityManager(entityManager);
 
                 LocalFile welcomeBackgroundFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guildEntity.getGuildId()));
                 if (welcomeBackgroundFile.exists()) {
@@ -67,7 +70,7 @@ public class CleanGuilds implements ExceptionRunnable {
 
                 entityManager.getTransaction().begin();
                 entityManager.remove(guildEntity);
-                entityManager.getTransaction().commit(); TODO: uncomment soon*/
+                entityManager.getTransaction().commit();
             }
 
             MainLogger.get().info("{} guild entries have been removed", guildEntityList.size());
