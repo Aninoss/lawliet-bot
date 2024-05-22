@@ -54,6 +54,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("clean_images", Console::onCleanImages);
         tasks.put("discord_backup", Console::onDiscordBackup);
         tasks.put("discord_secondary_domain", Console::onDiscordSecondaryDomain);
         tasks.put("bot_logs_cleanup", Console::onBotLogsCleanUp);
@@ -107,6 +108,10 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onCleanImages(String[] args) {
+        CleanImages.execute();
     }
 
     private static void onDiscordBackup(String[] args) {
