@@ -3,14 +3,13 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.CustomRolePlayCommand
-import core.ShardManager
 import core.TextManager
-import core.utils.MentionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardEmojiComboBox
 import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
@@ -20,8 +19,6 @@ import mysql.hibernate.entity.CustomRolePlayEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji
-import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import java.util.*
 
 @DashboardProperties(
@@ -137,28 +134,15 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
         titleTextField.editButton = false
         textFieldsContainer.add(titleTextField)
 
-        val emojiField = DashboardTextField(getString(Category.CONFIGURATION, "customrp_config_property_emoji"), 0, 100) {
-            val emojis = MentionUtil.getEmojis(atomicGuild.get().get(), it.data).list
-            if (emojis.isEmpty()) {
-                ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(getString(Category.CONFIGURATION, "customrp_error_noemoji"))
-            } else {
-                val emoji = emojis[0]
-                if (emoji is UnicodeEmoji || ShardManager.customEmojiIsKnown(emoji as CustomEmoji)) {
-                    config.emojiFormatted = emoji.formatted
-                    ActionResult()
-                            .withRedraw()
-                } else {
-                    ActionResult()
-                            .withRedraw()
-                            .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
-                }
-            }
+        val emojiComboBox = DashboardEmojiComboBox(
+                getString(Category.CONFIGURATION, "customrp_config_property_emoji"),
+                config.emojiFormatted,
+                false
+        ) {
+            config.emojiFormatted = it.data
+            ActionResult()
         }
-        emojiField.editButton = false
-        emojiField.value = config.emojiFormatted
-        textFieldsContainer.add(emojiField)
+        textFieldsContainer.add(emojiComboBox)
         container.add(textFieldsContainer, DashboardSeparator())
 
         val textNoMembersTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customrp_config_property_textno"), 1, CustomRolePlayCommand.MAX_TEXT_LENGTH) {

@@ -5,6 +5,7 @@ import core.ShardManager;
 import core.atomicassets.AtomicGuildChannel;
 import core.atomicassets.AtomicGuildMessageChannel;
 import core.atomicassets.AtomicStandardGuildMessageChannel;
+import core.emoji.EmojiTable;
 import core.utils.BotPermissionUtil;
 import dashboard.component.DashboardComboBox;
 import events.sync.SyncServerEvent;
@@ -65,6 +66,16 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
                 yield guild.getVoiceChannels().stream()
                         .filter(c -> c.getName().toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c))
                         .count();
+            }
+
+            case EMOJI -> {
+                long customEmojis = guild.getEmojis().stream()
+                        .filter(emoji -> emoji.getName().toLowerCase().contains(filterText))
+                        .count();
+                long unicodeEmojis = EmojiTable.getEmojis().stream()
+                        .filter(pair -> pair.getKey().toLowerCase().contains(filterText))
+                        .count();
+                yield customEmojis + unicodeEmojis;
             }
 
             default -> 0L;

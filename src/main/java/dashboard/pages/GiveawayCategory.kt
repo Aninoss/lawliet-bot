@@ -3,17 +3,16 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.GiveawayCommand
-import core.ShardManager
 import core.TextManager
 import core.atomicassets.AtomicGuildMessageChannel
 import core.utils.BotPermissionUtil
-import core.utils.MentionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
+import dashboard.components.DashboardEmojiComboBox
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
@@ -27,8 +26,6 @@ import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji
-import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import net.dv8tion.jda.api.exceptions.ErrorResponseException
 import java.time.Instant
 import java.util.*
@@ -228,32 +225,16 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         winnersField.editButton = false
         winnersEmojiRolesContainer.add(winnersField)
 
-        val emojiField = DashboardTextField(getString(Category.CONFIGURATION, "giveaway_state3_memoji"), 0, 100) {
-            if (mode != Mode.OVERVIEW) {
-                return@DashboardTextField ActionResult()
-            }
-
-            val emojis = MentionUtil.getEmojis(guild, it.data).list
-            if (emojis.isEmpty()) {
-                ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_noemoji"))
-            } else {
-                val emoji = emojis[0]
-                if (emoji is UnicodeEmoji || ShardManager.customEmojiIsKnown(emoji as CustomEmoji)) {
-                    config.emoji = emoji
-                    ActionResult()
-                            .withRedraw()
-                } else {
-                    ActionResult()
-                            .withRedraw()
-                            .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
-                }
-            }
+        val emojiComboBox = DashboardEmojiComboBox(
+                getString(Category.CONFIGURATION, "giveaway_state3_memoji"),
+                config.emojiFormatted,
+                false
+        ) {
+            config.emojiFormatted = it.data
+            ActionResult()
         }
-        emojiField.value = config.emojiFormatted
-        emojiField.isEnabled = mode == Mode.OVERVIEW
-        winnersEmojiRolesContainer.add(emojiField)
+        emojiComboBox.isEnabled = mode == Mode.OVERVIEW
+        winnersEmojiRolesContainer.add(emojiComboBox)
 
         val rolesField = DashboardMultiRolesComboBox(
                 this,

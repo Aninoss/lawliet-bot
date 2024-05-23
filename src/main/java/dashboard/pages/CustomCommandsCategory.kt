@@ -2,16 +2,14 @@ package dashboard.pages
 
 import commands.Category
 import commands.runnables.configurationcategory.CustomConfigCommand
-import core.ShardManager
-import core.TextManager
 import core.cache.ServerPatreonBoostCache
-import core.utils.MentionUtil
 import core.utils.StringUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardEmojiComboBox
 import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
@@ -21,7 +19,6 @@ import mysql.hibernate.entity.guild.CustomCommandEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import java.util.*
 
 @DashboardProperties(
@@ -126,34 +123,16 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         titleTextField.placeholder = getString(Category.CONFIGURATION, "customconfig_dashboard_entertext")
         textFieldsContainer.add(titleTextField)
 
-        val emojiField = DashboardTextField(getString(Category.CONFIGURATION, "customconfig_add_emoji"), 0, 100) {
-            if (it.data.isEmpty()) {
-                config.emojiFormatted = null
-                return@DashboardTextField ActionResult()
-            }
-
-            val emojis = MentionUtil.getEmojis(atomicGuild.get().get(), it.data).list
-            if (emojis.isEmpty()) {
-                return@DashboardTextField ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(getString(Category.CONFIGURATION, "customconfig_error_noemoji"))
-            } else {
-                val emoji = emojis[0]
-                if (emoji is CustomEmoji && !ShardManager.customEmojiIsKnown(emoji)) {
-                    return@DashboardTextField ActionResult()
-                            .withRedraw()
-                            .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
-                }
-
-                config.emojiFormatted = emoji.formatted
-                return@DashboardTextField ActionResult()
-                        .withRedraw()
-            }
+        val emojiComboBox = DashboardEmojiComboBox(
+                getString(Category.CONFIGURATION, "customconfig_add_emoji"),
+                config.emojiFormatted,
+                true
+        ) {
+            config.emojiFormatted = it.data
+            ActionResult()
         }
-        emojiField.editButton = false
-        emojiField.value = config.emojiFormatted ?: ""
-        emojiField.placeholder = getString(Category.CONFIGURATION, "customconfig_dashboard_enteremoji")
-        textFieldsContainer.add(emojiField)
+        emojiComboBox.placeholder = getString(Category.CONFIGURATION, "customconfig_dashboard_enteremoji")
+        textFieldsContainer.add(emojiComboBox)
         container.add(textFieldsContainer, DashboardSeparator())
 
         val textResponseTextField = DashboardMultiLineTextField(getString(Category.CONFIGURATION, "customconfig_add_textresponse"), 1, CustomConfigCommand.MAX_TEXT_RESPONSE_LENGTH) {

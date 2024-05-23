@@ -17,6 +17,7 @@ import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
+import dashboard.components.DashboardEmojiComboBox
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
@@ -134,6 +135,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
 
                         config = roleMessage.copy()
                         previousTitle = config.title
+                        slotConfiguration = ReactionRoleSlotEntity()
                         switchMode(true)
                         return@DashboardButton ActionResult()
                                 .withRedrawScrollToTop()
@@ -396,14 +398,16 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         propertiesContainer.allowWrap = true
         propertiesContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
-        val emojiField = DashboardTextField(getString(Category.CONFIGURATION, "reactionroles_addslot_emoji"), 0, 100) {
-            slotConfiguration.emojiFormatted = if (it.data.isNotEmpty()) it.data else null
+        val emojiSelect = DashboardEmojiComboBox(
+                getString(Category.CONFIGURATION, "reactionroles_addslot_emoji"),
+                slotConfiguration.emojiFormatted,
+                true
+        ) {
+            slotConfiguration.emojiFormatted = it.data
             ActionResult()
         }
-        emojiField.editButton = false
-        emojiField.placeholder = getString(Category.CONFIGURATION, "reactionroles_dashboard_emojiplaceholder")
-        emojiField.value = slotConfiguration.emojiFormatted ?: ""
-        propertiesContainer.add(emojiField)
+        emojiSelect.placeholder = getString(Category.CONFIGURATION, "reactionroles_dashboard_emojiplaceholder")
+        propertiesContainer.add(emojiSelect)
 
         val rolesField = DashboardMultiRolesComboBox(
                 this,
