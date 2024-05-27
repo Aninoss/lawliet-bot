@@ -9,7 +9,7 @@ public class MainRepair {
 
     public static void start(JDA jda, int minutes) {
         if (jda != null) {
-            autoChannelRepair.start(jda);
+            //autoChannelRepair.start(jda); TODO: stopped temporarily
             rolesRepair.start(jda, minutes);
         }
     }

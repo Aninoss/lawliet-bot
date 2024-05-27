@@ -19,15 +19,12 @@ public class CustomInterceptor implements Interceptor {
                 .url(request.url().url().toString().replace("https://discord.com", "https://" + DiscordDomain.get()))
                 .build();
 
-        if (RegexPatterns.INTERACTION.matcher(request.url().encodedPath()).matches()) {
-            Request newRequest = request.newBuilder().removeHeader("authorization").build();
-            return chain.proceed(newRequest);
-        }
-
-        try {
-            requestQuota();
-        } catch (InterruptedException e) {
-            MainLogger.get().error("Interrupted", e);
+        if (!RegexPatterns.INTERACTION.matcher(request.url().encodedPath()).matches()) {
+            try {
+                requestQuota();
+            } catch (InterruptedException e) {
+                MainLogger.get().error("Interrupted", e);
+            }
         }
 
         return chain.proceed(request);

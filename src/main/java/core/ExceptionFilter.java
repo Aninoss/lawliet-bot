@@ -31,14 +31,15 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
                 System.exit(1);
                 return FilterReply.NEUTRAL;
             }
-            if (throwableProxy.getThrowable().toString().contains("Encountered cloudflare rate limit!")) {
-                DiscordDomain.switchToSecondaryDomain();
-            }
         }
 
         String message = throwableProxy != null
                 ? event.getFormattedMessage() + "\n" + extractMessageAndStackTrace(throwableProxy)
                 : event.getFormattedMessage();
+
+        if (message.contains("Encountered cloudflare rate limit!")) {
+            DiscordDomain.switchToSecondaryDomain();
+        }
         SendEvent.sendException(message);
 
         if (ratelimitManager.checkAndSet(0L, MAX_ERRORS_PER_MINUTE, Duration.ofMinutes(1)).isPresent()) {
