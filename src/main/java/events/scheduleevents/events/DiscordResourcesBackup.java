@@ -25,7 +25,7 @@ public class DiscordResourcesBackup implements ExceptionRunnable {
     }
 
     public static void execute() {
-        if (!Program.publicInstance()) {
+        if (!Program.publicInstance() || !Program.productionMode()) {
             return;
         }
 
