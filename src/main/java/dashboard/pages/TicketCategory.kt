@@ -79,7 +79,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         container.add(messageContentTextField)
 
         val channelButtonContainer = HorizontalContainer()
-        channelButtonContainer.alignment = HorizontalContainer.Alignment.CENTER
+        channelButtonContainer.alignment = HorizontalContainer.Alignment.BOTTOM
         channelButtonContainer.allowWrap = true
 
         val channelComboBox = DashboardChannelComboBox(
