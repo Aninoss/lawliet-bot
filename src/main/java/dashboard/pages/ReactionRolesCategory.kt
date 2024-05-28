@@ -68,7 +68,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         if (config.messageGuildId == 0L) {
             reset()
         }
-        if (!editMode) {
+        if (!editMode && !slotEditMode) {
             if (reactionRoleEntities.isNotEmpty()) {
                 mainContainer.add(
                         DashboardTitle(getString(Category.CONFIGURATION, "reactionroles_dashboard_active_title")),
@@ -484,7 +484,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                 slotConfiguration = ReactionRoleSlotEntity()
                 slotEditMode = false
                 return@DashboardButton ActionResult()
-                        .withRedraw()
+                        .withRedrawScrollToTop()
             }
             removeButton.style = DashboardButton.Style.DANGER
             buttonContainer.add(removeButton)
@@ -493,7 +493,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                 slotConfiguration = ReactionRoleSlotEntity()
                 slotEditMode = false
                 return@DashboardButton ActionResult()
-                        .withRedraw()
+                        .withRedrawScrollToTop()
             }
             buttonContainer.add(cancelButton)
         }

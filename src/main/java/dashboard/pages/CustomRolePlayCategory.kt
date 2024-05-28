@@ -86,7 +86,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
                         oldTrigger = trigger
                         config = entity.copy()
                         ActionResult()
-                                .withRedraw()
+                                .withRedrawScrollToTop()
                     }
 
                     val itemContainer = HorizontalContainer(DashboardText(customRolePlay.key), HorizontalPusher(), button)
@@ -239,7 +239,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
             resetValues()
 
             return@DashboardButton ActionResult()
-                    .withRedraw()
+                    .withRedrawScrollToTop()
                     .withSuccessMessage(successMessage)
         }
         button.style = DashboardButton.Style.PRIMARY
@@ -256,7 +256,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 resetValues()
 
                 return@DashboardButton ActionResult()
-                        .withRedraw()
+                        .withRedrawScrollToTop()
                         .withSuccessMessage(successMessage)
             }
             deleteButton.style = DashboardButton.Style.DANGER
@@ -266,7 +266,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
             val cancelButton = DashboardButton(getString(Category.CONFIGURATION, "customrp_dashboard_cancel")) {
                 resetValues()
                 return@DashboardButton ActionResult()
-                        .withRedraw()
+                        .withRedrawScrollToTop()
             }
             buttonContainer.add(cancelButton)
         }

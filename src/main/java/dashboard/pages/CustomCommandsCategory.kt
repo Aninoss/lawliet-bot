@@ -74,7 +74,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
                         config = entity.copy()
 
                         return@DashboardButton ActionResult()
-                                .withRedraw()
+                                .withRedrawScrollToTop()
                     }
 
                     val itemContainer = HorizontalContainer(DashboardText(customCommand.key), HorizontalPusher(), button)
@@ -199,7 +199,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
             resetValues()
 
             return@DashboardButton ActionResult()
-                    .withRedraw()
+                    .withRedrawScrollToTop()
                     .withSuccessMessage(successMessage)
         }
         button.style = DashboardButton.Style.PRIMARY
@@ -216,7 +216,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 resetValues()
 
                 return@DashboardButton ActionResult()
-                        .withRedraw()
+                        .withRedrawScrollToTop()
                         .withSuccessMessage(successMessage)
             }
             deleteButton.style = DashboardButton.Style.DANGER
@@ -226,7 +226,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
             val cancelButton = DashboardButton(getString(Category.CONFIGURATION, "customconfig_dashboard_button_cancel")) {
                 resetValues()
                 return@DashboardButton ActionResult()
-                        .withRedraw()
+                        .withRedrawScrollToTop()
             }
             buttonContainer.add(cancelButton)
         }
