@@ -40,12 +40,15 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
         return Command.getCommandLanguage(MemberCountDisplayCommand::class.java, locale).title
     }
 
+    override fun retrievePageDescription(): String? {
+        return getString(Category.CONFIGURATION, "mcdisplays_state0_description")
+    }
+
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         if (nameMask.isEmpty()) {
             clearAttributes()
         }
 
-        mainContainer.add(DashboardText(getString(Category.CONFIGURATION, "mcdisplays_state0_description")))
         if (DBMemberCountDisplays.getInstance().retrieve(atomicGuild.idLong).memberCountDisplaySlots.isNotEmpty()) {
             mainContainer.add(
                 DashboardTitle(getString(Category.CONFIGURATION, "mcdisplays_dashboard_active")),
