@@ -3,7 +3,9 @@ package commands.runnables.fisherycategory;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
+import commands.listeners.OnMessageInputListener;
 import commands.runnables.FisheryInterface;
 import constants.LogStatus;
 import core.EmbedFactory;
@@ -20,6 +22,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
@@ -37,7 +40,7 @@ import java.util.Locale;
         usesExtEmotes = true,
         aliases = {"s"}
 )
-public class SellCommand extends Command implements FisheryInterface, OnButtonListener {
+public class SellCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
 
     private static final String BUTTON_ID_ENTERNUMBER = "enter_number";
     private static final String BUTTON_ID_SELLALL = "sell_all";
@@ -78,7 +81,20 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         );
 
         registerButtonListener(event.getMember());
+        registerMessageInputListener(event.getMember(), false);
         return true;
+    }
+
+    @Override
+    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) throws Throwable {
+        String error = process(event.getMember(), input);
+        if (error == null) {
+            deregisterListenersWithComponents();
+            return MessageInputResponse.SUCCESS;
+        } else {
+            setLog(LogStatus.FAILURE, error);
+            return MessageInputResponse.FAILED;
+        }
     }
 
     @Override

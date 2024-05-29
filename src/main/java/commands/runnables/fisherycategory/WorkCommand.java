@@ -3,7 +3,9 @@ package commands.runnables.fisherycategory;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
+import commands.listeners.OnMessageInputListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.LogStatus;
@@ -23,6 +25,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
@@ -44,7 +47,7 @@ import java.util.Random;
         usesExtEmotes = true,
         aliases = {"working", "salary", "w"}
 )
-public class WorkCommand extends Command implements FisheryInterface, OnButtonListener {
+public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
 
     public static String BUTTON_ID_SET = "set";
     public static String BUTTON_ID_CANCEL = "cancel";
@@ -73,6 +76,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
         if (nextWork.isEmpty()) {
             setArea();
             registerButtonListener(event.getMember());
+            registerMessageInputListener(event.getMember(), false);
             return true;
         } else {
             EmbedBuilder eb;
@@ -90,6 +94,20 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
+    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) {
+        if (!StringUtil.stringIsInt(input)) {
+            return null;
+        }
+
+        int number = Integer.parseInt(input);
+        if (number < 0 || number > area.length * area[0].length) {
+            return null;
+        }
+
+        return process(event.getMember(), number) ? MessageInputResponse.SUCCESS : MessageInputResponse.FAILED;
+    }
+
+    @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         if (event.getComponentId().equals(BUTTON_ID_SET)) {
             String id = "text";
@@ -104,17 +122,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                             return null;
                         }
 
-                        if (Integer.parseInt(input) == fishCounter) {
-                            deregisterListenersWithComponents();
-                            active = false;
-                            long coins = fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect();
-                            setAdditionalEmbeds(fisheryMemberData.changeValuesEmbed(event.getMember(), 0, coins, getGuildEntity()).build());
-                            fisheryMemberData.completeWork();
-                            setLog(LogStatus.SUCCESS, getString("right"));
-                        } else {
-                            setArea();
-                            setLog(LogStatus.FAILURE, getString("wrong"));
-                        }
+                        process(e.getMember(), Integer.parseInt(input));
                         return null;
                     })
                     .addActionRow(textInput)
@@ -160,6 +168,22 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     protected void onListenerTimeOut() {
         active = false;
         fisheryMemberData.removeWork();
+    }
+
+    private boolean process(Member member, int number) {
+        if (number == fishCounter) {
+            deregisterListenersWithComponents();
+            active = false;
+            long coins = fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect();
+            setAdditionalEmbeds(fisheryMemberData.changeValuesEmbed(member, 0, coins, getGuildEntity()).build());
+            fisheryMemberData.completeWork();
+            setLog(LogStatus.SUCCESS, getString("right"));
+            return true;
+        } else {
+            setArea();
+            setLog(LogStatus.FAILURE, getString("wrong"));
+            return false;
+        }
     }
 
     private void setArea() {

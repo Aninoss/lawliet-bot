@@ -2,6 +2,7 @@ package commands.runnables.fisherycategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
@@ -10,8 +11,10 @@ import constants.Settings;
 import core.EmbedFactory;
 import core.LocalFile;
 import core.Program;
+import core.TextManager;
 import core.modals.AmountModalBuilder;
 import core.utils.FileUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.fishery.Stock;
@@ -25,6 +28,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -50,7 +54,7 @@ import java.util.concurrent.ExecutionException;
 )
 public class StocksCommand extends NavigationAbstract implements FisheryInterface {
 
-    private final int STATE_BUY = 1,
+    private static final int STATE_BUY = 1,
             STATE_SELL = 2;
 
     private Stock currentStock;
@@ -67,6 +71,18 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         fisheryMemberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
+    }
+
+    @ControllerMessage(state = STATE_BUY)
+    public MessageInputResponse onMessageBuy(MessageReceivedEvent event, String input) {
+        long maxValue = (long) Math.floor((double) fisheryMemberData.getCoins() / StockMarket.getValue(currentStock) / (1 + Settings.FISHERY_SHARES_FEES / 100.0));
+        return onMessageBuySell(input, Math.min(maxValue, Settings.FISHERY_SHARES_MAX));
+    }
+
+    @ControllerMessage(state = STATE_SELL)
+    public MessageInputResponse onMessageSell(MessageReceivedEvent event, String input) {
+        long maxValue = fisheryMemberData.getStocks(currentStock).getShareSize();
+        return onMessageBuySell(input, maxValue);
     }
 
     @ControllerButton(state = DEFAULT_STATE)
@@ -272,6 +288,17 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         setComponents(options, Set.of(1), null, sharesNum == 0 ? Set.of(1) : null);
         return EmbedFactory.getEmbedDefault(this, desc, getString("sell_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), attr, false);
+    }
+
+    private MessageInputResponse onMessageBuySell(String input, long maxValue) {
+        long amount = MentionUtil.getAmountExt(input, maxValue);
+        if (amount > 0 && amount <= maxValue) {
+            sharesNum = (int) amount;
+            return MessageInputResponse.SUCCESS;
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(1), StringUtil.numToString(maxValue)));
+            return MessageInputResponse.FAILED;
+        }
     }
 
     private String generateStockDescription() {
