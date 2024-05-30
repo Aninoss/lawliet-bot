@@ -1,20 +1,21 @@
 package modules.animenews;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import constants.Language;
 import core.MainLogger;
-import core.internet.HttpResponse;
 import core.internet.HttpCache;
+import core.internet.HttpResponse;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class AnimeNewsDownloader {
 
@@ -96,7 +97,7 @@ public class AnimeNewsDownloader {
         return new AnimeNewsArticle(
                 StringUtil.shortenString(StringUtil.unescapeHtml(jsonPost.getString("title")), 256),
                 StringUtil.unescapeHtml(StringUtil.extractGroups(content, "</p>\n<p>", "</p>")[0]),
-                StringUtil.unescapeHtml(StringUtil.extractGroups(content, "src=\"", "\"")[0]),
+                content.contains("src=\"") ? StringUtil.unescapeHtml(StringUtil.extractGroups(content, "src=\"", "\"")[0]) : null,
                 jsonPost.getString("link"),
                 TimeUtil.parseDateStringRSS(jsonPost.getString("pubDate"))
         );
