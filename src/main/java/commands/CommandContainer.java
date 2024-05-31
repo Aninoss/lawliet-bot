@@ -177,6 +177,7 @@ public class CommandContainer {
         commandList.add(AnimeQuizCommand.class);
         commandList.add(TowerCommand.class);
         commandList.add(BingoCommand.class);
+        commandList.add(BombCommand.class);
 
         //INVITE TRACKING
         commandList.add(InviteTrackingCommand.class);

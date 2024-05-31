@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -16,8 +17,8 @@ public class MainScheduler {
 
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new CountingThreadFactory(() -> "Main", "Scheduler", true));
 
-    public static void schedule(Duration duration, Runnable command) {
-        scheduler.schedule(() -> {
+    public static ScheduledFuture<?> schedule(Duration duration, Runnable command) {
+        return scheduler.schedule(() -> {
             GlobalThreadPool.submit(() -> {
                 try {
                     command.run();
@@ -28,9 +29,9 @@ public class MainScheduler {
         }, duration.toMillis(), TimeUnit.MILLISECONDS);
     }
 
-    public static void schedule(Instant dueInstant, Runnable command) {
+    public static ScheduledFuture<?> schedule(Instant dueInstant, Runnable command) {
         long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), dueInstant);
-        schedule(Duration.ofMillis(millis), command);
+        return schedule(Duration.ofMillis(millis), command);
     }
 
     /* keeps polling in the specified time interval as long as the listener returns true */

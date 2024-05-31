@@ -182,7 +182,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                 fisheryGuildData.getMemberData(event.getMember().getIdLong()).addCoinsHidden(-coinsInput);
             }
             playerList.removeIf(m -> m == null || m.getIdLong() == event.getMember().getIdLong());
-            if (playerList.size() > 0) {
+            if (!playerList.isEmpty()) {
                 setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_leave_log", StringUtil.escapeMarkdownInField(event.getMember().getEffectiveName())));
                 return true;
             } else {
@@ -195,14 +195,17 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     private synchronized boolean onButtonStart(ButtonInteractionEvent event) throws Throwable {
         if (playerList.size() >= playersMin) {
             if (event.getMember().getIdLong() == playerList.get(0).getIdLong()) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 1; i < playerList.size(); i++) {
-                    AtomicMember player = playerList.get(i);
-                    sb.append(player.getAsMention(getLocale()));
+                if (playerList.size() > 1) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 1; i < playerList.size(); i++) {
+                        AtomicMember player = playerList.get(i);
+                        sb.append(player.getAsMention(getLocale()));
+                    }
+                    drawMessageNew(sb.toString())
+                            .thenAccept(m -> m.delete().queue())
+                            .exceptionally(ExceptionLogger.get());
                 }
-                drawMessageNew(sb.toString())
-                        .thenAccept(m -> m.delete().queue())
-                        .exceptionally(ExceptionLogger.get());
+
                 onGameStart(getPlayerList());
                 playerList.forEach(atomicMember -> {
                     trackingActiveMap.put(atomicMember.getIdLong(),
@@ -309,7 +312,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         for (int i = 0; i < playersMax; i++) {
             String playerTag = playerList.size() > i ? StringUtil.escapeMarkdown(playerList.get(i).getName(getLocale())) : notSet;
             sb.append(i + 1).append(" - ");
-            if (i == 0 && playerList.size() > 0) {
+            if (i == 0 && !playerList.isEmpty()) {
                 sb.append(EMOJI_HOST).append(" ");
             }
             sb.append(playerTag).append("\n");

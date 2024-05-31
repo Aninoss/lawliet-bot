@@ -44,7 +44,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
     }
 
     @Override
-    public void onGameStart(List<AtomicMember> players) throws Throwable {
+    public void onGameStart(List<AtomicMember> players) {
         boards = new BingoBoard[players.size()];
         for (int i = 0; i < boards.length; i++) {
             boards[i] = new BingoBoard(i);
@@ -62,7 +62,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
     }
 
     @Override
-    public synchronized boolean onButtonCasino(ButtonInteractionEvent event, int player) throws Throwable {
+    public synchronized boolean onButtonCasino(ButtonInteractionEvent event, int player) {
         if (StringUtil.stringIsInt(event.getComponentId())) {
             int boardId = Integer.parseInt(event.getComponentId());
             if (boardToPlayer[boardId] != -1) {
@@ -122,7 +122,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
                     winners.add(player);
                 }
             }
-            if (winners.size() > 0) {
+            if (!winners.isEmpty()) {
                 end(winners);
             } else {
                 ballsDisclosed++;

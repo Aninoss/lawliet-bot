@@ -42,6 +42,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledFuture;
 import java.util.function.Supplier;
 
 public abstract class Command implements OnTriggerListener {
@@ -751,8 +752,8 @@ public abstract class Command implements OnTriggerListener {
         return new CommandLanguage(title, descShort, descLong, usage, examples);
     }
 
-    public void schedule(Duration duration, Runnable command) {
-        MainScheduler.schedule(duration, () -> {
+    public ScheduledFuture<?> schedule(Duration duration, Runnable command) {
+        return MainScheduler.schedule(duration, () -> {
             try (GuildEntity guildEntity = refreshGuildEntity()) {
                 command.run();
             }
