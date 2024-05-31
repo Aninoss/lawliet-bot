@@ -46,7 +46,11 @@ class DashboardChannelComboBox(
         }
     }
 
-    private fun checkPermissions(locale: Locale, channel: GuildChannel, permissions: Array<Permission>): String? {
+    private fun checkPermissions(locale: Locale, channel: GuildChannel?, permissions: Array<Permission>): String? {
+        if (channel == null) {
+            return null
+        }
+
         if (permissions.isNotEmpty()) {
             if (!BotPermissionUtil.can(channel, *permissions)) {
                 val sb = StringBuilder()
