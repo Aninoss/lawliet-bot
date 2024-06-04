@@ -107,6 +107,9 @@ public class WarnCommand extends Command implements OnButtonListener {
     protected void process(Guild guild, User target, String reason) throws Throwable {
     }
 
+    protected void processAll(Guild guild, List<User> targets, String reason) throws Throwable {
+    }
+
     public boolean canProcessMember(Member executor, User target) throws Throwable {
         return BotPermissionUtil.canInteract(executor, target);
     }
@@ -202,6 +205,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             }
             process(channel.getGuild(), user, reason);
         }
+        processAll(channel.getGuild(), userList, reason);
 
         EntityManagerWrapper entityManager = getEntityManager();
         entityManager.getTransaction().begin();
