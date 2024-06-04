@@ -1,5 +1,6 @@
 package mysql.modules.commandusages;
 
+import core.GlobalThreadPool;
 import mysql.DBIntervalMapCache;
 import mysql.MySQLManager;
 
@@ -44,6 +45,10 @@ public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesDat
             preparedStatement.setLong(2, inc);
             preparedStatement.setLong(3, inc);
         });
+    }
+
+    public void increase(String command) {
+        GlobalThreadPool.submit(() -> retrieve(command).increase());
     }
 
 }

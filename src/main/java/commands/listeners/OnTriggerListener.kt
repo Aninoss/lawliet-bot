@@ -37,7 +37,7 @@ interface OnTriggerListener {
         command.setAtomicAssets(event.messageChannel, event.member)
         command.commandEvent = event
         if (Program.publicInstance()) {
-            DBCommandUsages.getInstance().retrieve(command.trigger).increase()
+            DBCommandUsages.getInstance().increase(command.trigger)
         }
         if (event.isMessageReceivedEvent()) {
             processTriggerDelete(event.messageReceivedEvent!!, guildEntity)
