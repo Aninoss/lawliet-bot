@@ -17,7 +17,6 @@ import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import core.utils.*;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -360,7 +359,7 @@ public class CommandManager {
 
     private static boolean isWhiteListed(CommandEvent event, GuildEntity guildEntity, Command command) {
         if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
-                DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getMessageChannel())
+                Whitelist.isWhitelisted(guildEntity, event.getMessageChannel())
         ) {
             return true;
         }

@@ -23,7 +23,6 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
-import mysql.modules.whitelistedchannels.DBWhiteListedChannels
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -112,7 +111,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
                         this,
                         "",
                         DashboardComboBox.DataType.GUILD_CHANNELS,
-                        { DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds },
+                        { it.whitelistedChannelIds },
                         true,
                         WhiteListCommand.MAX_CHANNELS,
                         WhiteListCommand::class,

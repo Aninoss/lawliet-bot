@@ -113,6 +113,9 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @NotFound(action = NotFoundAction.IGNORE)
     var giveaways: MutableMap<Long, GiveawayEntity> = mutableMapOf()
 
+    @ElementCollection
+    val whitelistedChannelIds = mutableListOf<Long>()
+
     constructor() : this("0")
 
     override fun getGuildId(): Long {

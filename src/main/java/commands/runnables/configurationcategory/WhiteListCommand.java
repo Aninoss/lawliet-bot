@@ -6,13 +6,11 @@ import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import commands.stateprocessor.GuildChannelsStateProcessor;
 import constants.LogStatus;
-import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicGuildChannel;
 import mysql.hibernate.entity.BotLogEntity;
-import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -38,8 +36,6 @@ public class WhiteListCommand extends NavigationAbstract {
 
     public static final int STATE_CHANNELS = 1;
 
-    private CustomObservableList<Long> whiteListedChannelIds;
-
     public WhiteListCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
@@ -47,17 +43,17 @@ public class WhiteListCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         setLog(LogStatus.WARNING, TextManager.getString(getLocale(), Category.CONFIGURATION, "cperms_obsolete", getPrefix()));
-        whiteListedChannelIds = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).getChannelIds();
 
         registerNavigationListener(event.getMember(), List.of(
                 new GuildChannelsStateProcessor(this, STATE_CHANNELS, DEFAULT_STATE, getString("state0_mchannel"))
                         .setMinMax(1, MAX_CHANNELS)
                         .setChannelTypes(Collections.emptyList())
                         .setLogEvent(BotLogEntity.Event.CHANNEL_WHITELIST)
-                        .setGetter(() -> whiteListedChannelIds)
+                        .setGetter(() -> getGuildEntity().getWhitelistedChannelIds())
                         .setSetter(channelIds -> {
-                            whiteListedChannelIds.clear();
-                            whiteListedChannelIds.addAll(channelIds);
+                            List<Long> whitelistedChannelIds = getGuildEntity().getWhitelistedChannelIds();
+                            whitelistedChannelIds.clear();
+                            whitelistedChannelIds.addAll(channelIds);
                         })
         ));
         return true;
@@ -75,12 +71,13 @@ public class WhiteListCommand extends NavigationAbstract {
                 return true;
             }
             case 1 -> {
-                if (!whiteListedChannelIds.isEmpty()) {
+                List<Long> whitelistedChannelIds = getGuildEntity().getWhitelistedChannelIds();
+                if (!whitelistedChannelIds.isEmpty()) {
                     getEntityManager().getTransaction().begin();
-                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CHANNEL_WHITELIST, event.getMember(), null, whiteListedChannelIds);
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CHANNEL_WHITELIST, event.getMember(), null, whitelistedChannelIds);
+                    whitelistedChannelIds.clear();
                     getEntityManager().getTransaction().commit();
 
-                    whiteListedChannelIds.clear();
                     setLog(LogStatus.SUCCESS, getString("channelcleared"));
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_start_remove_none_channel"));
@@ -98,7 +95,7 @@ public class WhiteListCommand extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(
                         getString("state0_mchannel"),
-                        new ListGen<AtomicGuildChannel>().getList(AtomicGuildChannel.transformIdList(member.getGuild(), whiteListedChannelIds), everyChannel, m -> m.getPrefixedNameInField(getLocale())),
+                        new ListGen<Long>().getList(getGuildEntity().getWhitelistedChannelIds(), everyChannel, channelId -> new AtomicGuildChannel(member.getGuild().getIdLong(), channelId).getPrefixedNameInField(getLocale())),
                         true
                 );
     }
