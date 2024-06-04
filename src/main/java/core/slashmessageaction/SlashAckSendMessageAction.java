@@ -1,12 +1,5 @@
 package core.slashmessageaction;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
@@ -18,8 +11,17 @@ import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessagePollData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 public class SlashAckSendMessageAction implements MessageCreateAction {
 
@@ -135,6 +137,19 @@ public class SlashAckSendMessageAction implements MessageCreateAction {
     @Override
     public List<FileUpload> getAttachments() {
         return replyCallbackAction.getAttachments();
+    }
+
+    @Nullable
+    @Override
+    public MessagePollData getPoll() {
+        return replyCallbackAction.getPoll();
+    }
+
+    @NotNull
+    @Override
+    public MessageCreateAction setPoll(@Nullable MessagePollData messagePollData) {
+        replyCallbackAction = replyCallbackAction.setPoll(messagePollData);
+        return this;
     }
 
     @Override
