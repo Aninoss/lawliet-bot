@@ -82,8 +82,6 @@ public class BombCommand extends CasinoMultiplayerAbstract {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < players.size(); i++) {
             sb.append(i == currentPlayer ? "➡️" : Emojis.FULL_SPACE_EMOTE.getFormatted())
-                    .append(" ")
-                    .append(i == currentPlayer && (active || currentColor >= 0) ? getPlayerInputEmoji() : Emojis.FULL_SPACE_EMOTE.getFormatted())
                     .append(" ｜ ")
                     .append(getPlayerStatusEmoji(i))
                     .append(" ");
@@ -128,7 +126,7 @@ public class BombCommand extends CasinoMultiplayerAbstract {
         currentColor = -1;
         playerStatus = PlayerStatus.NONE;
 
-        setLog(null, getString("select", getPlayerList().get(currentPlayer).getName(getLocale())));
+        setLog(null, getString(availableColors.size() == COLOR_EMOJIS.length ? "select_new" : "select", getPlayerList().get(currentPlayer).getName(getLocale())));
         redraw();
 
         timeOutFuture = schedule(Duration.ofSeconds(10), () -> {
@@ -200,17 +198,17 @@ public class BombCommand extends CasinoMultiplayerAbstract {
         return onlyAlivePlayer;
     }
 
-    private String getPlayerInputEmoji() {
-        return currentColor >= 0 ? COLOR_EMOJIS[currentColor] : Emojis.COUNTDOWN_10.getFormatted();
-    }
-
     private String getPlayerStatusEmoji(int player) {
         if (player == currentPlayer && alive[player]) {
-            return switch (playerStatus) {
-                case NONE -> Emojis.FULL_SPACE_EMOTE.getFormatted();
-                case PENDING -> Emojis.LOADING.getFormatted();
-                case RIGHT -> "✅";
-            };
+            if (active && currentColor == -1) {
+                return Emojis.COUNTDOWN_10.getFormatted();
+            } else {
+                return switch (playerStatus) {
+                    case NONE -> Emojis.FULL_SPACE_EMOTE.getFormatted();
+                    case PENDING -> Emojis.LOADING.getFormatted();
+                    case RIGHT -> "✅";
+                };
+            }
         } else {
             return alive[player] ? Emojis.FULL_SPACE_EMOTE.getFormatted() : "💥";
         }
