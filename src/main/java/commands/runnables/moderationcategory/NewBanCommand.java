@@ -2,6 +2,7 @@ package commands.runnables.moderationcategory;
 
 import com.google.common.collect.Lists;
 import commands.listeners.CommandProperties;
+import core.utils.BotPermissionUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -30,17 +31,32 @@ public class NewBanCommand extends NewKickCommand {
     }
 
     @Override
-    protected void processAll(Guild guild, List<User> targets, String reason) {
-        List<List<User>> partitionedTargets = Lists.partition(targets, 200);
-        for (List<User> users : partitionedTargets) {
-            List<UserSnowflake> userSnowflakes = users.stream().map(user -> UserSnowflake.fromId(user.getId())).collect(Collectors.toList());
-            guild.ban(userSnowflakes, 1, TimeUnit.DAYS)
+    protected void process(Guild guild, User target, String reason) {
+        if (!BotPermissionUtil.can(guild, Permission.MANAGE_SERVER)) {
+            guild.ban(target, 1, TimeUnit.DAYS)
                     .reason(reason)
                     .submit()
                     .exceptionally(e -> {
-                        guild.ban(userSnowflakes, 1, TimeUnit.DAYS).queue();
+                        guild.ban(target, 1, TimeUnit.DAYS).queue();
                         return null;
                     });
+        }
+    }
+
+    @Override
+    protected void processAll(Guild guild, List<User> targets, String reason) {
+        if (BotPermissionUtil.can(guild, Permission.MANAGE_SERVER)) {
+            List<List<User>> partitionedTargets = Lists.partition(targets, 200);
+            for (List<User> users : partitionedTargets) {
+                List<UserSnowflake> userSnowflakes = users.stream().map(user -> UserSnowflake.fromId(user.getId())).collect(Collectors.toList());
+                guild.ban(userSnowflakes, 1, TimeUnit.DAYS)
+                        .reason(reason)
+                        .submit()
+                        .exceptionally(e -> {
+                            guild.ban(userSnowflakes, 1, TimeUnit.DAYS).queue();
+                            return null;
+                        });
+            }
         }
     }
 

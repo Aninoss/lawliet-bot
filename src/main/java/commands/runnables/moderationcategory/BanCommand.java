@@ -6,6 +6,7 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.mention.Mention;
 import core.mention.MentionValue;
+import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.schedulers.TempBanScheduler;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
         emoji = "\uD83D\uDEAB",
         executableWithoutArgs = false,
         requiresFullMemberCache = true,
-        aliases = { "tempban" }
+        aliases = {"tempban"}
 )
 public class BanCommand extends WarnCommand {
 
@@ -67,20 +68,32 @@ public class BanCommand extends WarnCommand {
         } else {
             DBTempBan.getInstance().retrieve(guild.getIdLong()).remove(target.getIdLong());
         }
+
+        if (!BotPermissionUtil.can(guild, Permission.MANAGE_SERVER)) {
+            guild.ban(target, 1, TimeUnit.DAYS)
+                    .reason(reason)
+                    .submit()
+                    .exceptionally(e -> {
+                        guild.ban(target, 1, TimeUnit.DAYS).queue();
+                        return null;
+                    });
+        }
     }
 
     @Override
     protected void processAll(Guild guild, List<User> targets, String reason) {
-        List<List<User>> partitionedTargets = Lists.partition(targets, 200);
-        for (List<User> users : partitionedTargets) {
-            List<UserSnowflake> userSnowflakes = users.stream().map(user -> UserSnowflake.fromId(user.getId())).collect(Collectors.toList());
-            guild.ban(userSnowflakes, 1, TimeUnit.DAYS)
-                    .reason(reason)
-                    .submit()
-                    .exceptionally(e -> {
-                        guild.ban(userSnowflakes, 1, TimeUnit.DAYS).queue();
-                        return null;
-                    });
+        if (BotPermissionUtil.can(guild, Permission.MANAGE_SERVER)) {
+            List<List<User>> partitionedTargets = Lists.partition(targets, 200);
+            for (List<User> users : partitionedTargets) {
+                List<UserSnowflake> userSnowflakes = users.stream().map(user -> UserSnowflake.fromId(user.getId())).collect(Collectors.toList());
+                guild.ban(userSnowflakes, 1, TimeUnit.DAYS)
+                        .reason(reason)
+                        .submit()
+                        .exceptionally(e -> {
+                            guild.ban(userSnowflakes, 1, TimeUnit.DAYS).queue();
+                            return null;
+                        });
+            }
         }
     }
 
