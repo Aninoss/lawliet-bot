@@ -73,7 +73,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
                         .filter(emoji -> emoji.getName().toLowerCase().contains(filterText))
                         .count();
                 long unicodeEmojis = EmojiTable.getEmojis().stream()
-                        .filter(pair -> pair.getKey().toLowerCase().contains(filterText))
+                        .filter(pair -> pair.getKey().toLowerCase().contains(filterText) || pair.getValue().equals(filterText))
                         .count();
                 yield customEmojis + unicodeEmojis;
             }

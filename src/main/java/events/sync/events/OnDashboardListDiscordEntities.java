@@ -144,7 +144,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                                 entitiesJson.put(json);
                             });
                     EmojiTable.getEmojis().stream()
-                            .filter(pair -> pair.getKey().toLowerCase().contains(filterText))
+                            .filter(pair -> pair.getKey().toLowerCase().contains(filterText) || pair.getValue().equals(filterText))
                             .skip(Math.max(0, offset - matchedEmojis.size()))
                             .limit(Math.max(0, limit - entitiesJson.length()))
                             .forEach(pair -> {
