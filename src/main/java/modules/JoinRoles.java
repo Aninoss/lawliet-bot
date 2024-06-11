@@ -55,7 +55,7 @@ public class JoinRoles {
         } else {
             getAutoRoles(locale, member, commandClasses, rolesToAdd);
             getStickyRoles(locale, member, guildEntity, commandClasses, rolesToAdd);
-            getFisheryRoles(locale, member, guildEntity, commandClasses, rolesToAdd, new HashSet<>());
+            getFisheryRoles(locale, member, guildEntity, commandClasses, rolesToAdd);
         }
 
         rolesToAdd.removeIf(role -> member.getRoles().contains(role));
@@ -64,15 +64,16 @@ public class JoinRoles {
         }
 
         CompletableFuture<Void> future = new CompletableFuture<>();
+        String reason = generateReason(locale, commandClasses);
         if (bulk) {
             member.getGuild().modifyMemberRoles(member, rolesToAdd, Collections.emptySet())
-                    .reason(generateReason(locale, commandClasses))
+                    .reason(reason)
                     .queue(v -> future.complete(null), future::completeExceptionally);
         } else {
             RestActionQueue restActionQueue = new RestActionQueue();
             for (Role role : rolesToAdd) {
                 AuditableRestAction<Void> restAction = member.getGuild().addRoleToMember(member, role)
-                        .reason(generateReason(locale, commandClasses));
+                        .reason(reason);
                 restActionQueue.attach(restAction);
             }
             if (restActionQueue.isSet()) {
@@ -104,11 +105,10 @@ public class JoinRoles {
         }
     }
 
-    public static void getFisheryRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Class<? extends Command>> commandClasses, HashSet<Role> rolesToAdd, HashSet<Role> rolesToRemove) {
+    public static void getFisheryRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Class<? extends Command>> commandClasses, HashSet<Role> rolesToAdd) {
         int rolesToAddSize = rolesToAdd.size();
-        int rolesToRemoveSize = rolesToRemove.size();
-        Fishery.getFisheryRoles(locale, member, guildEntity, rolesToAdd, rolesToRemove);
-        if (rolesToAdd.size() > rolesToAddSize || rolesToRemove.size() > rolesToRemoveSize) {
+        Fishery.getFisheryRoles(locale, member, guildEntity, rolesToAdd, new HashSet<>());
+        if (rolesToAdd.size() > rolesToAddSize) {
             commandClasses.add(FisheryCommand.class);
         }
     }
