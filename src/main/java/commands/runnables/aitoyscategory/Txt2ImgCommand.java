@@ -22,7 +22,7 @@ public class Txt2ImgCommand extends RunPodAbstract {
     };
 
     public Txt2ImgCommand(Locale locale, String prefix) {
-        super(locale, prefix, "nipples, naked, topless, ");
+        super(locale, prefix, "(nsfw), nipples, nude, naked, topless, ");
     }
 
     @Override

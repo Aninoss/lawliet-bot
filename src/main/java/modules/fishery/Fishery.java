@@ -5,18 +5,15 @@ import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.ExceptionIds;
 import constants.Settings;
-import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.Program;
-import core.TextManager;
+import core.*;
 import core.cache.UserBannedCache;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;
-import modules.JoinRoles;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -35,6 +32,25 @@ public class Fishery {
 
     private static final HashSet<Long> unusedPowerUpSet = new HashSet<>();
 
+    public static void getFisheryRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Role> rolesToAdd, HashSet<Role> rolesToRemove) {
+        Guild guild = member.getGuild();
+        if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
+            return;
+        }
+
+        List<Role> memberRoles = FisheryUserManager.getGuildData(guild.getIdLong()).getMemberData(member.getIdLong()).getRoles(guildEntity.getFishery());
+        for (Role role : guildEntity.getFishery().getRoles()) {
+            boolean give = memberRoles.contains(role);
+            if (PermissionCheckRuntime.botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {
+                if (give) {
+                    rolesToAdd.add(role);
+                } else {
+                    rolesToRemove.add(role);
+                }
+            }
+        }
+    }
+
     public static void synchronizeRoles(Member member, GuildEntity guildEntity) {
         Guild guild = member.getGuild();
         Locale locale = guildEntity.getLocale();
@@ -44,9 +60,9 @@ public class Fishery {
 
         HashSet<Role> rolesToAdd = new HashSet<>();
         HashSet<Role> rolesToRemove = new HashSet<>();
-        JoinRoles.getFisheryRoles(locale, member, guildEntity, rolesToAdd, rolesToRemove);
+        getFisheryRoles(locale, member, guildEntity, rolesToAdd, rolesToRemove);
 
-        if (rolesToAdd.size() > 0 || rolesToRemove.size() > 0) {
+        if (!rolesToAdd.isEmpty() || !rolesToRemove.isEmpty()) {
             guild.modifyMemberRoles(member, rolesToAdd, rolesToRemove)
                     .reason(Command.getCommandLanguage(FisheryCommand.class, locale).getTitle())
                     .queue();

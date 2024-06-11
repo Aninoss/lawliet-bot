@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 import java.time.Duration;
 import java.util.*;
@@ -69,9 +68,9 @@ public class RoleAssigner {
                         );
 
                         if (guild.getMembers().contains(member) && canInteract) {
-                            AuditableRestAction<Void> restAction = guild.modifyMemberRoles(member, add ? roles : Collections.emptyList(), add ? Collections.emptyList() : roles)
-                                    .reason(Command.getCommandLanguage(commandClass, locale).getTitle());
-                            restAction.complete();
+                            guild.modifyMemberRoles(member, add ? roles : Collections.emptyList(), add ? Collections.emptyList() : roles)
+                                    .reason(Command.getCommandLanguage(commandClass, locale).getTitle())
+                                    .complete();
                         }
                     }
                     return true;

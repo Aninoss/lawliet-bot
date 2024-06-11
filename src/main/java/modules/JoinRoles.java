@@ -1,5 +1,6 @@
 package modules;
 
+import commands.Command;
 import commands.runnables.configurationcategory.AutoRolesCommand;
 import commands.runnables.configurationcategory.StickyRolesCommand;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
@@ -9,12 +10,12 @@ import core.RestActionQueue;
 import core.atomicassets.AtomicRole;
 import core.utils.BotPermissionUtil;
 import core.utils.TimeUtil;
+import modules.fishery.Fishery;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.guild.StickyRolesEntity;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.jails.DBJails;
-import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
@@ -41,47 +42,50 @@ public class JoinRoles {
     }
 
     public static CompletableFuture<Void> process(Member member, boolean bulk, GuildEntity guildEntity) {
+        if (member.isPending()) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        HashSet<Role> rolesToAdd = new HashSet<>();
+        HashSet<Class<? extends Command>> commandClasses = new HashSet<>();
+        Locale locale = guildEntity.getLocale();
+
+        if (DBJails.getInstance().retrieve(member.getGuild().getIdLong()).containsKey(member.getIdLong())) {
+            getJailRoles(locale, guildEntity, commandClasses, rolesToAdd);
+        } else {
+            getAutoRoles(locale, member, commandClasses, rolesToAdd);
+            getStickyRoles(locale, member, guildEntity, commandClasses, rolesToAdd);
+            getFisheryRoles(locale, member, guildEntity, commandClasses, rolesToAdd, new HashSet<>());
+        }
+
+        rolesToAdd.removeIf(role -> member.getRoles().contains(role));
+        if (rolesToAdd.isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
+
         CompletableFuture<Void> future = new CompletableFuture<>();
-        if (!member.isPending()) {
-            HashSet<Role> rolesToAdd = new HashSet<>();
-            Locale locale = guildEntity.getLocale();
-
-            if (DBJails.getInstance().retrieve(member.getGuild().getIdLong()).containsKey(member.getIdLong())) {
-                getJailRoles(locale, guildEntity, rolesToAdd);
-            } else {
-                getAutoRoles(locale, member, rolesToAdd);
-                getStickyRoles(locale, member, guildEntity, rolesToAdd);
-                getFisheryRoles(locale, member, guildEntity, rolesToAdd, new HashSet<>());
+        if (bulk) {
+            member.getGuild().modifyMemberRoles(member, rolesToAdd, Collections.emptySet())
+                    .reason(generateReason(locale, commandClasses))
+                    .queue(v -> future.complete(null), future::completeExceptionally);
+        } else {
+            RestActionQueue restActionQueue = new RestActionQueue();
+            for (Role role : rolesToAdd) {
+                AuditableRestAction<Void> restAction = member.getGuild().addRoleToMember(member, role)
+                        .reason(generateReason(locale, commandClasses));
+                restActionQueue.attach(restAction);
             }
-
-            rolesToAdd.removeIf(role -> member.getRoles().contains(role));
-            if (!rolesToAdd.isEmpty()) {
-                if (bulk) {
-                    member.getGuild().modifyMemberRoles(member, rolesToAdd, Collections.emptySet())
-                            .queue(v -> future.complete(null), future::completeExceptionally);
-                } else {
-                    RestActionQueue restActionQueue = new RestActionQueue();
-                    for (Role role : rolesToAdd) {
-                        AuditableRestAction<Void> restAction = member.getGuild().addRoleToMember(member, role);
-                        restActionQueue.attach(restAction);
-                    }
-                    if (restActionQueue.isSet()) {
-                        restActionQueue.getCurrentRestAction()
-                                .queue(v -> future.complete(null), future::completeExceptionally);
-                    } else {
-                        future.complete(null);
-                    }
-                }
+            if (restActionQueue.isSet()) {
+                restActionQueue.getCurrentRestAction()
+                        .queue(v -> future.complete(null), future::completeExceptionally);
             } else {
                 future.complete(null);
             }
-        } else {
-            future.complete(null);
         }
         return future;
     }
 
-    public static void getAutoRoles(Locale locale, Member member, HashSet<Role> rolesToAdd) {
+    public static void getAutoRoles(Locale locale, Member member, HashSet<Class<? extends Command>> commandClasses, HashSet<Role> rolesToAdd) {
         Guild guild = member.getGuild();
         for (Role role : DBAutoRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds()
                 .transform(guild::getRoleById, ISnowflake::getIdLong)
@@ -94,41 +98,33 @@ public class JoinRoles {
                                 currentHour >= 6 && currentHour < 23)
                 ) {
                     rolesToAdd.add(role);
+                    commandClasses.add(AutoRolesCommand.class);
                 }
             }
         }
     }
 
-    public static void getFisheryRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Role> rolesToAdd, HashSet<Role> rolesToRemove) {
-        Guild guild = member.getGuild();
-        if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
-            return;
-        }
-
-        List<Role> memberRoles = FisheryUserManager.getGuildData(guild.getIdLong()).getMemberData(member.getIdLong()).getRoles(guildEntity.getFishery());
-        for (Role role : guildEntity.getFishery().getRoles()) {
-            boolean give = memberRoles.contains(role);
-            if (PermissionCheckRuntime.botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {
-                if (give) {
-                    rolesToAdd.add(role);
-                } else {
-                    rolesToRemove.add(role);
-                }
-            }
+    public static void getFisheryRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Class<? extends Command>> commandClasses, HashSet<Role> rolesToAdd, HashSet<Role> rolesToRemove) {
+        int rolesToAddSize = rolesToAdd.size();
+        int rolesToRemoveSize = rolesToRemove.size();
+        Fishery.getFisheryRoles(locale, member, guildEntity, rolesToAdd, rolesToRemove);
+        if (rolesToAdd.size() > rolesToAddSize || rolesToRemove.size() > rolesToRemoveSize) {
+            commandClasses.add(FisheryCommand.class);
         }
     }
 
-    public static void getJailRoles(Locale locale, GuildEntity guildEntity, HashSet<Role> rolesToAdd) {
+    public static void getJailRoles(Locale locale, GuildEntity guildEntity, HashSet<Class<? extends Command>> commandClasses, HashSet<Role> rolesToAdd) {
         List<Role> jailRoles = AtomicRole.to(guildEntity.getModeration().getJailRoles());
         PermissionCheckRuntime.botCanManageRoles(locale, JailCommand.class, jailRoles);
         for (Role jailRole : jailRoles) {
             if (BotPermissionUtil.canManage(jailRole)) {
                 rolesToAdd.add(jailRole);
+                commandClasses.add(JailCommand.class);
             }
         }
     }
 
-    public static void getStickyRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Role> rolesToAdd) {
+    public static void getStickyRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Class<? extends Command>> commandClasses, HashSet<Role> rolesToAdd) {
         StickyRolesEntity stickyRoles = guildEntity.getStickyRoles();
         for (long activeRoleId : stickyRoles.getActiveRoleIdsForMember(member.getIdLong())) {
             if (!stickyRoles.getRoleIds().contains(activeRoleId)) {
@@ -143,7 +139,19 @@ public class JoinRoles {
             }
 
             rolesToAdd.add(role);
+            commandClasses.add(StickyRolesCommand.class);
         }
+    }
+
+    private static String generateReason(Locale locale, HashSet<Class<? extends Command>> commandClasses) {
+        StringBuilder sb = new StringBuilder();
+        for (Class<? extends Command> clazz : commandClasses) {
+            if (!sb.isEmpty()) {
+                sb.append(", ");
+            }
+            sb.append(Command.getCommandLanguage(clazz, locale).getTitle());
+        }
+        return sb.toString();
     }
 
 }
