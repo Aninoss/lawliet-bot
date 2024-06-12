@@ -40,6 +40,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public abstract class RunPodAbstract extends NavigationAbstract {
 
@@ -449,6 +450,9 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                         List<String> newOutputs = convertBase64ToTempFileUrls(predictionResult.get().getOutputs());
                         predictionResult.get().setOutputs(newOutputs);
                     }
+                    if (model.getCheckNsfw()) {
+                        predictionResult.get().setOutputs(processNsfwImages(predictionResult.get().getOutputs()));
+                    }
                     Txt2ImgLogger.log(prompt, member, model.name(), predictionResult.get().getOutputs());
                 }
             } catch (Throwable e) {
@@ -514,6 +518,12 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         }
 
         return imageUrls;
+    }
+
+    private List<String> processNsfwImages(List<String> outputs) {
+        return outputs.parallelStream()
+                .map(url -> NsfwDetection.isNsfw(url) ? "https://cdn.discordapp.com/attachments/499629904380297226/1250414747636203623/nsfw_censored.png" : url)
+                .collect(Collectors.toList());
     }
 
     private boolean isPremium(long guildId, long userId) {

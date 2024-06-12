@@ -14,6 +14,7 @@ public enum Model {
             "f3xzap2iaijkd2",
             9200,
             true,
+            true,
             Set.of(Txt2ImgCommand.class),
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
@@ -32,6 +33,7 @@ public enum Model {
             "0osgqg6v71hsmk",
             5800,
             true,
+            false,
             Set.of(Txt2ImgCommand.class),
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
@@ -52,6 +54,7 @@ public enum Model {
             "yj8156feamkasn",
             9000,
             true,
+            false,
             Set.of(Txt2ImgCommand.class),
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
@@ -72,6 +75,7 @@ public enum Model {
             "fbj6it4t2lv86m",
             10000,
             true,
+            false,
             Set.of(Txt2ImgCommand.class),
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
@@ -92,6 +96,7 @@ public enum Model {
             "idpk0o19b3n6ex",
             4800,
             true,
+            false,
             Set.of(Txt2HentaiCommand.class),
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
@@ -112,6 +117,7 @@ public enum Model {
             "92mzor4a45vkc1",
             9000,
             true,
+            false,
             Set.of(Txt2HentaiCommand.class),
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
@@ -132,6 +138,7 @@ public enum Model {
             "7lh2avgf34pryg",
             6900,
             true,
+            false,
             Set.of(Txt2HentaiCommand.class),
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
@@ -150,15 +157,17 @@ public enum Model {
     private final String modelId;
     private final int expectedTimeMs;
     private final boolean customModel;
+    private final boolean checkNsfw;
     private final Set<Class<? extends RunPodAbstract>> classes;
     private final Function<ModelInputParameters, JSONObject> inputFunction;
 
-    Model(String modelId, int expectedTimeMs, boolean customModel, Set<Class<? extends RunPodAbstract>> classes,
+    Model(String modelId, int expectedTimeMs, boolean customModel, boolean checkNsfw, Set<Class<? extends RunPodAbstract>> classes,
           Function<ModelInputParameters, JSONObject> inputFunction
     ) {
         this.modelId = modelId;
         this.expectedTimeMs = expectedTimeMs;
         this.customModel = customModel;
+        this.checkNsfw = checkNsfw;
         this.classes = classes;
         this.inputFunction = inputFunction;
     }
@@ -173,6 +182,10 @@ public enum Model {
 
     public boolean getCustomModel() {
         return customModel;
+    }
+
+    public boolean getCheckNsfw() {
+        return checkNsfw;
     }
 
     public Set<Class<? extends RunPodAbstract>> getClasses() {
