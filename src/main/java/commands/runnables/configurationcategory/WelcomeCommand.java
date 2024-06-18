@@ -10,7 +10,6 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.LocalFile;
 import core.TextManager;
-import core.atomicassets.AtomicGuildMessageChannel;
 import core.components.ActionRows;
 import core.modals.StringModalBuilder;
 import core.utils.FileUtil;
@@ -20,8 +19,10 @@ import core.utils.StringUtil;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
 import mysql.hibernate.entity.BotLogEntity;
-import mysql.modules.welcomemessage.DBWelcomeMessage;
-import mysql.modules.welcomemessage.WelcomeMessageData;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesDmEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesJoinEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesLeaveEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -63,7 +64,6 @@ public class WelcomeCommand extends NavigationAbstract {
             STATE_EXAMPLE = 4;
 
 
-    private WelcomeMessageData welcomeMessageData;
     private int category = 0;
 
     public WelcomeCommand(Locale locale, String prefix) {
@@ -72,9 +72,8 @@ public class WelcomeCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        welcomeMessageData = DBWelcomeMessage.getInstance().retrieve(event.getGuild().getIdLong());
-        welcomeMessageData.getWelcomeChannel().ifPresent(this::checkWriteEmbedInChannelAndAttachFilesWithLog);
-        welcomeMessageData.getGoodbyeChannel().ifPresent(this::checkWriteEmbedInChannelAndAttachFilesWithLog);
+        getGuildEntity().getWelcomeMessages().getJoin().getChannel().get().ifPresent(this::checkWriteEmbedInChannelAndAttachFilesWithLog);
+        getGuildEntity().getWelcomeMessages().getLeave().getChannel().get().ifPresent(this::checkWriteEmbedInChannelAndAttachFilesWithLog);
 
         registerNavigationListener(event.getMember(), List.of(
                 new StringStateProcessor(this, STATE_SET_TEXT, DEFAULT_STATE, getString("state0_mdescription"))
@@ -83,15 +82,16 @@ public class WelcomeCommand extends NavigationAbstract {
                         .setMax(MAX_TEXT_LENGTH)
                         .enableHibernateTransaction()
                         .setGetter(() -> {
+                            WelcomeMessagesEntity welcomeMessagesEntity = getGuildEntity().getWelcomeMessages();
                             switch (category) {
                                 case 0 -> {
-                                    return welcomeMessageData.getWelcomeText();
+                                    return welcomeMessagesEntity.getJoin().getText();
                                 }
                                 case 1 -> {
-                                    return welcomeMessageData.getDmText();
+                                    return welcomeMessagesEntity.getDm().getText();
                                 }
                                 case 2 -> {
-                                    return welcomeMessageData.getGoodbyeText();
+                                    return welcomeMessagesEntity.getLeave().getText();
                                 }
                                 default -> {
                                     return null;
@@ -99,18 +99,19 @@ public class WelcomeCommand extends NavigationAbstract {
                             }
                         })
                         .setSetter(input -> {
+                            WelcomeMessagesEntity welcomeMessagesEntity = getGuildEntity().getWelcomeMessages();
                             switch (category) {
                                 case 0 -> {
-                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_TEXT, event.getMember(), welcomeMessageData.getWelcomeText(), input);
-                                    welcomeMessageData.setWelcomeText(input);
+                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_TEXT, event.getMember(), welcomeMessagesEntity.getJoin().getText(), input);
+                                    welcomeMessagesEntity.getJoin().setText(input);
                                 }
                                 case 1 -> {
-                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_TEXT, event.getMember(), welcomeMessageData.getDmText(), input);
-                                    welcomeMessageData.setDmText(input);
+                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_TEXT, event.getMember(), welcomeMessagesEntity.getDm().getText(), input);
+                                    welcomeMessagesEntity.getDm().setText(input);
                                 }
                                 case 2 -> {
-                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_TEXT, event.getMember(), welcomeMessageData.getGoodbyeText(), input);
-                                    welcomeMessageData.setGoodbyeText(input);
+                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_TEXT, event.getMember(), welcomeMessagesEntity.getLeave().getText(), input);
+                                    welcomeMessagesEntity.getLeave().setText(input);
                                 }
                             }
                         }),
@@ -119,14 +120,18 @@ public class WelcomeCommand extends NavigationAbstract {
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
                         .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)
                         .enableHibernateTransaction()
-                        .setSingleGetter(() -> category == 0 ? welcomeMessageData.getWelcomeChannelId() : welcomeMessageData.getGoodbyeChannelId())
+                        .setSingleGetter(() -> {
+                            WelcomeMessagesEntity welcomeMessagesEntity = getGuildEntity().getWelcomeMessages();
+                            return category == 0 ? welcomeMessagesEntity.getJoin().getChannelId() : welcomeMessagesEntity.getLeave().getChannelId();
+                        })
                         .setSingleSetter(channelId -> {
+                            WelcomeMessagesEntity welcomeMessagesEntity = getGuildEntity().getWelcomeMessages();
                             if (category == 0) {
-                                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_CHANNEL, event.getMember(), welcomeMessageData.getWelcomeChannelId(), channelId);
-                                welcomeMessageData.setWelcomeChannelId(channelId);
+                                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_CHANNEL, event.getMember(), welcomeMessagesEntity.getJoin().getChannelId(), channelId);
+                                welcomeMessagesEntity.getJoin().setChannelId(channelId);
                             } else {
-                                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_CHANNEL, event.getMember(), welcomeMessageData.getGoodbyeChannelId(), channelId);
-                                welcomeMessageData.setGoodbyeChannelId(channelId);
+                                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_CHANNEL, event.getMember(), welcomeMessagesEntity.getLeave().getChannelId(), channelId);
+                                welcomeMessagesEntity.getLeave().setChannelId(channelId);
                             }
                         }),
                 new FileStateProcessor(this, STATE_SET_BANNER_BACKGROUND, DEFAULT_STATE, getString("dashboard_backgroundimage"))
@@ -154,7 +159,7 @@ public class WelcomeCommand extends NavigationAbstract {
             return false;
         }
         return switch (category) {
-            case 0 -> onButtonWelcome(event, i);
+            case 0 -> onButtonJoin(event, i);
             case 1 -> onButtonDM(event, i);
             case 2 -> onButtonLeave(event, i);
             default -> false;
@@ -190,33 +195,43 @@ public class WelcomeCommand extends NavigationAbstract {
         setActionRows(actionRows);
 
         GuildMessageChannel channel = getGuildMessageChannel().get();
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        return switch (category) {
-            case 0 -> EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_join"))
-                    .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isWelcomeActive()), true)
-                    .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getWelcomeText()), 1024), true)
-                    .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getWelcomeEmbed()), true)
-                    .addField(getString("state0_mchannel"), welcomeMessageData.getWelcomeChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
-                    .addField(getString("state0_mbanner"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getBanner()), true)
-                    .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageData.getWelcomeTitle()), true);
-            case 1 -> EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_dm"))
-                    .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isDmActive()), true)
-                    .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getDmText()), 1024), true)
-                    .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getDmEmbed()), true);
-            case 2 -> EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_leave"))
-                    .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.isGoodbyeActive()), true)
-                    .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getGoodbyeText()), 1024), true)
-                    .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), welcomeMessageData.getGoodbyeEmbed()), true)
-                    .addField(getString("state0_mchannel"), welcomeMessageData.getGoodbyeChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
+        switch (category) {
+            case 0 -> {
+                WelcomeMessagesJoinEntity join = getGuildEntity().getWelcomeMessages().getJoin();
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_join"))
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getActive()), true)
+                        .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(join.getText()), 1024), true)
+                        .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getEmbeds()), true)
+                        .addField(getString("state0_mchannel"), join.getChannel().getPrefixedNameInField(getLocale()), true)
+                        .addField(getString("state0_mbanner"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS), true)
+                        .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(join.getBannerTitle()), true);
+            }
+            case 1 -> {
+                WelcomeMessagesDmEntity dm = getGuildEntity().getWelcomeMessages().getDm();
+                String text = StringUtil.shortenString(stressVariables(dm.getText()), 1024);
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_dm"))
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getActive()), true)
+                        .addField(getString("state0_mdescription"), text.isEmpty() ? TextManager.getString(getLocale(), TextManager.GENERAL, "notset") : text, true)
+                        .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getEmbeds()), true);
+            }
+            case 2 -> {
+                WelcomeMessagesLeaveEntity leave = getGuildEntity().getWelcomeMessages().getLeave();
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_leave"))
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getActive()), true)
+                        .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(leave.getText()), 1024), true)
+                        .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getEmbeds()), true)
+                        .addField(getString("state0_mchannel"), leave.getChannel().getPrefixedNameInField(getLocale()), true);
+            }
             default -> throw new UnsupportedOperationException("Invalid category");
-        };
+        }
     }
 
     @Draw(state = STATE_EXAMPLE)
     public EmbedBuilder drawExample(Member member) throws ExecutionException, InterruptedException, IOException {
+        WelcomeMessagesJoinEntity join = getGuildEntity().getWelcomeMessages().getJoin();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(Welcome.resolveVariables(
-                        welcomeMessageData.getWelcomeText(),
+                        join.getText(),
                         StringUtil.escapeMarkdown(member.getGuild().getName()),
                         member.getAsMention(),
                         StringUtil.escapeMarkdown(member.getUser().getName()),
@@ -225,9 +240,9 @@ public class WelcomeCommand extends NavigationAbstract {
                         StringUtil.escapeMarkdown(member.getUser().getEffectiveName())
                 ));
 
-        if (welcomeMessageData.getBanner()) {
+        if (join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS) {
             eb.setImage(InternetUtil.getUrlFromInputStream(
-                    WelcomeGraphics.createImageWelcome(member, welcomeMessageData.getWelcomeTitle()).get(),
+                    WelcomeGraphics.createImageWelcome(member, join.getBannerTitle()).get(),
                     "png"
             ));
         }
@@ -235,16 +250,16 @@ public class WelcomeCommand extends NavigationAbstract {
         return eb;
     }
 
-    private boolean onButtonWelcome(ButtonInteractionEvent event, int i) {
+    private boolean onButtonJoin(ButtonInteractionEvent event, int i) {
+        WelcomeMessagesJoinEntity join = getGuildEntity().getWelcomeMessages().getJoin();
         switch (i) {
             case 0 -> {
-                welcomeMessageData.toggleWelcomeActive();
-
                 getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_ACTIVE, event.getMember(), null, welcomeMessageData.isWelcomeActive());
+                join.setActive(!join.getActive());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_ACTIVE, event.getMember(), null, join.getActive());
                 getEntityManager().getTransaction().commit();
 
-                setLog(LogStatus.SUCCESS, getString("activeset", welcomeMessageData.isWelcomeActive(), getString("dashboard_join")));
+                setLog(LogStatus.SUCCESS, getString("activeset", join.getActive(), getString("dashboard_join")));
                 return true;
             }
             case 1 -> {
@@ -252,13 +267,12 @@ public class WelcomeCommand extends NavigationAbstract {
                 return true;
             }
             case 2 -> {
-                welcomeMessageData.toggleWelcomeEmbed();
-
                 getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_EMBEDS, event.getMember(), null, welcomeMessageData.getWelcomeEmbed());
+                join.setEmbeds(!join.getEmbeds());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_EMBEDS, event.getMember(), null, join.getEmbeds());
                 getEntityManager().getTransaction().commit();
 
-                setLog(LogStatus.SUCCESS, getString("embedset", welcomeMessageData.getWelcomeEmbed()));
+                setLog(LogStatus.SUCCESS, getString("embedset", join.getEmbeds()));
                 return true;
             }
             case 3 -> {
@@ -266,21 +280,20 @@ public class WelcomeCommand extends NavigationAbstract {
                 return true;
             }
             case 4 -> {
-                welcomeMessageData.toggleBanner();
-
                 getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNERS, event.getMember(), null, welcomeMessageData.getBanner());
+                join.setImageMode(join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS ? WelcomeMessagesJoinEntity.ImageMode.NONE : WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNERS, event.getMember(), null, join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS);
                 getEntityManager().getTransaction().commit();
 
-                setLog(LogStatus.SUCCESS, getString("bannerset", welcomeMessageData.getBanner()));
+                setLog(LogStatus.SUCCESS, getString("bannerset", join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS));
                 return true;
             }
             case 5 -> {
                 Modal modal = new StringModalBuilder(this, getString("state0_mtitle"), TextInputStyle.SHORT)
                         .setMinMaxLength(1, MAX_WELCOME_TITLE_LENGTH)
                         .setLogEvent(BotLogEntity.Event.WELCOME_BANNER_TITLE)
-                        .setGetter(() -> welcomeMessageData.getWelcomeTitle())
-                        .setSetter(s -> welcomeMessageData.setWelcomeTitle(s))
+                        .setGetter(() -> getGuildEntity().getWelcomeMessages().getJoin().getBannerTitle())
+                        .setSetter(s -> getGuildEntity().getWelcomeMessages().getJoin().setBannerTitle(s))
                         .build();
 
                 event.replyModal(modal).queue();
@@ -299,15 +312,15 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     private boolean onButtonDM(ButtonInteractionEvent event, int i) {
+        WelcomeMessagesDmEntity dm = getGuildEntity().getWelcomeMessages().getDm();
         switch (i) {
             case 0 -> {
-                welcomeMessageData.toggleDmActive();
-
                 getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_ACTIVE, event.getMember(), null, welcomeMessageData.isDmActive());
+                dm.setActive(!dm.getActive());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_ACTIVE, event.getMember(), null, dm.getActive());
                 getEntityManager().getTransaction().commit();
 
-                setLog(LogStatus.SUCCESS, getString("activeset", welcomeMessageData.isDmActive(), getString("dashboard_dm")));
+                setLog(LogStatus.SUCCESS, getString("activeset", dm.getActive(), getString("dashboard_dm")));
                 return true;
             }
             case 1 -> {
@@ -315,13 +328,12 @@ public class WelcomeCommand extends NavigationAbstract {
                 return true;
             }
             case 2 -> {
-                welcomeMessageData.toggleDmEmbed();
-
                 getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_EMBEDS, event.getMember(), null, welcomeMessageData.getDmEmbed());
+                dm.setEmbeds(!dm.getEmbeds());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_DM_EMBEDS, event.getMember(), null, dm.getEmbeds());
                 getEntityManager().getTransaction().commit();
 
-                setLog(LogStatus.SUCCESS, getString("embedset", welcomeMessageData.getDmEmbed()));
+                setLog(LogStatus.SUCCESS, getString("embedset", dm.getEmbeds()));
                 return true;
             }
         }
@@ -329,15 +341,15 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     private boolean onButtonLeave(ButtonInteractionEvent event, int i) {
+        WelcomeMessagesLeaveEntity leave = getGuildEntity().getWelcomeMessages().getLeave();
         switch (i) {
             case 0 -> {
-                welcomeMessageData.toggleGoodbyeActive();
-
                 getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_ACTIVE, event.getMember(), null, welcomeMessageData.isGoodbyeActive());
+                leave.setActive(!leave.getActive());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_ACTIVE, event.getMember(), null, leave.getActive());
                 getEntityManager().getTransaction().commit();
 
-                setLog(LogStatus.SUCCESS, getString("activeset", welcomeMessageData.isGoodbyeActive(), getString("dashboard_leave")));
+                setLog(LogStatus.SUCCESS, getString("activeset", leave.getActive(), getString("dashboard_leave")));
                 return true;
             }
             case 1 -> {
@@ -345,13 +357,12 @@ public class WelcomeCommand extends NavigationAbstract {
                 return true;
             }
             case 2 -> {
-                welcomeMessageData.toggleGoodbyeEmbed();
-
                 getEntityManager().getTransaction().begin();
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_EMBEDS, event.getMember(), null, welcomeMessageData.getGoodbyeEmbed());
+                leave.setEmbeds(!leave.getEmbeds());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_LEAVE_EMBEDS, event.getMember(), null, leave.getEmbeds());
                 getEntityManager().getTransaction().commit();
 
-                setLog(LogStatus.SUCCESS, getString("embedset", welcomeMessageData.getGoodbyeEmbed()));
+                setLog(LogStatus.SUCCESS, getString("embedset", leave.getEmbeds()));
                 return true;
             }
             case 3 -> {

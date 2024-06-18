@@ -8,6 +8,8 @@ import mysql.hibernate.entity.GiveawayEntity
 import mysql.hibernate.entity.ReactionRoleEntity
 import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.entity.assets.LanguageAsset
+import mysql.hibernate.entity.guild.welcomemessages.WELCOME_MESSAGES
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesEntity
 import mysql.hibernate.template.HibernateEntity
 import org.hibernate.annotations.NotFound
 import org.hibernate.annotations.NotFoundAction
@@ -83,6 +85,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @Column(name = TICKETS)
     val tickets = TicketsEntity()
 
+    @Embedded
+    @Column(name = WELCOME_MESSAGES)
+    val welcomeMessages = WelcomeMessagesEntity()
+
     @ElementCollection
     @SortNatural
     val customCommands = sortedMapOf<String, CustomCommandEntity>()
@@ -130,6 +136,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
         wordFilter.postLoad(this)
         stickyRoles.postLoad(this)
         tickets.postLoad(this)
+        welcomeMessages.postLoad(this)
     }
 
     override fun postRemove() {

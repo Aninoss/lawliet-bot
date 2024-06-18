@@ -12,8 +12,10 @@ import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.welcomemessage.DBWelcomeMessage;
-import mysql.modules.welcomemessage.WelcomeMessageData;
+import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesDmEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesJoinEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -33,20 +35,21 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) {
         Guild guild = event.getGuild();
-        Locale locale = entityManager.findGuildEntity(guild.getIdLong()).getLocale();
+        GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
+        WelcomeMessagesEntity welcomeMessages = guildEntity.getWelcomeMessages();
 
-        WelcomeMessageData welcomeMessageData = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
-        if (welcomeMessageData.isDmActive()) {
-            sendDmMessage(event, welcomeMessageData, locale);
+        if (welcomeMessages.getDm().getActive()) {
+            sendDmMessage(event, welcomeMessages.getDm(), guildEntity.getLocale());
         }
 
-        if (welcomeMessageData.isWelcomeActive()) {
-            welcomeMessageData.getWelcomeChannel()
+        if (welcomeMessages.getJoin().getActive()) {
+            WelcomeMessagesJoinEntity join = welcomeMessages.getJoin();
+            join.getChannel().get()
                     .ifPresent(channel -> {
-                        if (welcomeMessageData.getBanner()) {
-                            generateBannerAndSendMessage(event.getMember(), welcomeMessageData, channel, locale);
+                        if (join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS) {
+                            generateBannerAndSendMessage(event.getMember(), join, channel, guildEntity.getLocale());
                         } else {
-                            sendMessage(event.getMember(), welcomeMessageData, channel, locale, null);
+                            sendMessage(event.getMember(), join, channel, guildEntity.getLocale(), null);
                         }
                     });
         }
@@ -54,58 +57,15 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         return true;
     }
 
-    private void sendDmMessage(GuildMemberJoinEvent event, WelcomeMessageData welcomeMessageData, Locale locale) {
+    private void sendDmMessage(GuildMemberJoinEvent event, WelcomeMessagesDmEntity dm, Locale locale) {
+        if (dm.getText().isEmpty()) {
+            return;
+        }
+
         Guild guild = event.getGuild();
         Member member = event.getMember();
-        String text = welcomeMessageData.getDmText();
-
-        if (!text.isEmpty()) {
-            String content = Welcome.resolveVariables(
-                    welcomeMessageData.getDmText(),
-                    StringUtil.escapeMarkdown(guild.getName()),
-                    member.getAsMention(),
-                    StringUtil.escapeMarkdown(member.getUser().getName()),
-                    StringUtil.escapeMarkdown(member.getUser().getAsTag()),
-                    StringUtil.numToString(guild.getMemberCount()),
-                    StringUtil.escapeMarkdown(member.getUser().getEffectiveName())
-            );
-
-            if (welcomeMessageData.getDmEmbed()) {
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setDescription(content)
-                        .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", event.getGuild().getName()));
-
-                JDAUtil.openPrivateChannel(member)
-                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                        .queue();
-            } else {
-                EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(event.getGuild(), locale);
-                JDAUtil.openPrivateChannel(member)
-                        .flatMap(messageChannel -> messageChannel.sendMessage(content)
-                                .addEmbeds(eb.build())
-                        )
-                        .queue();
-            }
-        }
-    }
-
-    private void generateBannerAndSendMessage(Member member, WelcomeMessageData welcomeMessageData, GuildMessageChannel channel, Locale locale) {
-        if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
-            return;
-        }
-
-        WelcomeGraphics.createImageWelcome(member, welcomeMessageData.getWelcomeTitle())
-                .thenAccept(image -> sendMessage(member, welcomeMessageData, channel, locale, image));
-    }
-
-    private void sendMessage(Member member, WelcomeMessageData welcomeMessageData, GuildMessageChannel channel, Locale locale, InputStream image) {
-        if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
-            return;
-        }
-
-        Guild guild = member.getGuild();
         String content = Welcome.resolveVariables(
-                welcomeMessageData.getWelcomeText(),
+                dm.getText(),
                 StringUtil.escapeMarkdown(guild.getName()),
                 member.getAsMention(),
                 StringUtil.escapeMarkdown(member.getUser().getName()),
@@ -114,7 +74,50 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                 StringUtil.escapeMarkdown(member.getUser().getEffectiveName())
         );
 
-        if (welcomeMessageData.getWelcomeEmbed()) {
+        if (dm.getEmbeds()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setDescription(content)
+                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", event.getGuild().getName()));
+
+            JDAUtil.openPrivateChannel(member)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                    .queue();
+        } else {
+            EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(event.getGuild(), locale);
+            JDAUtil.openPrivateChannel(member)
+                    .flatMap(messageChannel -> messageChannel.sendMessage(content)
+                            .addEmbeds(eb.build())
+                    )
+                    .queue();
+        }
+    }
+
+    private void generateBannerAndSendMessage(Member member, WelcomeMessagesJoinEntity join, GuildMessageChannel channel, Locale locale) {
+        if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
+            return;
+        }
+
+        WelcomeGraphics.createImageWelcome(member, join.getBannerTitle())
+                .thenAccept(image -> sendMessage(member, join, channel, locale, image));
+    }
+
+    private void sendMessage(Member member, WelcomeMessagesJoinEntity join, GuildMessageChannel channel, Locale locale, InputStream image) {
+        if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+            return;
+        }
+
+        Guild guild = member.getGuild();
+        String content = Welcome.resolveVariables(
+                join.getText(),
+                StringUtil.escapeMarkdown(guild.getName()),
+                member.getAsMention(),
+                StringUtil.escapeMarkdown(member.getUser().getName()),
+                StringUtil.escapeMarkdown(member.getUser().getAsTag()),
+                StringUtil.numToString(guild.getMemberCount()),
+                StringUtil.escapeMarkdown(member.getUser().getEffectiveName())
+        );
+
+        if (join.getEmbeds()) {
             HashSet<String> userMentions = MentionUtil.extractUserMentions(content);
             StringBuilder sb = new StringBuilder();
             userMentions.forEach(mention -> sb.append(mention).append(" "));

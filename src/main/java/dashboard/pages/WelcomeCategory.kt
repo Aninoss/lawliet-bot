@@ -19,8 +19,9 @@ import dashboard.container.VerticalContainer
 import modules.graphics.WelcomeGraphics
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
-import mysql.modules.welcomemessage.DBWelcomeMessage
-import mysql.modules.welcomemessage.WelcomeMessageData
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesDmEntity
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesJoinEntity
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesLeaveEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -34,41 +35,45 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
     private var renderBannerPreview = false
 
+    val joinEntity: WelcomeMessagesJoinEntity
+        get() = guildEntity.welcomeMessages.join
+    val dmEntity: WelcomeMessagesDmEntity
+        get() = guildEntity.welcomeMessages.dm
+    val leaveEntity: WelcomeMessagesLeaveEntity
+        get() = guildEntity.welcomeMessages.leave
+
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(WelcomeCommand::class.java, locale).title
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val welcomeData = DBWelcomeMessage.getInstance().retrieve(atomicGuild.idLong)
-
         mainContainer.add(
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_join")),
                 DashboardText(getString(Category.CONFIGURATION, "welcome_desc_welcome")),
-                generateWelcomeField(welcomeData),
-                generateWelcomeBannerField(welcomeData),
+                generateJoinField(),
+                generateWelcomeBannerField(),
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_dm")),
                 DashboardText(getString(Category.CONFIGURATION, "welcome_desc_dm")),
-                generateDMField(welcomeData),
+                generateDMField(),
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_leave")),
                 DashboardText(getString(Category.CONFIGURATION, "welcome_desc_leave")),
-                generateLeaveField(welcomeData)
+                generateLeaveField()
         )
     }
 
-    fun generateWelcomeField(welcomeData: WelcomeMessageData): DashboardComponent {
+    fun generateJoinField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
-            welcomeData.isWelcomeActive = it.data
-
             entityManager.transaction.begin()
+            joinEntity.active = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_ACTIVE, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        activeSwitch.isChecked = welcomeData.isWelcomeActive
+        activeSwitch.isChecked = joinEntity.active
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
@@ -77,13 +82,13 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 WelcomeCommand.MAX_TEXT_LENGTH
         ) {
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_TEXT, atomicMember, welcomeData.welcomeText, it.data)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_TEXT, atomicMember, joinEntity.text, it.data)
+            joinEntity.text = it.data
             entityManager.transaction.commit()
 
-            welcomeData.welcomeText = it.data
             ActionResult()
         }
-        descriptionField.value = welcomeData.welcomeText
+        descriptionField.value = joinEntity.text
         container.add(
                 descriptionField,
                 DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
@@ -91,15 +96,14 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         )
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
-            welcomeData.welcomeEmbed = it.data
-
             entityManager.transaction.begin()
+            joinEntity.embeds = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_EMBEDS, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        embedSwitch.isChecked = welcomeData.welcomeEmbed
+        embedSwitch.isChecked = joinEntity.embeds
         embedSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_embeds_hint")
         container.add(embedSwitch, DashboardSeparator())
 
@@ -107,21 +111,21 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 this,
                 getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
-                welcomeData.welcomeChannelId,
+                joinEntity.channelId,
                 false,
                 arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)
         ) {
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_CHANNEL, atomicMember, welcomeData.welcomeChannelId, it.data.toLong())
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_CHANNEL, atomicMember, joinEntity.channelId, it.data.toLong())
+            joinEntity.channelId = it.data.toLong()
             entityManager.transaction.commit()
 
-            welcomeData.welcomeChannelId = it.data.toLong()
             ActionResult()
                     .withRedraw()
         }
         container.add(channelComboBox, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_channel_hint"), DashboardText.Style.HINT))
 
-        val channel = welcomeData.welcomeChannel.orElse(null)
+        val channel = joinEntity.channel.get().orElse(null)
         if (channel != null && !BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) {
             val warningText = DashboardText(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
             warningText.style = DashboardText.Style.ERROR
@@ -131,7 +135,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         return container
     }
 
-    fun generateWelcomeBannerField(welcomeData: WelcomeMessageData): DashboardComponent {
+    fun generateWelcomeBannerField(): DashboardComponent {
         val container = VerticalContainer()
 
         val bannerTitle = DashboardText(getString(Category.CONFIGURATION, "welcome_state0_mbanner"))
@@ -142,15 +146,14 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         innerContainer.isCard = true
 
         val bannerSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_mbanner")) {
-            welcomeData.banner = it.data
-
             entityManager.transaction.begin()
+            joinEntity.imageMode = if (it.data) WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS else WelcomeMessagesJoinEntity.ImageMode.NONE
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNERS, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        bannerSwitch.isChecked = welcomeData.banner
+        bannerSwitch.isChecked = joinEntity.imageMode == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS
         bannerSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_banners_hint")
         innerContainer.add(bannerSwitch, DashboardSeparator())
 
@@ -160,13 +163,13 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
         ) {
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNER_TITLE, atomicMember, welcomeData.welcomeTitle, it.data)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNER_TITLE, atomicMember, joinEntity.bannerTitle, it.data)
+            joinEntity.bannerTitle = it.data
             entityManager.transaction.commit()
 
-            welcomeData.welcomeTitle = it.data
             ActionResult()
         }
-        titleField.value = welcomeData.welcomeTitle
+        titleField.value = joinEntity.bannerTitle
         innerContainer.add(titleField, DashboardSeparator())
 
         val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_backgroundimage"), "temp", 1) {
@@ -189,7 +192,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         if (renderBannerPreview) {
             renderBannerPreview = false
-            val bannerUrl = InternetUtil.getUrlFromInputStream(WelcomeGraphics.createImageWelcome(atomicMember.get().get(), welcomeData.getWelcomeTitle()).get(), "png")
+            val bannerUrl = InternetUtil.getUrlFromInputStream(WelcomeGraphics.createImageWelcome(atomicMember.get().get(), joinEntity.bannerTitle).get(), "png")
             val bannerImage = DashboardImage(bannerUrl)
             innerContainer.add(bannerImage)
         }
@@ -221,20 +224,19 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         return container
     }
 
-    fun generateDMField(welcomeData: WelcomeMessageData): DashboardComponent {
+    fun generateDMField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
-            welcomeData.isDmActive = it.data
-
             entityManager.transaction.begin()
+            dmEntity.active = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_ACTIVE, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        activeSwitch.isChecked = welcomeData.isDmActive
+        activeSwitch.isChecked = dmEntity.active
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
@@ -243,13 +245,13 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 WelcomeCommand.MAX_TEXT_LENGTH
         ) {
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_TEXT, atomicMember, welcomeData.dmText, it.data)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_TEXT, atomicMember, dmEntity.text, it.data)
+            dmEntity.text = it.data
             entityManager.transaction.commit()
 
-            welcomeData.dmText = it.data
             ActionResult()
         }
-        descriptionField.value = welcomeData.dmText
+        descriptionField.value = dmEntity.text
         container.add(
                 descriptionField,
                 DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
@@ -257,35 +259,33 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         )
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
-            welcomeData.dmEmbed = it.data
-
             entityManager.transaction.begin()
+            dmEntity.embeds = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_EMBEDS, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        embedSwitch.isChecked = welcomeData.dmEmbed
+        embedSwitch.isChecked = dmEntity.embeds
         embedSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_embeds_hint")
         container.add(embedSwitch)
 
         return container
     }
 
-    fun generateLeaveField(welcomeData: WelcomeMessageData): DashboardComponent {
+    fun generateLeaveField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_dashboard_active")) {
-            welcomeData.isGoodbyeActive = it.data
-
             entityManager.transaction.begin()
+            leaveEntity.active = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_ACTIVE, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        activeSwitch.isChecked = welcomeData.isGoodbyeActive
+        activeSwitch.isChecked = leaveEntity.active
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
@@ -294,13 +294,13 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 WelcomeCommand.MAX_TEXT_LENGTH
         ) {
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_TEXT, atomicMember, welcomeData.goodbyeText, it.data)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_TEXT, atomicMember, leaveEntity.text, it.data)
+            leaveEntity.text = it.data
             entityManager.transaction.commit()
 
-            welcomeData.goodbyeText = it.data
             ActionResult()
         }
-        descriptionField.value = welcomeData.goodbyeText
+        descriptionField.value = leaveEntity.text
         container.add(
                 descriptionField,
                 DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
@@ -308,15 +308,14 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         )
 
         val embedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_membed")) {
-            welcomeData.goodbyeEmbed = it.data
-
             entityManager.transaction.begin()
+            leaveEntity.embeds = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_EMBEDS, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        embedSwitch.isChecked = welcomeData.goodbyeEmbed
+        embedSwitch.isChecked = leaveEntity.embeds
         embedSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_embeds_hint")
         container.add(embedSwitch, DashboardSeparator())
 
@@ -324,21 +323,21 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 this,
                 getString(Category.CONFIGURATION, "welcome_state0_mchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
-                welcomeData.goodbyeChannelId,
+                leaveEntity.channelId,
                 false,
                 arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)
         ) {
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_CHANNEL, atomicMember, welcomeData.goodbyeChannelId, it.data.toLong())
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_CHANNEL, atomicMember, leaveEntity.channelId, it.data.toLong())
+            leaveEntity.channelId = it.data.toLong()
             entityManager.transaction.commit()
 
-            welcomeData.goodbyeChannelId = it.data.toLong()
             ActionResult()
                     .withRedraw()
         }
         container.add(channelComboBox, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_channel_hint"), DashboardText.Style.HINT))
 
-        val channel = welcomeData.goodbyeChannel.orElse(null)
+        val channel = leaveEntity.channel.get().orElse(null)
         if (channel != null && !BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) {
             val warningText = DashboardText(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
             warningText.style = DashboardText.Style.ERROR

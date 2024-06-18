@@ -14,7 +14,13 @@ import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesDmEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesJoinEntity;
+import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesLeaveEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.welcomemessage.DBWelcomeMessage;
+import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -90,6 +96,8 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
+
+        transferWelcome();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -187,6 +195,36 @@ public class DiscordConnector {
         ShardManager.start();
         FeatureLogger.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
+    }
+
+    private static void transferWelcome() {
+        transferSqlToHibernate(
+                "ServerWelcomeMessage",
+                GuildEntity::getWelcomeMessages,
+                WelcomeMessagesEntity::isUsed,
+                welcomeMessages -> {
+                    WelcomeMessageData oldWelcome = DBWelcomeMessage.getInstance().retrieve(welcomeMessages.getGuildId());
+
+                    WelcomeMessagesJoinEntity join = welcomeMessages.getJoin();
+                    join.setActive(oldWelcome.isWelcomeActive());
+                    join.setText(oldWelcome.getWelcomeText());
+                    join.setEmbeds(oldWelcome.getWelcomeEmbed());
+                    join.setChannelId(oldWelcome.getWelcomeChannelId());
+                    join.setImageMode(oldWelcome.getBanner() ? WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS : WelcomeMessagesJoinEntity.ImageMode.NONE);
+                    join.setBannerTitle(oldWelcome.getWelcomeTitle());
+
+                    WelcomeMessagesDmEntity dm = welcomeMessages.getDm();
+                    dm.setActive(oldWelcome.isDmActive());
+                    dm.setText(oldWelcome.getDmText());
+                    dm.setEmbeds(oldWelcome.getDmEmbed());
+
+                    WelcomeMessagesLeaveEntity leave = welcomeMessages.getLeave();
+                    leave.setActive(oldWelcome.isGoodbyeActive());
+                    leave.setText(oldWelcome.getGoodbyeText());
+                    leave.setEmbeds(oldWelcome.getGoodbyeEmbed());
+                    leave.setChannelId(oldWelcome.getGoodbyeChannelId());
+                }
+        );
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(
