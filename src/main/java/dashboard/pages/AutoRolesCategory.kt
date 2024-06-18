@@ -8,9 +8,9 @@ import core.featurelogger.FeatureLogger
 import core.featurelogger.PremiumFeature
 import dashboard.ActionResult
 import dashboard.DashboardCategory
+import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.DashboardButton
-import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardText
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.HorizontalContainer
@@ -55,7 +55,13 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
                 null,
                 BotLogEntity.Event.AUTO_ROLES
         )
-        innerContainer.add(rolesComboBox, DashboardSeparator())
+        innerContainer.add(rolesComboBox)
+        mainContainer.add(innerContainer, generateSyncContainer(guild))
+    }
+
+    fun generateSyncContainer(guild: Guild): DashboardComponent {
+        val innerContainer = VerticalContainer()
+        innerContainer.isCard = true
 
         val buttonContainer = HorizontalContainer()
         val syncButton = DashboardButton(getString(Category.CONFIGURATION, "autoroles_dashboard_syncbutton")) {
@@ -85,8 +91,7 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
             text.style = DashboardText.Style.ERROR
             innerContainer.add(text)
         }
-
-        mainContainer.add(innerContainer)
+        return innerContainer;
     }
 
 }
