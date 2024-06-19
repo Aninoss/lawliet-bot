@@ -2,8 +2,8 @@ package constants;
 
 public interface ExternalLinks {
 
-    String BOT_INVITE_URL = "https://lawlietbot.xyz/invite?BOT";
-    String BOT_INVITE_REMINDER_URL = "https://lawlietbot.xyz/invite?BOT_REMINDER";
+    String BOT_INVITE_URL = "https://discord.com/oauth2/authorize?client_id=368521195940741122&scope=applications.commands%20bot&permissions=1375279115358";
+    String BOT_INVITE_REMINDER_URL = BOT_INVITE_URL;
     String SERVER_INVITE_URL = "https://discord.gg/F4FcAbQ";
     String UPVOTE_URL = "https://top.gg/bot/368521195940741122/vote";
     String LAWLIET_WEBSITE = "https://lawlietbot.xyz/";
