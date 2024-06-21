@@ -88,19 +88,6 @@ public enum Model {
                     .put("denoising_strength", "0.3")
     ),
 
-    KANDINSKY(
-            "kandinsky-v2",
-            5600,
-            false,
-            Set.of(Txt2ImgCommand.class),
-            params -> new JSONObject()
-                    .put("num_steps", 30)
-                    .put("guidance_scale", 4)
-                    .put("w", (int) (params.aspectRatio.getWidth() * params.aspectRatio.getScaling()))
-                    .put("h", (int) (params.aspectRatio.getHeight() * params.aspectRatio.getScaling()))
-                    .put("num_images", params.images)
-    ),
-
     PERFECT_WORLD(
             "idpk0o19b3n6ex",
             4800,
