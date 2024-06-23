@@ -12,17 +12,11 @@ import core.LocalFile;
 import core.TextManager;
 import core.components.ActionRows;
 import core.modals.StringModalBuilder;
-import core.utils.FileUtil;
-import core.utils.InternetUtil;
-import core.utils.JDAUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
 import mysql.hibernate.entity.BotLogEntity;
-import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesDmEntity;
-import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesEntity;
-import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesJoinEntity;
-import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesLeaveEntity;
+import mysql.hibernate.entity.guild.welcomemessages.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -61,7 +55,9 @@ public class WelcomeCommand extends NavigationAbstract {
     public static final int STATE_SET_TEXT = 1,
             STATE_SET_CHANNEL = 2,
             STATE_SET_BANNER_BACKGROUND = 3,
-            STATE_EXAMPLE = 4;
+            STATE_EXAMPLE = 4,
+            STATE_SET_ATTACHMENT_TYPE = 5,
+            STATE_SET_IMAGE = 6;
 
 
     private int category = 0;
@@ -81,23 +77,7 @@ public class WelcomeCommand extends NavigationAbstract {
                         .setClearButton(false)
                         .setMax(MAX_TEXT_LENGTH)
                         .enableHibernateTransaction()
-                        .setGetter(() -> {
-                            WelcomeMessagesEntity welcomeMessagesEntity = getGuildEntity().getWelcomeMessages();
-                            switch (category) {
-                                case 0 -> {
-                                    return welcomeMessagesEntity.getJoin().getText();
-                                }
-                                case 1 -> {
-                                    return welcomeMessagesEntity.getDm().getText();
-                                }
-                                case 2 -> {
-                                    return welcomeMessagesEntity.getLeave().getText();
-                                }
-                                default -> {
-                                    return null;
-                                }
-                            }
-                        })
+                        .setGetter(() -> getWelcomeMessagesAbstractEntity().getText())
                         .setSetter(input -> {
                             WelcomeMessagesEntity welcomeMessagesEntity = getGuildEntity().getWelcomeMessages();
                             switch (category) {
@@ -147,6 +127,31 @@ public class WelcomeCommand extends NavigationAbstract {
                                 localFile.delete();
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_RESET, event.getMember());
                             }
+                        }),
+                new FileStateProcessor(this, STATE_SET_IMAGE, DEFAULT_STATE, getString("dashboard_image"))
+                        .setClearButton(true)
+                        .setAllowGifs(true)
+                        .enableHibernateTransaction()
+                        .setGetter(() -> getWelcomeMessagesAbstractEntity().getImageFilename())
+                        .setSetter(attachment -> {
+                            WelcomeMessagesAbstractEntity entity = getWelcomeMessagesAbstractEntity();
+                            if (entity.getImageFilename() != null) {
+                                entity.getImageFile().delete();
+                            }
+
+                            String newUrl = null;
+                            if (attachment != null) {
+                                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("%s/%s.%s", entity.getFileDir(), RandomUtil.generateRandomString(30), attachment.getFileExtension()));
+                                FileUtil.downloadImageAttachment(attachment, tempFile);
+                                newUrl = tempFile.cdnGetUrl();
+                            }
+
+                            switch (category) {
+                                case 0 -> BotLogEntity.log(getEntityManager(), newUrl != null ? BotLogEntity.Event.WELCOME_IMAGE_SET : BotLogEntity.Event.WELCOME_IMAGE_RESET, event.getMember());
+                                case 1 -> BotLogEntity.log(getEntityManager(), newUrl != null ? BotLogEntity.Event.WELCOME_DM_IMAGE_SET : BotLogEntity.Event.WELCOME_DM_IMAGE_RESET, event.getMember());
+                                case 2 -> BotLogEntity.log(getEntityManager(), newUrl != null ? BotLogEntity.Event.WELCOME_LEAVE_IMAGE_SET : BotLogEntity.Event.WELCOME_LEAVE_IMAGE_RESET, event.getMember());
+                            }
+                            entity.setImageUrl(newUrl);
                         })
         ));
         return true;
@@ -175,6 +180,26 @@ public class WelcomeCommand extends NavigationAbstract {
         return false;
     }
 
+    @ControllerButton(state = STATE_SET_ATTACHMENT_TYPE)
+    public boolean onButtonJoinImageAttachmentType(ButtonInteractionEvent event, int i) {
+        if (i == -1) {
+            setState(DEFAULT_STATE);
+            return true;
+        }
+
+        WelcomeMessagesJoinEntity join = getGuildEntity().getWelcomeMessages().getJoin();
+        WelcomeMessagesJoinEntity.AttachmentType newAttachmentType = WelcomeMessagesJoinEntity.AttachmentType.values()[i];
+
+        getEntityManager().getTransaction().begin();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_ATTACHMENT_TYPE, event.getMember(), join.getAttachmentType().name(), newAttachmentType);
+        join.setAttachmentType(newAttachmentType);
+        getEntityManager().getTransaction().commit();
+
+        setLog(LogStatus.SUCCESS, getString("attachmenttypeset"));
+        setState(DEFAULT_STATE);
+        return true;
+    }
+
     @ControllerStringSelectMenu(state = DEFAULT_STATE)
     public boolean onSelectMenuDefault(StringSelectInteractionEvent event, int i) {
         category = Integer.parseInt(event.getValues().get(0));
@@ -183,11 +208,16 @@ public class WelcomeCommand extends NavigationAbstract {
 
     @Draw(state = DEFAULT_STATE)
     public EmbedBuilder drawDefault(Member member) {
-        String[] options = getString("state0_options_" + category).split("\n");
+        WelcomeMessagesEntity welcomeMessages = getGuildEntity().getWelcomeMessages();
+        String[] options = category == 0
+                ? getString("state0_options_0_" + welcomeMessages.getJoin().getAttachmentType().name()).split("\n")
+                : getString("state0_options_" + category).split("\n");
         ArrayList<Button> buttons = new ArrayList<>();
         for (int i = 0; i < options.length; i++) {
-            Button button = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), options[i]);
-            buttons.add(button);
+            if (!options[i].isEmpty()) {
+                Button button = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), options[i]);
+                buttons.add(button);
+            }
         }
 
         ArrayList<ActionRow> actionRows = new ArrayList<>(ActionRows.of(buttons));
@@ -197,30 +227,39 @@ public class WelcomeCommand extends NavigationAbstract {
         GuildMessageChannel channel = getGuildMessageChannel().get();
         switch (category) {
             case 0 -> {
-                WelcomeMessagesJoinEntity join = getGuildEntity().getWelcomeMessages().getJoin();
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_join"))
+                WelcomeMessagesJoinEntity join = welcomeMessages.getJoin();
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_join"))
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getActive()), true)
                         .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(join.getText()), 1024), true)
                         .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getEmbeds()), true)
                         .addField(getString("state0_mchannel"), join.getChannel().getPrefixedNameInField(getLocale()), true)
-                        .addField(getString("state0_mbanner"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS), true)
-                        .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(join.getBannerTitle()), true);
+                        .addField(getString("state0_mattachmenttype"), getString("state0_attachmenttype").split("\n")[join.getAttachmentType().ordinal()], true);
+
+                switch (join.getAttachmentType()) {
+                    case GENERATED_BANNERS ->
+                            eb.addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(join.getBannerTitle()), true);
+                    case IMAGE ->
+                            eb.addField(getString("state0_mimagespecified"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getImageFilename() != null), true);
+                }
+                return eb;
             }
             case 1 -> {
-                WelcomeMessagesDmEntity dm = getGuildEntity().getWelcomeMessages().getDm();
+                WelcomeMessagesDmEntity dm = welcomeMessages.getDm();
                 String text = StringUtil.shortenString(stressVariables(dm.getText()), 1024);
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_dm"))
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getActive()), true)
                         .addField(getString("state0_mdescription"), text.isEmpty() ? TextManager.getString(getLocale(), TextManager.GENERAL, "notset") : text, true)
-                        .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getEmbeds()), true);
+                        .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getEmbeds()), true)
+                        .addField(getString("state0_mimagespecified"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getImageFilename() != null), true);
             }
             case 2 -> {
-                WelcomeMessagesLeaveEntity leave = getGuildEntity().getWelcomeMessages().getLeave();
+                WelcomeMessagesLeaveEntity leave = welcomeMessages.getLeave();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"), getString("dashboard_leave"))
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getActive()), true)
                         .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(leave.getText()), 1024), true)
                         .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getEmbeds()), true)
-                        .addField(getString("state0_mchannel"), leave.getChannel().getPrefixedNameInField(getLocale()), true);
+                        .addField(getString("state0_mchannel"), leave.getChannel().getPrefixedNameInField(getLocale()), true)
+                        .addField(getString("state0_mimagespecified"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getImageFilename() != null), true);
             }
             default -> throw new UnsupportedOperationException("Invalid category");
         }
@@ -228,10 +267,10 @@ public class WelcomeCommand extends NavigationAbstract {
 
     @Draw(state = STATE_EXAMPLE)
     public EmbedBuilder drawExample(Member member) throws ExecutionException, InterruptedException, IOException {
-        WelcomeMessagesJoinEntity join = getGuildEntity().getWelcomeMessages().getJoin();
+        WelcomeMessagesAbstractEntity entity = getWelcomeMessagesAbstractEntity();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(Welcome.resolveVariables(
-                        join.getText(),
+                        entity.getText(),
                         StringUtil.escapeMarkdown(member.getGuild().getName()),
                         member.getAsMention(),
                         StringUtil.escapeMarkdown(member.getUser().getName()),
@@ -240,14 +279,26 @@ public class WelcomeCommand extends NavigationAbstract {
                         StringUtil.escapeMarkdown(member.getUser().getEffectiveName())
                 ));
 
-        if (join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS) {
-            eb.setImage(InternetUtil.getUrlFromInputStream(
-                    WelcomeGraphics.createImageWelcome(member, join.getBannerTitle()).get(),
-                    "png"
-            ));
+        if (category == 0) {
+            WelcomeMessagesJoinEntity join = getGuildEntity().getWelcomeMessages().getJoin();
+            if (join.getAttachmentType() == WelcomeMessagesJoinEntity.AttachmentType.GENERATED_BANNERS) {
+                return eb.setImage(InternetUtil.getUrlFromInputStream(
+                        WelcomeGraphics.createImageWelcome(member, join.getBannerTitle()).get(),
+                        "png"
+                ));
+            }
+            else if (join.getAttachmentType() == WelcomeMessagesJoinEntity.AttachmentType.NONE) {
+                return eb;
+            }
         }
 
-        return eb;
+        return eb.setImage(entity.getImageUrl());
+    }
+
+    @Draw(state = STATE_SET_ATTACHMENT_TYPE)
+    public EmbedBuilder drawJoinAttachmentType(Member member) {
+        setComponents(getString("state0_attachmenttype").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state5_desc"), getString("state5_title"));
     }
 
     private boolean onButtonJoin(ButtonInteractionEvent event, int i) {
@@ -280,12 +331,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return true;
             }
             case 4 -> {
-                getEntityManager().getTransaction().begin();
-                join.setImageMode(join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS ? WelcomeMessagesJoinEntity.ImageMode.NONE : WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS);
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNERS, event.getMember(), null, join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS);
-                getEntityManager().getTransaction().commit();
-
-                setLog(LogStatus.SUCCESS, getString("bannerset", join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS));
+                setState(STATE_SET_ATTACHMENT_TYPE);
                 return true;
             }
             case 5 -> {
@@ -300,7 +346,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return false;
             }
             case 6 -> {
-                setState(STATE_SET_BANNER_BACKGROUND);
+                setState(join.getAttachmentType() == WelcomeMessagesJoinEntity.AttachmentType.GENERATED_BANNERS ? STATE_SET_BANNER_BACKGROUND : STATE_SET_IMAGE);
                 return true;
             }
             case 7 -> {
@@ -336,6 +382,14 @@ public class WelcomeCommand extends NavigationAbstract {
                 setLog(LogStatus.SUCCESS, getString("embedset", dm.getEmbeds()));
                 return true;
             }
+            case 3 -> {
+                setState(STATE_SET_IMAGE);
+                return true;
+            }
+            case 4 -> {
+                setState(STATE_EXAMPLE);
+                return true;
+            }
         }
         return false;
     }
@@ -369,8 +423,25 @@ public class WelcomeCommand extends NavigationAbstract {
                 setState(STATE_SET_CHANNEL);
                 return true;
             }
+            case 4 -> {
+                setState(STATE_SET_IMAGE);
+                return true;
+            }
+            case 5 -> {
+                setState(STATE_EXAMPLE);
+                return true;
+            }
         }
         return false;
+    }
+
+    private WelcomeMessagesAbstractEntity getWelcomeMessagesAbstractEntity() {
+        return switch (category) {
+            case 0 -> getGuildEntity().getWelcomeMessages().getJoin();
+            case 1 -> getGuildEntity().getWelcomeMessages().getDm();
+            case 2 -> getGuildEntity().getWelcomeMessages().getLeave();
+            default -> throw new IllegalStateException("Unexpected value: " + category);
+        };
     }
 
     private String stressVariables(String text) {

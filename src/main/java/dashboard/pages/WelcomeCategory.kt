@@ -12,10 +12,12 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.component.DashboardText.Style
 import dashboard.components.DashboardChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
+import dashboard.data.DiscordEntity
 import modules.graphics.WelcomeGraphics
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
@@ -51,7 +53,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_join")),
                 DashboardText(getString(Category.CONFIGURATION, "welcome_desc_welcome")),
                 generateJoinField(),
-                generateWelcomeBannerField(),
+                generateJoinAttachmentsField(),
                 DashboardTitle(getString(Category.CONFIGURATION, "welcome_dashboard_dm")),
                 DashboardText(getString(Category.CONFIGURATION, "welcome_desc_dm")),
                 generateDMField(),
@@ -91,7 +93,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         descriptionField.value = joinEntity.text
         container.add(
                 descriptionField,
-                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), Style.HINT),
                 DashboardSeparator()
         )
 
@@ -123,44 +125,76 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
                     .withRedraw()
         }
-        container.add(channelComboBox, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_channel_hint"), DashboardText.Style.HINT))
+        container.add(channelComboBox, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_channel_hint"), Style.HINT))
 
         val channel = joinEntity.channel.get().orElse(null)
         if (channel != null && !BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) {
             val warningText = DashboardText(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
-            warningText.style = DashboardText.Style.ERROR
+            warningText.style = Style.ERROR
             container.add(warningText)
         }
 
         return container
     }
 
-    fun generateWelcomeBannerField(): DashboardComponent {
+    fun generateJoinAttachmentsField(): DashboardComponent {
         val container = VerticalContainer()
 
-        val bannerTitle = DashboardText(getString(Category.CONFIGURATION, "welcome_state0_mbanner"))
-        bannerTitle.putCssProperties("margin-top", "1.25rem")
-        container.add(bannerTitle)
+        val attachmentsTitle = DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_attachments"))
+        attachmentsTitle.putCssProperties("margin-top", "1.25rem")
+        container.add(attachmentsTitle)
 
         val innerContainer = VerticalContainer()
         innerContainer.isCard = true
 
-        val bannerSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "welcome_state0_mbanner")) {
-            entityManager.transaction.begin()
-            joinEntity.imageMode = if (it.data) WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS else WelcomeMessagesJoinEntity.ImageMode.NONE
-            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNERS, atomicMember, null, it.data)
-            entityManager.transaction.commit()
+        val attachmentTypeValues = getString(Category.CONFIGURATION, "welcome_state0_attachmenttype").split("\n")
+            .mapIndexed { i, name -> DiscordEntity(i.toString(), name) }
+        val attachmentTypeSelect = DashboardSelect(getString(Category.CONFIGURATION, "welcome_state0_mattachmenttype"), attachmentTypeValues, false) {
+            val newAttachmentType = WelcomeMessagesJoinEntity.AttachmentType.values()[it.data.toInt()]
+
+            guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_ATTACHMENT_TYPE, atomicMember, joinEntity.attachmentType, newAttachmentType)
+            joinEntity.attachmentType = newAttachmentType
+            guildEntity.commitTransaction()
 
             ActionResult()
+                .withRedraw()
         }
-        bannerSwitch.isChecked = joinEntity.imageMode == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS
-        bannerSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_banners_hint")
-        innerContainer.add(bannerSwitch, DashboardSeparator())
+        attachmentTypeSelect.selectedValue = attachmentTypeValues[joinEntity.attachmentType.ordinal]
+        innerContainer.add(attachmentTypeSelect, DashboardText(getString(Category.CONFIGURATION, "welcome_state5_desc").replace("- ", ""), Style.HINT))
+
+        when(joinEntity.attachmentType) {
+            WelcomeMessagesJoinEntity.AttachmentType.GENERATED_BANNERS -> innerContainer.add(DashboardSeparator(), generateJoinAttachmentsBannerField())
+            WelcomeMessagesJoinEntity.AttachmentType.IMAGE -> {
+                val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), joinEntity.getFileDir(), 1) { e ->
+                    joinEntity.getImageFile()?.delete()
+
+                    val newFilename = if (e.type == "add") e.data.split("/")[5] else null
+                    guildEntity.beginTransaction()
+                    BotLogEntity.log(entityManager, if (newFilename != null) BotLogEntity.Event.WELCOME_IMAGE_SET else BotLogEntity.Event.WELCOME_IMAGE_RESET, atomicMember);
+                    joinEntity.imageFilename = newFilename
+                    guildEntity.commitTransaction()
+
+                    return@DashboardImageUpload ActionResult()
+                        .withRedraw()
+                }
+                imageUpload.values = if (joinEntity.imageUrl != null) listOf(joinEntity.imageUrl) else emptyList()
+                innerContainer.add(DashboardSeparator(), imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
+            }
+            else -> {}
+        }
+
+        container.add(innerContainer)
+        return container
+    }
+
+    fun generateJoinAttachmentsBannerField(): DashboardComponent {
+        val container = VerticalContainer()
 
         val titleField = DashboardTextField(
-                getString(Category.CONFIGURATION, "welcome_state0_mtitle"),
-                1,
-                WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
+            getString(Category.CONFIGURATION, "welcome_state0_mtitle"),
+            1,
+            WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
         ) {
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_BANNER_TITLE, atomicMember, joinEntity.bannerTitle, it.data)
@@ -170,7 +204,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         titleField.value = joinEntity.bannerTitle
-        innerContainer.add(titleField, DashboardSeparator())
+        container.add(titleField, DashboardSeparator())
 
         val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_backgroundimage"), "temp", 1) {
             val segments = it.data.split('/')
@@ -185,22 +219,22 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             renderBannerPreview = true
             ActionResult()
-                    .withRedraw()
+                .withRedraw()
         }
         imageUpload.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_bannerimage_replace"))
-        innerContainer.add(imageUpload)
+        container.add(imageUpload)
 
         if (renderBannerPreview) {
             renderBannerPreview = false
             val bannerUrl = InternetUtil.getUrlFromInputStream(WelcomeGraphics.createImageWelcome(atomicMember.get().get(), joinEntity.bannerTitle).get(), "png")
             val bannerImage = DashboardImage(bannerUrl)
-            innerContainer.add(bannerImage)
+            container.add(bannerImage)
         }
 
         val previewButton = DashboardButton(getString(Category.CONFIGURATION, "welcome_dashboard_preview")) {
             renderBannerPreview = true
             ActionResult()
-                    .withRedraw()
+                .withRedraw()
         }
         previewButton.style = DashboardButton.Style.PRIMARY
 
@@ -214,13 +248,12 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             renderBannerPreview = true
             ActionResult()
-                    .withRedraw()
+                .withRedraw()
         }
         resetButton.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_reset"))
         resetButton.style = DashboardButton.Style.DANGER
 
-        innerContainer.add(HorizontalContainer(previewButton, resetButton, HorizontalPusher()))
-        container.add(innerContainer)
+        container.add(HorizontalContainer(previewButton, resetButton, HorizontalPusher()))
         return container
     }
 
@@ -254,7 +287,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         descriptionField.value = dmEntity.text
         container.add(
                 descriptionField,
-                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), Style.HINT),
                 DashboardSeparator()
         )
 
@@ -268,7 +301,22 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
         embedSwitch.isChecked = dmEntity.embeds
         embedSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_embeds_hint")
-        container.add(embedSwitch)
+        container.add(embedSwitch, DashboardSeparator())
+
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), dmEntity.getFileDir(), 1) { e ->
+            dmEntity.getImageFile()?.delete()
+
+            val newFilename = if (e.type == "add") e.data.split("/")[5] else null
+            guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, if (newFilename != null) BotLogEntity.Event.WELCOME_DM_IMAGE_SET else BotLogEntity.Event.WELCOME_DM_IMAGE_RESET, atomicMember);
+            dmEntity.imageFilename = newFilename
+            guildEntity.commitTransaction()
+
+            return@DashboardImageUpload ActionResult()
+                .withRedraw()
+        }
+        imageUpload.values = if (dmEntity.imageUrl != null) listOf(dmEntity.imageUrl) else emptyList()
+        container.add(imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
 
         return container
     }
@@ -303,7 +351,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         descriptionField.value = leaveEntity.text
         container.add(
                 descriptionField,
-                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), DashboardText.Style.HINT),
+                DashboardText(getString(Category.CONFIGURATION, "welcome_variables").replace("- ", ""), Style.HINT),
                 DashboardSeparator()
         )
 
@@ -335,14 +383,30 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
                     .withRedraw()
         }
-        container.add(channelComboBox, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_channel_hint"), DashboardText.Style.HINT))
+        container.add(channelComboBox, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_channel_hint"), Style.HINT))
 
         val channel = leaveEntity.channel.get().orElse(null)
         if (channel != null && !BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) {
             val warningText = DashboardText(getString(TextManager.GENERAL, "permission_channel_files", "#${channel.getName()}"))
-            warningText.style = DashboardText.Style.ERROR
+            warningText.style = Style.ERROR
             container.add(warningText)
         }
+        container.add(DashboardSeparator())
+
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), leaveEntity.getFileDir(), 1) { e ->
+            leaveEntity.getImageFile()?.delete()
+
+            val newFilename = if (e.type == "add") e.data.split("/")[5] else null
+            guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, if (newFilename != null) BotLogEntity.Event.WELCOME_LEAVE_IMAGE_SET else BotLogEntity.Event.WELCOME_LEAVE_IMAGE_RESET, atomicMember);
+            leaveEntity.imageFilename = newFilename
+            guildEntity.commitTransaction()
+
+            return@DashboardImageUpload ActionResult()
+                .withRedraw()
+        }
+        imageUpload.values = if (leaveEntity.imageUrl != null) listOf(leaveEntity.imageUrl) else emptyList()
+        container.add(imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
 
         return container
     }

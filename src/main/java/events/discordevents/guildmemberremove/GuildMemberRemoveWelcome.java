@@ -17,6 +17,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.util.HashSet;
 
@@ -53,16 +55,21 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
 
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setDescription(content)
-                            .setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "serverstaff_text"));
+                            .setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "serverstaff_text"))
+                            .setImage(leave.getImageUrl());
 
                     channel.sendMessage(sb.toString())
                             .addEmbeds(eb.build())
                             .queue();
                 } else {
                     EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(guildEntity.getLocale());
-                    channel.sendMessage(content)
-                            .addEmbeds(eb.build())
-                            .queue();
+
+                    MessageCreateAction messageCreateAction = channel.sendMessage(content)
+                            .addEmbeds(eb.build());
+                    if (leave.getImageFilename() != null) {
+                        messageCreateAction.addFiles(FileUpload.fromData(leave.getImageFile()));
+                    }
+                    messageCreateAction.queue();
                 }
             }
         });

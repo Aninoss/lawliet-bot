@@ -210,7 +210,7 @@ public class DiscordConnector {
                     join.setText(oldWelcome.getWelcomeText());
                     join.setEmbeds(oldWelcome.getWelcomeEmbed());
                     join.setChannelId(oldWelcome.getWelcomeChannelId());
-                    join.setImageMode(oldWelcome.getBanner() ? WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS : WelcomeMessagesJoinEntity.ImageMode.NONE);
+                    join.setAttachmentType(oldWelcome.getBanner() ? WelcomeMessagesJoinEntity.AttachmentType.GENERATED_BANNERS : WelcomeMessagesJoinEntity.AttachmentType.NONE);
                     join.setBannerTitle(oldWelcome.getWelcomeTitle());
 
                     WelcomeMessagesDmEntity dm = welcomeMessages.getDm();

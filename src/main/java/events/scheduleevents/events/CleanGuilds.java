@@ -64,6 +64,15 @@ public class CleanGuilds implements ExceptionRunnable {
                 if (welcomeBackgroundFile.exists()) {
                     welcomeBackgroundFile.delete();
                 }
+                if (guildEntity.getWelcomeMessages().getJoin().getImageFilename() != null) {
+                    guildEntity.getWelcomeMessages().getJoin().getImageFile().delete();
+                }
+                if (guildEntity.getWelcomeMessages().getDm().getImageFilename() != null) {
+                    guildEntity.getWelcomeMessages().getDm().getImageFile().delete();
+                }
+                if (guildEntity.getWelcomeMessages().getLeave().getImageFilename() != null) {
+                    guildEntity.getWelcomeMessages().getLeave().getImageFile().delete();
+                }
                 if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.STOPPED) {
                     FisheryUserManager.deleteGuildData(guildEntity.getGuildId());
                 }

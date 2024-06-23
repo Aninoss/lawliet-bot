@@ -71,7 +71,6 @@ public class CleanImages implements ExceptionRunnable {
         }
 
         MainLogger.get().info("{} custom images removed", removed);
-
     }
 
     private static void executeCustomRoleplay(EntityManagerWrapper entityManager) {

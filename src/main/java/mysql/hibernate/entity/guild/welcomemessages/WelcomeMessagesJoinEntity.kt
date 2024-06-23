@@ -15,7 +15,7 @@ const val JOIN = "$WELCOME_MESSAGES.join"
 @Embeddable
 class WelcomeMessagesJoinEntity : WelcomeMessagesAbstractEntity() {
 
-    enum class ImageMode { NONE, GENERATED_BANNERS, CUSTOM_IMAGE }
+    enum class AttachmentType { NONE, GENERATED_BANNERS, IMAGE }
 
     @Column(name = "$JOIN.active")
     private var _active: Boolean? = null
@@ -51,13 +51,13 @@ class WelcomeMessagesJoinEntity : WelcomeMessagesAbstractEntity() {
     val channel: AtomicGuildMessageChannel
         get() = getAtomicGuildMessageChannel(channelId)
 
-    @Column(name = "$JOIN.imageMode")
+    @Column(name = "$JOIN.attachmentType")
     @Enumerated(EnumType.STRING)
-    private var _imageMode: ImageMode? = null
-    var imageMode: ImageMode
-        get() = _imageMode ?: ImageMode.GENERATED_BANNERS
+    private var _attachmentType: AttachmentType? = null
+    var attachmentType: AttachmentType
+        get() = _attachmentType ?: AttachmentType.GENERATED_BANNERS
         set(value) {
-            _imageMode = value
+            _attachmentType = value
         }
 
     @Column(name = "$JOIN.bannerTitle")
@@ -75,7 +75,7 @@ class WelcomeMessagesJoinEntity : WelcomeMessagesAbstractEntity() {
                 _text != null ||
                 _embeds != null ||
                 _channelId != null ||
-                _imageMode != null ||
+                _attachmentType != null ||
                 _bannerTitle != null ||
                 imageFilename != null
     }

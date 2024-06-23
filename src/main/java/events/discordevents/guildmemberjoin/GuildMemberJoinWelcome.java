@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Locale;
@@ -45,13 +46,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         if (welcomeMessages.getJoin().getActive()) {
             WelcomeMessagesJoinEntity join = welcomeMessages.getJoin();
             join.getChannel().get()
-                    .ifPresent(channel -> {
-                        if (join.getImageMode() == WelcomeMessagesJoinEntity.ImageMode.GENERATED_BANNERS) {
-                            generateBannerAndSendMessage(event.getMember(), join, channel, guildEntity.getLocale());
-                        } else {
-                            sendMessage(event.getMember(), join, channel, guildEntity.getLocale(), null);
-                        }
-                    });
+                    .ifPresent(channel -> sendMessage(event.getMember(), join, channel, guildEntity.getLocale()));
         }
 
         return true;
@@ -77,32 +72,31 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         if (dm.getEmbeds()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(content)
-                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", event.getGuild().getName()));
+                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", event.getGuild().getName()))
+                    .setImage(dm.getImageUrl());
 
             JDAUtil.openPrivateChannel(member)
                     .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
                     .queue();
         } else {
             EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(event.getGuild(), locale);
+            File imageFile = dm.getImageFile();
             JDAUtil.openPrivateChannel(member)
-                    .flatMap(messageChannel -> messageChannel.sendMessage(content)
-                            .addEmbeds(eb.build())
+                    .flatMap(messageChannel -> {
+                                MessageCreateAction messageCreateAction = messageChannel.sendMessage(content)
+                                        .addEmbeds(eb.build());
+                                if (imageFile != null) {
+                                    messageCreateAction.addFiles(FileUpload.fromData(imageFile));
+                                }
+                                return messageCreateAction;
+                            }
                     )
                     .queue();
         }
     }
 
-    private void generateBannerAndSendMessage(Member member, WelcomeMessagesJoinEntity join, GuildMessageChannel channel, Locale locale) {
+    private void sendMessage(Member member, WelcomeMessagesJoinEntity join, GuildMessageChannel channel, Locale locale) {
         if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
-            return;
-        }
-
-        WelcomeGraphics.createImageWelcome(member, join.getBannerTitle())
-                .thenAccept(image -> sendMessage(member, join, channel, locale, image));
-    }
-
-    private void sendMessage(Member member, WelcomeMessagesJoinEntity join, GuildMessageChannel channel, Locale locale, InputStream image) {
-        if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             return;
         }
 
@@ -126,21 +120,29 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                     .setDescription(content)
                     .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
-            if (image != null) {
-                eb.setImage("attachment://welcome.png");
-                channel.sendMessageEmbeds(eb.build())
-                        .setContent(sb.toString())
-                        .addFiles(FileUpload.fromData(image, "welcome.png"))
-                        .queue();
-            } else {
-                channel.sendMessageEmbeds(eb.build())
-                        .setContent(sb.toString())
-                        .queue();
+            MessageCreateAction messageCreateAction = channel.sendMessageEmbeds(eb.build())
+                    .setContent(sb.toString());
+            switch (join.getAttachmentType()) {
+                case GENERATED_BANNERS -> {
+                    eb.setImage("attachment://welcome.png");
+                    InputStream inputStream = WelcomeGraphics.createImageWelcome(member, join.getBannerTitle()).join();
+                    messageCreateAction.addFiles(FileUpload.fromData(inputStream, "welcome.png"));
+                }
+                case IMAGE -> eb.setImage(join.getImageUrl());
             }
+            messageCreateAction.queue();
         } else {
             MessageCreateAction messageCreateAction = channel.sendMessage(content);
-            if (image != null) {
-                messageCreateAction.addFiles(FileUpload.fromData(image, "welcome.png"));
+            switch (join.getAttachmentType()) {
+                case GENERATED_BANNERS -> {
+                    InputStream inputStream = WelcomeGraphics.createImageWelcome(member, join.getBannerTitle()).join();
+                    messageCreateAction.addFiles(FileUpload.fromData(inputStream, "welcome.png"));
+                }
+                case IMAGE -> {
+                    if (join.getImageFilename() != null) {
+                        messageCreateAction.addFiles(FileUpload.fromData(join.getImageFile()));
+                    }
+                }
             }
 
             EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(locale);
