@@ -179,6 +179,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                         .withRedraw()
                 }
                 imageUpload.values = if (joinEntity.imageUrl != null) listOf(joinEntity.imageUrl) else emptyList()
+                imageUpload.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_imageattachment_replace"))
                 innerContainer.add(DashboardSeparator(), imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
             }
             else -> {}
@@ -316,6 +317,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 .withRedraw()
         }
         imageUpload.values = if (dmEntity.imageUrl != null) listOf(dmEntity.imageUrl) else emptyList()
+        imageUpload.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_imageattachment_replace"))
         container.add(imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
 
         return container
@@ -406,6 +408,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 .withRedraw()
         }
         imageUpload.values = if (leaveEntity.imageUrl != null) listOf(leaveEntity.imageUrl) else emptyList()
+        imageUpload.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_imageattachment_replace"))
         container.add(imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
 
         return container
