@@ -120,8 +120,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                     .setDescription(content)
                     .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
-            MessageCreateAction messageCreateAction = channel.sendMessageEmbeds(eb.build())
-                    .setContent(sb.toString());
+            MessageCreateAction messageCreateAction = channel.sendMessage(sb.toString());
             switch (join.getAttachmentType()) {
                 case GENERATED_BANNERS -> {
                     eb.setImage("attachment://welcome.png");
@@ -130,7 +129,8 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                 }
                 case IMAGE -> eb.setImage(join.getImageUrl());
             }
-            messageCreateAction.queue();
+            messageCreateAction.addEmbeds(eb.build())
+                    .queue();
         } else {
             MessageCreateAction messageCreateAction = channel.sendMessage(content);
             switch (join.getAttachmentType()) {
