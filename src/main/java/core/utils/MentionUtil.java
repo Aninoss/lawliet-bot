@@ -240,35 +240,35 @@ public class MentionUtil {
 
     private static ArrayList<String> getUrlArgs(String string) {
         ArrayList<String> list = new ArrayList<>();
-        if (string.length() > 0) {
+        if (!string.isEmpty()) {
             list.add(string);
             if (string.contains(" ")) {
                 for (String part : string.split(" ")) {
-                    if (part.length() > 0) list.add(part);
+                    if (!part.isEmpty()) list.add(part);
                 }
             }
             if (string.contains("\n")) {
                 for (String part : string.split("\n")) {
                     part = part.trim();
-                    if (part.length() > 0) list.add(part);
+                    if (!part.isEmpty()) list.add(part);
                 }
             }
             if (string.contains("@")) {
                 for (String part : string.split("@")) {
                     part = part.trim();
-                    if (part.length() > 0) list.add(part);
+                    if (!part.isEmpty()) list.add(part);
                 }
             }
             if (string.contains(",")) {
                 for (String part : string.split(",")) {
                     part = part.trim();
-                    if (part.length() > 0) list.add(part);
+                    if (!part.isEmpty()) list.add(part);
                 }
             }
             if (string.contains("|")) {
                 for (String part : string.split("\\|")) {
                     part = part.trim();
-                    if (part.length() > 0) list.add(part);
+                    if (!part.isEmpty()) list.add(part);
                 }
             }
         }

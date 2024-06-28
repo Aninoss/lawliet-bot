@@ -1,6 +1,5 @@
 package commands.runnables;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.OnButtonListener;
@@ -14,6 +13,8 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 public abstract class CommandOnOffSwitchAbstract extends Command implements OnButtonListener {
 
@@ -58,7 +59,8 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
             } else {
                 eb = generateErrorEmbed();
             }
-            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get())
+                    .exceptionally(ExceptionLogger.get());
         } else {
             setComponents(
                     Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 1)),

@@ -51,12 +51,12 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
                 List<MangaUpdatesRelease> releases = MangaUpdatesDownloader.getReleasesOfSeries(seriesList.get(0).getSeriesId());
                 EmbedBuilder eb = generateEmbed(series, releases, 5);
                 EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
-                drawMessageNew(eb);
+                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
                 return true;
             }
         } else {
             EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, args);
-            drawMessageNew(eb);
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
     }

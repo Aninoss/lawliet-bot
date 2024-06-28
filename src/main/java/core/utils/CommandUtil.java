@@ -65,7 +65,7 @@ public class CommandUtil {
     public static CompletableFuture<Message> differentChannelSendMessage(Command command, CommandEvent event, GuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) {
         if (event.getChannel() == channel) {
             command.addAllFileAttachments(fileAttachmentMap);
-            return command.drawMessageNew(eb);
+            return command.drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         } else {
             MessageCreateAction messageAction = channel.sendMessageEmbeds(eb.build());
             for (String name : fileAttachmentMap.keySet()) {

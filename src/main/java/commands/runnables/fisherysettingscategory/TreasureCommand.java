@@ -80,7 +80,8 @@ public class TreasureCommand extends Command implements FisheryInterface {
         for (int i = 0; i < amount; i++) {
             Fishery.spawnTreasureChest(channel, getGuildEntity());
         }
-        drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success", amount != 1, StringUtil.numToString(amount), new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()))));
+        drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success", amount != 1, StringUtil.numToString(amount), new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()))))
+                .exceptionally(ExceptionLogger.get());
         return true;
     }
 

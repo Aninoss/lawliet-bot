@@ -5,6 +5,7 @@ import commands.runnables.CasinoMultiplayerAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.MainLogger;
 import core.atomicassets.AtomicMember;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -111,7 +112,7 @@ public class BombCommand extends CasinoMultiplayerAbstract {
 
     private void redraw() {
         try {
-            drawMessage(draw(getMember().get()));
+            drawMessage(draw(getMember().get())).exceptionally(ExceptionLogger.get());
         } catch (Throwable e) {
             MainLogger.get().error("Exception", e);
         }

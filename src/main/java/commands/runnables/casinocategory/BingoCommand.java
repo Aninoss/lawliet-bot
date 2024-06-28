@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.CasinoMultiplayerAbstract;
 import constants.Emojis;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
@@ -131,7 +132,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
             }
         }
         try {
-            drawMessage(draw(member));
+            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
         } catch (Throwable e) {
             MainLogger.get().error("Exception", e);
         }

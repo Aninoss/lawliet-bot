@@ -50,7 +50,7 @@ public class QuoteCommand extends Command {
                 if (BotPermissionUtil.canReadHistory(message.getGuildChannel())) {
                     try (MessageCreateData m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getMessageChannel(), message, false)) {
                         setActionRows(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()));
-                        drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
+                        drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0))).exceptionally(ExceptionLogger.get());
                         return true;
                     }
                 }
@@ -70,7 +70,7 @@ public class QuoteCommand extends Command {
                     if (JDAUtil.messageIsUserGenerated(message)) {
                         try (MessageCreateData m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getMessageChannel(), message, false)) {
                             setActionRows(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()));
-                            drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
+                            drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0))).exceptionally(ExceptionLogger.get());
                             return true;
                         }
                     }
