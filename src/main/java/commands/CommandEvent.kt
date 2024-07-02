@@ -5,12 +5,14 @@ import core.slashmessageaction.SlashHookSendMessageAction
 import core.utils.JDAUtil
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
 import net.dv8tion.jda.api.events.channel.GenericChannelEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
 
 class CommandEvent : GenericChannelEvent {
@@ -30,18 +32,23 @@ class CommandEvent : GenericChannelEvent {
             }
             throw IllegalStateException("Cannot convert channel of type $channelType to GuildMessageChannel")
         }
-    var ack = false;
+    var ack = false
+    var attachments: List<Message.Attachment>
 
     constructor(event: SlashCommandInteractionEvent) : super(event.jda, event.responseNumber, event.channel) {
         slashCommandInteractionEvent = event
         messageReceivedEvent = null
         member = event.member!!
+        attachments = event.options
+            .filter { it.type == OptionType.ATTACHMENT }
+            .map { it.asAttachment }
     }
 
     constructor(event: MessageReceivedEvent) : super(event.jda, event.responseNumber, event.channel) {
         slashCommandInteractionEvent = null
         messageReceivedEvent = event
         member = event.member!!
+        attachments = event.message.attachments
     }
 
     fun isSlashCommandInteractionEvent(): Boolean {

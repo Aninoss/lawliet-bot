@@ -31,12 +31,13 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -232,7 +233,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             return false;
         }
 
-        boolean premium = isPremium(event.getGuild().getIdLong(), event.getMember().getIdLong());
+        boolean premium = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
+                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
         boolean isFirstToday = !LocalDate.now().equals(getUserEntity().getTxt2img().getCallsDate());
         int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), event.getMember().getIdLong(), premium);
         if (remainingCalls > 0) {
@@ -248,8 +250,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             }
             Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, localImages);
 
-            Model model = Model.values()[Integer.parseInt(event.getValues().get(0))];
-            String predictionId = RunPodDownloader.createPrediction(model, localPrompt, additionalNegativePrompt + localNegativePrompt, localImages, localAspectRatio).get();
+            StableDiffusionModel model = StableDiffusionModel.values()[Integer.parseInt(event.getValues().get(0))];
+            String predictionId = RunPodDownloader.createTxt2ImgPrediction(model, localPrompt, additionalNegativePrompt + localNegativePrompt, localImages, localAspectRatio).get();
             AtomicReference<PredictionResult> predictionResult = new AtomicReference<>(null);
             Instant startTime = Instant.now();
             AtomicLong messageId = new AtomicLong(0);
@@ -291,8 +293,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 .setMaxValues(1)
                 .setPlaceholder(TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_selectmodel"));
 
-        for (int i = 0; i < Model.values().length; i++) {
-            Model model = Model.values()[i];
+        for (int i = 0; i < StableDiffusionModel.values().length; i++) {
+            StableDiffusionModel model = StableDiffusionModel.values()[i];
             if (!model.getClasses().contains(getClass())) {
                 continue;
             }
@@ -307,20 +309,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         Txt2ImgEntity txt2img = getUserEntity().getTxt2img();
         EmbedBuilder eb = generateOptionsEmbed(prompt, negativePrompt, null, txt2img.getConfigImages(), txt2img.getConfigAspectRatio());
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), "> " + getString("contentwarning"), false);
-
-        String footer;
-        if (isPremium(member.getGuild().getIdLong(), member.getIdLong())) {
-            footer = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer_premium",
-                    StringUtil.numToString(getUserEntity().getTxt2img().getBoughtImages()),
-                    StringUtil.numToString(LIMIT_CREATIONS_PER_WEEK - Txt2ImgCallTracker.getPremiumCalls(getEntityManager(), member.getIdLong())),
-                    StringUtil.numToString(LIMIT_CREATIONS_PER_WEEK)
-            );
-        } else {
-            footer = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer",
-                    StringUtil.numToString(getUserEntity().getTxt2img().getBoughtImages())
-            );
-        }
-        return EmbedUtil.setFooter(eb, this, footer);
+        return EmbedUtil.setFooter(eb, this, Txt2ImgCallTracker.getRemainingImagesText(getLocale(), member.getGuild().getIdLong(), member.getIdLong(), getUserEntity()));
     }
 
     @Draw(state = STATE_ADJUST_IMAGES)
@@ -374,7 +363,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     }
 
     private Boolean requestProgress(StringSelectInteractionEvent event, AtomicReference<Throwable> error,
-                                    AtomicLong messageId, String localPrompt, String localNegativePrompt, Model model,
+                                    AtomicLong messageId, String localPrompt, String localNegativePrompt, StableDiffusionModel model,
                                     int images, AspectRatio aspectRatio, String predictionId,
                                     AtomicReference<PredictionResult> predictionResult, Instant startTime,
                                     boolean includePromptHelp
@@ -403,7 +392,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         return predictionResult.get() == null || List.of(PredictionResult.Status.IN_QUEUE, PredictionResult.Status.IN_PROGRESS).contains(predictionResult.get().getStatus());
     }
 
-    private EmbedBuilder generateOptionsEmbed(String prompt, String negativePrompt, Model model, int images, AspectRatio aspectRatio) {
+    private EmbedBuilder generateOptionsEmbed(String prompt, String negativePrompt, StableDiffusionModel model, int images, AspectRatio aspectRatio) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(
                         TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_textprompt_title"),
@@ -435,7 +424,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         );
     }
 
-    private List<MessageEmbed> generateLoadingEmbeds(Member member, String prompt, String negativePrompt, Model model,
+    private List<MessageEmbed> generateLoadingEmbeds(Member member, String prompt, String negativePrompt, StableDiffusionModel model,
                                                      int images, AspectRatio aspectRatio, String predictionId,
                                                      AtomicReference<PredictionResult> predictionResult,
                                                      Instant startTime, boolean includePromptHelp
@@ -444,10 +433,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
         if (predictionResult.get() == null || predictionResult.get().getStatus() != PredictionResult.Status.COMPLETED) {
             try {
-                predictionResult.set(RunPodDownloader.retrievePrediction(model, predictionId, startTime, images).get());
+                predictionResult.set(RunPodDownloader.retrieveTxt2ImgPrediction(model, predictionId, startTime, images).get());
                 if (predictionResult.get().getStatus() == PredictionResult.Status.COMPLETED) {
                     if (model.getCustomModel()) {
-                        List<String> newOutputs = convertBase64ToTempFileUrls(predictionResult.get().getOutputs());
+                        List<String> newOutputs = InternetUtil.base64ToTempUrl(predictionResult.get().getOutputs());
                         predictionResult.get().setOutputs(newOutputs);
                     }
                     if (model.getCheckNsfw()) {
@@ -467,6 +456,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 for (String output : predictionResult.get().getOutputs()) {
                     EmbedBuilder eb = (first ? generateOptionsEmbed(prompt, negativePrompt, model, images, aspectRatio) : EmbedFactory.getEmbedDefault(this))
                             .setImage(output);
+                    EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer_temp"));
                     if (first && includePromptHelp) {
                         eb.addField(
                                 Emojis.ZERO_WIDTH_SPACE.getFormatted(),
@@ -505,30 +495,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         return embeds;
     }
 
-    private List<String> convertBase64ToTempFileUrls(List<String> base64Strings) {
-        ArrayList<String> imageUrls = new ArrayList<>();
-        for (String base64String : base64Strings) {
-            byte[] bytes = Base64.getDecoder().decode(base64String);
-            try (ByteArrayInputStream is = new ByteArrayInputStream(bytes)) {
-                String imageUrl = InternetUtil.getUrlFromInputStream(is, "png");
-                imageUrls.add(imageUrl);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return imageUrls;
-    }
-
     private List<String> processNsfwImages(List<String> outputs) {
         return outputs.parallelStream()
                 .map(url -> NsfwDetection.isNsfw(url) ? "https://cdn.discordapp.com/attachments/499629904380297226/1250414747636203623/nsfw_censored.png" : url)
                 .collect(Collectors.toList());
-    }
-
-    private boolean isPremium(long guildId, long userId) {
-        return PatreonCache.getInstance().hasPremium(userId, true) ||
-                PatreonCache.getInstance().isUnlocked(guildId);
     }
 
 }

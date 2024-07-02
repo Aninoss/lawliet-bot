@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import java.util.Set;
 import java.util.function.Function;
 
-public enum Model {
+public enum StableDiffusionModel {
 
     REALISTIC_VISION(
             "f3xzap2iaijkd2",
@@ -161,8 +161,8 @@ public enum Model {
     private final Set<Class<? extends RunPodAbstract>> classes;
     private final Function<ModelInputParameters, JSONObject> inputFunction;
 
-    Model(String modelId, int expectedTimeMs, boolean customModel, boolean checkNsfw, Set<Class<? extends RunPodAbstract>> classes,
-          Function<ModelInputParameters, JSONObject> inputFunction
+    StableDiffusionModel(String modelId, int expectedTimeMs, boolean customModel, boolean checkNsfw, Set<Class<? extends RunPodAbstract>> classes,
+                         Function<ModelInputParameters, JSONObject> inputFunction
     ) {
         this.modelId = modelId;
         this.expectedTimeMs = expectedTimeMs;

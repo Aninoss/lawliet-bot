@@ -9,7 +9,7 @@ import commands.listeners.OnStaticReactionRemoveListener;
 import commands.runnables.aitoyscategory.ColorCommand;
 import commands.runnables.aitoyscategory.ImitateCommand;
 import commands.runnables.aitoyscategory.Txt2ImgCommand;
-import commands.runnables.aitoyscategory.Waifu2xCommand;
+import commands.runnables.aitoyscategory.UpscalerCommand;
 import commands.runnables.casinocategory.*;
 import commands.runnables.configurationcategory.*;
 import commands.runnables.externalcategory.*;
@@ -66,9 +66,9 @@ public class CommandContainer {
 
         //AI TOYS
         commandList.add(ImitateCommand.class);
-        commandList.add(Waifu2xCommand.class);
         commandList.add(ColorCommand.class);
         commandList.add(Txt2ImgCommand.class);
+        commandList.add(UpscalerCommand.class);
 
         //CONFIGURATION
         commandList.add(LanguageCommand.class);

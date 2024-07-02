@@ -6,14 +6,15 @@ import core.MainLogger;
 import core.internet.HttpCache;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class InternetUtil {
@@ -76,6 +77,32 @@ public final class InternetUtil {
 
     public static String escapeForURL(String url) {
         return UrlEscapers.urlFragmentEscaper().escape(url);
+    }
+
+    public static String inputStreamToBase64(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = inputStream.read(buffer, 0, buffer.length)) != -1) {
+            baos.write(buffer, 0, read);
+        }
+        baos.flush();
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+
+    public static List<String> base64ToTempUrl(List<String> base64Strings) {
+        ArrayList<String> imageUrls = new ArrayList<>();
+        for (String base64String : base64Strings) {
+            byte[] bytes = Base64.getDecoder().decode(base64String);
+            try (ByteArrayInputStream is = new ByteArrayInputStream(bytes)) {
+                String imageUrl = InternetUtil.getUrlFromInputStream(is, "png");
+                imageUrls.add(imageUrl);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return imageUrls;
     }
 
 }
