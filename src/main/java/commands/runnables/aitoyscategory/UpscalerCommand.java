@@ -33,7 +33,9 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +74,21 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
+        List<File> attachedFiles = getAttachment("files", List.class);
+        if (attachedFiles != null) {
+            base64Images = attachedFiles.stream()
+                    .map(file -> {
+                        try {
+                            return FileUtil.fileToBase64(file);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .collect(Collectors.toList());
+            registerStringSelectMenuListener(event.getMember());
+            return true;
+        }
+
         List<Message.Attachment> imageAttachments = event.getAttachments().stream()
                 .filter(attachment -> InternetUtil.uriIsImage(attachment.getUrl(), false))
                 .collect(Collectors.toList());
@@ -86,7 +103,10 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
                 .filter(attachment -> (long) attachment.getWidth() * attachment.getHeight() < 1_000_000L)
                 .map(attachment -> {
                     try {
-                        return InternetUtil.inputStreamToBase64(attachment.getProxy().download().get());
+                        InputStream inputStream = attachment.getProxy().download().get();
+                        String base64 = InternetUtil.inputStreamToBase64(inputStream);
+                        inputStream.close();
+                        return base64;
                     } catch (IOException | InterruptedException | ExecutionException e) {
                         throw new RuntimeException(e);
                     }

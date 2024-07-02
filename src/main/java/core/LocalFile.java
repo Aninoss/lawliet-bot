@@ -6,6 +6,8 @@ import java.io.File;
 
 public class LocalFile extends File {
 
+    public static final String CDN_ROOT_URL = "https://lawlietbot.xyz/cdn/";
+
     private String filename = null;
 
     public LocalFile(Directory directory, @NotNull String filename) {
@@ -21,9 +23,13 @@ public class LocalFile extends File {
 
     public String cdnGetUrl() {
         if (filename != null) {
-            return "https://lawlietbot.xyz/cdn/" + filename;
+            return CDN_ROOT_URL + filename;
         }
         return null;
+    }
+
+    public static LocalFile cdnFromUrl(String url) {
+        return new LocalFile(Directory.CDN, url.substring(CDN_ROOT_URL.length()));
     }
 
 

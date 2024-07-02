@@ -1,14 +1,14 @@
 package commands.runnables;
 
 import commands.Category;
+import commands.Command;
 import commands.CommandEvent;
+import commands.CommandManager;
+import commands.runnables.aitoyscategory.UpscalerCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
-import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.MainLogger;
-import core.TextManager;
+import core.*;
 import core.cache.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -51,11 +53,13 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     private static final String[] INAPPROPRIATE_CONTENT_FILTERS = {"nigga", "nigger", "niggas", "niggers", "rape", "raping", "raped"};
 
     private static final int STATE_ADJUST_IMAGES = 1,
-            STATE_ADJUST_RATIO = 2;
+            STATE_ADJUST_RATIO = 2,
+            STATE_UPSCALE_RESULTS = 3;
 
     private final String additionalNegativePrompt;
     private String prompt;
     private String negativePrompt;
+    private List<? extends File> previousImageFiles = null;
 
     public RunPodAbstract(Locale locale, String prefix, String additionalNegativePrompt) {
         super(locale, prefix);
@@ -180,6 +184,14 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 setState(STATE_ADJUST_RATIO);
                 return true;
             }
+            case 3 -> {
+                if (previousImageFiles == null) {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nopreviousresults"));
+                    return true;
+                }
+                setState(STATE_UPSCALE_RESULTS);
+                return true;
+            }
             default -> {
                 return true;
             }
@@ -223,8 +235,17 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         return true;
     }
 
-    @Override
-    public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
+    @ControllerButton(state = STATE_UPSCALE_RESULTS)
+    public boolean onButtonUpscaleResults(ButtonInteractionEvent event, int i) {
+        if (i == -1) {
+            setState(DEFAULT_STATE);
+            return true;
+        }
+        return true;
+    }
+
+    @ControllerStringSelectMenu(state = DEFAULT_STATE)
+    public boolean onSelectMenuMain(StringSelectInteractionEvent event, int i) throws ExecutionException, InterruptedException {
         EmbedBuilder errorEmbedIfBanned = getErrorEmbedIfBanned();
         if (errorEmbedIfBanned != null) {
             deregisterListeners();
@@ -237,39 +258,54 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
         boolean isFirstToday = !LocalDate.now().equals(getUserEntity().getTxt2img().getCallsDate());
         int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), event.getMember().getIdLong(), premium);
-        if (remainingCalls > 0) {
-            Txt2ImgEntity txt2img = getUserEntity().getTxt2img();
-
-            String localPrompt = prompt;
-            String localNegativePrompt = negativePrompt;
-            int localImages = Math.min(txt2img.getConfigImages(), remainingCalls);
-            AspectRatio localAspectRatio = txt2img.getConfigAspectRatio();
-
-            if (premium) {
-                FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
-            }
-            Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, localImages);
-
-            StableDiffusionModel model = StableDiffusionModel.values()[Integer.parseInt(event.getValues().get(0))];
-            String predictionId = RunPodDownloader.createTxt2ImgPrediction(model, localPrompt, additionalNegativePrompt + localNegativePrompt, localImages, localAspectRatio).get();
-            AtomicReference<PredictionResult> predictionResult = new AtomicReference<>(null);
-            Instant startTime = Instant.now();
-            AtomicLong messageId = new AtomicLong(0);
-            AtomicReference<Throwable> error = new AtomicReference<>();
-
-            String modelName = getString("model_" + model.name());
-            setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
-
-            if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, localImages,
-                    localAspectRatio, predictionId, predictionResult, startTime, isFirstToday)
-            ) {
-                poll(Duration.ofSeconds(2), () -> requestProgress(event, error, messageId, localPrompt,
-                        localNegativePrompt, model, localImages, localAspectRatio, predictionId, predictionResult, startTime,
-                        isFirstToday));
-            }
-        } else {
+        if (remainingCalls <= 0) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, premium ? "txt2img_nocalls" : "txt2img_nocalls_nopremium"));
+            return true;
         }
+
+        previousImageFiles = null;
+        Txt2ImgEntity txt2img = getUserEntity().getTxt2img();
+
+        String localPrompt = prompt;
+        String localNegativePrompt = negativePrompt;
+        int localImages = Math.min(txt2img.getConfigImages(), remainingCalls);
+        AspectRatio localAspectRatio = txt2img.getConfigAspectRatio();
+
+        if (premium) {
+            FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
+        }
+        Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, localImages);
+
+        StableDiffusionModel model = StableDiffusionModel.values()[Integer.parseInt(event.getValues().get(0))];
+        String predictionId = RunPodDownloader.createTxt2ImgPrediction(model, localPrompt, additionalNegativePrompt + localNegativePrompt, localImages, localAspectRatio).get();
+        AtomicReference<PredictionResult> predictionResult = new AtomicReference<>(null);
+        Instant startTime = Instant.now();
+        AtomicLong messageId = new AtomicLong(0);
+        AtomicReference<Throwable> error = new AtomicReference<>();
+
+        String modelName = getString("model_" + model.name());
+        setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
+
+        if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, localImages,
+                localAspectRatio, predictionId, predictionResult, startTime, isFirstToday)
+        ) {
+            poll(Duration.ofSeconds(2), () -> requestProgress(event, error, messageId, localPrompt,
+                    localNegativePrompt, model, localImages, localAspectRatio, predictionId, predictionResult, startTime,
+                    isFirstToday));
+        }
+        return true;
+    }
+
+    @ControllerStringSelectMenu(state = STATE_UPSCALE_RESULTS)
+    public boolean onSelectMenuUpscaleResults(StringSelectInteractionEvent event, int i) {
+        List<File> files = event.getValues().stream()
+                .map(value -> previousImageFiles.get(Integer.parseInt(value)))
+                .collect(Collectors.toList());
+
+        Command command = CommandManager.createCommandByClass(UpscalerCommand.class, getLocale(), getPrefix());
+        command.addAttachment("files", files);
+        CommandManager.manage(getCommandEvent(), command, "", getGuildEntity(), Instant.now(), false);
+        setState(DEFAULT_STATE);
         return true;
     }
 
@@ -280,7 +316,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         ArrayList<Button> buttons = new ArrayList<>();
         String[] buttonLabels = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_default_options").split("\n");
         for (int i = 0; i < buttonLabels.length; i++) {
-            if (i == buttonLabels.length - 1) {
+            if (i == 4) {
                 buttons.add(Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE + "?tab=1", buttonLabels[i]));
             } else {
                 buttons.add(Button.of(ButtonStyle.PRIMARY, String.valueOf(i), buttonLabels[i]));
@@ -331,6 +367,26 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this,
                 TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_desc"),
                 TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_title")
+        );
+    }
+
+    @Draw(state = STATE_UPSCALE_RESULTS)
+    public EmbedBuilder drawUpscaleResults(Member member) {
+        StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("upscaler")
+                .setMinValues(1)
+                .setMaxValues(previousImageFiles.size())
+                .setPlaceholder(TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_upscaler_placeholder"));
+        for (int i = 0; i < previousImageFiles.size(); i++) {
+            menuBuilder.addOption(
+                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_upscaler_image", StringUtil.numToString(i + 1)),
+                    String.valueOf(i)
+            );
+        }
+
+        setComponents(menuBuilder.build());
+        return EmbedFactory.getEmbedDefault(this,
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_upscale_desc"),
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_upscale_title")
         );
     }
 
@@ -452,6 +508,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
         switch (predictionResult.get().getStatus()) {
             case COMPLETED -> {
+                previousImageFiles = predictionResult.get().getOutputs().stream()
+                        .filter(url -> url.startsWith(LocalFile.CDN_ROOT_URL))
+                        .map(LocalFile::cdnFromUrl)
+                        .collect(Collectors.toList());
                 boolean first = true;
                 for (String output : predictionResult.get().getOutputs()) {
                     EmbedBuilder eb = (first ? generateOptionsEmbed(prompt, negativePrompt, model, images, aspectRatio) : EmbedFactory.getEmbedDefault(this))

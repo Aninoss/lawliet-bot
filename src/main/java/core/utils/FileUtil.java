@@ -5,8 +5,10 @@ import core.LocalFile;
 import core.MainLogger;
 import net.dv8tion.jda.api.entities.Message;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 
 public class FileUtil {
@@ -38,6 +40,11 @@ public class FileUtil {
 
     public static String getUriExt(String uri) {
         return uri.substring(uri.lastIndexOf("."));
+    }
+
+    public static String fileToBase64(File file) throws IOException {
+        byte[] bytes = Files.toByteArray(file);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
 }
