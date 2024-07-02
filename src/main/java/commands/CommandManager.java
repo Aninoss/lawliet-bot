@@ -47,7 +47,7 @@ public class CommandManager {
 
     public static void manage(CommandEvent event, Command command, String args, GuildEntity guildEntity, Instant startTime, boolean freshCommand) {
         if (command instanceof PingCommand) {
-            command.getAttachments().put("starting_time", startTime);
+            command.addAttachment("starting_time", startTime);
         }
 
         if (checkCoolDown(event, guildEntity, command) &&

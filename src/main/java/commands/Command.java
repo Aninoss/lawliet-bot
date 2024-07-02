@@ -35,7 +35,6 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
-import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.time.Duration;
@@ -52,7 +51,7 @@ public abstract class Command implements OnTriggerListener {
     private final String prefix;
     private Locale locale;
     private final CommandProperties commandProperties;
-    private final JSONObject attachments = new JSONObject();
+    private final Map<String, Object> attachments = new HashMap<>();
     private final ArrayList<Runnable> completedListeners = new ArrayList<>();
     private AtomicGuild atomicGuild;
     private AtomicGuildMessageChannel atomicGuildMessageChannel;
@@ -610,8 +609,23 @@ public abstract class Command implements OnTriggerListener {
         return getCommandProperties().trigger();
     }
 
-    public JSONObject getAttachments() {
-        return attachments;
+    public void addAttachment(String key, Object object) {
+        if (object != null) {
+            attachments.put(key, object);
+        }
+    }
+
+    public<T> T getAttachment(String key, Class<T> clazz) {
+        //noinspection unchecked
+        return attachments.containsKey(key) ? (T) attachments.get(key) : null;
+    }
+
+    public void removeAttachment(String key) {
+        attachments.remove(key);
+    }
+
+    public boolean hasAttachment(String key) {
+        return attachments.containsKey(key);
     }
 
     public void setAtomicGuild(Guild guild) {

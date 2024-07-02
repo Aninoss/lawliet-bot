@@ -118,7 +118,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     if (CommandManager.commandIsEnabledEffectively(guildEntity, helpCommand, event.getMember(), event.getGuildChannel())) {
                         args = command.getTrigger();
                         command = helpCommand;
-                        command.getAttachments().put("noargs", true);
+                        command.addAttachment("noargs", true);
                     }
                 }
 

@@ -45,7 +45,7 @@ public class SlashCommandCommand extends SlashCommandAbstract {
         Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
         Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();
         if (errorFunction != null) {
-            command.getAttachments().put("error", errorFunction.apply(locale));
+            command.addAttachment("error", errorFunction.apply(locale));
         }
 
         deferIfNotAcknowledged(event);

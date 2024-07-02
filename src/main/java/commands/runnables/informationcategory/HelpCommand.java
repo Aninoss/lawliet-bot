@@ -4,9 +4,9 @@ import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.runnables.*;
-import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
 import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
+import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
@@ -38,7 +38,6 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -153,18 +152,18 @@ public class HelpCommand extends NavigationAbstract {
             }
         }
 
-        JSONObject attachments = getAttachments();
-        if (attachments.has("error")) {
-            setLog(LogStatus.FAILURE, attachments.getString("error"));
-            attachments.remove("error");
+        String error = getAttachment("error", String.class);
+        if (error != null) {
+            setLog(LogStatus.FAILURE, error);
+            removeAttachment("error");
         }
         return eb;
     }
 
     private EmbedBuilder checkCommand(Member member, GuildMessageChannel channel, String arg) {
         boolean noArgs = false;
-        if (getAttachments().has("noargs")) {
-            getAttachments().remove("noargs");
+        if (hasAttachment("noargs")) {
+            removeAttachment("noargs");
             noArgs = true;
         }
 
