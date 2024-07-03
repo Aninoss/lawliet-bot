@@ -11,7 +11,7 @@ public class GuildVoiceUpdateInviteTracking extends GuildVoiceUpdateAbstract {
 
     @Override
     public boolean onGuildVoiceUpdate(GuildVoiceUpdateEvent event, EntityManagerWrapper entityManager) {
-        InviteTracking.memberActivity(event.getMember());
+        InviteTracking.memberActivity(entityManager.findGuildEntity(event.getGuild().getIdLong()).getInviteTracking(), event.getMember());
         return true;
     }
 

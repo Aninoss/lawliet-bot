@@ -12,7 +12,7 @@ public class GuildMessageReceivedInviteTracking extends GuildMessageReceivedAbst
 
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
-        InviteTracking.memberActivity(event.getMember());
+        InviteTracking.memberActivity(entityManager.findGuildEntity(event.getGuild().getIdLong()).getInviteTracking(), event.getMember());
         return true;
     }
 

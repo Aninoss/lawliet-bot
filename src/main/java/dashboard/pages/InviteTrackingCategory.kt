@@ -22,10 +22,9 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.invitetracking.InviteTracking
 import mysql.hibernate.entity.BotLogEntity
+import mysql.hibernate.entity.InviteTrackingSlotEntity
 import mysql.hibernate.entity.guild.GuildEntity
-import mysql.modules.invitetracking.DBInviteTracking
-import mysql.modules.invitetracking.InviteTrackingData
-import mysql.modules.invitetracking.InviteTrackingSlot
+import mysql.hibernate.entity.guild.InviteTrackingEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.time.LocalDate
@@ -42,6 +41,9 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
     var manageMember: Long? = null
     var addInviteMember: Long? = null
 
+    val inviteTrackingEntity: InviteTrackingEntity
+        get() = guildEntity.inviteTracking
+
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(InviteTrackingCommand::class.java, locale).title
     }
@@ -51,17 +53,15 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val inviteTrackingData = DBInviteTracking.getInstance().retrieve(atomicGuild.idLong)
-
         if (anyCommandsAreAccessible(InviteTrackingCommand::class)) {
-            val innerContainer = VerticalContainer(generateActiveSwitch(inviteTrackingData))
+            val innerContainer = VerticalContainer(generateActiveSwitch())
             innerContainer.isCard = true
 
             mainContainer.add(
                     innerContainer,
                     DashboardTitle(getString(Category.INVITE_TRACKING, "invitetracking_log_title")),
                     DashboardText(getString(Category.INVITE_TRACKING, "invitetracking_log_desc") + "\n\n" + getString(Category.INVITE_TRACKING, "invitetracking_dashboard_advancedstats_hint")),
-                    generateLogsField(inviteTrackingData)
+                    generateLogsField()
             )
         }
 
@@ -69,12 +69,12 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             mainContainer.add(
                     DashboardTitle(getString(Category.INVITE_TRACKING, "invmanage_title")),
                     DashboardText(getString(Category.INVITE_TRACKING, "invmanage_description")),
-                    generateInvitesManageField(inviteTrackingData)
+                    generateInvitesManageField()
             )
         }
     }
 
-    fun generateActiveSwitch(inviteTrackingData: InviteTrackingData): DashboardComponent {
+    fun generateActiveSwitch(): DashboardComponent {
         val activeSwitch = DashboardSwitch(getString(Category.INVITE_TRACKING, "invitetracking_state0_mactive")) {
             if (!anyCommandsAreAccessible(InviteTrackingCommand::class)) {
                 return@DashboardSwitch ActionResult()
@@ -82,31 +82,31 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             }
 
             clearAttributes()
-            inviteTrackingData.isActive = it.data
 
             entityManager.transaction.begin()
+            inviteTrackingEntity.active = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_ACTIVE, atomicMember, null, it.data)
+            if (inviteTrackingEntity.active) {
+                InviteTracking.synchronizeGuildInvites(guildEntity, atomicGuild.get().get())
+            }
             entityManager.transaction.commit()
 
-            if (inviteTrackingData.isActive) {
-                InviteTracking.synchronizeGuildInvites(atomicGuild.get().orElseThrow(), locale)
-            }
             ActionResult()
-                    .withRedraw()
+                .withRedraw()
         }
-        activeSwitch.isChecked = inviteTrackingData.isActive
+        activeSwitch.isChecked = inviteTrackingEntity.active
 
         return activeSwitch
     }
 
-    fun generateLogsField(inviteTrackingData: InviteTrackingData): DashboardComponent {
+    fun generateLogsField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
         val channelComboBox = DashboardChannelComboBox(
                 this,
                 getString(Category.INVITE_TRACKING, "invitetracking_state0_mchannel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
-                inviteTrackingData.channelId.orElse(null),
+                inviteTrackingEntity.logChannelId,
                 true,
                 arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)
         ) {
@@ -116,10 +116,10 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             }
 
             entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, atomicMember, inviteTrackingData.channelId.orElse(null), it.data)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, atomicMember, inviteTrackingEntity.logChannelId, it.data)
+            inviteTrackingEntity.logChannelId = it.data?.toLong()
             entityManager.transaction.commit()
 
-            inviteTrackingData.setChannelId(it.data?.toLong())
             ActionResult()
         }
         container.add(channelComboBox, DashboardSeparator())
@@ -130,15 +130,14 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                         .withRedraw()
             }
 
-            inviteTrackingData.ping = it.data
-
             entityManager.transaction.begin()
+            inviteTrackingEntity.ping = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_PING_MEMBERS, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        pingMembersSwitch.isChecked = inviteTrackingData.ping
+        pingMembersSwitch.isChecked = inviteTrackingEntity.ping
         container.add(pingMembersSwitch, DashboardSeparator())
 
         val advancedSwitch = DashboardSwitch(getString(Category.INVITE_TRACKING, "invitetracking_state0_madvanced")) {
@@ -147,21 +146,19 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                         .withRedraw()
             }
 
-            inviteTrackingData.isAdvanced = it.data
-
             entityManager.transaction.begin()
+            inviteTrackingEntity.advanced = it.data
             BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_ADVANCED_STATISTICS, atomicMember, null, it.data)
             entityManager.transaction.commit()
 
             ActionResult()
         }
-        advancedSwitch.isChecked = inviteTrackingData.isAdvanced
+        advancedSwitch.isChecked = inviteTrackingEntity.advanced
         container.add(advancedSwitch, DashboardSeparator())
 
         val resetButton = DashboardButton(getString(Category.INVITE_TRACKING, "invitetracking_dashboard_reset")) {
-            DBInviteTracking.getInstance().resetInviteTrackerSlots(atomicGuild.idLong)
-
             entityManager.transaction.begin()
+            inviteTrackingEntity.slots.clear()
             BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_RESET, atomicMember)
             entityManager.transaction.commit()
 
@@ -175,26 +172,26 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         return container
     }
 
-    fun generateInvitesManageField(inviteTrackingData: InviteTrackingData): DashboardComponent {
+    fun generateInvitesManageField(): DashboardComponent {
         val premium = isPremium
         val container = VerticalContainer()
 
-        if (inviteTrackingData.isActive) {
+        if (inviteTrackingEntity.active) {
             container.add(generateInvitesManageMemberField(premium))
 
             if (manageMember != null) {
-                val invitedSlots = inviteTrackingData.inviteTrackingSlots.values
-                        .filter { it.inviterUserId == manageMember }
+                val invitedSlots = inviteTrackingEntity.slots.entries
+                        .filter { it.value.inviterUserId == manageMember }
 
                 val listAddContainer = VerticalContainer()
                 listAddContainer.isCard = true
                 if (invitedSlots.isNotEmpty()) {
                     listAddContainer.add(
-                            generateInvitesManageListField(inviteTrackingData, invitedSlots, premium),
+                            generateInvitesManageListField(invitedSlots, premium),
                             DashboardSeparator(true)
                     )
                 }
-                listAddContainer.add(generateInvitesManageAddField(inviteTrackingData, premium))
+                listAddContainer.add(generateInvitesManageAddField(premium))
                 container.add(listAddContainer)
             }
         } else {
@@ -260,11 +257,11 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         return container
     }
 
-    private fun generateInvitesManageListField(inviteTrackingData: InviteTrackingData, invitedSlots: List<InviteTrackingSlot>, premium: Boolean): DashboardComponent {
+    private fun generateInvitesManageListField(invitedSlots: List<MutableMap.MutableEntry<Long, InviteTrackingSlotEntity>>, premium: Boolean): DashboardComponent {
         val container = VerticalContainer()
         val itemRows = invitedSlots
-                .map { slot ->
-                    val atomicMember = AtomicMember(atomicGuild.idLong, slot.memberId)
+                .map { entry ->
+                    val atomicMember = AtomicMember(atomicGuild.idLong, entry.key)
 
                     val itemContainer = HorizontalContainer()
                     itemContainer.alignment = HorizontalContainer.Alignment.CENTER
@@ -277,11 +274,11 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                         }
 
                         entityManager.transaction.begin()
-                        BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, null, slot.memberId, listOf(manageMember!!))
+                        BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, null, entry.key, listOf(manageMember!!))
+                        inviteTrackingEntity.slots.remove(entry.key)
                         entityManager.transaction.commit()
 
                         FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
-                        inviteTrackingData.inviteTrackingSlots.remove(slot.memberId)
                         ActionResult()
                                 .withRedraw()
                     }
@@ -303,10 +300,10 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
             entityManager.transaction.begin()
             BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES_RESET, atomicMember, null, null, listOf(manageMember!!))
+            inviteTrackingEntity.removeSlotsOfInviter(manageMember!!.toLong())
             entityManager.transaction.commit()
 
             FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
-            DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(atomicGuild.idLong, manageMember!!.toLong())
             ActionResult()
                     .withRedraw()
         }
@@ -317,7 +314,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         return container
     }
 
-    private fun generateInvitesManageAddField(inviteTrackingData: InviteTrackingData, premium: Boolean): DashboardComponent {
+    private fun generateInvitesManageAddField(premium: Boolean): DashboardComponent {
         val container = VerticalContainer()
         val addNewContainer = HorizontalContainer()
         addNewContainer.allowWrap = true
@@ -345,14 +342,14 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
             if (addInviteMember != null) {
                 val inviteTrackingSlot =
-                        InviteTrackingSlot(atomicGuild.idLong, addInviteMember!!, manageMember!!, LocalDate.now(), LocalDate.now(), true)
+                        InviteTrackingSlotEntity(manageMember!!, LocalDate.now(), LocalDate.now(), true)
 
                 entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, addInviteMember!!, null, listOf(manageMember!!))
+                inviteTrackingEntity.slots[addInviteMember!!] = inviteTrackingSlot
                 entityManager.transaction.commit()
 
                 FeatureLogger.inc(PremiumFeature.INVITE_TRACKING_MANAGE, atomicGuild.idLong)
-                inviteTrackingData.inviteTrackingSlots[inviteTrackingSlot.memberId] = inviteTrackingSlot
                 addInviteMember = null
                 ActionResult()
                         .withRedraw()
@@ -367,7 +364,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
         addNewContainer.add(addInviteButton)
         container.add(addNewContainer)
 
-        if (addInviteMember != null && inviteTrackingData.inviteTrackingSlots.containsKey(addInviteMember)) {
+        if (addInviteMember != null && inviteTrackingEntity.slots.containsKey(addInviteMember)) {
             val text = DashboardText(getString(Category.INVITE_TRACKING, "invmanage_override"))
             text.style = DashboardText.Style.ERROR
             container.add(text)

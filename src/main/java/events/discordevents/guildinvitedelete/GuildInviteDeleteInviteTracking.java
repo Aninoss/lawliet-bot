@@ -4,8 +4,8 @@ import core.schedule.MainScheduler;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildInviteDeleteAbstract;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.invitetracking.DBInviteTracking;
-import mysql.modules.invitetracking.InviteTrackingData;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
 
 import java.time.Duration;
@@ -15,10 +15,15 @@ public class GuildInviteDeleteInviteTracking extends GuildInviteDeleteAbstract {
 
     @Override
     public boolean onGuildInviteDelete(GuildInviteDeleteEvent event, EntityManagerWrapper entityManager) {
-        InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
-        if (inviteTrackingData.isActive()) {
+        if (entityManager.findGuildEntity(event.getGuild().getIdLong()).getInviteTracking().getActive()) {
             MainScheduler.schedule(Duration.ofSeconds(1),
-                    () -> inviteTrackingData.getGuildInvites().remove(event.getCode())
+                    () -> {
+                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(event.getGuild().getIdLong(), GuildInviteDeleteInviteTracking.class)) {
+                            guildEntity.beginTransaction();
+                            guildEntity.getGuildInvites().remove(event.getCode());
+                            guildEntity.commitTransaction();
+                        }
+                    }
             );
         }
         return true;

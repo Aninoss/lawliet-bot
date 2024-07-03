@@ -3,10 +3,7 @@ package mysql.hibernate.entity.guild
 import constants.Language
 import core.assets.GuildAsset
 import core.cache.ServerPatreonBoostCache
-import mysql.hibernate.entity.CustomRolePlayEntity
-import mysql.hibernate.entity.GiveawayEntity
-import mysql.hibernate.entity.ReactionRoleEntity
-import mysql.hibernate.entity.ReminderEntity
+import mysql.hibernate.entity.*
 import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.entity.guild.welcomemessages.WELCOME_MESSAGES
 import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesEntity
@@ -89,6 +86,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @Column(name = WELCOME_MESSAGES)
     val welcomeMessages = WelcomeMessagesEntity()
 
+    @Embedded
+    @Column(name = INVITE_TRACKING)
+    val inviteTracking = InviteTrackingEntity()
+
     @ElementCollection
     @SortNatural
     val customCommands = sortedMapOf<String, CustomCommandEntity>()
@@ -122,6 +123,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @ElementCollection
     val whitelistedChannelIds = mutableListOf<Long>()
 
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    var guildInvites = mutableMapOf<String, GuildInviteEntity>()
+
     constructor() : this("0")
 
     override fun getGuildId(): Long {
@@ -137,6 +142,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
         stickyRoles.postLoad(this)
         tickets.postLoad(this)
         welcomeMessages.postLoad(this)
+        inviteTracking.postLoad(this)
     }
 
     override fun postRemove() {

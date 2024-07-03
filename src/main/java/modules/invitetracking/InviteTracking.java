@@ -1,27 +1,28 @@
 package modules.invitetracking;
 
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
-import core.*;
-import mysql.modules.invitetracking.DBInviteTracking;
-import mysql.modules.invitetracking.GuildInvite;
-import mysql.modules.invitetracking.InviteTrackingData;
-import mysql.modules.invitetracking.InviteTrackingSlot;
+import core.MemberCacheController;
+import core.PermissionCheckRuntime;
+import mysql.hibernate.entity.GuildInviteEntity;
+import mysql.hibernate.entity.InviteTrackingSlotEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.guild.InviteTrackingEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.exceptions.PermissionException;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class InviteTracking {
 
-    public static InviteMetrics generateInviteMetrics(Guild guild, long inviterUserId) {
+    public static InviteMetrics generateInviteMetrics(InviteTrackingEntity inviteTracking, Guild guild, long inviterUserId) {
         int invites = 0;
         int onServer = 0;
         int retained = 0;
@@ -30,14 +31,14 @@ public class InviteTracking {
         HashSet<Long> serverMemberIds = MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
                 .map(ISnowflake::getIdLong)
                 .collect(Collectors.toCollection(HashSet::new));
-        for (InviteTrackingSlot inviteTrackingSlot : DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots().values()) {
-            if (inviteTrackingSlot.getInviterUserId() == inviterUserId) {
+        for (Map.Entry<Long, InviteTrackingSlotEntity> entry : inviteTracking.getSlots().entrySet()) {
+            if (entry.getValue().getInviterUserId() == inviterUserId) {
                 invites++;
-                if (serverMemberIds.contains(inviteTrackingSlot.getMemberId())) {
+                if (serverMemberIds.contains(entry.getKey())) {
                     onServer++;
-                    if (inviteTrackingSlot.isRetained()) {
+                    if (entry.getValue().isRetained()) {
                         retained++;
-                        if (inviteTrackingSlot.isActive()) {
+                        if (entry.getValue().isActive()) {
                             active++;
                         }
                     }
@@ -48,106 +49,84 @@ public class InviteTracking {
         return new InviteMetrics(guild.getIdLong(), inviterUserId, invites, onServer, retained, active);
     }
 
-    public static void memberActivity(Member member) {
-        InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(member.getGuild().getIdLong());
-        if (inviteTrackingData.isActive()) {
-            InviteTrackingSlot inviteTrackingSlot = inviteTrackingData
-                    .getInviteTrackingSlots()
-                    .get(member.getIdLong());
-
-            if (inviteTrackingSlot != null) {
-                inviteTrackingSlot.messageSent();
+    public static void memberActivity(InviteTrackingEntity inviteTracking, Member member) {
+        if (inviteTracking.getActive()) {
+            InviteTrackingSlotEntity slot = inviteTracking.getSlots().get(member.getIdLong());
+            if (slot != null) {
+                inviteTracking.beginTransaction();
+                slot.setLastMessageDate(LocalDate.now());
+                inviteTracking.commitTransaction();
             }
         }
     }
 
-    public static CompletableFuture<TempInvite> registerMemberJoin(Member member, Locale locale) {
-        CompletableFuture<TempInvite> future = new CompletableFuture<>();
-
-        try {
-            Guild guild = member.getGuild();
-            if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
-                collectInvites(guild)
-                        .thenAccept(guildInvites -> {
-                            CustomObservableMap<String, GuildInvite> databaseInvites = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getGuildInvites();
-                            HashSet<String> missingInviteCodes = databaseInvites.values().stream()
-                                    .map(GuildInvite::getCode)
-                                    .collect(Collectors.toCollection(HashSet::new));
-                            TempInvite tempInvite = null;
-                            boolean ambiguousInvite = false;
-
-                            /* check invite uses */
-                            for (TempInvite invite : guildInvites) {
-                                missingInviteCodes.remove(invite.code);
-                                int inviteUses = invite.uses;
-                                int databaseUses = 0;
-                                GuildInvite guildInvite = databaseInvites.get(invite.code);
-                                if (guildInvite != null) {
-                                    databaseUses = guildInvite.getUses();
-                                }
-
-                                if (inviteUses > databaseUses) {
-                                    if (tempInvite == null) {
-                                        tempInvite = invite;
-                                    } else {
-                                        tempInvite = null;
-                                        ambiguousInvite = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            /* check temporary invites which no longer exist due to having limit uses and ignore expired ones */
-                            if (!ambiguousInvite) {
-                                for (String inviteCode : missingInviteCodes) {
-                                    GuildInvite guildInvite = databaseInvites.get(inviteCode);
-                                    if (guildInvite.getMaxAge() == null || guildInvite.getMaxAge().isAfter(Instant.now())) {
-                                        if (tempInvite == null) {
-                                            tempInvite = new TempInvite(guildInvite.getCode(), guildInvite.getUses() + 1, guildInvite.getMemberId(), guildInvite.getMaxAge());
-                                        } else {
-                                            tempInvite = null;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (tempInvite != null) {
-                                CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
-                                if (!inviteTrackingSlots.containsKey(member.getIdLong())) {
-                                    InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), tempInvite.inviter, LocalDate.now(), LocalDate.now(), false);
-                                    inviteTrackingSlots.put(member.getIdLong(), newSlot);
-                                }
-                                future.complete(tempInvite);
-                            } else {
-                                future.completeExceptionally(new NoSuchElementException("No inviter found"));
-                            }
-                            synchronizeGuildInvites(guild.getIdLong(), databaseInvites, guildInvites);
-                        }).exceptionally(ExceptionLogger.get());
-            } else {
-                future.completeExceptionally(new PermissionException("Missing permissions"));
-            }
-        } catch (Throwable e) {
-            MainLogger.get().error("Invite error", e);
-            future.completeExceptionally(e);
+    public static TempInvite registerMemberJoin(GuildEntity guildEntity, Member member, Locale locale) throws ExecutionException, InterruptedException {
+        Guild guild = member.getGuild();
+        if (!PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
+            return null;
         }
 
-        return future;
+        InviteTrackingEntity inviteTrackingEntity = guildEntity.getInviteTracking();
+        List<TempInvite> guildInvites = collectInvites(guild).get();
+        Map<String, GuildInviteEntity> databaseInvites = guildEntity.getGuildInvites();
+        HashSet<String> missingInviteCodes = new HashSet<>(databaseInvites.keySet());
+        TempInvite tempInvite = null;
+        boolean ambiguousInvite = false;
+
+        /* check invite uses */
+        for (TempInvite invite : guildInvites) {
+            missingInviteCodes.remove(invite.code);
+            int inviteUses = invite.uses;
+            int databaseUses = 0;
+            GuildInviteEntity guildInvite = databaseInvites.get(invite.code);
+            if (guildInvite != null) {
+                databaseUses = guildInvite.getUses();
+            }
+
+            if (inviteUses > databaseUses) {
+                if (tempInvite == null) {
+                    tempInvite = invite;
+                } else {
+                    tempInvite = null;
+                    ambiguousInvite = true;
+                    break;
+                }
+            }
+        }
+
+        /* check temporary invites which no longer exist due to having limit uses and ignore expired ones */
+        if (!ambiguousInvite) {
+            for (String inviteCode : missingInviteCodes) {
+                GuildInviteEntity guildInvite = databaseInvites.get(inviteCode);
+                if (guildInvite.getMaxAge() == null || guildInvite.getMaxAge().isAfter(Instant.now())) {
+                    if (tempInvite == null) {
+                        tempInvite = new TempInvite(inviteCode, guildInvite.getUses() + 1, guildInvite.getUserId(), guildInvite.getMaxAge());
+                    } else {
+                        tempInvite = null;
+                        break;
+                    }
+                }
+            }
+        }
+
+        inviteTrackingEntity.beginTransaction();
+        if (tempInvite != null) {
+            Map<Long, InviteTrackingSlotEntity> inviteTrackingSlots = inviteTrackingEntity.getSlots();
+            if (!inviteTrackingSlots.containsKey(member.getIdLong())) {
+                InviteTrackingSlotEntity newSlot = new InviteTrackingSlotEntity(tempInvite.inviter, LocalDate.now(), LocalDate.now(), false);
+                inviteTrackingSlots.put(member.getIdLong(), newSlot);
+            }
+        }
+        synchronizeGuildInvites(guildEntity, guildInvites);
+        inviteTrackingEntity.commitTransaction();
+        return tempInvite;
     }
 
-    public static CompletableFuture<Void> synchronizeGuildInvites(Guild guild, Locale locale) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
-            collectInvites(guild)
-                    .thenAccept(guildInvites -> {
-                        CustomObservableMap<String, GuildInvite> databaseInvites = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getGuildInvites();
-                        synchronizeGuildInvites(guild.getIdLong(), databaseInvites, guildInvites);
-                        future.complete(null);
-                    }).exceptionally(ExceptionLogger.get());
+    public static void synchronizeGuildInvites(GuildEntity guildEntity, Guild guild) throws ExecutionException, InterruptedException {
+        if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
+            List<TempInvite> tempInvites = collectInvites(guild).get();
+            synchronizeGuildInvites(guildEntity, tempInvites);
         }
-
-        return future;
     }
 
     public static Instant calculateMaxAgeOfInvite(Invite invite) {
@@ -158,27 +137,27 @@ public class InviteTracking {
         }
     }
 
-    private static void synchronizeGuildInvites(long guildId, CustomObservableMap<String, GuildInvite> databaseInvites, List<TempInvite> guildInvites) {
+    private static void synchronizeGuildInvites(GuildEntity guildEntity, List<TempInvite> guildInvites) {
         /* add missing invites to database */
+        Map<String, GuildInviteEntity> databaseInvites = guildEntity.getGuildInvites();
         HashSet<String> inviteCodes = new HashSet<>();
         for (TempInvite invite : guildInvites) {
             inviteCodes.add(invite.code);
-            if (!databaseInvites.containsKey(invite.code) ||
-                    invite.uses != databaseInvites.get(invite.code).getUses() ||
-                    (invite.maxAge != null && databaseInvites.get(invite.code).getMaxAge() == null)
-            ) {
-                databaseInvites.put(invite.code, new GuildInvite(guildId, invite.code, invite.inviter, invite.uses, invite.maxAge));
+            if (databaseInvites.containsKey(invite.code)) {
+                GuildInviteEntity databaseInvite = databaseInvites.get(invite.code);
+                if (invite.uses != databaseInvite.getUses() ||
+                        (invite.maxAge != null && databaseInvite.getMaxAge() == null)
+                ) {
+                    databaseInvite.setUses(invite.uses);
+                    databaseInvite.setMaxAge(invite.maxAge);
+                }
+            } else {
+                databaseInvites.put(invite.code, new GuildInviteEntity(invite.inviter, invite.uses, invite.maxAge));
             }
         }
 
         /* remove invalid invites from database */
-        Iterator<Map.Entry<String, GuildInvite>> iterator = databaseInvites.entrySet().iterator();
-        while (iterator.hasNext()) {
-            GuildInvite guildInvite = iterator.next().getValue();
-            if (guildInvite != null && !inviteCodes.contains(guildInvite.getCode())) {
-                iterator.remove();
-            }
-        }
+        databaseInvites.entrySet().removeIf(entry -> !inviteCodes.contains(entry.getKey()));
     }
 
     private static CompletableFuture<List<TempInvite>> collectInvites(Guild guild) {

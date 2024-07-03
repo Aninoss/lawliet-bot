@@ -1,15 +1,16 @@
 package mysql.modules.invitetracking;
 
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.util.Map;
-import java.util.Optional;
 import mysql.DBDataLoad;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.Map;
+import java.util.Optional;
 
 public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingData> {
 
