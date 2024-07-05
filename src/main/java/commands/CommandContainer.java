@@ -308,14 +308,19 @@ public class CommandContainer {
         commandList.add(RealLifeLesbianCommand.class);
         commandList.add(HentaiCommand.class);
         commandList.add(ThreeDHentaiCommand.class);
+        commandList.add(HentaiPovCommand.class);
+        commandList.add(HentaiThreesomeCommand.class);
         commandList.add(HentaiAnalCommand.class);
         commandList.add(HentaiCreampieCommand.class);
         commandList.add(HentaiAssCommand.class);
         commandList.add(HentaiBoobsCommand.class);
+        commandList.add(HentaiThighsCommand.class);
+        commandList.add(HentaiFeetCommand.class);
         commandList.add(HentaiPussy.class);
         commandList.add(HentaiDick.class);
         commandList.add(HentaiBlowjobCommand.class);
         commandList.add(HentaiBDSMCommand.class);
+        commandList.add(HentaiFemaleAbsCommand.class);
         commandList.add(AhegaoCommand.class);
         commandList.add(NekoCommand.class);
         commandList.add(FutaCommand.class);
@@ -324,6 +329,8 @@ public class CommandContainer {
         commandList.add(YuriCommand.class);
         commandList.add(BaraCommand.class);
         commandList.add(FurryCommand.class);
+        commandList.add(GenshinCommand.class);
+        commandList.add(GenshinYaoiCommand.class);
 
         //SPLATOON
         commandList.add(MapsCommand.class);

@@ -30,7 +30,7 @@ public class RealLifeBDSMCommand extends RealbooruAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap", "transgender", "otoko_no_ko"));
+        filters.addAll(Set.of("gay", "shemale", "trap", "transgender", "otoko_no_ko"));
         return filters;
     }
 
