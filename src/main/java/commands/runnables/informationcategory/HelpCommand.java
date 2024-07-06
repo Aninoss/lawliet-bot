@@ -23,6 +23,7 @@ import mysql.hibernate.entity.CustomRolePlayEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -382,7 +383,9 @@ public class HelpCommand extends NavigationAbstract {
         boolean includeAlerts = false;
         boolean includeNSFW = false;
 
-        StringBuilder predefinedNsfwBooruCommands = new StringBuilder();
+        ArrayList<StringBuilder> predefinedBooruCommandsFields = new ArrayList<>();
+        predefinedBooruCommandsFields.add(new StringBuilder());
+
         int i = 0;
         for (Category category : Category.independentValues()) {
             for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
@@ -417,7 +420,13 @@ public class HelpCommand extends NavigationAbstract {
 
                     if (command instanceof PornPredefinedAbstract) {
                         String extras = generateCommandIcons(channel, command, false, true, false);
-                        predefinedNsfwBooruCommands.append(getString("nsfw_slot", command.getTrigger(), extras, command.getCommandLanguage().getTitle())).append("\n");
+                        String booruLine = getString("nsfw_slot", command.getTrigger(), extras, command.getCommandLanguage().getTitle()) + "\n";
+                        StringBuilder lastStringBuilder = predefinedBooruCommandsFields.get(predefinedBooruCommandsFields.size() - 1);
+                        if (lastStringBuilder.length() + booruLine.length() <= MessageEmbed.VALUE_MAX_LENGTH) {
+                            lastStringBuilder.append(booruLine);
+                        } else {
+                            predefinedBooruCommandsFields.add(new StringBuilder(booruLine));
+                        }
                     } else {
                         eb.addField(
                                 title.toString(),
@@ -428,8 +437,8 @@ public class HelpCommand extends NavigationAbstract {
                 }
             }
         }
-        if (!predefinedNsfwBooruCommands.isEmpty()) {
-            eb.addField(getString("nsfw_premium"), predefinedNsfwBooruCommands.toString(), false);
+        for (int j = 0; j < predefinedBooruCommandsFields.size(); j++) {
+            eb.addField(j == 0 ? getString("nsfw_premium") : Emojis.ZERO_WIDTH_SPACE.getFormatted(), predefinedBooruCommandsFields.get(j).toString(), false);
         }
 
         eb.setDescription(getString("premium", ExternalLinks.PREMIUM_WEBSITE) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());

@@ -8,24 +8,23 @@ import java.util.Locale;
 import java.util.Set;
 
 @CommandProperties(
-        trigger = "rlboobs",
+        trigger = "rlthighs",
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        patreonRequired = true,
-        aliases = { "boobs", "reallifeboobs", "tits", "rltits", "reallifetits", "boobies", "rlboobies", "reallifeboobies" }
+        aliases = { "reallifethighs" }
 )
-public class RealLifeBoobsCommand extends RealbooruAbstract {
+public class RealLifeThighsCommand extends RealbooruAbstract {
 
-    public RealLifeBoobsCommand(Locale locale, String prefix) {
+    public RealLifeThighsCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     protected String getSearchKey() {
-        return "boobs";
+        return "thighs solo_female";
     }
 
     @Override
@@ -35,7 +34,7 @@ public class RealLifeBoobsCommand extends RealbooruAbstract {
                 "orgasm", "1boy", "2boys", "penis", "penetration", "double_penetration", "fellatio", "handjob",
                 "oral", "threesome", "anal", "vaginal", "vaginal_sex", "doggy_style", "squirt", "squirting",
                 "vaginal_penetration", "fingering", "cum", "buttjob", "cum_in_pussy", "vaginal_insertion",
-                "mia_khalifa", "reverse_cowgirl_position", "riding", "enema", "between_breasts"));
+                "mia_khalifa", "reverse_cowgirl_position", "riding", "enema"));
         return filters;
     }
 
