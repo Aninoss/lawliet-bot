@@ -14,11 +14,9 @@ import constants.Settings;
 import core.*;
 import core.atomicassets.AtomicGuildChannel;
 import core.cache.ServerPatreonBoostCache;
+import core.modals.DurationModalBuilder;
 import core.modals.ModalMediator;
-import core.utils.BotPermissionUtil;
-import core.utils.CollectionUtil;
-import core.utils.NumberUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
@@ -95,11 +93,11 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
         FisheryEntity fishery = getGuildEntity().getFishery();
         switch (i) {
-            case -1:
+            case -1 -> {
                 deregisterListenersWithComponentMessage();
                 return false;
-
-            case 0:
+            }
+            case 0 -> {
                 fishery.beginTransaction();
                 fishery.setTreasureChests(!fishery.getTreasureChests());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHESTS, event.getMember(), null, fishery.getTreasureChests());
@@ -108,8 +106,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 setLog(LogStatus.SUCCESS, getString("treasurechestsset", fishery.getTreasureChests()));
                 stopLock = true;
                 return true;
-
-            case 1:
+            }
+            case 1 -> {
                 fishery.beginTransaction();
                 fishery.setPowerUps(!fishery.getPowerUps());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_POWER_UPS, event.getMember(), null, fishery.getPowerUps());
@@ -118,8 +116,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 setLog(LogStatus.SUCCESS, getString("powerupsset", fishery.getPowerUps()));
                 stopLock = true;
                 return true;
-
-            case 2:
+            }
+            case 2 -> {
                 fishery.beginTransaction();
                 fishery.setFishReminders(!fishery.getFishReminders());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_FISH_REMINDERS, event.getMember(), null, fishery.getFishReminders());
@@ -128,8 +126,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 setLog(LogStatus.SUCCESS, getString("remindersset", fishery.getFishReminders()));
                 stopLock = true;
                 return true;
-
-            case 3:
+            }
+            case 3 -> {
                 fishery.beginTransaction();
                 fishery.setCoinGiftLimit(!fishery.getCoinGiftLimit());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_COIN_GIFT_LIMIT, event.getMember(), null, fishery.getCoinGiftLimit());
@@ -138,8 +136,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 setLog(LogStatus.SUCCESS, getString("coinsgivenset", fishery.getCoinGiftLimit()));
                 stopLock = true;
                 return true;
-
-            case 4:
+            }
+            case 4 -> {
                 if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
                     return true;
@@ -209,13 +207,27 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
                 event.replyModal(modal).queue();
                 return false;
+            }
+            case 5 -> {
+                if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                    return true;
+                }
 
-            case 5:
+                Modal modal = new DurationModalBuilder(this, getString("dashboard_workinterval"))
+                        .setLogEvent(BotLogEntity.Event.FISHERY_WORK_INTERVAL)
+                        .setGetter(() -> getGuildEntity().getFishery().getWorkIntervalMinutesEffectively())
+                        .setSetter(minutes -> getGuildEntity().getFishery().setWorkIntervalMinutes(minutes))
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+            }
+            case 6 -> {
                 setState(STATE_SET_EXCLUDED_CHANNELS);
                 stopLock = true;
                 return true;
-
-            case 6:
+            }
+            case 7 -> {
                 if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
                     fishery.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.ACTIVE);
@@ -231,8 +243,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 setLog(LogStatus.SUCCESS, getString("setstatus"));
                 stopLock = true;
                 return true;
-
-            case 7:
+            }
+            case 8 -> {
                 if (fishery.getFisheryStatus() == FisheryStatus.ACTIVE) {
                     if (stopLock) {
                         stopLock = false;
@@ -251,10 +263,9 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     }
                     return true;
                 }
-
-            default:
-                return false;
+            }
         }
+        return false;
     }
 
     @Draw(state = DEFAULT_STATE)
@@ -272,7 +283,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
                 .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
                 .addField(getString("state0_mprobs", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), generateProbabilitiesTextValue(fishery) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
-                .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
+                .addField(getString("state0_mworkinterval", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(fishery.getWorkIntervalMinutesEffectively())), true)
+                .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
     }
 
     @Override

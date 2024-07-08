@@ -16,7 +16,9 @@ import core.modals.ModalMediator;
 import core.utils.EmojiUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
+import core.utils.TimeUtil;
 import modules.fishery.FisheryGear;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autowork.DBAutoWork;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
@@ -34,6 +36,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -72,7 +75,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) {
         fisheryMemberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
-        Optional<Instant> nextWork = fisheryMemberData.checkNextWork();
+        Optional<Instant> nextWork = fisheryMemberData.checkNextWork(getGuildEntity().getFishery().getWorkIntervalMinutesEffectively());
         if (nextWork.isEmpty()) {
             setArea();
             registerButtonListener(event.getMember());
@@ -175,9 +178,10 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
             deregisterListenersWithComponents();
             active = false;
             long coins = fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect();
-            setAdditionalEmbeds(fisheryMemberData.changeValuesEmbed(member, 0, coins, getGuildEntity()).build());
-            fisheryMemberData.completeWork();
-            setLog(LogStatus.SUCCESS, getString("right"));
+
+            GuildEntity guildEntity = getGuildEntity();
+            setAdditionalEmbeds(fisheryMemberData.changeValuesEmbed(member, 0, coins, guildEntity).build());
+            setLog(LogStatus.SUCCESS, getString("right", TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(guildEntity.getFishery().getWorkIntervalMinutesEffectively()))));
             return true;
         } else {
             setArea();

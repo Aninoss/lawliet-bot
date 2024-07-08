@@ -55,7 +55,7 @@ public class FisheryProcessors implements ExceptionRunnable {
                 if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {
                     processVoiceActivity(guild, guildEntity, voiceActivityActions);
                     processAutoSell(guild, autoSellActions);
-                    processAutoWork(guild, autoWorkActions, reminderGuildMap);
+                    processAutoWork(guild, guildEntity, autoWorkActions, reminderGuildMap);
                 }
                 entityManager.clear();
             }
@@ -111,7 +111,7 @@ public class FisheryProcessors implements ExceptionRunnable {
         }
     }
 
-    private void processAutoWork(Guild guild, AtomicInteger autoWorkActions, HashMap<Long, HashSet<Guild>> reminderGuildMap) {
+    private void processAutoWork(Guild guild, GuildEntity guildEntity, AtomicInteger autoWorkActions, HashMap<Long, HashSet<Guild>> reminderGuildMap) {
         try {
             FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guild.getIdLong());
             AutoWorkData autoWorkData = DBAutoWork.getInstance().retrieve();
@@ -128,10 +128,10 @@ public class FisheryProcessors implements ExceptionRunnable {
                 }
 
                 /* auto work */
-                if (autoWorkData.isActive(member.getIdLong()) && fisheryMemberData.checkNextWork().isEmpty()) {
+                long workIntervalMinutes = guildEntity.getFishery().getWorkIntervalMinutesEffectively();
+                if (autoWorkData.isActive(member.getIdLong()) && fisheryMemberData.checkNextWork(workIntervalMinutes).isEmpty()) {
                     long coins = fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect();
                     fisheryMemberData.changeValues(0, coins);
-                    fisheryMemberData.completeWork();
                     autoWorkActions.incrementAndGet();
                 }
             }

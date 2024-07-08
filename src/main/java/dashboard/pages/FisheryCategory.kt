@@ -576,6 +576,18 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         probabilitiesContainer.add(powerUpProbability)
         container.add(probabilitiesContainer)
 
+        val workIntervalField = DashboardDurationField(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_workinterval")) {
+            fisheryEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_WORK_INTERVAL, atomicMember, fisheryEntity.workIntervalMinutesEffectively, it.data)
+            fisheryEntity.workIntervalMinutes = it.data
+            fisheryEntity.commitTransaction()
+
+            return@DashboardDurationField ActionResult()
+        }
+        workIntervalField.value = fisheryEntity.workIntervalMinutesEffectively
+        workIntervalField.isEnabled = isPremium
+        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_workinterval")), workIntervalField)
+
         if (!isPremium) {
             val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
             text.style = DashboardText.Style.ERROR

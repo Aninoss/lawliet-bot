@@ -75,6 +75,16 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     val powerUpProbabilityInPercentEffectively: Double
         get() = if (ServerPatreonBoostCache.get(guildId)) powerUpProbabilityInPercent else 0.35
 
+    @Column(name = "$FISHERY.workIntervalMinutes")
+    private var _workIntervalMinutes: Long? = null
+    var workIntervalMinutes: Long
+        get() = _workIntervalMinutes ?: 240L
+        set(value) {
+            _workIntervalMinutes = value
+        }
+    val workIntervalMinutesEffectively: Long
+        get() = if (ServerPatreonBoostCache.get(guildId)) workIntervalMinutes else 240L
+
     @ElementCollection
     var excludedChannelIds: MutableList<Long> = mutableListOf()
     val excludedChannels: MutableList<AtomicGuildChannel>

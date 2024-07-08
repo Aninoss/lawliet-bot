@@ -349,11 +349,11 @@ public class FisheryMemberData implements MemberAsset {
         }
     }
 
-    public Optional<Instant> checkNextWork() {
+    public Optional<Instant> checkNextWork(long workIntervalMinutes) {
         Instant nextWork = RedisManager.getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_NEXT_WORK));
         boolean canWork = nextWork == null || Instant.now().isAfter(nextWork);
         if (canWork) {
-            completeWork();
+            completeWork(workIntervalMinutes);
             return Optional.empty();
         } else {
             return Optional.of(nextWork);
@@ -365,8 +365,8 @@ public class FisheryMemberData implements MemberAsset {
         return Optional.ofNullable(nextWork);
     }
 
-    public void completeWork() {
-        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_NEXT_WORK, Instant.now().plus(4, ChronoUnit.HOURS).toString()));
+    public void completeWork(long workIntervalMinutes) {
+        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_NEXT_WORK, Instant.now().plus(workIntervalMinutes, ChronoUnit.MINUTES).toString()));
     }
 
     public void removeWork() {
