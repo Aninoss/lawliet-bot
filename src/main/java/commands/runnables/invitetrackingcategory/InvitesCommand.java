@@ -11,7 +11,8 @@ import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
-import mysql.hibernate.entity.InviteTrackingSlotEntity;
+import mysql.modules.invitetracking.DBInviteTracking;
+import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +35,7 @@ public class InvitesCommand extends MemberAccountAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
-        if (getGuildEntity().getInviteTracking().getActive()) {
+        if (DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
             return super.onTrigger(event, args);
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedError(
@@ -55,7 +56,7 @@ public class InvitesCommand extends MemberAccountAbstract {
             setFound();
         }
 
-        InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(getGuildEntity().getInviteTracking(), event.getGuild(), memberId);
+        InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(event.getGuild(), memberId);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle(null)
                 .setDescription(getString("template_desc",
@@ -67,7 +68,7 @@ public class InvitesCommand extends MemberAccountAbstract {
 
         if (memberId != 0) {
             eb.setAuthor(getString("template_title", member.getEffectiveName()), null, member.getEffectiveAvatarUrl());
-            InviteTrackingSlotEntity slot = getGuildEntity().getInviteTracking().getSlots().get(member.getIdLong());
+            InviteTrackingSlot slot = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).getInviteTrackingSlots().get(member.getIdLong());
             if (slot != null) {
                 eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("invitedby", slot.getInviterUserId() == 0, StringUtil.escapeMarkdown(new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getUsername(getLocale()))), false);
             }

@@ -11,7 +11,8 @@ import core.utils.StringUtil;
 import javafx.util.Pair;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
-import mysql.hibernate.entity.guild.InviteTrackingEntity;
+import mysql.modules.invitetracking.DBInviteTracking;
+import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +42,7 @@ public class InvitesTopCommand extends ListAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
-        if (getGuildEntity().getInviteTracking().getActive()) {
+        if (DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
             registerList(event.getMember(), args, getString("orderby").split("\n"));
             return true;
         } else {
@@ -59,13 +60,12 @@ public class InvitesTopCommand extends ListAbstract {
     protected int configure(Member member, int orderBy) throws Throwable {
         inviteMetricsSlots = new ArrayList<>();
         HashSet<Long> memberIds = new HashSet<>();
-        InviteTrackingEntity inviteTracking = getGuildEntity().getInviteTracking();
-        inviteTracking.getSlots().values()
-                .forEach(slot -> {
+        ArrayList<InviteTrackingSlot> slots = new ArrayList<>(DBInviteTracking.getInstance().retrieve(member.getGuild().getIdLong()).getInviteTrackingSlots().values());
+        slots.forEach(slot -> {
                     long userId = slot.getInviterUserId();
                     if (!memberIds.contains(userId) && (userId == 0 || member.getGuild().getMemberById(userId) != null)) {
                         memberIds.add(userId);
-                        inviteMetricsSlots.add(InviteTracking.generateInviteMetrics(inviteTracking, member.getGuild(), userId));
+                        inviteMetricsSlots.add(InviteTracking.generateInviteMetrics(member.getGuild(), userId));
                     }
                 });
 

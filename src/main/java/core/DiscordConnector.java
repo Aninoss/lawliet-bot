@@ -13,17 +13,12 @@ import modules.schedulers.*;
 import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildInviteEntity;
-import mysql.hibernate.entity.InviteTrackingSlotEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.hibernate.entity.guild.InviteTrackingEntity;
 import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesDmEntity;
 import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesEntity;
 import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesJoinEntity;
 import mysql.hibernate.entity.guild.welcomemessages.WelcomeMessagesLeaveEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
-import mysql.modules.invitetracking.DBInviteTracking;
-import mysql.modules.invitetracking.InviteTrackingData;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.JDA;
@@ -103,7 +98,6 @@ public class DiscordConnector {
         MessageRequest.setDefaultMentionRepliedUser(false);
 
         transferWelcome();
-        transferInviteTracking();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -229,29 +223,6 @@ public class DiscordConnector {
                     leave.setText(oldWelcome.getGoodbyeText());
                     leave.setEmbeds(oldWelcome.getGoodbyeEmbed());
                     leave.setChannelId(oldWelcome.getGoodbyeChannelId());
-                }
-        );
-    }
-
-    private static void transferInviteTracking() {
-        transferSqlToHibernate(
-                "InviteTracking",
-                GuildEntity::getInviteTracking,
-                InviteTrackingEntity::isUsed,
-                inviteTracking -> {
-                    InviteTrackingData oldInviteTracking = DBInviteTracking.getInstance().retrieve(inviteTracking.getGuildId());
-                    inviteTracking.setActive(oldInviteTracking.isActive());
-                    inviteTracking.setLogChannelId(oldInviteTracking.getChannelId().orElse(null));
-                    inviteTracking.setPing(oldInviteTracking.getPing());
-                    inviteTracking.setAdvanced(oldInviteTracking.isAdvanced());
-                    oldInviteTracking.getInviteTrackingSlots().values().forEach(oldSlot -> {
-                        InviteTrackingSlotEntity newSlot = new InviteTrackingSlotEntity(oldSlot.getInviterUserId(), oldSlot.getInvitedDate(), oldSlot.getLastMessage(), oldSlot.isFakeInvite());
-                        inviteTracking.getSlots().put(oldSlot.getMemberId(), newSlot);
-                    });
-                    oldInviteTracking.getGuildInvites().values().forEach(oldInvite -> {
-                        GuildInviteEntity newInvite = new GuildInviteEntity(oldInvite.getMemberId(), oldInvite.getUses(), oldInvite.getMaxAge());
-                        inviteTracking.getHibernateEntity().getGuildInvites().put(oldInvite.getCode(), newInvite);
-                    });
                 }
         );
     }
