@@ -1,8 +1,10 @@
 package modules.invitetracking;
 
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
+import core.GlobalThreadPool;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;
+import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildInviteEntity;
 import mysql.hibernate.entity.InviteTrackingSlotEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
@@ -50,14 +52,20 @@ public class InviteTracking {
     }
 
     public static void memberActivity(InviteTrackingEntity inviteTracking, Member member) {
-        if (inviteTracking.getActive()) {
-            InviteTrackingSlotEntity slot = inviteTracking.getSlots().get(member.getIdLong());
-            if (slot != null) {
-                inviteTracking.beginTransaction();
-                slot.setLastMessageDate(LocalDate.now());
-                inviteTracking.commitTransaction();
-            }
+        if (!inviteTracking.getActive()) {
+            return;
         }
+
+        GlobalThreadPool.submit(() -> {
+            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(member.getGuild().getIdLong(), InviteTracking.class)) {
+                InviteTrackingSlotEntity slot = guildEntity.getInviteTracking().getSlots().get(member.getIdLong());
+                if (slot != null && !LocalDate.now().equals(slot.getLastMessageDate())) {
+                    guildEntity.beginTransaction();
+                    slot.setLastMessageDate(LocalDate.now());
+                    guildEntity.commitTransaction();
+                }
+            }
+        });
     }
 
     public static TempInvite registerMemberJoin(GuildEntity guildEntity, Member member, Locale locale) throws ExecutionException, InterruptedException {
