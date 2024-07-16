@@ -8,7 +8,9 @@ import core.TextManager;
 import mysql.modules.tracker.DBTracker;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -85,6 +87,23 @@ public class EmbedUtil {
             eb.setFooter(footer);
         }
         return eb;
+    }
+
+    public static void addFieldSplit(EmbedBuilder eb, String name, String value, boolean inline) {
+        ArrayList<String> values = new ArrayList<>();
+        while(!value.isEmpty()) {
+            String cutValue = StringUtil.shortenString(value, MessageEmbed.VALUE_MAX_LENGTH, "", true);
+            values.add(cutValue);
+            value = value.substring(cutValue.length());
+        }
+
+        for (int i = 0; i < values.size(); i++) {
+            String cutName = values.size() > 1
+                    ? name + " (" + (i + 1) + "/" + values.size() + ")"
+                    : name;
+            String cutValue = values.get(i);
+            eb.addField(cutName, cutValue, inline);
+        }
     }
 
 }

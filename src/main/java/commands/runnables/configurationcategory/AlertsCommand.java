@@ -16,6 +16,7 @@ import core.cache.ServerPatreonBoostCache;
 import core.modals.DurationModalBuilder;
 import core.modals.StringModalBuilder;
 import core.utils.BotPermissionUtil;
+import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.schedulers.AlertScheduler;
@@ -402,8 +403,8 @@ public class AlertsCommand extends NavigationAbstract {
                                 .append("\n");
                     });
 
-            if (sb.length() > 0) {
-                eb.addField(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()), sb.toString(), true);
+            if (!sb.isEmpty()) {
+                EmbedUtil.addFieldSplit(eb, TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()), sb.toString(), true);
             }
         }
 
