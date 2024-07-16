@@ -126,7 +126,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
                                 page = Math.min(getPageSize() - 1, Math.max(0, Integer.parseInt(pageString) - 1));
                             }
                             return null;
-                        }).addActionRows(ActionRow.of(message))
+                        }).addComponents(ActionRow.of(message))
                         .build();
 
                 event.replyModal(modal).queue();

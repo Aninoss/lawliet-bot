@@ -355,7 +355,7 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                                 currentImage = Math.min(attachmentsSize - 1, Math.max(0, Integer.parseInt(pageString) - 1));
                             }
                             return null;
-                        }).addActionRows(ActionRow.of(message))
+                        }).addComponents(ActionRow.of(message))
                         .build();
 
                 event.replyModal(modal).queue();

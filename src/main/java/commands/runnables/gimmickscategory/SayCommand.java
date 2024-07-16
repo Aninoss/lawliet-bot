@@ -53,7 +53,7 @@ public class SayCommand extends Command {
             Message.Attachment attachment = attachments.get(0);
             if (attachment.isImage() && attachment.getSize() <= 8_000_000) {
                 String name = "image_main." + attachment.getFileExtension();
-                fileAttachmentMap.put(name, attachment.retrieveInputStream().get());
+                fileAttachmentMap.put(name, attachment.getProxy().download().get());
                 eb.setImage("attachment://" + name);
             }
         }
@@ -61,7 +61,7 @@ public class SayCommand extends Command {
             Message.Attachment attachment = attachments.get(1);
             if (attachment.isImage() && attachment.getSize() <= 8_000_000) {
                 String name = "image_tn." + attachment.getFileExtension();
-                fileAttachmentMap.put(name, attachment.retrieveInputStream().get());
+                fileAttachmentMap.put(name, attachment.getProxy().download().get());
                 eb.setThumbnail("attachment://" + name);
             }
         }

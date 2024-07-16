@@ -202,7 +202,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
                             setLog(LogStatus.SUCCESS, getString("probabilitiesset"));
                             return null;
-                        }).addActionRows(ActionRow.of(textTreasureChests), ActionRow.of(textPowerUps))
+                        }).addComponents(ActionRow.of(textTreasureChests), ActionRow.of(textPowerUps))
                         .build();
 
                 event.replyModal(modal).queue();

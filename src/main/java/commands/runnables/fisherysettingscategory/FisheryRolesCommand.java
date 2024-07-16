@@ -173,7 +173,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                             setLog(LogStatus.SUCCESS, getString("pricesset"));
                             return null;
                         })
-                        .addActionRows(ActionRow.of(textMin), ActionRow.of(textMax))
+                        .addComponents(ActionRow.of(textMin), ActionRow.of(textMax))
                         .build();
 
                 event.replyModal(modal).queue();

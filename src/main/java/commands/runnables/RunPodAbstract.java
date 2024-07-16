@@ -170,7 +170,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                             negativePrompt = e.getValue(negativePromptId).getAsString();
                             setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_default_promptupdate"));
                             return null;
-                        }).addActionRows(ActionRow.of(textInputPrompt), ActionRow.of(textInputNegativePrompt))
+                        }).addComponents(ActionRow.of(textInputPrompt), ActionRow.of(textInputNegativePrompt))
                         .build();
 
                 event.replyModal(modal).queue();

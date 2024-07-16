@@ -448,7 +448,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         .build();
 
                 Modal modal = Modal.create(ModalInteractionTicket.ID, getString("button_create"))
-                        .addActionRows(ActionRow.of(message))
+                        .addComponents(ActionRow.of(message))
                         .build();
 
                 event.replyModal(modal).queue();

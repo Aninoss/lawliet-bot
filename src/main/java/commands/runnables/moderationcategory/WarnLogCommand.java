@@ -119,7 +119,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
                                 page = Math.min(getPageSize() - 1, Math.max(0, Integer.parseInt(pageString) - 1));
                             }
                             return null;
-                        }).addActionRows(ActionRow.of(message))
+                        }).addComponents(ActionRow.of(message))
                         .build();
 
                 event.replyModal(modal).queue();
