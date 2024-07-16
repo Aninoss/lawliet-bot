@@ -530,10 +530,10 @@ public class HelpCommand extends NavigationAbstract {
             eb.addField(getString("nsfw_ai"), ai.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), false);
         }
         if (!withoutSearchKeyHentai.isEmpty()) {
-            eb.addField(getString("nsfw_searchkey_off_hentai"), withoutSearchKeyHentai.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
+            EmbedUtil.addFieldSplit(eb, getString("nsfw_searchkey_off_hentai"), withoutSearchKeyHentai.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
         }
         if (!withoutSearchKeyRealLife.isEmpty()) {
-            eb.addField(getString("nsfw_searchkey_off_rl"), withoutSearchKeyRealLife.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
+            EmbedUtil.addFieldSplit(eb, getString("nsfw_searchkey_off_rl"), withoutSearchKeyRealLife.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
         }
 
         addIconDescriptions(channel, eb, false, false, false, true);
