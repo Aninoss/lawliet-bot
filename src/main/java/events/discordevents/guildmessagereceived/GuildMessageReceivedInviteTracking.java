@@ -7,7 +7,7 @@ import modules.invitetracking.InviteTracking;
 import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-@DiscordEvent(priority = EventPriority.LOW, allowBannedUser = true)
+@DiscordEvent(priority = EventPriority.LOWEST, allowBannedUser = true)
 public class GuildMessageReceivedInviteTracking extends GuildMessageReceivedAbstract {
 
     @Override
