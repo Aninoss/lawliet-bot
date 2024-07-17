@@ -89,6 +89,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @Column(name = WELCOME_MESSAGES)
     val welcomeMessages = WelcomeMessagesEntity()
 
+    @Embedded
+    @Column(name = BIRTHDAY_CONFIG)
+    val birthdayConfig = BirthdayConfigEntity()
+
     @ElementCollection
     @SortNatural
     val customCommands = sortedMapOf<String, CustomCommandEntity>()
@@ -137,6 +141,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
         stickyRoles.postLoad(this)
         tickets.postLoad(this)
         welcomeMessages.postLoad(this)
+        birthdayConfig.postLoad(this)
     }
 
     override fun postRemove() {

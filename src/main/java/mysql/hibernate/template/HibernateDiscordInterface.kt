@@ -26,6 +26,10 @@ interface HibernateDiscordInterface {
         return ListAdapter(userIdList, { AtomicMember(guildId, it) }, { it.idLong })
     }
 
+    fun getAtomicRole(roleId: Long?): AtomicRole {
+        return AtomicRole(guildId, roleId ?: 0L)
+    }
+
     fun getAtomicRoleList(roleIdList: List<Long>): MutableList<AtomicRole> {
         return ListAdapter(roleIdList, { AtomicRole(guildId, it) }, { it.idLong })
     }
