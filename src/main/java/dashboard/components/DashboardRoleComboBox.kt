@@ -5,53 +5,54 @@ import core.TextManager
 import core.atomicassets.AtomicRole
 import core.utils.BotPermissionUtil
 import dashboard.ActionResult
+import dashboard.DashboardCategory
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
 import dashboard.listener.DashboardEventListener
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.Role
-import java.util.*
 
 class DashboardRoleComboBox(
-        label: String,
-        locale: Locale,
-        guildId: Long,
-        val memberId: Long,
-        selectedRole: Long?,
-        canBeEmpty: Boolean,
-        checkManageable: Boolean, actionListener: DashboardEventListener<String>
+    dashboardCategory: DashboardCategory,
+    label: String,
+    selectedRole: Long?,
+    canBeEmpty: Boolean,
+    checkManageable: Boolean,
+    action: DashboardEventListener<String>
 ) : DashboardComboBox(label, DataType.ROLES, canBeEmpty, 1) {
 
     init {
         selectedValues = selectedRole?.let {
-            val atomicRole = AtomicRole(guildId, it)
-            listOf(DiscordEntity(it.toString(), atomicRole.getName(locale)))
+            val atomicRole = AtomicRole(dashboardCategory.atomicGuild.idLong, it)
+            listOf(DiscordEntity(it.toString(), atomicRole.getName(dashboardCategory.locale)))
         } ?: emptyList<DiscordEntity>()
 
-        setActionListener { event ->
-            val role: Role? = AtomicRole(guildId, event.data.toLong()).get().orElse(null)
-            val member: Member? = role?.let { MemberCacheController.getInstance().loadMember(it.guild, memberId).get() }
-            if (member != null) {
-                if (!checkManageable || (BotPermissionUtil.canManage(member, role) && BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
-                    if (event.data != null &&
-                        checkManageable &&
-                        (!BotPermissionUtil.canManage(role) || !BotPermissionUtil.can(role.guild.selfMember, Permission.MANAGE_ROLES))
-                    ) {
-                        val text = TextManager.getString(locale, TextManager.GENERAL, "permission_role", false, "\"${role.name}\"")
+        setActionListener {
+            if (it.data != null) {
+                val guild = dashboardCategory.atomicGuild.get().get()
+                val role = guild.getRoleById(it.data)!!
+                val member = MemberCacheController.getInstance().loadMember(guild, dashboardCategory.atomicMember.idLong).get()
+                if (member == null) {
+                    return@setActionListener ActionResult()
+                        .withRedraw()
+                }
+
+                if (checkManageable) {
+                    if (!BotPermissionUtil.can(member, Permission.MANAGE_ROLES) || !BotPermissionUtil.canManage(member, role)) {
+                        val text = TextManager.getString(dashboardCategory.locale, TextManager.GENERAL, "permission_role_user", false, "\"${role.name}\"")
                         return@setActionListener ActionResult()
                             .withRedraw()
                             .withErrorMessage(text)
                     }
-                    return@setActionListener actionListener.accept(event)
-                } else {
-                    val text = TextManager.getString(locale, TextManager.GENERAL, "permission_role_user", false, "\"${role.name}\"")
-                    return@setActionListener ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(text)
+                    if (!BotPermissionUtil.can(role.guild.selfMember, Permission.MANAGE_ROLES) || !BotPermissionUtil.canManage(role)) {
+                        val text = TextManager.getString(dashboardCategory.locale, TextManager.GENERAL, "permission_role", false, "\"${role.name}\"")
+                        return@setActionListener ActionResult()
+                            .withRedraw()
+                            .withErrorMessage(text)
+                    }
                 }
             }
-            ActionResult()
+
+            return@setActionListener action.accept(it)
         }
     }
 

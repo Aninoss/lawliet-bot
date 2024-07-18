@@ -25,8 +25,6 @@ import java.util.Locale;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "🎁",
         executableWithoutArgs = true,
-        releaseDate = {2024, 8, 15},
-        usesExtEmotes = true,
         aliases = {"birthdaysettings"}
 )
 public class BirthdayConfigCommand extends NavigationAbstract {
@@ -42,14 +40,14 @@ public class BirthdayConfigCommand extends NavigationAbstract {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         registerNavigationListener(event.getMember(), List.of(
                 new GuildChannelsStateProcessor(this, STATE_SET_CHANNEL, DEFAULT_STATE, getString("home_channel"))
-                        .setMinMax(1, 1)
+                        .setMinMax(0, 1)
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
                         .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
                         .setLogEvent(BotLogEntity.Event.BIRTHDAY_CONFIG_CHANNEL)
                         .setSingleGetter(() -> getGuildEntity().getBirthdayConfig().getChannelId())
                         .setSingleSetter(channelId -> getGuildEntity().getBirthdayConfig().setChannelId(channelId)),
                 new RolesStateProcessor(this, STATE_SET_ROLE, DEFAULT_STATE, getString("home_role"))
-                        .setMinMax(1, 1)
+                        .setMinMax(0, 1)
                         .setCheckAccess(true)
                         .setLogEvent(BotLogEntity.Event.BIRTHDAY_CONFIG_ROLE)
                         .setSingleGetter(() -> getGuildEntity().getBirthdayConfig().getRoleId())

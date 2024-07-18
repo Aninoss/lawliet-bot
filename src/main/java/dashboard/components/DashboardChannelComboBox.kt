@@ -14,14 +14,14 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import java.util.*
 
 class DashboardChannelComboBox(
-        dashboardCategory: DashboardCategory,
-        label: String,
-        dataType: DataType = DataType.GUILD_MESSAGE_CHANNELS,
-        selectedChannel: Long?,
-        canBeEmpty: Boolean,
-        checkPermissions: Array<Permission> = emptyArray(),
-        checkPermissionsParentCategory: Array<Permission> = emptyArray(),
-        action: DashboardEventListener<String>,
+    dashboardCategory: DashboardCategory,
+    label: String,
+    dataType: DataType = DataType.GUILD_MESSAGE_CHANNELS,
+    selectedChannel: Long?,
+    canBeEmpty: Boolean,
+    checkPermissions: Array<Permission> = emptyArray(),
+    checkPermissionsParentCategory: Array<Permission> = emptyArray(),
+    action: DashboardEventListener<String>,
 ) : DashboardComboBox(label, dataType, canBeEmpty, 1) {
 
     init {
@@ -34,11 +34,11 @@ class DashboardChannelComboBox(
             if (it.data != null) {
                 val channel = dashboardCategory.atomicGuild.get().get().getGuildChannelById(it.data)!!
                 val err = checkPermissions(dashboardCategory.locale, channel, checkPermissions)
-                        ?: checkPermissions(dashboardCategory.locale, JDAUtil.getChannelParentCategory(channel), checkPermissionsParentCategory)
+                    ?: checkPermissions(dashboardCategory.locale, JDAUtil.getChannelParentCategory(channel), checkPermissionsParentCategory)
                 if (err != null) {
                     return@setActionListener ActionResult()
-                            .withRedraw()
-                            .withErrorMessage(err)
+                        .withRedraw()
+                        .withErrorMessage(err)
                 }
             }
 

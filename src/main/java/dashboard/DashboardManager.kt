@@ -38,6 +38,7 @@ object DashboardManager {
                 CustomCommandsCategory::class,
                 CommandChannelShortcutsCategory::class,
                 CustomRolePlayCategory::class,
+                BirthdayCategory::class,
                 BotLogsCategory::class
         )
     }
