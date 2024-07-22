@@ -10,7 +10,7 @@ import core.EmbedFactory;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
-import mysql.hibernate.entity.guild.BirthdayConfigEntity;
+import mysql.hibernate.entity.guild.BirthdayEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -44,14 +44,14 @@ public class BirthdayConfigCommand extends NavigationAbstract {
                         .setChannelTypes(JDAUtil.GUILD_MESSAGE_CHANNEL_CHANNEL_TYPES)
                         .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
                         .setLogEvent(BotLogEntity.Event.BIRTHDAY_CONFIG_CHANNEL)
-                        .setSingleGetter(() -> getGuildEntity().getBirthdayConfig().getChannelId())
-                        .setSingleSetter(channelId -> getGuildEntity().getBirthdayConfig().setChannelId(channelId)),
+                        .setSingleGetter(() -> getGuildEntity().getBirthday().getChannelId())
+                        .setSingleSetter(channelId -> getGuildEntity().getBirthday().setChannelId(channelId)),
                 new RolesStateProcessor(this, STATE_SET_ROLE, DEFAULT_STATE, getString("home_role"))
                         .setMinMax(0, 1)
                         .setCheckAccess(true)
                         .setLogEvent(BotLogEntity.Event.BIRTHDAY_CONFIG_ROLE)
-                        .setSingleGetter(() -> getGuildEntity().getBirthdayConfig().getRoleId())
-                        .setSingleSetter(roleId -> getGuildEntity().getBirthdayConfig().setRoleId(roleId))
+                        .setSingleGetter(() -> getGuildEntity().getBirthday().getRoleId())
+                        .setSingleSetter(roleId -> getGuildEntity().getBirthday().setRoleId(roleId))
         ));
         return true;
     }
@@ -64,13 +64,13 @@ public class BirthdayConfigCommand extends NavigationAbstract {
                 return false;
             }
             case 0 -> {
-                BirthdayConfigEntity birthdayConfig = getGuildEntity().getBirthdayConfig();
-                birthdayConfig.beginTransaction();
-                birthdayConfig.setActive(!birthdayConfig.getActive());
-                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.BIRTHDAY_CONFIG_ACTIVE, event.getMember(), null, birthdayConfig.getActive());
-                birthdayConfig.commitTransaction();
+                BirthdayEntity birthday = getGuildEntity().getBirthday();
+                birthday.beginTransaction();
+                birthday.setActive(!birthday.getActive());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.BIRTHDAY_CONFIG_ACTIVE, event.getMember(), null, birthday.getActive());
+                birthday.commitTransaction();
 
-                setLog(LogStatus.SUCCESS, getString("log_setactive", birthdayConfig.getActive()));
+                setLog(LogStatus.SUCCESS, getString("log_setactive", birthday.getActive()));
                 return true;
             }
             case 1 -> {
@@ -89,11 +89,11 @@ public class BirthdayConfigCommand extends NavigationAbstract {
     public EmbedBuilder drawDefault(Member member) {
         setComponents(getString("home_options").split("\n"));
 
-        BirthdayConfigEntity birthdayConfig = getGuildEntity().getBirthdayConfig();
+        BirthdayEntity birthday = getGuildEntity().getBirthday();
         return EmbedFactory.getEmbedDefault(this, getString("home_desc"))
-                .addField(getString("home_active"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), birthdayConfig.getActive()), true)
-                .addField(getString("home_channel"),birthdayConfig.getChannel().getPrefixedNameInField(getLocale()), true)
-                .addField(getString("home_role"),birthdayConfig.getRole().getPrefixedNameInField(getLocale()), true);
+                .addField(getString("home_active"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), birthday.getActive()), true)
+                .addField(getString("home_channel"),birthday.getChannel().getPrefixedNameInField(getLocale()), true)
+                .addField(getString("home_role"),birthday.getRole().getPrefixedNameInField(getLocale()), true);
     }
 
 }

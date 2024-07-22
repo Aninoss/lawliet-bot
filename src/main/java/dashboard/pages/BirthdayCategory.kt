@@ -13,7 +13,7 @@ import dashboard.components.DashboardRoleComboBox
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.BotLogEntity.Companion.log
-import mysql.hibernate.entity.guild.BirthdayConfigEntity
+import mysql.hibernate.entity.guild.BirthdayEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -26,8 +26,8 @@ import java.util.*
 )
 class BirthdayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
-    val birthdayConfigEntity: BirthdayConfigEntity
-        get() = guildEntity.birthdayConfig
+    val birthdayEntity: BirthdayEntity
+        get() = guildEntity.birthday
 
     override fun retrievePageTitle(): String {
         return getString(Category.CONFIGURATION, "birthdayconfig_title")
@@ -44,27 +44,27 @@ class BirthdayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         innerContainer.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "birthdayconfig_home_active")) {
-            birthdayConfigEntity.beginTransaction()
-            birthdayConfigEntity.active = !birthdayConfigEntity.active
-            log(entityManager, BotLogEntity.Event.BIRTHDAY_CONFIG_ACTIVE, atomicMember, null, birthdayConfigEntity.active)
-            birthdayConfigEntity.commitTransaction()
+            birthdayEntity.beginTransaction()
+            birthdayEntity.active = !birthdayEntity.active
+            log(entityManager, BotLogEntity.Event.BIRTHDAY_CONFIG_ACTIVE, atomicMember, null, birthdayEntity.active)
+            birthdayEntity.commitTransaction()
             return@DashboardSwitch ActionResult()
         }
-        activeSwitch.isChecked = birthdayConfigEntity.active
+        activeSwitch.isChecked = birthdayEntity.active
         innerContainer.add(activeSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardChannelComboBox(
                 this,
                 getString(Category.CONFIGURATION, "birthdayconfig_home_channel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
-                birthdayConfigEntity.channelId,
+                birthdayEntity.channelId,
                 true,
                 arrayOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
         ) {
-            birthdayConfigEntity.beginTransaction()
-            log(entityManager, BotLogEntity.Event.BIRTHDAY_CONFIG_CHANNEL, atomicMember, birthdayConfigEntity.channelId, it.data)
-            birthdayConfigEntity.channelId = it.data?.toLong()
-            birthdayConfigEntity.commitTransaction()
+            birthdayEntity.beginTransaction()
+            log(entityManager, BotLogEntity.Event.BIRTHDAY_CONFIG_CHANNEL, atomicMember, birthdayEntity.channelId, it.data)
+            birthdayEntity.channelId = it.data?.toLong()
+            birthdayEntity.commitTransaction()
             return@DashboardChannelComboBox ActionResult()
         }
         innerContainer.add(channelComboBox, DashboardSeparator())
@@ -72,14 +72,14 @@ class BirthdayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         val roleComboBox = DashboardRoleComboBox(
             this,
             getString(Category.CONFIGURATION, "birthdayconfig_home_role"),
-            birthdayConfigEntity.roleId,
+            birthdayEntity.roleId,
             true,
             true
         ) {
-            birthdayConfigEntity.beginTransaction()
-            log(entityManager, BotLogEntity.Event.BIRTHDAY_CONFIG_ROLE, atomicMember, birthdayConfigEntity.roleId, it.data)
-            birthdayConfigEntity.roleId = it.data?.toLong()
-            birthdayConfigEntity.commitTransaction()
+            birthdayEntity.beginTransaction()
+            log(entityManager, BotLogEntity.Event.BIRTHDAY_CONFIG_ROLE, atomicMember, birthdayEntity.roleId, it.data)
+            birthdayEntity.roleId = it.data?.toLong()
+            birthdayEntity.commitTransaction()
             return@DashboardRoleComboBox ActionResult()
         }
         innerContainer.add(roleComboBox)

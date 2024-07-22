@@ -105,6 +105,7 @@ public class CommandContainer {
         commandList.add(SuggestionCommand.class);
         commandList.add(CustomCommand.class);
         commandList.add(SetNSFWCommand.class);
+        commandList.add(BirthdayCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);
