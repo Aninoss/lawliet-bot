@@ -1,11 +1,10 @@
 package events.scheduleevents.events;
 
 import commands.Category;
+import commands.Command;
+import commands.runnables.configurationcategory.BirthdayConfigCommand;
 import constants.ExceptionRunnable;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.ShardManager;
-import core.TextManager;
+import core.*;
 import core.cache.UserWithWorkFisheryDmReminderCache;
 import core.utils.MentionUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
@@ -14,6 +13,8 @@ import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.guild.BirthdayEntity;
+import mysql.hibernate.entity.guild.BirthdayUserEntryEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.user.FisheryDmReminderEntity;
 import mysql.modules.autosell.AutoSellData;
@@ -24,32 +25,39 @@ import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@ScheduleEventFixedRate(rateValue = FisheryProcessors.RATE_MINUTES, rateUnit = ChronoUnit.MINUTES)
-public class FisheryProcessors implements ExceptionRunnable {
+@ScheduleEventFixedRate(rateValue = GuildEntityProcessors.RATE_MINUTES, rateUnit = ChronoUnit.MINUTES)
+public class GuildEntityProcessors implements ExceptionRunnable {
 
     public static final int RATE_MINUTES = 2;
 
+    private static int lastBirthdayQuarter = -1;
+
     @Override
     public void run() throws Throwable {
-        MainLogger.get().info("Starting fishery processors");
+        MainLogger.get().info("Starting processors");
 
         AtomicInteger voiceActivityActions = new AtomicInteger(0);
         AtomicInteger autoSellActions = new AtomicInteger(0);
         AtomicInteger autoWorkActions = new AtomicInteger(0);
+        AtomicInteger birthdayActions = new AtomicInteger(-1);
 
         HashMap<Long, HashSet<Guild>> reminderGuildMap = new HashMap<>();
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(FisheryProcessors.class)) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(GuildEntityProcessors.class)) {
             for (Guild guild : ShardManager.getLocalGuilds()) {
                 GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
                 if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {
@@ -57,12 +65,18 @@ public class FisheryProcessors implements ExceptionRunnable {
                     processAutoSell(guild, autoSellActions);
                     processAutoWork(guild, guildEntity, autoWorkActions, reminderGuildMap);
                 }
+                if (guildEntity.getBirthday().getActive()) {
+                    processBirthday(guild, guildEntity, birthdayActions);
+                }
                 entityManager.clear();
             }
 
             MainLogger.get().info("Voice Channel - {} Actions", voiceActivityActions.get());
             MainLogger.get().info("Auto Sell - {} Actions", autoSellActions.get());
             MainLogger.get().info("Auto Work - {} Actions", autoWorkActions.get());
+            if (birthdayActions.get() >= 0) {
+                MainLogger.get().info("Birthday - {} Actions", birthdayActions.get());
+            }
 
             autoWorkPostProcessing(entityManager, reminderGuildMap);
         }
@@ -137,6 +151,68 @@ public class FisheryProcessors implements ExceptionRunnable {
             }
         } catch (Throwable e) {
             MainLogger.get().error("Could not process auto work for guild {}", guild.getIdLong(), e);
+        }
+    }
+
+    private synchronized void processBirthday(Guild guild, GuildEntity guildEntity, AtomicInteger birthdayActions) {
+        int birthdayQuarter = LocalDateTime.now().getMinute() / 15;
+        if (birthdayQuarter == lastBirthdayQuarter) {
+            return;
+        }
+        lastBirthdayQuarter = birthdayQuarter;
+        birthdayActions.set(0);
+
+        BirthdayEntity birthday = guildEntity.getBirthday();
+        for (Map.Entry<Long, BirthdayUserEntryEntity> setEntry : birthday.getUserEntries().entrySet()) {
+            long userId = setEntry.getKey();
+            BirthdayUserEntryEntity entry = setEntry.getValue();
+
+            try {
+                if (entry.isBirthday() && entry.getTriggered() == null) {
+                    Member member = MemberCacheController.getInstance().loadMember(guild, userId).get();
+                    if (member == null) {
+                        continue;
+                    }
+
+                    GuildMessageChannel channel = birthday.getChannel().get().orElse(null);
+                    if (channel != null && PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), BirthdayConfigCommand.class, channel, Permission.MESSAGE_SEND)) {
+                        channel.sendMessage(TextManager.getString(guildEntity.getLocale(), Category.CONFIGURATION, "birthdayconfig_message", member.getAsMention()))
+                                .queue();
+                    }
+
+                    Role role = birthday.getRole().get().orElse(null);
+                    if (role != null && PermissionCheckRuntime.botCanManageRoles(guildEntity.getLocale(), BirthdayConfigCommand.class, role)) {
+                        guild.addRoleToMember(member, role)
+                                .reason(Command.getCommandLanguage(BirthdayConfigCommand.class, guildEntity.getLocale()).getTitle())
+                                .queue();
+                    }
+
+                    guildEntity.beginTransaction();
+                    entry.setTriggered(true);
+                    guildEntity.commitTransaction();
+                    birthdayActions.incrementAndGet();
+                } else if (!entry.isBirthday() && entry.getTriggered() != null) {
+                    Member member = MemberCacheController.getInstance().loadMember(guild, userId).get();
+                    if (member == null) {
+                        continue;
+                    }
+
+                    Role role = birthday.getRole().get().orElse(null);
+                    if (role != null && PermissionCheckRuntime.botCanManageRoles(guildEntity.getLocale(), BirthdayConfigCommand.class, role)) {
+                        guild.removeRoleFromMember(member, role)
+                                .reason(Command.getCommandLanguage(BirthdayConfigCommand.class, guildEntity.getLocale()).getTitle())
+                                .queue();
+                    }
+
+                    guildEntity.beginTransaction();
+                    entry.updateTriggerYear();
+                    entry.setTriggered(null);
+                    guildEntity.commitTransaction();
+                    birthdayActions.incrementAndGet();
+                }
+            } catch (ExecutionException | InterruptedException e) {
+                MainLogger.get().error("Exception when processing birthday for userId {}", userId, e);
+            }
         }
     }
 
