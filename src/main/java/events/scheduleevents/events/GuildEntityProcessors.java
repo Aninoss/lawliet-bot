@@ -188,6 +188,7 @@ public class GuildEntityProcessors implements ExceptionRunnable {
                     }
 
                     guildEntity.beginTransaction();
+                    entry.updateTriggerYear();
                     entry.setTriggered(true);
                     guildEntity.commitTransaction();
                     birthdayActions.incrementAndGet();
@@ -205,7 +206,9 @@ public class GuildEntityProcessors implements ExceptionRunnable {
                     }
 
                     guildEntity.beginTransaction();
-                    entry.updateTriggerYear();
+                    if (entry.getTriggerYear() != null) {
+                        entry.setTriggerYear(entry.getTriggerYear() + 1);
+                    }
                     entry.setTriggered(null);
                     guildEntity.commitTransaction();
                     birthdayActions.incrementAndGet();

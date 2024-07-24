@@ -68,20 +68,36 @@ public class BirthdayCommand extends NavigationAbstract {
                 String dayId = "day";
                 TextInput textDay = TextInput.create(dayId, getString("home_date_day"), TextInputStyle.SHORT)
                         .setValue(userEntry != null && userEntry.getDay() != null ? StringUtil.numToString(userEntry.getDay()) : null)
-                        .setMinLength(1)
-                        .setMaxLength(2)
+                        .setRequiredRange(0, 2)
+                        .setRequired(false)
                         .build();
 
                 String monthId = "month";
                 TextInput textMonth = TextInput.create(monthId, getString("home_date_month"), TextInputStyle.SHORT)
                         .setValue(userEntry != null && userEntry.getMonth() != null ? StringUtil.numToString(userEntry.getMonth()) : null)
-                        .setMinLength(1)
-                        .setMaxLength(2)
+                        .setRequiredRange(0, 2)
+                        .setRequired(false)
                         .build();
 
                 Modal modal = ModalMediator.createDrawableCommandModal(this, getString("home_adjust_date_title"), e -> {
+                            BirthdayEntity newBirthday = getGuildEntity().getBirthday();
+                            BirthdayUserEntryEntity newUserEntry = newBirthday.getUserEntries().get(e.getUser().getIdLong());
+
                             String dayStr = e.getValue(dayId).getAsString();
                             String monthStr = e.getValue(monthId).getAsString();
+
+                            if (dayStr.isEmpty() || monthStr.isEmpty()) {
+                                if (newUserEntry != null) {
+                                    newBirthday.beginTransaction();
+                                    newUserEntry.setDay(null);
+                                    newUserEntry.setMonth(null);
+                                    newBirthday.commitTransaction();
+                                }
+
+                                setLog(LogStatus.SUCCESS, getString("log_setdate"));
+                                return null;
+                            }
+
                             if (!StringUtil.stringIsInt(dayStr) || !StringUtil.stringIsInt(monthStr)) {
                                 setLog(LogStatus.FAILURE, getString("error_invaliddate"));
                                 return null;
@@ -99,9 +115,6 @@ public class BirthdayCommand extends NavigationAbstract {
                                 setLog(LogStatus.FAILURE, getString("error_invaliddate"));
                                 return null;
                             }
-
-                            BirthdayEntity newBirthday = getGuildEntity().getBirthday();
-                            BirthdayUserEntryEntity newUserEntry = newBirthday.getUserEntries().get(e.getUser().getIdLong());
 
                             newBirthday.beginTransaction();
                             if (newUserEntry == null) {
@@ -122,14 +135,6 @@ public class BirthdayCommand extends NavigationAbstract {
             }
             case 1 -> {
                 setState(STATE_SET_TIME_ZONE);
-                return true;
-            }
-            case 2 -> {
-                birthday.beginTransaction();
-                birthday.getUserEntries().remove(event.getUser().getIdLong());
-                birthday.commitTransaction();
-
-                setLog(LogStatus.SUCCESS, getString("log_reset"));
                 return true;
             }
         }
@@ -168,10 +173,13 @@ public class BirthdayCommand extends NavigationAbstract {
             userEntry = new BirthdayUserEntryEntity();
         }
 
-        Integer month = userEntry.getMonth();
         Integer day = userEntry.getDay();
+        Integer month = userEntry.getMonth();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM", getLocale());
         String formattedDate = month != null && day != null ? LocalDate.of(2000, month, day).format(formatter) : null;
+        if (formattedDate != null && day == 29 && month == 2) {
+            formattedDate = getString("home_leapyeardate", formattedDate, LocalDate.of(2000, 3, 1).format(formatter));
+        }
 
         return EmbedFactory.getEmbedDefault(this, getString("home_desc"))
                 .addField(getString("home_date"), formattedDate != null ? formattedDate : notSet, true)
