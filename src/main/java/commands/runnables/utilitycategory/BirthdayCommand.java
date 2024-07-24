@@ -65,6 +65,11 @@ public class BirthdayCommand extends NavigationAbstract {
                 return false;
             }
             case 0 -> {
+                if (userEntry != null && userEntry.getTriggered() != null) {
+                    setLog(LogStatus.FAILURE, getString("log_nottoday"));
+                    return true;
+                }
+
                 String dayId = "day";
                 TextInput textDay = TextInput.create(dayId, getString("home_date_day"), TextInputStyle.SHORT)
                         .setValue(userEntry != null && userEntry.getDay() != null ? StringUtil.numToString(userEntry.getDay()) : null)
@@ -134,6 +139,11 @@ public class BirthdayCommand extends NavigationAbstract {
                 return false;
             }
             case 1 -> {
+                if (userEntry != null && userEntry.getTriggered() != null) {
+                    setLog(LogStatus.FAILURE, getString("log_nottoday"));
+                    return true;
+                }
+
                 setState(STATE_SET_TIME_ZONE);
                 return true;
             }
@@ -148,6 +158,12 @@ public class BirthdayCommand extends NavigationAbstract {
         } else {
             BirthdayEntity birthday = getGuildEntity().getBirthday();
             BirthdayUserEntryEntity userEntry = birthday.getUserEntries().get(event.getUser().getIdLong());
+
+            if (userEntry != null && userEntry.getTriggered() != null) {
+                setLog(LogStatus.FAILURE, getString("log_nottoday"));
+                setState(DEFAULT_STATE);
+                return true;
+            }
 
             birthday.beginTransaction();
             if (userEntry == null) {
