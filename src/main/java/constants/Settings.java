@@ -29,7 +29,7 @@ public interface Settings {
             "raping", "gangrape", "gross", "bruise", "bruised", "bruises", "asphyxiation", "strangling", "strangled", "torture",
             "tortured", "corpse", "suicide", "deceased", "snuff", "meat_girls", "cannibalism", // violence
 
-            "celebrity", "celeb", "pokimane", // non-consensual publications
+            "celebrity", "celeb", "pokimane", "onlyfans", // non-consensual publications
 
             "adolf_hitler" // politically incorrect
     };
