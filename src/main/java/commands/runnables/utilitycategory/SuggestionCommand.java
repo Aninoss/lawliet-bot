@@ -8,10 +8,10 @@ import commands.listeners.OnStaticReactionRemoveListener;
 import constants.AssetIds;
 import constants.Emojis;
 import core.*;
-import core.atomicassets.AtomicUser;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
+import modules.suggestions.Suggestions;
 import mysql.modules.suggestions.DBSuggestions;
 import mysql.modules.suggestions.SuggestionsData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -54,7 +54,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     GuildMessageChannel channel = channelOpt.get();
                     String content = StringUtil.shortenString(args, 1024);
 
-                    EmbedBuilder eb = generateEmbed(event.getUser().getName(), content, 0, 0);
+                    EmbedBuilder eb = Suggestions.generateEmbed(getLocale(), event.getUser().getName(), content, 0, 0);
                     MessageCreateAction messageAction = channel.sendMessageEmbeds(eb.build());
                     if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID) {
                         messageAction = messageAction.setContent("<@&762314049953988650>")
@@ -100,22 +100,6 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
         return false;
     }
 
-    private EmbedBuilder generateEmbed(String author, String content, int likes, int dislikes) {
-        String footer = generateFooter(likes, dislikes);
-        return EmbedFactory.getEmbedDefault()
-                .setTitle(getCommandProperties().emoji() + " " + getString("message_title", author))
-                .setDescription(content)
-                .setFooter(footer);
-    }
-
-    private String generateFooter(int likes, int dislikes) {
-        likes = Math.max(0, likes);
-        dislikes = Math.max(0, dislikes);
-
-        String ratio = (likes + dislikes > 0) ? StringUtil.numToString((int) Math.round((double) likes / (likes + dislikes) * 100)) : "-";
-        return getString("message_footer", StringUtil.numToString(likes), StringUtil.numToString(dislikes), ratio, Emojis.LIKE.getFormatted(), Emojis.DISLIKE.getFormatted());
-    }
-
     @Override
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
         onReactionStatic(event, true);
@@ -141,18 +125,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
                         suggestionMessage.loadVoteValuesifAbsent(event.getGuildChannel());
 
-                        String author;
-                        Long userId = suggestionMessage.getUserId();
-                        if (userId != null) {
-                            MemberCacheController.getInstance().loadMember(event.getGuild(), userId).join();
-                            author = new AtomicUser(userId).getName(getLocale());
-                        } else {
-                            author = suggestionMessage.getAuthor();
-                        }
-
-                        EmbedBuilder eb = generateEmbed(author, suggestionMessage.getContent(),
-                                suggestionMessage.getUpvotes(), suggestionMessage.getDownvotes()
-                        );
+                        EmbedBuilder eb = Suggestions.generateEmbed(getLocale(), event.getGuild(), suggestionMessage);
                         quickUpdater.update(
                                 messageId,
                                 event.getGuildChannel().editMessageEmbedsById(

@@ -1,13 +1,14 @@
 package mysql.modules.suggestions;
 
-import java.sql.Types;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
 import modules.suggestions.SuggestionMessage;
 import mysql.DBDataLoad;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
+
+import java.sql.Types;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
 
@@ -46,7 +47,7 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
 
         suggestionsBean.getSuggestionMessages()
                 .addMapAddListener(this::addSuggestionMessage)
-                .addMapRemoveListener(this::addSuggestionMessage);
+                .addMapRemoveListener(this::removeSuggestionMessage);
 
         return suggestionsBean;
     }

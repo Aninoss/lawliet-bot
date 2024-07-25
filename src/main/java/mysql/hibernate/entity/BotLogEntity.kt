@@ -190,6 +190,8 @@ class BotLogEntity(
         TICKETS_CLOSE(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.STRING),
         SERVER_SUGGESTIONS_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, SuggestionConfigCommand::class.java, "suggconfig_state0_mactive"),
         SERVER_SUGGESTIONS_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, SuggestionConfigCommand::class.java, "suggconfig_state0_mchannel"),
+        SERVER_SUGGESTIONS_MANAGE_ACCEPT(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.LONG),
+        SERVER_SUGGESTIONS_MANAGE_DECLINE(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.LONG),
         AUTO_CHANNEL_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, AutoChannelCommand::class.java, "autochannel_state0_mactive"),
         AUTO_CHANNEL_INITIAL_VOICE_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, AutoChannelCommand::class.java, "autochannel_state0_mchannel"),
         AUTO_CHANNEL_NEW_CHANNEL_NAME(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, AutoChannelCommand::class.java, "autochannel_state0_mchannelname"),

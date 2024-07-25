@@ -3,7 +3,6 @@ package commands.runnables;
 import commands.Command;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnStringSelectMenuListener;
-import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
@@ -85,12 +84,8 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
         }
 
-        if (size > entriesPerPage) {
-            registerButtonListener(member);
-            registerStringSelectMenuListener(member, false);
-        } else {
-            registerStringSelectMenuListener(member);
-        }
+        registerButtonListener(member);
+        registerStringSelectMenuListener(member, false);
     }
 
     @Override
@@ -154,12 +149,14 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
         for (int i = page * entriesPerPage; i < size && fields < entriesPerPage; i++) {
             additionalFields.clear();
             Pair<String, String> entry = getEntry(member, i, orderBy);
-            eb.addField(entry.getKey(), entry.getValue(), false);
+            if (entry != null) {
+                eb.addField(entry.getKey(), entry.getValue(), false);
+            }
             additionalFields.forEach(eb::addField);
             fields++;
         }
         if (size == 0) {
-            eb.addField(TextManager.getString(getLocale(), TextManager.GENERAL, "empty"), Emojis.ZERO_WIDTH_SPACE.getFormatted(), false);
+            eb.setDescription(TextManager.getString(getLocale(), TextManager.GENERAL, "empty"));
         }
 
         ArrayList<ActionRow> actionRows = new ArrayList<>(postProcessAddActionRows());
@@ -190,6 +187,11 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
         return eb;
     }
 
+    protected void refresh(Member member) throws Throwable {
+        size = configure(member, orderBy);
+        page = Math.min(page, getPageSize() - 1);
+    }
+
     protected void addEmbedField(String name, String value, boolean inline) {
         additionalFields.add(new MessageEmbed.Field(name, value, inline));
     }
@@ -199,6 +201,10 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
     }
 
     protected void postProcessEmbed(EmbedBuilder eb, int orderBy) {
+    }
+
+    protected int getPage() {
+        return page;
     }
 
     private int getPageSize() {

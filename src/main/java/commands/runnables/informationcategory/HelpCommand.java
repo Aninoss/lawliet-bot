@@ -269,6 +269,7 @@ public class HelpCommand extends NavigationAbstract {
                 EmbedUtil.setFooter(eb, this, getString("navigation"));
 
                 switch (category) {
+                    case CONFIGURATION -> categoryConfiguration(member, channel, eb);
                     case INTERACTIONS -> categoryRolePlay(member, eb);
                     case NSFW_INTERACTIONS -> categoryNSFWRolePlay(member, eb);
                     case NSFW -> categoryNSFW(member, channel, eb);
@@ -489,6 +490,26 @@ public class HelpCommand extends NavigationAbstract {
         }
 
         addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, includePatreon);
+    }
+
+    private void categoryConfiguration(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
+        StringBuilder commands = new StringBuilder();
+
+        int i = 0;
+        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.CONFIGURATION)) {
+            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+
+            if (CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())) {
+                buttonMap.put(i++, command.getTrigger());
+                String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
+
+                String extras = generateCommandIcons(channel, command, false, false, true);
+                commands.append(getString("configuration_slot", command.getCommandProperties().emoji(), command.getTrigger(), extras, title)).append("\n\n");
+            }
+        }
+
+        EmbedUtil.addFieldSplit(eb, null, commands.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true, "\n\n");
+        addIconDescriptions(channel, eb, true, false, false, true);
     }
 
     private void categoryNSFW(Member member, GuildMessageChannel channel, EmbedBuilder eb) {

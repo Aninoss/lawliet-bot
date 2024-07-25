@@ -90,18 +90,33 @@ public class EmbedUtil {
     }
 
     public static void addFieldSplit(EmbedBuilder eb, String name, String value, boolean inline) {
-        ArrayList<String> values = new ArrayList<>();
-        while(!value.isEmpty()) {
-            String cutValue = StringUtil.shortenString(value, MessageEmbed.VALUE_MAX_LENGTH, "", true);
-            values.add(cutValue);
-            value = value.substring(cutValue.length());
+        addFieldSplit(eb, name, value, inline, "\n");
+    }
+
+    public static void addFieldSplit(EmbedBuilder eb, String name, String value, boolean inline, String splitCharacter) {
+        ArrayList<StringBuilder> values = new ArrayList<>();
+        String[] splits = value.split(splitCharacter);
+        int splitIndex = -1;
+        for (String split : splits) {
+            if (splitIndex >= 0 && values.get(splitIndex).length() + split.length() + splitCharacter.length() <= MessageEmbed.VALUE_MAX_LENGTH) {
+                values.get(splitIndex).append(split).append(splitCharacter);
+                continue;
+            }
+            StringBuilder sb = new StringBuilder(split).append(splitCharacter);
+            values.add(sb);
+            splitIndex += 1;
         }
 
         for (int i = 0; i < values.size(); i++) {
-            String cutName = values.size() > 1
-                    ? name + " (" + (i + 1) + "/" + values.size() + ")"
-                    : name;
-            String cutValue = values.get(i);
+            String cutName;
+            if (name != null) {
+                cutName = values.size() > 1
+                        ? name + " (" + (i + 1) + "/" + values.size() + ")"
+                        : name;
+            } else {
+                cutName = Emojis.ZERO_WIDTH_SPACE.getFormatted();
+            }
+            String cutValue = values.get(i).toString();
             eb.addField(cutName, cutValue, inline);
         }
     }
