@@ -5,6 +5,7 @@ import constants.LogStatus;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.ExceptionUtil;
+import core.utils.StringUtil;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.entities.Member;
@@ -87,7 +88,8 @@ public abstract class AbstractModalBuilder<T, U extends AbstractModalBuilder<T, 
                 .setRequired(minLength > 0)
                 .build();
 
-        Modal.Builder builder = ModalMediator.createModal(command.getMemberId().get(), TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName), (e, guildEntity) -> {
+        String title = StringUtil.shortenString(TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName), Modal.MAX_TITLE_LENGTH);
+        Modal.Builder builder = ModalMediator.createModal(command.getMemberId().get(), title, (e, guildEntity) -> {
             e.deferEdit().queue();
             command.setGuildEntity(guildEntity);
 
