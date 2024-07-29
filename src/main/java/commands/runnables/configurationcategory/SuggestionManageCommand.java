@@ -4,25 +4,16 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
 import constants.LogStatus;
-import core.CustomObservableMap;
-import core.MemberCacheController;
-import core.TextManager;
-import core.atomicassets.AtomicUser;
-import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import modules.suggestions.SuggestionMessage;
 import modules.suggestions.Suggestions;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.BotLogEntity;
-import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
-import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.suggestions.DBSuggestions;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -66,30 +57,34 @@ public class SuggestionManageCommand extends ListAbstract {
 
         switch (event.getComponentId()) {
             case BUTTON_ID_ACCEPT -> {
-                boolean success = manageSuggestion(suggestionMessage, true);
+                String err = Suggestions.processSuggestion(getLocale(), suggestionMessage, true);
                 refresh(event.getMember());
 
-                if (success) {
+                if (err == null) {
                     setLog(LogStatus.SUCCESS, getString("log_accepted"));
 
                     EntityManagerWrapper entityManager = getEntityManager();
                     entityManager.getTransaction().begin();
                     BotLogEntity.log(entityManager, BotLogEntity.Event.SERVER_SUGGESTIONS_MANAGE_ACCEPT, event.getMember(), suggestionMessage.getMessageId());
                     entityManager.getTransaction().commit();
+                } else {
+                    setLog(LogStatus.FAILURE, err);
                 }
                 return true;
             }
             case BUTTON_ID_DECLINE -> {
-                boolean success = manageSuggestion(suggestionMessage, false);
+                String err = Suggestions.processSuggestion(getLocale(), suggestionMessage, false);
                 refresh(event.getMember());
 
-                if (success) {
+                if (err == null) {
                     setLog(LogStatus.SUCCESS, getString("log_declined"));
 
                     EntityManagerWrapper entityManager = getEntityManager();
                     entityManager.getTransaction().begin();
                     BotLogEntity.log(entityManager, BotLogEntity.Event.SERVER_SUGGESTIONS_MANAGE_DECLINE, event.getMember(), suggestionMessage.getMessageId());
                     entityManager.getTransaction().commit();
+                } else {
+                    setLog(LogStatus.FAILURE, err);
                 }
                 return true;
             }
@@ -119,24 +114,12 @@ public class SuggestionManageCommand extends ListAbstract {
         }
 
         SuggestionMessage suggestionMessage = suggestions.get(getPage());
-        StaticReactionMessageData staticReactionMessageData = DBStaticReactionMessages.getInstance().retrieve(suggestionMessage.getGuildId()).get(suggestionMessage.getMessageId());
-        if (staticReactionMessageData != null) {
-            staticReactionMessageData.getGuildMessageChannel()
-                    .ifPresent(suggestionMessage::loadVoteValuesifAbsent);
-        }
-
-        String author;
-        if (suggestionMessage.getUserId() != null) {
-            MemberCacheController.getInstance().loadMember(getGuild().get(), suggestionMessage.getUserId()).join();
-            author = new AtomicUser(suggestionMessage.getUserId()).getName(getLocale());
-        } else {
-            author = suggestionMessage.getAuthor();
-        }
+        Suggestions.refreshSuggestionMessage(suggestionMessage);
 
         int likes = suggestionMessage.getUpvotes();
         int dislikes = suggestionMessage.getDownvotes();
         eb.setDescription(suggestionMessage.getContent())
-                .addField(getString("header_author"), author, true)
+                .addField(getString("header_author"), Suggestions.getAuthorString(getLocale(), suggestionMessage), true)
                 .addField(getString("header_updown"), (likes + dislikes > 0) ? StringUtil.numToString((int) Math.round((double) likes / (likes + dislikes) * 100)) + "%" : "-%", true);
     }
 
@@ -150,39 +133,6 @@ public class SuggestionManageCommand extends ListAbstract {
                 Button.of(ButtonStyle.SUCCESS, BUTTON_ID_ACCEPT, getString("button_accept")),
                 Button.of(ButtonStyle.DANGER, BUTTON_ID_DECLINE, getString("button_decline"))
         ));
-    }
-
-    private boolean manageSuggestion(SuggestionMessage suggestionMessage, boolean accept) {
-        CustomObservableMap<Long, SuggestionMessage> suggestionMessages = DBSuggestions.getInstance().retrieve(suggestionMessage.getGuildId()).getSuggestionMessages();
-        CustomObservableMap<Long, StaticReactionMessageData> staticReactionMessages = DBStaticReactionMessages.getInstance().retrieve(suggestionMessage.getGuildId());
-
-        StaticReactionMessageData staticReactionMessageData = staticReactionMessages.get(suggestionMessage.getMessageId());
-        if (staticReactionMessageData == null) {
-            suggestionMessages.remove(suggestionMessage.getMessageId());
-            setLog(LogStatus.FAILURE, getString("log_notfound"));
-            return false;
-        }
-
-        GuildMessageChannel channel = staticReactionMessageData.getGuildMessageChannel().orElse(null);
-        if (channel == null) {
-            suggestionMessages.remove(suggestionMessage.getMessageId());
-            setLog(LogStatus.FAILURE, getString("log_notfound"));
-            return false;
-        }
-        if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_manage", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
-            return false;
-        }
-
-        suggestionMessages.remove(suggestionMessage.getMessageId());
-        staticReactionMessages.remove(suggestionMessage.getMessageId());
-
-        EmbedBuilder eb = Suggestions.generateEmbed(getLocale(), getGuild().get(), suggestionMessage);
-        EmbedUtil.addLog(eb, accept ? LogStatus.SUCCESS : LogStatus.FAILURE, getString(accept ? "message_accepted" : "message_declined"));
-        channel.editMessageEmbedsById(suggestionMessage.getMessageId(), eb.build())
-                .and(channel.clearReactionsById(suggestionMessage.getMessageId()))
-                .queue();
-        return true;
     }
 
 }

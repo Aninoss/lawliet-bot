@@ -4,14 +4,15 @@ import commands.Category
 import commands.Command
 import commands.runnables.informationcategory.BotLogsCommand
 import core.TextManager
-import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
-import dashboard.component.DashboardButton
-import dashboard.component.DashboardButton.Style
 import dashboard.component.DashboardText
-import dashboard.container.*
+import dashboard.components.PageField
+import dashboard.container.DashboardContainer
+import dashboard.container.ExpandableContainer
+import dashboard.container.HorizontalContainer
+import dashboard.container.VerticalContainer
 import modules.BotLogs
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.BotLogEntity.Companion.findAll
@@ -21,9 +22,6 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.utils.TimeFormat
 import java.lang.Integer.min
 import java.util.*
-import java.util.stream.Collectors
-import java.util.stream.IntStream
-import kotlin.math.max
 
 @DashboardProperties(
         id = "botlogs",
@@ -61,7 +59,7 @@ class BotLogsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             mainContainer.add(generateBotLogSlot(entryIds[i], botLogEntity))
         }
 
-        mainContainer.add(generatePagesFields())
+        mainContainer.add(PageField(page, entryIds.size, ENTRIES_PER_PAGE) { page = it })
     }
 
     private fun generateBotLogSlot(id: UUID, botLogPreload: BotLogEntity?): DashboardComponent {
@@ -107,63 +105,6 @@ class BotLogsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
 
         return container
-    }
-
-    private fun generatePagesFields(): DashboardComponent {
-        val container = HorizontalContainer()
-        val pageSize = (entryIds.size - 1) / ENTRIES_PER_PAGE + 1
-        val pageNumbers = getVisiblePageNumbers(pageSize)
-
-        pageNumbers.forEach { i ->
-            val button: DashboardButton
-            if (i != -1) {
-                button = DashboardButton((i + 1).toString()) {
-                    page = i
-                    ActionResult()
-                            .withRedraw()
-                }
-                button.isEnabled = page != i
-            } else {
-                button = DashboardButton("…")
-                button.isEnabled = false
-            }
-            button.style = Style.TERTIARY
-            container.add(button)
-        }
-
-        container.putCssProperty("margin-left", "0")
-        return HorizontalContainer(HorizontalPusher(), container, HorizontalPusher())
-    }
-
-    private fun getVisiblePageNumbers(pageSize: Int): List<Int> {
-        val pages: MutableList<Int>
-        if (pageSize <= 7) {
-            pages = IntStream.range(0, pageSize).boxed().collect(Collectors.toList<Int>())
-        } else {
-            pages = ArrayList()
-
-            if (page <= 3) {
-                pages.addAll(IntStream.rangeClosed(0, page).boxed().collect(Collectors.toList()))
-            } else {
-                pages.addAll(java.util.List.of(0, -1))
-                val minPage = kotlin.math.min((page - 1).toDouble(), (pageSize - 5).toDouble()).toInt()
-                for (i in minPage..page) {
-                    pages.add(i)
-                }
-            }
-
-            if (page >= pageSize - 4) {
-                pages.addAll(IntStream.range(page + 1, pageSize).boxed().collect(Collectors.toList<Int>()))
-            } else {
-                val maxPage = max((page + 1).toDouble(), 4.0).toInt()
-                for (i in page + 1..maxPage) {
-                    pages.add(i)
-                }
-                pages.addAll(java.util.List.of<Int>(-1, pageSize - 1))
-            }
-        }
-
-        return pages
     }
 
 }

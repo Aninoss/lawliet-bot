@@ -125,7 +125,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
                         suggestionMessage.loadVoteValuesifAbsent(event.getGuildChannel());
 
-                        EmbedBuilder eb = Suggestions.generateEmbed(getLocale(), event.getGuild(), suggestionMessage);
+                        EmbedBuilder eb = Suggestions.generateEmbed(getLocale(), suggestionMessage);
                         quickUpdater.update(
                                 messageId,
                                 event.getGuildChannel().editMessageEmbedsById(
