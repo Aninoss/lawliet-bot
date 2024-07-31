@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.managers.channel.middleman.StandardGuildChannelManage
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.apache.commons.text.WordUtils;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
 public class Ticket {
 
     public static String sendTicketMessage(GuildEntity guildEntity, Locale userLocale, StandardGuildMessageChannel channel,
-                                           String createMessageContent, boolean createMessageContentChanged
+                                           String createMessageContent, LocalFile createMessageFile, boolean createMessageContentChanged
     ) {
         String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(userLocale, channel,
                 Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS
@@ -72,12 +73,14 @@ public class Ticket {
         String emoji = Command.getCommandProperties(TicketCommand.class).emoji();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(emoji + " " + Command.getCommandLanguage(TicketCommand.class, guildEntity.getLocale()).getTitle())
-                .setDescription(createMessageContent);
+                .setDescription(createMessageContent)
+                .setImage(createMessageFile != null ? "attachment://" + createMessageFile.getName() : null);;
         if (createMessageContentChanged) {
             eb.setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "serverstaff_text"));
         }
 
         channel.sendMessageEmbeds(eb.build())
+                .addFiles(createMessageFile != null ? List.of(FileUpload.fromData(createMessageFile)) : Collections.emptyList())
                 .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_CREATE, TextManager.getString(guildEntity.getLocale(), Category.CONFIGURATION, "ticket_button_create"))))
                 .queue(message -> {
                     DBStaticReactionMessages.getInstance()

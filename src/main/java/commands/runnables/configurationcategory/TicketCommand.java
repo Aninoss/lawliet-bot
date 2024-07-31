@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticButtonListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.FileStateProcessor;
 import commands.stateprocessor.GuildChannelsStateProcessor;
 import commands.stateprocessor.RolesStateProcessor;
 import commands.stateprocessor.StringStateProcessor;
@@ -12,6 +13,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
+import core.LocalFile;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicStandardGuildMessageChannel;
@@ -75,12 +77,14 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             STATE_CREATE_TICKET_MESSAGE = 4,
             STATE_SET_CREATE_MESSATE_CHANNEL = 8,
             STATE_SET_CREATE_MESSAGE_CONTENT = 9,
+            STATE_SET_CREATE_MESSAGE_IMAGE = 10,
             STATE_SET_GREETING_TEXT = 5,
             STATE_SET_ASSIGNMENT_MODE = 6,
             STATE_SET_CLOSE_ON_INACTIVITY = 7;
 
     private AtomicStandardGuildMessageChannel createMessageAtomicChannel;
     private String createMessageContent;
+    private LocalFile createMessageFile = null;
     private boolean createMessageContentChanged = false;
 
     public TicketCommand(Locale locale, String prefix) {
@@ -124,6 +128,20 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         .setSetter(input -> {
                             createMessageContent = input;
                             createMessageContentChanged = true;
+                        }),
+                new FileStateProcessor(this, STATE_SET_CREATE_MESSAGE_IMAGE, STATE_CREATE_TICKET_MESSAGE, getString("state4_mimage"))
+                        .setAllowGifs(true)
+                        .setClearButton(true)
+                        .setGetter(() -> createMessageFile != null ? createMessageFile.getName() : null)
+                        .setSetter(attachment -> {
+                            if (attachment != null) {
+                                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
+                                FileUtil.downloadImageAttachment(attachment, tempFile);
+                                createMessageFile = tempFile;
+                                createMessageContentChanged = true;
+                            } else {
+                                createMessageFile = null;
+                            }
                         })
         ));
         return true;
@@ -210,6 +228,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             case 10 -> {
                 createMessageAtomicChannel = new AtomicStandardGuildMessageChannel(event.getGuild().getIdLong(), 0L);
                 createMessageContent = getString("message_content");
+                createMessageFile = null;
                 createMessageContentChanged = false;
                 setState(STATE_CREATE_TICKET_MESSAGE);
                 return true;
@@ -308,13 +327,17 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
             }
             case 2 -> {
+                setState(STATE_SET_CREATE_MESSAGE_IMAGE);
+                return true;
+            }
+            case 3 -> {
                 StandardGuildMessageChannel channel = createMessageAtomicChannel.get().orElse(null);
                 if (channel == null) {
                     createMessageAtomicChannel = null;
                     return true;
                 }
 
-                String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), channel, createMessageContent, createMessageContentChanged);
+                String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), channel, createMessageContent, createMessageFile, createMessageContentChanged);
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;
@@ -371,11 +394,12 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     @Draw(state = STATE_CREATE_TICKET_MESSAGE)
     public EmbedBuilder onDrawCreateTicketMessage(Member member) {
         String[] options = getString("state4_options").split("\n");
-        setComponents(options, Set.of(2), null, createMessageAtomicChannel.get().isEmpty() ? Set.of(2) : null);
+        setComponents(options, Set.of(3), null, createMessageAtomicChannel.get().isEmpty() ? Set.of(3) : null);
 
         return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"))
                 .addField(getString("state4_mchannel"), createMessageAtomicChannel.getPrefixedNameInField(getLocale()), true)
-                .addField(getString("state4_mtext"), createMessageContent, true);
+                .addField(getString("state4_mtext"), createMessageContent, true)
+                .addField(getString("state4_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), createMessageFile != null), true);
     }
 
     @Override

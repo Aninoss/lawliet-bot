@@ -3,6 +3,7 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.TicketCommand
+import core.LocalFile
 import core.TextManager
 import dashboard.ActionResult
 import dashboard.DashboardCategory
@@ -33,6 +34,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     var createMessageChannelId: Long? = null
     var createMessageContent: String = ""
+    var createMessageFile: LocalFile? = null
     var createMessageContentChanged: Boolean = false
 
     val ticketsEntity: TicketsEntity
@@ -78,6 +80,20 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         messageContentTextField.value = createMessageContent
         container.add(messageContentTextField)
 
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "ticket_state4_mimage"), "temp", 1) { e ->
+            if (e.type == "add") {
+                val filename = e.data.split("/")[5]
+                createMessageFile = LocalFile(LocalFile.Directory.CDN, "temp/$filename")
+            } else if (e.type == "remove") {
+                createMessageFile = null
+            }
+            createMessageContentChanged = true
+            return@DashboardImageUpload ActionResult()
+                .withRedraw()
+        }
+        imageUpload.values = if (createMessageFile != null) listOf(createMessageFile!!.cdnGetUrl()) else emptyList()
+        container.add(imageUpload)
+
         val channelButtonContainer = HorizontalContainer()
         channelButtonContainer.alignment = HorizontalContainer.Alignment.BOTTOM
         channelButtonContainer.allowWrap = true
@@ -97,7 +113,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         channelComboBox.putCssProperties("margin-top", "0.5em")
 
         val sendButton = DashboardButton(getString(category = Category.CONFIGURATION, "ticket_state4_title")) {
-            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getChannelById(StandardGuildMessageChannel::class.java, createMessageChannelId!!), createMessageContent, createMessageContentChanged)
+            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getChannelById(StandardGuildMessageChannel::class.java, createMessageChannelId!!), createMessageContent, createMessageFile, createMessageContentChanged)
             if (error == null) {
                 entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, atomicMember, createMessageChannelId!!)
