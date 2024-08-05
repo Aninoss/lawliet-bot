@@ -5,10 +5,7 @@ import core.MainLogger;
 import core.Program;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.CustomRolePlayEntity;
-import mysql.hibernate.entity.GiveawayEntity;
-import mysql.hibernate.entity.ReactionRoleEntity;
 import mysql.hibernate.entity.guild.CustomCommandEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.template.HibernateEntity;
@@ -36,12 +33,12 @@ public class CleanImages implements ExceptionRunnable {
             return;
         }
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(CleanImages.class)) {
+        /*try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(CleanImages.class)) {
             executeSimple(entityManager, ReactionRoleEntity.class, "reactionroles", "imageFilename");
             executeSimple(entityManager, GiveawayEntity.class, "giveaway", "imageFilename");
             executeCustomCommands(entityManager);
             executeCustomRoleplay(entityManager);
-        }
+        }*/
     }
 
     private static void executeSimple(EntityManagerWrapper entityManager, Class<? extends HibernateEntity> entityClass, String dirName, String fieldName) {
