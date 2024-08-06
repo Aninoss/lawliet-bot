@@ -8,7 +8,6 @@ import constants.AssetIds;
 import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.MainLogger;
 import core.utils.EmbedUtil;
 import modules.animenews.AnimeNewsArticle;
 import modules.animenews.AnimeNewsDownloader;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "animenews",
-        emoji = "\uD83D\uDCF0",
+        emoji = "📰",
         executableWithoutArgs = true
 )
 public class AnimeNewsCommand extends Command implements OnAlertListener {
@@ -86,9 +85,6 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
 
         if (!embedList.isEmpty()) {
             slot.sendMessage(getLocale(), true, embedList);
-            if (slot.getGuildId() == 1190310706248167506L) {
-                MainLogger.get().info("### Anime news triggered");
-            }
         }
         slot.setArgs(articles.get(0).getPublicationTime().toString());
         return AlertResponse.CONTINUE_AND_SAVE;

@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "twitch",
-        emoji = "\uD83D\uDCF9",
+        emoji = "📹",
         executableWithoutArgs = false
 )
 public class TwitchCommand extends Command implements OnAlertListener {
