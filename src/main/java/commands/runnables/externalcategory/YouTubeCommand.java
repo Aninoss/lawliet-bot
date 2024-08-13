@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -40,16 +41,19 @@ public class YouTubeCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException, IOException {
         event.deferReply();
-        List<YouTubeVideo> videos = YouTubeDownloader.retrieveVideos(args);
 
-        if (videos == null) {
-            EmbedBuilder eb = EmbedFactory.getApiDownEmbed(this, getPrefix() + getTrigger());
+        List<YouTubeVideo> videos;
+        try {
+            videos = YouTubeDownloader.retrieveVideos(args);
+        } catch (IOException e) {
+            EmbedBuilder eb = EmbedFactory.getApiDownEmbed(this, "youtube.com");
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
-        if (videos.isEmpty()) {
+
+        if (videos == null || videos.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, args);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
@@ -66,9 +70,6 @@ public class YouTubeCommand extends Command implements OnAlertListener {
 
         List<YouTubeVideo> videos = YouTubeDownloader.retrieveVideos(slot.getCommandKey());
         if (videos == null) {
-            return AlertResponse.CONTINUE;
-        }
-        if (videos.isEmpty()) {
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
@@ -81,7 +82,7 @@ public class YouTubeCommand extends Command implements OnAlertListener {
         }
 
         String thresholdString = slot.getArgs().orElse(null);
-        List<MessageEmbed> embedList;
+        List<MessageEmbed> embedList = Collections.emptyList();
         if (thresholdString != null) {
             Instant threshold = Instant.parse(thresholdString);
             embedList = videos.stream()
@@ -89,14 +90,14 @@ public class YouTubeCommand extends Command implements OnAlertListener {
                     .map(post -> getEmbed(post, false).build())
                     .collect(Collectors.toCollection(ArrayList::new));
             Collections.reverse(embedList);
-        } else {
+        } else if (!videos.isEmpty()) {
             embedList = List.of(getEmbed(videos.get(0), false).build());
         }
 
         if (!embedList.isEmpty()) {
             slot.sendMessage(getLocale(), true, embedList);
         }
-        slot.setArgs(videos.get(0).getPublicationTime().toString());
+        slot.setArgs(videos.isEmpty() ? Instant.MIN.toString() : videos.get(0).getPublicationTime().toString());
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 

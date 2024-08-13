@@ -9,10 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -20,24 +20,20 @@ public class YouTubeDownloader {
 
     private static final String[] CHANNEL_FINDER_KEYS = new String[]{"data-channel-external-id=\"", "\"externalId\":\""};
 
-    public static List<YouTubeVideo> retrieveVideos(String handle) throws ExecutionException, InterruptedException {
+    public static List<YouTubeVideo> retrieveVideos(String handle) throws ExecutionException, InterruptedException, IOException {
         if (!handle.startsWith("@")) {
             handle = "@" + handle;
         }
         if (!RegexPatterns.YOUTUBE_HANDLE.matcher(handle).matches()) {
-            return Collections.emptyList();
+            return null;
         }
 
         HttpResponse httpResponse = HttpCache.get("https://www.youtube.com/" + handle, Duration.ofDays(7)).get();
         if (httpResponse.getCode() / 100 != 2) {
-            return Collections.emptyList();
-        }
-
-        String channelId = extractChannelId(httpResponse.getBody());
-        if (channelId == null) {
             return null;
         }
 
+        String channelId = extractChannelId(httpResponse.getBody());
         JSONArray jsonArray = retrieveJsonArray("https://www.youtube.com/feeds/videos.xml?channel_id=" + channelId);
         ArrayList<YouTubeVideo> posts = new ArrayList<>();
         for (int i = 0; i < Math.min(5, jsonArray.length()); i++) {
@@ -48,31 +44,43 @@ public class YouTubeDownloader {
         return posts;
     }
 
-    private static String extractChannelId(String body) {
+    private static String extractChannelId(String body) throws IOException {
         for (String channelFinderKey : CHANNEL_FINDER_KEYS) {
             if (body.contains(channelFinderKey)) {
                 return StringUtil.extractGroups(body, channelFinderKey, "\"")[0];
             }
         }
-        return null;
+        throw new IOException("Channel id not found");
     }
 
-    private static JSONArray retrieveJsonArray(String downloadUrl) throws ExecutionException, InterruptedException {
+    private static JSONArray retrieveJsonArray(String downloadUrl) throws ExecutionException, InterruptedException, IOException {
         HttpResponse httpResponse = HttpCache.get(downloadUrl, Duration.ofMinutes(15)).get();
         if (httpResponse.getCode() / 100 != 2) {
-            return null;
+            throw new IOException("YouTube rss feed is not accessible");
         }
 
         String content = httpResponse.getBody();
-        return XML.toJSONObject(content)
-                .getJSONObject("feed")
-                .getJSONArray("entry");
+        JSONObject feedJson = XML.toJSONObject(content)
+                .getJSONObject("feed");
+
+        if (feedJson.has("entry")) {
+            Object entryJson = feedJson.get("entry");
+            if (entryJson instanceof JSONArray) {
+                return (JSONArray) entryJson;
+            } else if (entryJson instanceof JSONObject) {
+                JSONArray arrayJson = new JSONArray();
+                arrayJson.put(entryJson);
+                return arrayJson;
+            }
+        }
+        return new JSONArray();
     }
 
     private static YouTubeVideo extractVideo(JSONObject jsonVideo) {
         JSONObject authorJson = jsonVideo.getJSONObject("author");
         JSONObject mediaJson = jsonVideo.getJSONObject("media:group");
         JSONObject communityJson = mediaJson.getJSONObject("media:community");
+
         return new YouTubeVideo(
                 StringUtil.shortenString(authorJson.getString("name"), MessageEmbed.AUTHOR_MAX_LENGTH),
                 authorJson.getString("uri"),
