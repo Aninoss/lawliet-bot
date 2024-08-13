@@ -6,7 +6,7 @@ import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
 import java.util.Locale;
 
 @CommandProperties(
-        trigger = "customrp_sfw",
+        trigger = "customrp_nsfw",
         emoji = "🧩",
         executableWithoutArgs = false,
         nsfw = true,

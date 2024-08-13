@@ -82,7 +82,7 @@ public abstract class AbstractModalBuilder<T, U extends AbstractModalBuilder<T, 
         T value = getter.call();
         String stringValue = value != null ? valueToString(value) : null;
 
-        TextInput message = TextInput.create(ID, getTextInputLabel(propertyName), textInputStyle)
+        TextInput message = TextInput.create(ID, StringUtil.shortenString(getTextInputLabel(propertyName), TextInput.MAX_LABEL_LENGTH), textInputStyle)
                 .setValue(stringValue != null && stringValue.isEmpty() ? null : stringValue)
                 .setRequiredRange(minLength, maxLength)
                 .setRequired(minLength > 0)

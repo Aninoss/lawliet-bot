@@ -7,6 +7,7 @@ import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -96,9 +97,9 @@ public class VoteCache {
         }
 
         boolean newVersion = true;
-        String creatorIdString = DBStaticReactionMessages.getInstance().retrieve(message.getGuildIdLong())
-                .get(message.getIdLong())
-                .getSecondaryId();
+        StaticReactionMessageData staticReactionMessageData = DBStaticReactionMessages.getInstance().retrieve(message.getGuildIdLong())
+                .get(message.getIdLong());
+        String creatorIdString = staticReactionMessageData != null ? staticReactionMessageData.getSecondaryId() : null;
 
         if (creatorIdString == null && embed.getFooter() != null && embed.getFooter().getText() != null) {
             String footerString = embed.getFooter().getText();
