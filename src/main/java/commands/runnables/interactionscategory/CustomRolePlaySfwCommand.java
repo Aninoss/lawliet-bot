@@ -14,6 +14,7 @@ import core.utils.EmbedUtil;
 import modules.CustomRolePlay;
 import mysql.hibernate.entity.CustomRolePlayEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -28,8 +29,8 @@ import java.util.concurrent.ExecutionException;
 )
 public class CustomRolePlaySfwCommand extends RolePlayAbstract {
 
-    private String trigger;
     private CustomRolePlayEntity customRolePlayEntity;
+    private String gifUrl;
 
     public CustomRolePlaySfwCommand(Locale locale, String prefix) {
         super(locale, prefix, true);
@@ -37,25 +38,30 @@ public class CustomRolePlaySfwCommand extends RolePlayAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        trigger = args.split(" ")[0];
+        String trigger = args.split(" ")[0];
         customRolePlayEntity = getGuildEntity().getCustomRolePlayCommands().get(trigger);
+        gifUrl = customRolePlayEntity.getImageUrls().get(RandomPicker.pick(trigger, event.getGuild().getIdLong(), customRolePlayEntity.getImageFilenames().size()).get());
         return onTriggerInteractive(event, args.substring(trigger.length()).trim());
     }
 
     @Override
-    protected EmbedBuilder generateEmbed(long guildId, boolean mentionPresent, Mention mention, String authorString, String quote) throws ExecutionException, InterruptedException {
-        FeatureLogger.inc(PremiumFeature.CUSTOM_ROLE_PLAY, guildId);
-        String gifUrl = customRolePlayEntity.getImageUrls().get(RandomPicker.pick(trigger, guildId, customRolePlayEntity.getImageFilenames().size()).get());
+    protected EmbedBuilder generateEmbed(Member member, Mention mention, boolean onlySelfReference) throws ExecutionException, InterruptedException {
+        return super.generateEmbed(member, mention, false);
+    }
+
+    @Override
+    protected EmbedBuilder generateEmbedSunshineCase(Member member, Mention mention, String authorString, String quote) throws ExecutionException, InterruptedException {
+        FeatureLogger.inc(PremiumFeature.CUSTOM_ROLE_PLAY, member.getGuild().getIdLong());
 
         String text;
-        if (mentionPresent) {
+        if (mention.getElementList().isEmpty()) {
+            text = Objects.requireNonNullElse(customRolePlayEntity.getTextNoMembers(), "");
+        } else {
             if (mention.isMultiple()) {
                 text = Objects.requireNonNullElse(customRolePlayEntity.getTextMultiMembers(), "");
             } else {
                 text = Objects.requireNonNullElse(customRolePlayEntity.getTextSingleMember(), "");
             }
-        } else {
-            text = Objects.requireNonNullElse(customRolePlayEntity.getTextNoMembers(), "");
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
