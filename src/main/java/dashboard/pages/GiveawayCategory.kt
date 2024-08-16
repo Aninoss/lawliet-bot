@@ -13,8 +13,8 @@ import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
 import dashboard.components.DashboardEmojiComboBox
+import dashboard.components.DashboardListContainerPaginated
 import dashboard.components.DashboardMultiRolesComboBox
-import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -41,6 +41,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
     enum class Mode { OVERVIEW, EDIT, REROLL }
 
+    var ongoingListPage = 0
+    var completedListPage = 0
     lateinit var config: GiveawayEntity
     var previousItem: String? = null
     var mode: Mode = Mode.OVERVIEW
@@ -91,7 +93,9 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         return generateGiveawaysTable(
                 guild,
                 getString(Category.CONFIGURATION, "giveaway_dashboard_ongoing_button"),
-                { it.active }
+                { it.active },
+                ongoingListPage,
+                { ongoingListPage = it }
         ) {
             val giveaway = giveawayEntities.get(it)
             if (giveaway != null && giveaway.active) {
@@ -106,7 +110,9 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         return generateGiveawaysTable(
                 guild,
                 getString(Category.CONFIGURATION, "giveaway_dashboard_completed_button"),
-                { !it.active }
+                { !it.active },
+                completedListPage,
+                { completedListPage = it }
         ) {
             val giveaway = giveawayEntities.get(it)
             if (giveaway != null && !giveaway.active) {
@@ -117,7 +123,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         }
     }
 
-    private fun generateGiveawaysTable(guild: Guild, rowButton: String, filter: (GiveawayEntity) -> Boolean, action: (Long) -> Any): DashboardComponent {
+    private fun generateGiveawaysTable(guild: Guild, rowButton: String, filter: (GiveawayEntity) -> Boolean, page: Int, pageSwitchConsumer: (Int) -> Unit, action: (Long) -> Any): DashboardComponent {
         val items = giveawayEntities.values
                 .filter(filter)
                 .map { giveaway ->
@@ -137,9 +143,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                     return@map itemContainer
                 }
 
-        val listContainer = DashboardListContainer()
-        listContainer.add(items)
-        return listContainer
+        return DashboardListContainerPaginated(items, page, pageSwitchConsumer)
     }
 
     private fun generateGiveawayDataField(guild: Guild): DashboardComponent {
@@ -291,8 +295,13 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
                             .withRedrawScrollToTop()
                             .withSuccessMessage(getString(Category.CONFIGURATION, "giveaway_dashboard_success", 2))
                 } else {
+                    entityManager.transaction.begin()
+                    giveawayEntities.remove(config.messageId)
+                    entityManager.transaction.commit()
+                    switchMode(Mode.OVERVIEW)
+
                     return@DashboardButton ActionResult()
-                            .withRedraw()
+                            .withRedrawScrollToTop()
                             .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_nomessage"))
                 }
             }
@@ -359,8 +368,13 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
             config.messageId = messageId
         } catch (e: ErrorResponseException) {
             if (mode != Mode.OVERVIEW) {
+                entityManager.transaction.begin()
+                giveawayEntities.remove(config.messageId)
+                entityManager.transaction.commit()
+                switchMode(Mode.OVERVIEW)
+
                 return ActionResult()
-                        .withRedraw()
+                        .withRedrawScrollToTop()
                         .withErrorMessage(getString(Category.CONFIGURATION, "giveaway_nomessage"))
             }
         }

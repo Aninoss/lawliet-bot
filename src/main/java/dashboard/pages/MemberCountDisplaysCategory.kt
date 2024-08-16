@@ -11,7 +11,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
-import dashboard.container.DashboardListContainer
+import dashboard.components.DashboardListContainerPaginated
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -33,6 +33,7 @@ import java.util.*
 )
 class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
+    var activeListPage = 0
     var atomicVoiceChannel: AtomicVoiceChannel? = null
     var nameMask: String = ""
 
@@ -86,9 +87,7 @@ class MemberCountDisplaysCategory(guildId: Long, userId: Long, locale: Locale, g
                     return@map itemContainer
                 }
 
-        val listContainer = DashboardListContainer()
-        listContainer.add(items)
-        return listContainer
+        return DashboardListContainerPaginated(items, activeListPage) { activeListPage = it }
     }
 
     fun generateNewDisplayField(): DashboardComponent {

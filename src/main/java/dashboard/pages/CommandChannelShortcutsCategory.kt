@@ -16,7 +16,7 @@ import dashboard.component.DashboardComboBox
 import dashboard.component.DashboardText
 import dashboard.component.DashboardTitle
 import dashboard.components.DashboardChannelComboBox
-import dashboard.container.DashboardListContainer
+import dashboard.components.DashboardListContainerPaginated
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -35,6 +35,7 @@ import java.util.*
 )
 class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
+    var activeListPage = 0
     var trigger: String? = null
     var channelId: Long? = null
 
@@ -96,9 +97,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
                     return@map itemContainer
                 }
 
-        val listContainer = DashboardListContainer()
-        listContainer.add(items)
-        return listContainer
+        return DashboardListContainerPaginated(items, activeListPage) { activeListPage = it }
     }
 
     fun generateNewShortcutField(guild: Guild): DashboardComponent {

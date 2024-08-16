@@ -18,8 +18,8 @@ import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
 import dashboard.components.DashboardEmojiComboBox
+import dashboard.components.DashboardListContainerPaginated
 import dashboard.components.DashboardMultiRolesComboBox
-import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -45,10 +45,12 @@ import java.util.concurrent.ExecutionException
 )
 class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
+    var activeListPage = 0
     var config = ReactionRoleEntity()
     lateinit var previousTitle: String
     lateinit var slotConfiguration: ReactionRoleSlotEntity
     var editMode = false
+    var slotsPage = 0
     var slotEditMode = false
     var slotEditPosition = 0
     var imageCdn: File? = null
@@ -150,9 +152,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                     return@map itemContainer
                 }
 
-        val listContainer = DashboardListContainer()
-        listContainer.add(items)
-        return listContainer
+        return DashboardListContainerPaginated(items, activeListPage) { activeListPage = it }
     }
 
     private fun generateReactionRolesDataField(): DashboardComponent {
@@ -316,7 +316,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                 switchMode(false)
                 ActionResult()
                         .withSuccessMessage(getString(Category.CONFIGURATION, "reactionroles_sent"))
-                        .withRedraw()
+                        .withRedrawScrollToTop()
             }
         }
         sendButton.style = DashboardButton.Style.PRIMARY
@@ -381,8 +381,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                     return@mapIndexed itemContainer
                 }
         if (items.isNotEmpty()) {
-            val listContainer = DashboardListContainer()
-            listContainer.add(items)
+            val listContainer = DashboardListContainerPaginated(items, slotsPage) { slotsPage = it }
             container.add(listContainer)
         }
 
@@ -510,6 +509,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         }
         imageCdn?.delete()
         imageCdn = null
+        slotsPage = 0
     }
 
     private fun reset() {

@@ -14,8 +14,8 @@ import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
+import dashboard.components.DashboardListContainerPaginated
 import dashboard.components.DashboardMemberComboBox
-import dashboard.container.DashboardListContainer
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -39,6 +39,7 @@ import java.util.*
 )
 class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
+    var manageInvitePage = 0
     var manageMember: Long? = null
     var addInviteMember: Long? = null
 
@@ -228,6 +229,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
             manageMember = it.data?.toLong()
             addInviteMember = null
+            manageInvitePage = 0
             ActionResult()
                     .withRedraw()
         }
@@ -245,6 +247,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
             manageMember = 0L
             addInviteMember = null
+            manageInvitePage = 0
             ActionResult()
                     .withRedraw()
         }
@@ -291,8 +294,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     return@map itemContainer
                 }
 
-        val listCategory = DashboardListContainer()
-        listCategory.add(itemRows)
+        val listCategory = DashboardListContainerPaginated(itemRows, manageInvitePage) { manageInvitePage = it }
         container.add(DashboardText(getString(Category.INVITE_TRACKING, "invitetracking_dashboard_invitedmembers")), listCategory)
 
         val resetAllButton = DashboardButton(getString(Category.INVITE_TRACKING, "invmanage_resetall")) {

@@ -16,7 +16,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
-import dashboard.container.DashboardListContainer
+import dashboard.components.DashboardListContainerPaginated
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -40,6 +40,7 @@ import java.util.*
 )
 class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
+    var activeListPage = 0
     var command: Command? = null
     var channelId: Long? = null
     var commandKey = ""
@@ -107,9 +108,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                     return@map container
                 }
 
-        val container = DashboardListContainer()
-        container.add(items)
-        return container
+        return DashboardListContainerPaginated(items, activeListPage) { activeListPage = it }
     }
 
     fun generateNewAlertField(guild: Guild, alertMap: CustomObservableMap<Int, TrackerData>): DashboardComponent {

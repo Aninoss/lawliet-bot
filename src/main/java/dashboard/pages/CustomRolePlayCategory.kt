@@ -10,7 +10,7 @@ import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
 import dashboard.components.DashboardEmojiComboBox
-import dashboard.container.DashboardListContainer
+import dashboard.components.DashboardListContainerPaginated
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -28,6 +28,7 @@ import java.util.*
 )
 class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
+    var activeListPage = 0
     var trigger: String? = null
     var oldTrigger: String? = null
     var config: CustomRolePlayEntity = CustomRolePlayEntity()
@@ -94,9 +95,7 @@ class CustomRolePlayCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     return@map itemContainer
                 }
 
-        val listContainer = DashboardListContainer()
-        listContainer.add(items)
-        return listContainer
+        return DashboardListContainerPaginated(items, activeListPage) { activeListPage = it }
     }
 
     private fun generateConfigField(): DashboardComponent {
