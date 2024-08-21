@@ -8,7 +8,7 @@ import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 
-@DiscordEvent
+@DiscordEvent(allowBots = true)
 public class GuildVoiceUpdateAutoChannelDelete extends GuildVoiceUpdateAbstract {
 
     @Override

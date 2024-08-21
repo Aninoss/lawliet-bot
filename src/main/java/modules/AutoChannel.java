@@ -69,7 +69,7 @@ public class AutoChannel {
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (voiceChannel.getIdLong() == childChannelId) {
                 if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
-                    if (voiceChannel.getMembers().size() == 0) {
+                    if (voiceChannel.getMembers().isEmpty()) {
                         voiceChannel.delete().queue();
                     }
                 }
