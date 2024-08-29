@@ -15,7 +15,8 @@ public class WarnFilter extends Filter<ILoggingEvent> {
 
     @Override
     public FilterReply decide(final ILoggingEvent event) {
-        if (event.getFormattedMessage().contains("Encountered 429") &&
+        if (event.getFormattedMessage() != null &&
+                event.getFormattedMessage().contains("Encountered 429") &&
                 errorResponseEmergencyStopper.checkAndSet(0L, MAX_429_PER_MINUTE, Duration.ofMinutes(1)).isPresent()
         ) {
             MainLogger.get().error("EXIT - 429 error codes exceeding threshold");
