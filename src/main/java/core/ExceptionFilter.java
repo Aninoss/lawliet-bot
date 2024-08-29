@@ -17,7 +17,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     public static int MAX_ERRORS_PER_MINUTE = Integer.parseInt(Objects.requireNonNullElse(System.getenv("MAX_ERRORS_PER_MINUTE"), "30"));
 
-    private final RatelimitManager ratelimitManager = new RatelimitManager();
+    private final RatelimitManager errorDisplayLimiter = new RatelimitManager();
 
     @Override
     public FilterReply decide(final ILoggingEvent event) {
@@ -42,7 +42,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         }
         SendEvent.sendException(message);
 
-        if (ratelimitManager.checkAndSet(0L, MAX_ERRORS_PER_MINUTE, Duration.ofMinutes(1)).isPresent()) {
+        if (errorDisplayLimiter.checkAndSet(0L, MAX_ERRORS_PER_MINUTE, Duration.ofMinutes(1)).isPresent()) {
             return FilterReply.DENY;
         }
 
