@@ -93,6 +93,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @Column(name = BIRTHDAY)
     val birthday = BirthdayEntity()
 
+    @Embedded
+    @Column(name = AUTO_CHANNEL)
+    val autoChannel = AutoChannelEntity()
+
     @ElementCollection
     @SortNatural
     val customCommands = sortedMapOf<String, CustomCommandEntity>()
@@ -142,6 +146,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
         tickets.postLoad(this)
         welcomeMessages.postLoad(this)
         birthday.postLoad(this)
+        autoChannel.postLoad(this)
     }
 
     override fun postRemove() {

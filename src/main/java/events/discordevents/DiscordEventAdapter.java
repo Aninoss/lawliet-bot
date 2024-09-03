@@ -164,7 +164,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
     public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
         if (event.getChannel() instanceof GuildMessageChannel) {
             GlobalThreadPool.submit(() -> MessageChannelDeleteAbstract.onMessageChannelDeleteStatic(event, getListenerList(MessageChannelDeleteAbstract.class)));
-        } else if (event.getChannel() instanceof VoiceChannel) {
+        }
+        if (event.getChannel() instanceof VoiceChannel) {
             GlobalThreadPool.submit(() -> VoiceChannelDeleteAbstract.onVoiceChannelDeleteStatic(event, getListenerList(VoiceChannelDeleteAbstract.class)));
         }
     }

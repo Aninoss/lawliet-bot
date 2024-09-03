@@ -40,7 +40,8 @@ public class Main {
                 Runtime.getRuntime().addShutdownHook(new Thread(Program::onStop, "Shutdown Bot-Stop"));
             }
         } catch (Throwable e) {
-            MainLogger.get().error("EXIT - Error on startup", e);
+            MainLogger.get().error("EXIT - Error on startup");
+            e.printStackTrace();
             System.exit(4);
         }
     }

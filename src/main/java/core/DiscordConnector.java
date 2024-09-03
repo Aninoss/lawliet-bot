@@ -13,8 +13,11 @@ import modules.schedulers.*;
 import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.guild.AutoChannelEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.autochannel.AutoChannelData;
+import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -90,6 +93,8 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
+
+        transferAutoChannel();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -187,6 +192,29 @@ public class DiscordConnector {
         ShardManager.start();
         FeatureLogger.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
+    }
+
+    private static void transferAutoChannel() {
+        transferSqlToHibernate(
+                "AutoChannel",
+                GuildEntity::getAutoChannel,
+                AutoChannelEntity::isUsed,
+                autoChannelEntity -> {
+                    AutoChannelData oldAutoChannel = DBAutoChannel.getInstance().retrieve(autoChannelEntity.getGuildId());
+
+                    autoChannelEntity.setActive(oldAutoChannel.isActive());
+                    autoChannelEntity.setNameMask(oldAutoChannel.getNameMask());
+
+                    if (oldAutoChannel.getParentChannelId().isPresent()) {
+                        autoChannelEntity.getParentChannelIds().clear();
+                        autoChannelEntity.getParentChannelIds().add(oldAutoChannel.getParentChannelId().get());
+                    }
+
+                    autoChannelEntity.setBeginLocked(oldAutoChannel.isLocked());
+                    oldAutoChannel.getChildChannelIds()
+                            .forEach(childId -> autoChannelEntity.getChildChannelIdsToParentChannelId().put(childId, oldAutoChannel.getParentChannelId().orElse(0L)));
+                }
+        );
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(

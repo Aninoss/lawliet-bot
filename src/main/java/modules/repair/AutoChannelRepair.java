@@ -6,17 +6,16 @@ import core.PermissionCheckRuntime;
 import core.ShardManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.guild.AutoChannelEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.autochannel.AutoChannelData;
-import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
+import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,22 +29,35 @@ public class AutoChannelRepair {
 
     public void run(JDA jda) {
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(AutoChannelRepair.class)) {
-            DBAutoChannel.getInstance().retrieveAllChildChannelServerIds().stream()
-                    .filter(serverId -> ShardManager.getResponsibleShard(serverId) == jda.getShardInfo().getShardId())
-                    .map(jda::getGuildById)
-                    .filter(Objects::nonNull)
-                    .forEach(guild -> deleteEmptyVoiceChannels(guild, entityManager));
+            entityManager.findAllWithValue(GuildEntity.class, "autoChannel.active", true).stream()
+                    .filter(guildEntity -> ShardManager.getResponsibleShard(guildEntity.getGuildId()) == jda.getShardInfo().getShardId())
+                    .forEach(this::deleteEmptyVoiceChannels);
         }
     }
 
-    private void deleteEmptyVoiceChannels(Guild guild, EntityManagerWrapper entityManager) {
-        GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
-        AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
+    private void deleteEmptyVoiceChannels(GuildEntity guildEntity) {
+        Guild guild = ShardManager.getLocalGuildById(guildEntity.getGuildId()).orElse(null);
+        if (guild == null) {
+            return;
+        }
+
+        AutoChannelEntity autoChannelEntity = guildEntity.getAutoChannel();
         Locale locale = guildEntity.getLocale();
-        autoChannelBean.getChildChannelIds().transform(guild::getVoiceChannelById, ISnowflake::getIdLong).stream()
-                .filter(vc -> vc.getMembers().isEmpty() && PermissionCheckRuntime.botHasPermission(locale, AutoChannelCommand.class, vc, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT))
-                .forEach(vc -> vc.delete().reason(Command.getCommandLanguage(AutoChannelCommand.class, locale).getTitle()).queue());
-        entityManager.clear();
+        for (long channelId : new ArrayList<>(autoChannelEntity.getChildChannelIdsToParentChannelId().keySet())) {
+            VoiceChannel voiceChannel = guild.getVoiceChannelById(channelId);
+            if (voiceChannel == null) {
+                autoChannelEntity.beginTransaction();
+                autoChannelEntity.getChildChannelIdsToParentChannelId().remove(channelId);
+                autoChannelEntity.commitTransaction();
+                continue;
+            }
+
+            if (voiceChannel.getMembers().isEmpty() && PermissionCheckRuntime.botHasPermission(locale, AutoChannelCommand.class, voiceChannel, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT)) {
+                voiceChannel.delete()
+                        .reason(Command.getCommandLanguage(AutoChannelCommand.class, locale).getTitle())
+                        .queue();
+            }
+        }
     }
 
 }

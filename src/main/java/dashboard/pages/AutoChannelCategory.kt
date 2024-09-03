@@ -10,8 +10,8 @@ import dashboard.component.*
 import dashboard.components.DashboardChannelComboBox
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.BotLogEntity
+import mysql.hibernate.entity.guild.AutoChannelEntity
 import mysql.hibernate.entity.guild.GuildEntity
-import mysql.modules.autochannel.DBAutoChannel
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -23,6 +23,9 @@ import java.util.*
         commandAccessRequirements = [AutoChannelCommand::class]
 )
 class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
+
+    val autoChannelEntity: AutoChannelEntity
+        get() = guildEntity.autoChannel
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(AutoChannelCommand::class.java, locale).title
@@ -37,24 +40,20 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         innerContainer.isCard = true
 
         val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "autochannel_state0_mactive")) {
-            if (it.data != DBAutoChannel.getInstance().retrieve(guild.idLong).isActive) {
-                val autoChannelData = DBAutoChannel.getInstance().retrieve(guild.idLong)
-                autoChannelData.toggleActive()
-
-                entityManager.transaction.begin()
-                BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_ACTIVE, atomicMember, null, autoChannelData.isActive)
-                entityManager.transaction.commit()
-            }
+            autoChannelEntity.beginTransaction()
+            autoChannelEntity.active = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_ACTIVE, atomicMember, null, autoChannelEntity.active)
+            autoChannelEntity.commitTransaction()
             return@DashboardSwitch ActionResult()
         }
-        activeSwitch.isChecked = DBAutoChannel.getInstance().retrieve(guild.idLong).isActive
+        activeSwitch.isChecked = autoChannelEntity.active
         innerContainer.add(activeSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardChannelComboBox(
                 this,
                 getString(Category.CONFIGURATION, "autochannel_state0_mchannel"),
                 DashboardComboBox.DataType.VOICE_CHANNELS,
-                DBAutoChannel.getInstance().retrieve(guild.idLong).parentChannelId.orElse(null),
+                autoChannelEntity.parentChannelIds.firstOrNull(),
                 false,
                 arrayOf(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS),
                 arrayOf(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)
@@ -65,27 +64,23 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
                         .withRedraw()
             }
 
-            val autoChannelData = DBAutoChannel.getInstance().retrieve(guild.idLong)
-            entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_INITIAL_VOICE_CHANNEL, atomicMember, autoChannelData.parentChannelId.orElse(null), it.data.toLong())
-            entityManager.transaction.commit()
-
-            autoChannelData.setParentChannelId(it.data.toLong())
+            autoChannelEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_INITIAL_VOICE_CHANNEL, atomicMember, autoChannelEntity.parentChannelIds.firstOrNull(), it.data.toLong())
+            autoChannelEntity.parentChannelIds.clear()
+            autoChannelEntity.parentChannelIds.add(it.data.toLong())
+            autoChannelEntity.commitTransaction()
             return@DashboardChannelComboBox ActionResult()
         }
         innerContainer.add(channelComboBox, DashboardSeparator())
 
         val nameField = DashboardTextField(getString(Category.CONFIGURATION, "autochannel_state0_mchannelname"), 1, AutoChannelCommand.MAX_CHANNEL_NAME_LENGTH) {
-            val autoChannelData = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong)
-
-            entityManager.transaction.begin()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_NEW_CHANNEL_NAME, atomicMember, autoChannelData.nameMask, it.data)
-            entityManager.transaction.commit()
-
-            autoChannelData.nameMask = it.data
+            autoChannelEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_NEW_CHANNEL_NAME, atomicMember, autoChannelEntity.nameMask, it.data)
+            autoChannelEntity.nameMask = it.data
+            autoChannelEntity.commitTransaction()
             return@DashboardTextField ActionResult()
         }
-        nameField.value = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong).nameMask
+        nameField.value = autoChannelEntity.nameMask
         innerContainer.add(
                 nameField,
                 DashboardText(getString(Category.CONFIGURATION, "autochannel_vars").replace("- ", ""), DashboardText.Style.HINT),
@@ -93,17 +88,13 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         )
 
         val lockedSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "autochannel_state0_mlocked")) {
-            if (it.data != DBAutoChannel.getInstance().retrieve(guild.idLong).isLocked) {
-                val autoChannelData = DBAutoChannel.getInstance().retrieve(guild.idLong)
-                autoChannelData.toggleLocked()
-
-                entityManager.transaction.begin()
-                BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_BEGIN_LOCKED, atomicMember, null, autoChannelData.isLocked)
-                entityManager.transaction.commit()
-            }
+            autoChannelEntity.beginTransaction()
+            autoChannelEntity.beginLocked = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_BEGIN_LOCKED, atomicMember, null, autoChannelEntity.beginLocked)
+            autoChannelEntity.commitTransaction()
             return@DashboardSwitch ActionResult()
         }
-        lockedSwitch.isChecked = DBAutoChannel.getInstance().retrieve(atomicGuild.idLong).isLocked
+        lockedSwitch.isChecked = autoChannelEntity.beginLocked
         lockedSwitch.subtitle = getString(Category.CONFIGURATION, "autochannel_dashboard_locked")
         innerContainer.add(lockedSwitch)
         mainContainer.add(innerContainer)
