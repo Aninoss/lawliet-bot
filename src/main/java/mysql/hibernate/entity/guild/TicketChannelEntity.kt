@@ -10,5 +10,6 @@ class TicketChannelEntity(
         var logMessageId: Long = 0L,
         var assigned: Boolean = false,
         var introductionMessageId: Long = 0L,
-        var assignmentMode: TicketsEntity.AssignmentMode = TicketsEntity.AssignmentMode.MANUAL
+        var assignmentMode: TicketsEntity.AssignmentMode = TicketsEntity.AssignmentMode.MANUAL,
+        var category: String? = null
 )

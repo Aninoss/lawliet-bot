@@ -29,9 +29,11 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.managers.channel.middleman.StandardGuildChannelManager;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
@@ -53,7 +55,8 @@ import java.util.stream.Collectors;
 public class Ticket {
 
     public static String sendTicketMessage(GuildEntity guildEntity, Locale userLocale, StandardGuildMessageChannel channel,
-                                           String createMessageContent, LocalFile createMessageFile, boolean createMessageContentChanged
+                                           String createMessageContent, List<String> createMessageCategories,
+                                           LocalFile createMessageFile, boolean createMessageContentChanged
     ) {
         String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(userLocale, channel,
                 Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS
@@ -74,14 +77,14 @@ public class Ticket {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(emoji + " " + Command.getCommandLanguage(TicketCommand.class, guildEntity.getLocale()).getTitle())
                 .setDescription(createMessageContent)
-                .setImage(createMessageFile != null ? "attachment://" + createMessageFile.getName() : null);;
+                .setImage(createMessageFile != null ? "attachment://" + createMessageFile.getName() : null);
         if (createMessageContentChanged) {
             eb.setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "serverstaff_text"));
         }
 
         channel.sendMessageEmbeds(eb.build())
                 .addFiles(createMessageFile != null ? List.of(FileUpload.fromData(createMessageFile)) : Collections.emptyList())
-                .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_CREATE, TextManager.getString(guildEntity.getLocale(), Category.CONFIGURATION, "ticket_button_create"))))
+                .setActionRow(createActionRow(guildEntity.getLocale(), createMessageCategories))
                 .queue(message -> {
                     DBStaticReactionMessages.getInstance()
                             .retrieve(message.getGuild().getIdLong())
@@ -91,7 +94,7 @@ public class Ticket {
         return null;
     }
 
-    public static void createTicket(GuildEntity guildEntity, StandardGuildMessageChannel channel, Member member, String userMessage) {
+    public static void createTicket(GuildEntity guildEntity, StandardGuildMessageChannel channel, Member member, String userMessage, String selectedCategory) {
         Locale locale = guildEntity.getLocale();
         TicketsEntity ticketsEntity = guildEntity.getTickets();
         Optional<StandardGuildMessageChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketsEntity, member);
@@ -99,7 +102,7 @@ public class Ticket {
         if (existingTicketChannelOpt.isEmpty()) {
             StandardGuildMessageChannel newChannel = Ticket.createTicketChannel(ticketsEntity, channel, member, locale);
             if (newChannel != null) {
-                setupNewTicketChannel(ticketsEntity, newChannel, member, userMessage, guildEntity.getLocale());
+                setupNewTicketChannel(ticketsEntity, newChannel, member, userMessage, guildEntity.getLocale(), selectedCategory);
             }
         } else {
             StandardGuildMessageChannel existingTicketChannel = existingTicketChannelOpt.get();
@@ -107,6 +110,20 @@ public class Ticket {
                 String text = TextManager.getString(locale, commands.Category.CONFIGURATION, "ticket_alreadyopen", member.getAsMention());
                 existingTicketChannel.sendMessage(text).queue();
             }
+        }
+    }
+
+    private static ActionComponent createActionRow(Locale locale, List<String> createMessageCategories) {
+        if (createMessageCategories.isEmpty()) {
+            return Button.of(ButtonStyle.PRIMARY, TicketCommand.COMPONENT_ID_CREATE, TextManager.getString(locale, Category.CONFIGURATION, "ticket_button_create"));
+        } else {
+            StringSelectMenu.Builder menuBuilder = StringSelectMenu.create(TicketCommand.COMPONENT_ID_CREATE)
+                    .setPlaceholder(TextManager.getString(locale, Category.CONFIGURATION, "ticket_categories_placeholder"))
+                    .setRequiredRange(1, 1);
+            for (int i = 0; i < createMessageCategories.size(); i++) {
+                menuBuilder.addOption(createMessageCategories.get(i), String.valueOf(i));
+            }
+            return menuBuilder.build();
         }
     }
 
@@ -123,7 +140,7 @@ public class Ticket {
         return Optional.empty();
     }
 
-    private static void setupNewTicketChannel(TicketsEntity ticketsEntity, StandardGuildMessageChannel channel, Member member, String userMessage, Locale locale) {
+    private static void setupNewTicketChannel(TicketsEntity ticketsEntity, StandardGuildMessageChannel channel, Member member, String userMessage, Locale locale, String selectedCategory) {
         CommandProperties commandProperties = Command.getCommandProperties(TicketCommand.class);
         String title = commandProperties.emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
 
@@ -132,7 +149,8 @@ public class Ticket {
             /* member greeting */
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
-                    .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()));
+                    .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()))
+                    .setFooter(selectedCategory != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", selectedCategory) : null);
 
             try {
                 Message starterMessage = channel.sendMessageEmbeds(eb.build())
@@ -178,7 +196,8 @@ public class Ticket {
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
-                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getName()), channel.getAsMention()));
+                        .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getName()), channel.getAsMention()))
+                        .setFooter(selectedCategory != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", selectedCategory) : null);
 
                 logChannel.sendMessage(ticketsEntity.getPingStaffRoles() ? getRolePing(ticketsEntity) : " ")
                         .setEmbeds(ebAnnouncement.build())
@@ -195,7 +214,8 @@ public class Ticket {
                                         m.getIdLong(),
                                         false,
                                         finalStarterMessageId,
-                                        assignmentMode
+                                        assignmentMode,
+                                        selectedCategory
                                 ));
                                 entityManager.getTransaction().commit();
                             }
@@ -214,7 +234,8 @@ public class Ticket {
                                         0L,
                                         false,
                                         finalStarterMessageId,
-                                        assignmentMode
+                                        assignmentMode,
+                                        selectedCategory
                                 ));
                                 entityManager.getTransaction().commit();
                             }
@@ -231,7 +252,8 @@ public class Ticket {
                     0L,
                     false,
                     finalStarterMessageId,
-                    assignmentMode
+                    assignmentMode,
+                    selectedCategory
             ));
             ticketsEntity.commitTransaction();
         }
@@ -400,7 +422,8 @@ public class Ticket {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(title)
-                .setDescription(desc);
+                .setDescription(desc)
+                .setFooter(ticketChannelEntity.getCategory() != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", ticketChannelEntity.getCategory()) : ticketChannelEntity.getCategory());
         if (csvUrl != null) {
             EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.CONFIGURATION, "ticket_csv_warning"));
         }
@@ -475,7 +498,8 @@ public class Ticket {
                 );
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
-                        .setDescription(desc);
+                        .setDescription(desc)
+                        .setFooter(ticketChannelEntity.getCategory() != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", ticketChannelEntity.getCategory()) : null);
                 announcementChannel.editMessageById(ticketChannelEntity.getLogMessageId(), " ")
                         .setEmbeds(eb.build())
                         .queue();

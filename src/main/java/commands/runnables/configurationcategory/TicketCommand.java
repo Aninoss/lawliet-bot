@@ -4,11 +4,9 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticButtonListener;
 import commands.listeners.OnStaticReactionAddListener;
+import commands.listeners.OnStaticStringSelectMenuListener;
 import commands.runnables.NavigationAbstract;
-import commands.stateprocessor.FileStateProcessor;
-import commands.stateprocessor.GuildChannelsStateProcessor;
-import commands.stateprocessor.RolesStateProcessor;
-import commands.stateprocessor.StringStateProcessor;
+import commands.stateprocessor.*;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
@@ -20,11 +18,12 @@ import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.interactionresponse.ComponentInteractionResponse;
 import core.modals.DurationModalBuilder;
+import core.modals.ModalMediator;
 import core.utils.*;
-import events.discordevents.modalinteraction.ModalInteractionTicket;
 import kotlin.Pair;
 import modules.Ticket;
 import mysql.hibernate.entity.BotLogEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.guild.TicketChannelEntity;
 import mysql.hibernate.entity.guild.TicketsEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,15 +34,21 @@ import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -60,14 +65,16 @@ import java.util.concurrent.ExecutionException;
         usesExtEmotes = true,
         aliases = {"tickets", "supportticket", "supporttickets"}
 )
-public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener {
+public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener, OnStaticStringSelectMenuListener {
 
     public final static int MAX_STAFF_ROLES = 10;
     public final static int MAX_GREETING_TEXT_LENGTH = 1000;
     public final static int MAX_CREATE_MESSAGE_CONTENT_LENGTH = 1000;
+    public final static int MAX_CREATE_MESSAGE_CATEGORIES = StringSelectMenu.OPTIONS_MAX_AMOUNT;
+    public final static int MAX_CREATE_MESSAGE_CATEGORY_LENGTH = 50;
 
     public final static UnicodeEmoji TICKET_CLOSE_EMOJI = Emojis.X;
-    public final static String BUTTON_ID_CREATE = "create";
+    public final static String COMPONENT_ID_CREATE = "create";
     public final static String BUTTON_ID_CLOSE = "close";
     public final static String BUTTON_ID_ASSIGN = "assign";
 
@@ -77,6 +84,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             STATE_CREATE_TICKET_MESSAGE = 4,
             STATE_SET_CREATE_MESSATE_CHANNEL = 8,
             STATE_SET_CREATE_MESSAGE_CONTENT = 9,
+            STATE_SET_CREATE_MESSAGE_CATEGORIES = 11,
             STATE_SET_CREATE_MESSAGE_IMAGE = 10,
             STATE_SET_GREETING_TEXT = 5,
             STATE_SET_ASSIGNMENT_MODE = 6,
@@ -84,6 +92,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     private AtomicStandardGuildMessageChannel createMessageAtomicChannel;
     private String createMessageContent;
+    private List<String> createMessageCategories = Collections.emptyList();
     private LocalFile createMessageFile = null;
     private boolean createMessageContentChanged = false;
 
@@ -129,6 +138,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                             createMessageContent = input;
                             createMessageContentChanged = true;
                         }),
+                new StringListStateProcessor(this, STATE_SET_CREATE_MESSAGE_CATEGORIES, STATE_CREATE_TICKET_MESSAGE, getString("state4_mcategories"))
+                        .setMax(MAX_CREATE_MESSAGE_CATEGORIES, MAX_CREATE_MESSAGE_CATEGORY_LENGTH)
+                        .setStringSplitterFunction(str -> List.of(str.split("\n")))
+                        .setGetter(() -> createMessageCategories)
+                        .setSetter(categories -> createMessageCategories = categories),
                 new FileStateProcessor(this, STATE_SET_CREATE_MESSAGE_IMAGE, STATE_CREATE_TICKET_MESSAGE, getString("state4_mimage"))
                         .setAllowGifs(true)
                         .setClearButton(true)
@@ -228,6 +242,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             case 10 -> {
                 createMessageAtomicChannel = new AtomicStandardGuildMessageChannel(event.getGuild().getIdLong(), 0L);
                 createMessageContent = getString("message_content");
+                createMessageCategories = Collections.emptyList();
                 createMessageFile = null;
                 createMessageContentChanged = false;
                 setState(STATE_CREATE_TICKET_MESSAGE);
@@ -327,17 +342,25 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
             }
             case 2 -> {
-                setState(STATE_SET_CREATE_MESSAGE_IMAGE);
+                if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                    setState(STATE_SET_CREATE_MESSAGE_CATEGORIES);
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                }
                 return true;
             }
             case 3 -> {
+                setState(STATE_SET_CREATE_MESSAGE_IMAGE);
+                return true;
+            }
+            case 4 -> {
                 StandardGuildMessageChannel channel = createMessageAtomicChannel.get().orElse(null);
                 if (channel == null) {
                     createMessageAtomicChannel = null;
                     return true;
                 }
 
-                String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), channel, createMessageContent, createMessageFile, createMessageContentChanged);
+                String error = Ticket.sendTicketMessage(getGuildEntity(), getLocale(), channel, createMessageContent, createMessageCategories, createMessageFile, createMessageContentChanged);
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;
@@ -394,11 +417,12 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     @Draw(state = STATE_CREATE_TICKET_MESSAGE)
     public EmbedBuilder onDrawCreateTicketMessage(Member member) {
         String[] options = getString("state4_options").split("\n");
-        setComponents(options, Set.of(3), null, createMessageAtomicChannel.get().isEmpty() ? Set.of(3) : null);
+        setComponents(options, Set.of(4), null, createMessageAtomicChannel.get().isEmpty() ? Set.of(4) : null);
 
         return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"))
                 .addField(getString("state4_mchannel"), createMessageAtomicChannel.getPrefixedNameInField(getLocale()), true)
                 .addField(getString("state4_mtext"), createMessageContent, true)
+                .addField(getString("state4_mcategories") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), new ListGen<String>().getList(createMessageCategories, getString("state4_notconfigured"), str -> str), true)
                 .addField(getString("state4_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), createMessageFile != null), true);
     }
 
@@ -415,7 +439,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         if (ticketChannelEntity == null && event.getEmoji().getFormatted().equals(getCommandProperties().emoji())) {
             Category category = channel.getParentCategory();
             if (category == null || category.getChannels().size() < 50) {
-                Ticket.createTicket(getGuildEntity(), channel, event.getMember(), null);
+                Ticket.createTicket(getGuildEntity(), channel, event.getMember(), null, null);
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
                 JDAUtil.openPrivateChannel(event.getMember())
@@ -463,30 +487,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         StandardGuildMessageChannel channel = (StandardGuildMessageChannel) channelTemp;
         TicketChannelEntity ticketChannelEntity = ticketsEntity.getTicketChannels().get(channel.getIdLong());
 
-        if (ticketChannelEntity == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
-            if (ticketsEntity.getEnforceModal()) {
-                TextInput message = TextInput.create("message", getString("modal_message"), TextInputStyle.PARAGRAPH)
-                        .setPlaceholder(getString("modal_message_placeholder"))
-                        .setMinLength(30)
-                        .setMaxLength(1000)
-                        .build();
-
-                Modal modal = Modal.create(ModalInteractionTicket.ID, getString("button_create"))
-                        .addComponents(ActionRow.of(message))
-                        .build();
-
-                event.replyModal(modal).queue();
-            } else {
-                Category category = channel.getParentCategory();
-                if (category == null || category.getChannels().size() < 50) {
-                    Ticket.createTicket(getGuildEntity(), channel, event.getMember(), null);
-                } else {
-                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
-                    event.replyEmbeds(eb.build())
-                            .setEphemeral(true)
-                            .queue();
-                }
-            }
+        if (ticketChannelEntity == null && event.getComponentId().equals(COMPONENT_ID_CREATE)) {
+            createTicket(event, ticketsEntity, channel, null);
         } else if (ticketChannelEntity != null) {
             if (event.getComponentId().equals(BUTTON_ID_CLOSE)) {
                 if (memberIsStaff(event.getMember(), ticketsEntity.getStaffRoleIds()) ||
@@ -516,6 +518,64 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             }
         }
         new ComponentInteractionResponse(event).complete();
+    }
+
+    @Override
+    public void onStaticStringSelectMenu(@NotNull StringSelectInteractionEvent event, @Nullable String secondaryId) {
+        GuildChannel channelTemp = event.getGuildChannel();
+        if (!(channelTemp instanceof StandardGuildMessageChannel)) {
+            return;
+        }
+
+        TicketsEntity ticketsEntity = getGuildEntity().getTickets();
+        StandardGuildMessageChannel channel = (StandardGuildMessageChannel) channelTemp;
+
+        createTicket(event, ticketsEntity, channel, event.getSelectedOptions().get(0).getLabel());
+        new ComponentInteractionResponse(event).complete();
+        event.getHook().editOriginal("").queue();
+    }
+
+    private void createTicket(GenericComponentInteractionCreateEvent event, TicketsEntity ticketsEntity, StandardGuildMessageChannel channel, String selectedCategory) {
+        if (ticketsEntity.getEnforceModal()) {
+            TextInput message = TextInput.create("message", getString("modal_message"), TextInputStyle.PARAGRAPH)
+                    .setPlaceholder(getString("modal_message_placeholder"))
+                    .setMinLength(30)
+                    .setMaxLength(1000)
+                    .build();
+
+            Modal modal = ModalMediator.createModal(event.getUser().getIdLong(), getString("button_create"), (e, guildEntity) -> extractModal(e, guildEntity, selectedCategory))
+                    .addComponents(ActionRow.of(message))
+                    .build();
+
+            event.replyModal(modal).queue();
+        } else {
+            Category category = channel.getParentCategory();
+            if (category == null || category.getChannels().size() < 50) {
+                Ticket.createTicket(getGuildEntity(), channel, event.getMember(), null, selectedCategory);
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
+                event.replyEmbeds(eb.build())
+                        .setEphemeral(true)
+                        .queue();
+            }
+        }
+    }
+
+    private void extractModal(ModalInteractionEvent event, GuildEntity guildEntity, String selectedCategory) {
+        StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
+        Category category = channel.getParentCategory();
+
+        if (category == null || category.getChannels().size() < 50) {
+            Ticket.createTicket(guildEntity, channel, event.getMember(), event.getValue("message").getAsString(), selectedCategory);
+            event.deferEdit().queue();
+        } else {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(TextManager.getString(guildEntity.getLocale(), commands.Category.CONFIGURATION, "ticket_toomanychannels"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+        }
     }
 
     private String getCloseOnInactivityValue(TicketsEntity tickets) {

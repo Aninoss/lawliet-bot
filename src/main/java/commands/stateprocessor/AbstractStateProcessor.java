@@ -113,14 +113,15 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
     }
 
     public EmbedBuilder draw(Member member) throws Throwable {
-        ArrayList<ActionRow> actionRows = new ArrayList<>();
-        addActionRows(actionRows);
+        ArrayList<ActionRow> actionRows = createActionRows();
         if (clearButton) {
             Button button = Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CLEAR, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_clear"));
             actionRows.add(ActionRow.of(button));
         }
 
-        if (!actionRows.isEmpty()) {
+        if (actionRows.isEmpty()) {
+            addComponents(command);
+        } else {
             command.setActionRows(actionRows);
         }
         return EmbedFactory.getEmbedDefault(command, description, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName));
@@ -131,6 +132,10 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
     }
 
     protected void set(U u) {
+        set(u, true);
+    }
+
+    protected void set(U u, boolean goBack) {
         EntityManagerWrapper entityManager = command.getEntityManager();
         if (hibernateTransaction) {
             entityManager.getTransaction().begin();
@@ -160,7 +165,9 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
         } else {
             command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_notchanged", propertyName));
         }
-        command.setState(stateBack);
+        if (goBack) {
+            command.setState(stateBack);
+        }
     }
 
     private void addBotLogEntry(EntityManagerWrapper entityManager, long guildId, long memberId, T oldValue, U newValue) {
@@ -193,7 +200,11 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
         }
     }
 
-    protected void addActionRows(ArrayList<ActionRow> actionRows) {
+    protected ArrayList<ActionRow> createActionRows() {
+        return new ArrayList<>();
+    }
+
+    protected void addComponents(NavigationAbstract command) {
     }
 
 }

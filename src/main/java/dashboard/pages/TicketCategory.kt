@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel
 import java.util.*
+import kotlin.math.min
 
 @DashboardProperties(
         id = "ticket",
@@ -34,6 +35,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
     var createMessageChannelId: Long? = null
     var createMessageContent: String = ""
+    var createMessageCategories = mutableListOf<String>()
     var createMessageFile: LocalFile? = null
     var createMessageContentChanged: Boolean = false
 
@@ -80,6 +82,22 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         messageContentTextField.value = createMessageContent
         container.add(messageContentTextField)
 
+        val label = getString(Category.CONFIGURATION, "ticket_dashboard_categories")
+        val categoriesComboBox = DashboardComboBox(label, emptyList(), true, TicketCommand.MAX_CREATE_MESSAGE_CATEGORIES) {
+            if (it.type == "add" && !createMessageCategories.contains(it.data)) {
+                createMessageCategories += it.data.substring(0, min(it.data.length, TicketCommand.MAX_CREATE_MESSAGE_CATEGORY_LENGTH))
+            } else if (it.type == "remove") {
+                createMessageCategories.removeAt(it.data.toInt() - 1)
+            }
+
+            ActionResult()
+                .withRedraw()
+        }
+        categoriesComboBox.isEnabled = isPremium
+        categoriesComboBox.allowCustomValues = true
+        categoriesComboBox.selectedValues = createMessageCategories.mapIndexed { index, s -> DiscordEntity((index + 1).toString(), s) }
+        container.add(categoriesComboBox, DashboardText(getString(Category.CONFIGURATION, "ticket_dashboard_categories_subtext"), DashboardText.Style.HINT))
+
         val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "ticket_state4_mimage"), "temp", 1) { e ->
             if (e.type == "add") {
                 val filename = e.data.split("/")[5]
@@ -113,7 +131,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         channelComboBox.putCssProperties("margin-top", "0.5em")
 
         val sendButton = DashboardButton(getString(category = Category.CONFIGURATION, "ticket_state4_title")) {
-            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getChannelById(StandardGuildMessageChannel::class.java, createMessageChannelId!!), createMessageContent, createMessageFile, createMessageContentChanged)
+            val error = Ticket.sendTicketMessage(guildEntity, locale, atomicGuild.get().get().getChannelById(StandardGuildMessageChannel::class.java, createMessageChannelId!!), createMessageContent, createMessageCategories, createMessageFile, createMessageContentChanged)
             if (error == null) {
                 entityManager.transaction.begin()
                 BotLogEntity.log(entityManager, BotLogEntity.Event.TICKETS_CREATE_TICKET_MESSAGE, atomicMember, createMessageChannelId!!)
@@ -134,7 +152,7 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 channelComboBox,
                 sendButton
         )
-        container.add(channelButtonContainer)
+        container.add(DashboardSeparator(), channelButtonContainer)
         return container
     }
 

@@ -59,7 +59,7 @@ public class AbstractLongListProcessor<T extends AbstractStateProcessor<List<Lon
     }
 
     @Override
-    protected void addActionRows(ArrayList<ActionRow> actionRows) {
+    protected ArrayList<ActionRow> createActionRows() {
         List<Long> valueList = get();
         if (valueList == null) {
             valueList = Collections.emptyList();
@@ -76,7 +76,10 @@ public class AbstractLongListProcessor<T extends AbstractStateProcessor<List<Lon
                 .setDefaultValues(defaultValues)
                 .setRequiredRange(min, max)
                 .build();
+
+        ArrayList<ActionRow> actionRows = new ArrayList<>();
         actionRows.add(ActionRow.of(entitySelectMenu));
+        return actionRows;
     }
 
 }

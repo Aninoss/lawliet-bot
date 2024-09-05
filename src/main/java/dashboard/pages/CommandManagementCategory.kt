@@ -53,7 +53,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
             mainContainer.add(
                     DashboardTitle(whitelistText),
                     DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description")),
-                    generateChannelWhitelistField(guild)
+                    generateChannelWhitelistField()
             )
         }
 
@@ -98,7 +98,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         return container
     }
 
-    private fun generateChannelWhitelistField(guild: Guild): DashboardComponent {
+    private fun generateChannelWhitelistField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
 
