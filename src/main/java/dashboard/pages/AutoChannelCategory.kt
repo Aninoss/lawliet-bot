@@ -7,7 +7,7 @@ import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
 import dashboard.component.*
-import dashboard.components.DashboardChannelComboBox
+import dashboard.components.DashboardMultiChannelsComboBox
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.AutoChannelEntity
@@ -49,29 +49,19 @@ class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         activeSwitch.isChecked = autoChannelEntity.active
         innerContainer.add(activeSwitch, DashboardSeparator())
 
-        val channelComboBox = DashboardChannelComboBox(
-                this,
-                getString(Category.CONFIGURATION, "autochannel_state0_mchannel"),
-                DashboardComboBox.DataType.VOICE_CHANNELS,
-                autoChannelEntity.parentChannelIds.firstOrNull(),
-                false,
-                arrayOf(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS),
-                arrayOf(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)
-        ) {
-            val channel = atomicGuild.get().get().getVoiceChannelById(it.data)
-            if (channel == null) {
-                return@DashboardChannelComboBox ActionResult()
-                        .withRedraw()
-            }
-
-            autoChannelEntity.beginTransaction()
-            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_CHANNEL_INITIAL_VOICE_CHANNEL, atomicMember, autoChannelEntity.parentChannelIds.firstOrNull(), it.data.toLong())
-            autoChannelEntity.parentChannelIds.clear()
-            autoChannelEntity.parentChannelIds.add(it.data.toLong())
-            autoChannelEntity.commitTransaction()
-            return@DashboardChannelComboBox ActionResult()
-        }
-        innerContainer.add(channelComboBox, DashboardSeparator())
+        val parentChannelsComboBox = DashboardMultiChannelsComboBox(
+            this,
+            getString(Category.CONFIGURATION, "autochannel_state0_mchannel"),
+            DashboardComboBox.DataType.VOICE_CHANNELS,
+            { it.autoChannel.parentChannelIds },
+            true,
+            AutoChannelCommand.MAX_PARENT_CHANNELS,
+            null,
+            BotLogEntity.Event.AUTO_CHANNEL_INITIAL_VOICE_CHANNELS,
+            arrayOf(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS),
+            arrayOf(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)
+        )
+        innerContainer.add(parentChannelsComboBox, DashboardSeparator())
 
         val nameField = DashboardTextField(getString(Category.CONFIGURATION, "autochannel_state0_mchannelname"), 1, AutoChannelCommand.MAX_CHANNEL_NAME_LENGTH) {
             autoChannelEntity.beginTransaction()

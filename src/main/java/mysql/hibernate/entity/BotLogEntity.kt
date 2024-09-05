@@ -194,6 +194,7 @@ class BotLogEntity(
         SERVER_SUGGESTIONS_MANAGE_DECLINE(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.LONG),
         AUTO_CHANNEL_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, AutoChannelCommand::class.java, "autochannel_state0_mactive"),
         AUTO_CHANNEL_INITIAL_VOICE_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, AutoChannelCommand::class.java, "autochannel_state0_mchannel"),
+        AUTO_CHANNEL_INITIAL_VOICE_CHANNELS(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL, AutoChannelCommand::class.java, "autochannel_state0_mchannel"),
         AUTO_CHANNEL_NEW_CHANNEL_NAME(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, AutoChannelCommand::class.java, "autochannel_state0_mchannelname"),
         AUTO_CHANNEL_BEGIN_LOCKED(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, AutoChannelCommand::class.java, "autochannel_state0_mlocked"),
         MEMBER_COUNT_DISPLAYS_ADD(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),

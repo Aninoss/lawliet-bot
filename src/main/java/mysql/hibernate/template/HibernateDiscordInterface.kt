@@ -1,9 +1,6 @@
 package mysql.hibernate.template
 
-import core.atomicassets.AtomicGuildChannel
-import core.atomicassets.AtomicGuildMessageChannel
-import core.atomicassets.AtomicMember
-import core.atomicassets.AtomicRole
+import core.atomicassets.*
 import core.collectionadapters.ListAdapter
 
 interface HibernateDiscordInterface {
@@ -20,6 +17,10 @@ interface HibernateDiscordInterface {
 
     fun getAtomicGuildMessageChannelList(channelIdList: List<Long>): MutableList<AtomicGuildMessageChannel> {
         return ListAdapter(channelIdList, { AtomicGuildMessageChannel(guildId, it) }, { it.idLong })
+    }
+
+    fun getAtomicVoiceChannelList(channelIdList: List<Long>): MutableList<AtomicVoiceChannel> {
+        return ListAdapter(channelIdList, { AtomicVoiceChannel(guildId, it) }, { it.idLong })
     }
 
     fun getAtomicMemberList(userIdList: List<Long>): MutableList<AtomicMember> {

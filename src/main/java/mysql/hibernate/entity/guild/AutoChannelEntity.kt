@@ -1,6 +1,6 @@
 package mysql.hibernate.entity.guild
 
-import core.atomicassets.AtomicGuildChannel
+import core.atomicassets.AtomicVoiceChannel
 import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import javax.persistence.Column
@@ -30,8 +30,8 @@ class AutoChannelEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDisco
 
     @ElementCollection
     var parentChannelIds: MutableList<Long> = mutableListOf()
-    val parentChannels: MutableList<AtomicGuildChannel>
-        get() = getAtomicGuildChannelList(parentChannelIds)
+    val parentChannels: MutableList<AtomicVoiceChannel>
+        get() = getAtomicVoiceChannelList(parentChannelIds)
 
     @Column(name = "$AUTO_CHANNEL.beginLocked")
     private var _beginLocked: Boolean? = null

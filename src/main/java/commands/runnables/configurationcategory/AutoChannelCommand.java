@@ -7,7 +7,8 @@ import commands.stateprocessor.GuildChannelsStateProcessor;
 import commands.stateprocessor.StringStateProcessor;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.TextManager;
+import core.ListGen;
+import core.atomicassets.AtomicVoiceChannel;
 import core.utils.CollectionUtil;
 import core.utils.StringUtil;
 import modules.AutoChannel;
@@ -36,6 +37,7 @@ import java.util.Locale;
 public class AutoChannelCommand extends NavigationAbstract {
 
     public static final int MAX_CHANNEL_NAME_LENGTH = 50;
+    public static final int MAX_PARENT_CHANNELS = 10;
 
     public static final int STATE_SET_CHANNEL = 1,
             STATE_SET_NAME = 2;
@@ -48,16 +50,13 @@ public class AutoChannelCommand extends NavigationAbstract {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         registerNavigationListener(event.getMember(), List.of(
                 new GuildChannelsStateProcessor(this, STATE_SET_CHANNEL, DEFAULT_STATE, getString("state0_mchannel"))
-                        .setLogEvent(BotLogEntity.Event.AUTO_CHANNEL_INITIAL_VOICE_CHANNEL)
-                        .setMinMax(1, 1)
+                        .setLogEvent(BotLogEntity.Event.AUTO_CHANNEL_INITIAL_VOICE_CHANNELS)
+                        .setMinMax(0, MAX_PARENT_CHANNELS)
                         .setChannelTypes(List.of(ChannelType.VOICE))
                         .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
                         .setCheckPermissionsParentCategory(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)
-                        .setSingleGetter(() -> {
-                            AutoChannelEntity autoChannel = getGuildEntity().getAutoChannel();
-                            return autoChannel.getParentChannelIds().isEmpty() ? null : autoChannel.getParentChannelIds().get(0);
-                        })
-                        .setSingleSetter(channelId -> CollectionUtil.replace(getGuildEntity().getAutoChannel().getParentChannelIds(), List.of(channelId))),
+                        .setGetter(() -> getGuildEntity().getAutoChannel().getParentChannelIds())
+                        .setSetter(channelIds -> CollectionUtil.replace(getGuildEntity().getAutoChannel().getParentChannelIds(), channelIds)),
                 new StringStateProcessor(this, STATE_SET_NAME, DEFAULT_STATE, getString("state0_mchannelname"))
                         .setDescription(getString("state2_description"))
                         .setMax(MAX_CHANNEL_NAME_LENGTH)
@@ -113,11 +112,10 @@ public class AutoChannelCommand extends NavigationAbstract {
         setComponents(getString("state0_options").split("\n"));
 
         AutoChannelEntity autoChannel = getGuildEntity().getAutoChannel();
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         GuildMessageChannel channel = getGuildMessageChannel().get();
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(channel, getLocale(), autoChannel.getActive()), true)
-                .addField(getString("state0_mchannel"), autoChannel.getParentChannels().stream().map(vc -> vc.getPrefixedNameInField(getLocale())).findFirst().orElse(notSet), true)
+                .addField(getString("state0_mchannel"), new ListGen<AtomicVoiceChannel>().getList(autoChannel.getParentChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
                 .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(
                         StringUtil.escapeMarkdown(autoChannel.getNameMask()),
                         "`%VCNAME`",
