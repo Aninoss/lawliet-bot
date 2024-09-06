@@ -5,6 +5,7 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.LogStatus;
+import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
@@ -49,68 +50,78 @@ public class GiveCommand extends Command implements FisheryInterface {
         }
 
         args = memberMentioned.getFilteredArgs();
-
         Member user0 = event.getMember();
         Member user1 = list.get(0);
-
         FisheryMemberData fisheryUser0 = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(user0.getIdLong());
         FisheryMemberData fisheryUser1 = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(user1.getIdLong());
+        long dailyLimitRemainder = fisheryUser1.getCoinsGiveReceivedMax() - fisheryUser1.getCoinsGiveReceived();
         long value = Math.min(MentionUtil.getAmountExt(args, fisheryUser0.getCoins()), fisheryUser0.getCoins());
-        long cap = fisheryUser1.getCoinsGiveReceivedMax() - fisheryUser1.getCoinsGiveReceived();
 
-        boolean limitCapped = false;
-        if (getGuildEntity().getFishery().getCoinGiftLimit() && value >= cap) {
-            if (cap > 0) {
-                value = cap;
-                limitCapped = true;
-            } else {
-                drawMessageNew(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getEffectiveName()))))
-                        .exceptionally(ExceptionLogger.get());
-                return false;
-            }
+        if (fisheryUser1.getCoins() >= Settings.FISHERY_MAX) {
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("max_coins", StringUtil.escapeMarkdown(user1.getEffectiveName()))))
+                    .exceptionally(ExceptionLogger.get());
+            return false;
+        }
+        if (getGuildEntity().getFishery().getCoinGiftLimit() && dailyLimitRemainder <= 0) {
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getEffectiveName()))))
+                    .exceptionally(ExceptionLogger.get());
+            return false;
         }
 
-        if (value != -1) {
-            if (value >= 1) {
-                long coins0Pre = fisheryUser0.getCoins();
-                long coins1Pre = fisheryUser1.getCoins();
+        boolean dailyLimitReached = false;
+        if (getGuildEntity().getFishery().getCoinGiftLimit() && value > dailyLimitRemainder) {
+            value = dailyLimitRemainder;
+            dailyLimitReached = true;
+        }
 
-                fisheryUser0.addCoinsRaw(-value);
-                fisheryUser1.addCoinsRaw(value);
-                fisheryUser1.addCoinsGiveReceived(value);
+        boolean totalLimitReached = false;
+        if (fisheryUser1.getCoins() > Settings.FISHERY_MAX - value) {
+            value = Settings.FISHERY_MAX - fisheryUser1.getCoins();
+            totalLimitReached = true;
+        }
 
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
-                        "successful",
-                        StringUtil.numToString(value),
-                        StringUtil.escapeMarkdown(user1.getEffectiveName()),
-                        StringUtil.escapeMarkdown(user0.getEffectiveName()),
-                        StringUtil.numToString(coins0Pre),
-                        StringUtil.numToString(coins0Pre - value),
-                        StringUtil.numToString(coins1Pre),
-                        StringUtil.numToString(coins1Pre + value)
-                ));
-
-                if (limitCapped) {
-                    EmbedUtil.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getEffectiveName())));
-                }
-
-                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-                return true;
-            } else {
-                if (fisheryUser0.getCoins() <= 0) {
-                    drawMessageNew(EmbedFactory.getEmbedError(this, getString("nocoins")))
-                            .exceptionally(ExceptionLogger.get());
-                } else {
-                    drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")))
-                            .exceptionally(ExceptionLogger.get());
-                }
-            }
-        } else {
+        if (value == -1) {
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")))
                     .exceptionally(ExceptionLogger.get());
+            return false;
         }
 
-        return false;
+        if (value < 1) {
+            if (fisheryUser0.getCoins() <= 0) {
+                drawMessageNew(EmbedFactory.getEmbedError(this, getString("nocoins")))
+                        .exceptionally(ExceptionLogger.get());
+            } else {
+                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")))
+                        .exceptionally(ExceptionLogger.get());
+            }
+            return false;
+        }
+
+        long coins0Pre = fisheryUser0.getCoins();
+        long coins1Pre = fisheryUser1.getCoins();
+
+        fisheryUser0.addCoinsRaw(-value);
+        fisheryUser1.addCoinsRaw(value);
+        fisheryUser1.addCoinsGiveReceived(value);
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
+                "successful",
+                StringUtil.numToString(value),
+                StringUtil.escapeMarkdown(user1.getEffectiveName()),
+                StringUtil.escapeMarkdown(user0.getEffectiveName()),
+                StringUtil.numToString(coins0Pre),
+                StringUtil.numToString(coins0Pre - value),
+                StringUtil.numToString(coins1Pre),
+                StringUtil.numToString(coins1Pre + value)
+        ));
+        if (dailyLimitReached) {
+            EmbedUtil.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getEffectiveName())));
+        }
+        if (totalLimitReached) {
+            EmbedUtil.addLog(eb, LogStatus.WARNING, getString("max_coins", StringUtil.escapeMarkdownInField(user1.getEffectiveName())));
+        }
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+        return true;
     }
 
 }
