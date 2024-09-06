@@ -40,19 +40,24 @@ public class StringListStateProcessor extends AbstractStateProcessor<List<String
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input) {
         List<String> newEntries = stringSplitterFunction.apply(input).stream()
                 .map(str -> str.substring(0, Math.min(str.length(), maxLength)))
+                .filter(str -> !str.isBlank())
                 .collect(Collectors.toList());
-        if (newEntries.size() > maxEntries) {
+
+        List<String> previousEntries = get();
+        if (previousEntries.size() >= maxEntries) {
             NavigationAbstract command = getCommand();
             command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_stringlist_toomanyentries", StringUtil.numToString(maxEntries)));
             return MessageInputResponse.FAILED;
         }
 
-        ArrayList<String> entries = new ArrayList<>(get());
-        newEntries.forEach(entry -> {
-            if (!entries.contains(entry)) {
-                entries.add(entry);
-            }
-        });
+        ArrayList<String> entries = new ArrayList<>(previousEntries);
+        newEntries.stream()
+                .limit(maxEntries - previousEntries.size())
+                .forEach(entry -> {
+                    if (!entries.contains(entry)) {
+                        entries.add(entry);
+                    }
+                });
         set(entries, false);
         return MessageInputResponse.SUCCESS;
     }

@@ -6,8 +6,12 @@ import java.util.Collection;
 public class CollectionUtil {
 
     public static <T> void replace(Collection<T> oldCollection, Collection<T> newCollection) {
-        oldCollection.clear();
-        oldCollection.addAll(newCollection);
+        oldCollection.removeIf(oldItem -> !newCollection.contains(oldItem));
+        for (T newItem : newCollection) {
+            if (!oldCollection.contains(newItem)) {
+                oldCollection.add(newItem);
+            }
+        }
     }
 
     public static <T> T[] arrayConcat(T[] array1, T[] array2) {
