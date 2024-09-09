@@ -9,6 +9,7 @@ import constants.LogStatus;
 import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicUser;
+import core.cache.ServerPatreonBoostCache;
 import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
 import core.featurelogger.FeatureLogger;
@@ -150,7 +151,7 @@ public class Ticket {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
                     .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()))
-                    .setFooter(selectedCategory != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", selectedCategory) : null);
+                    .setFooter(ServerPatreonBoostCache.get(member.getGuild().getIdLong()) && selectedCategory != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", selectedCategory) : null);
 
             try {
                 Message starterMessage = channel.sendMessageEmbeds(eb.build())
@@ -197,7 +198,7 @@ public class Ticket {
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
                         .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getName()), channel.getAsMention()))
-                        .setFooter(selectedCategory != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", selectedCategory) : null);
+                        .setFooter(ServerPatreonBoostCache.get(member.getGuild().getIdLong()) && selectedCategory != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", selectedCategory) : null);
 
                 logChannel.sendMessage(ticketsEntity.getPingStaffRoles() ? getRolePing(ticketsEntity) : " ")
                         .setEmbeds(ebAnnouncement.build())
@@ -423,7 +424,7 @@ public class Ticket {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(title)
                 .setDescription(desc)
-                .setFooter(ticketChannelEntity.getCategory() != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", ticketChannelEntity.getCategory()) : ticketChannelEntity.getCategory());
+                .setFooter(ServerPatreonBoostCache.get(guildEntity.getGuildId()) && ticketChannelEntity.getCategory() != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", ticketChannelEntity.getCategory()) : null);
         if (csvUrl != null) {
             EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.CONFIGURATION, "ticket_csv_warning"));
         }
@@ -499,7 +500,7 @@ public class Ticket {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
                         .setDescription(desc)
-                        .setFooter(ticketChannelEntity.getCategory() != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", ticketChannelEntity.getCategory()) : null);
+                        .setFooter(ServerPatreonBoostCache.get(guildEntity.getGuildId()) && ticketChannelEntity.getCategory() != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", ticketChannelEntity.getCategory()) : null);
                 announcementChannel.editMessageById(ticketChannelEntity.getLogMessageId(), " ")
                         .setEmbeds(eb.build())
                         .queue();
