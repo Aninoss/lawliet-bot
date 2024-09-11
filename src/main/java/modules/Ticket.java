@@ -150,8 +150,11 @@ public class Ticket {
             /* member greeting */
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
-                    .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()))
-                    .setFooter(ServerPatreonBoostCache.get(member.getGuild().getIdLong()) && selectedCategory != null ? TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", selectedCategory) : null);
+                    .setDescription(TextManager.getString(locale, Category.CONFIGURATION, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()));
+            if (ServerPatreonBoostCache.get(member.getGuild().getIdLong()) && selectedCategory != null) {
+                FeatureLogger.inc(PremiumFeature.TICKETS_TOPICS, member.getGuild().getIdLong());
+                eb.setFooter(TextManager.getString(locale, Category.CONFIGURATION, "ticket_category", selectedCategory));
+            }
 
             try {
                 Message starterMessage = channel.sendMessageEmbeds(eb.build())
