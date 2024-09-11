@@ -126,10 +126,12 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
         List<MangaUpdatesRelease> releasesCapped = releases.subList(0, Math.min(maxSlots, releases.size()));
         String recentReleases = new ListGen<MangaUpdatesRelease>()
                 .getList(releasesCapped, getString("noreleases"), release -> {
-                            String chapter = StringUtil.escapeMarkdown(release.getChapter().substring(series.getTitle().length()).trim());
+                            String chapter = release.getChapter().startsWith(series.getTitle())
+                                    ? release.getChapter().substring(series.getTitle().length()).trim()
+                                    : release.getChapter();
                             String scanlator = StringUtil.escapeMarkdown(release.getScanlator());
                             if (!chapter.isBlank()) {
-                                return getString("release", chapter, scanlator);
+                                return getString("release", StringUtil.escapeMarkdown(chapter), scanlator);
                             } else {
                                 return getString("release_nochapter", scanlator);
                             }

@@ -1,7 +1,5 @@
 package events.discordevents.privatemessagereceived;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.AssetIds;
@@ -16,6 +14,9 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
+import java.time.Duration;
+import java.util.ArrayList;
+
 @DiscordEvent
 public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbstract {
 
@@ -27,6 +28,7 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
     public boolean onPrivateMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         User user = event.getAuthor();
         if (Program.isMainCluster() &&
+                user != null &&
                 !usersDmNotified.asMap().containsKey(user.getIdLong()) &&
                 event.getAuthor().getIdLong() != AssetIds.OWNER_USER_ID
         ) {
