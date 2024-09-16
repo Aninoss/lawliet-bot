@@ -16,5 +16,6 @@ public interface ExternalLinks {
     String REPORT_URL = "https://lawlietbot.xyz/report?content=";
     String DEVELOPMENT_VOTES_URL = "https://lawlietbot.xyz/developmentvotes";
     String BAN_APPEAL_URL = "https://lawlietbot.xyz/banappeal/";
+    String BETA_SERVER_INVITE = "https://discord.gg/TUudEzHdXu";
 
 }

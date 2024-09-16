@@ -9,6 +9,7 @@ import core.utils.JDAUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.DiscordSubscriptionEntity;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
@@ -23,7 +24,8 @@ public class GuildMemberJoinVerifyPatreonServer extends GuildMemberJoinAbstract 
         if (event.getGuild().getIdLong() == AssetIds.BETA_SERVER_ID &&
                 Program.productionMode() &&
                 !member.getUser().isBot() &&
-                !PatreonCache.getInstance().hasPremium(member.getIdLong(), false)
+                !PatreonCache.getInstance().hasPremium(member.getIdLong(), false) &&
+                DiscordSubscriptionEntity.findValidDiscordSubscriptionEntitiesByUserId(entityManager, member.getIdLong()).isEmpty()
         ) {
             MainLogger.get().info("Kicking {} due to joining the beta server without a premium subscription", member.getId());
             String text = "You need to be a Lawliet premium subscriber to join this server: https://lawlietbot.xyz/premium";

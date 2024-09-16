@@ -7,6 +7,9 @@ import core.cache.PatreonCache;
 import core.utils.JDAUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.ScheduleEventDaily;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.DiscordSubscriptionEntity;
 import mysql.modules.devvotes.DBDevVotes;
 import mysql.modules.devvotes.DevVotesSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,10 +20,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @ScheduleEventDaily
 public class DevelopmentVotesReminder implements ExceptionRunnable {
@@ -45,7 +45,7 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
     public static void executeVoteNotification() throws InterruptedException {
         if (Program.isMainCluster() && Program.publicInstance()) {
             Map<Long, DevVotesSlot> devVotesSlotMap = DBDevVotes.getInstance().retrieve();
-            for (long userId : new ArrayList<>(PatreonCache.getInstance().getAsync().getUserTierMap().keySet())) {
+            for (long userId : getUserIds()) {
                 DevVotesSlot slot = devVotesSlotMap.getOrDefault(userId, new DevVotesSlot(userId));
                 if (slot.isActive()) {
                     MainLogger.get().info("Sending development votes notification to {}", userId);
@@ -74,7 +74,7 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
     public static void executeResultsNotification() throws InterruptedException {
         if (Program.isMainCluster() && Program.publicInstance()) {
             Map<Long, DevVotesSlot> devVotesSlotMap = DBDevVotes.getInstance().retrieve();
-            for (long userId : new ArrayList<>(PatreonCache.getInstance().getAsync().getUserTierMap().keySet())) {
+            for (long userId : getUserIds()) {
                 DevVotesSlot slot = devVotesSlotMap.getOrDefault(userId, new DevVotesSlot(userId));
                 if (slot.isActive()) {
                     MainLogger.get().info("Sending development votes results notification to {}", userId);
@@ -98,6 +98,14 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
                 }
             }
         }
+    }
+
+    public static Set<Long> getUserIds() {
+        HashSet<Long> userIds = new HashSet<>(PatreonCache.getInstance().getAsync().getUserTierMap().keySet());
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(DevelopmentVotesReminder.class)) {
+            DiscordSubscriptionEntity.findAllValidDiscordSubscriptionEntities(entityManager).forEach(entity -> userIds.add(entity.getUserId()));
+        }
+        return userIds;
     }
 
 }

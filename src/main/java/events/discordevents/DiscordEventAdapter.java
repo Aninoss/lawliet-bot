@@ -1,14 +1,23 @@
 package events.discordevents;
 
 import commands.SlashCommandManager;
+import constants.ExternalLinks;
 import core.*;
+import core.utils.JDAUtil;
 import events.discordevents.eventtypeabstracts.*;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.DiscordSubscriptionEntity;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateUserLimitEvent;
+import net.dv8tion.jda.api.events.entitlement.EntitlementCreateEvent;
+import net.dv8tion.jda.api.events.entitlement.EntitlementDeleteEvent;
+import net.dv8tion.jda.api.events.entitlement.EntitlementUpdateEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -283,6 +292,56 @@ public class DiscordEventAdapter extends ListenerAdapter {
     @Override
     public void onApplicationUpdatePrivileges(@NotNull ApplicationUpdatePrivilegesEvent event) {
         GlobalThreadPool.submit(() -> ApplicationUpdatePrivilegesAbstract.onApplicationUpdatePrivilegesStatic(event, getListenerList(ApplicationUpdatePrivilegesAbstract.class)));
+    }
+
+    @Override
+    public void onEntitlementCreate(@NotNull EntitlementCreateEvent event) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(DiscordEventAdapter.class)) {
+            DiscordSubscriptionEntity discordSubscriptionEntity = new DiscordSubscriptionEntity(event.getEntitlement().getId());
+            discordSubscriptionEntity.setUserId(event.getEntitlement().getUserIdLong());
+            discordSubscriptionEntity.setTimeEnding(event.getEntitlement().getTimeEnding() != null ? event.getEntitlement().getTimeEnding().toInstant() : null);
+
+            entityManager.getTransaction().begin();
+            entityManager.persist(discordSubscriptionEntity);
+            entityManager.getTransaction().commit();
+        }
+
+        String text = "Thank you for your support!\n\nYou can [join](" + ExternalLinks.BETA_SERVER_INVITE + ") the private Discord server with direct bot support and check out the monthly [development votes](" + ExternalLinks.DEVELOPMENT_VOTES_URL + ")!";
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setDescription(text);
+        JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), event.getEntitlement().getUserIdLong())
+                .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                .queue();
+    }
+
+    @Override
+    public void onEntitlementUpdate(@NotNull EntitlementUpdateEvent event) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(DiscordEventAdapter.class)) {
+            DiscordSubscriptionEntity discordSubscriptionEntity = entityManager.find(DiscordSubscriptionEntity.class, event.getEntitlement().getId());
+            if (discordSubscriptionEntity == null) {
+                MainLogger.get().error("Cannot update entitlement with id {} because it doesn't exist!", event.getEntitlement().getId());
+                return;
+            }
+
+            entityManager.getTransaction().begin();
+            discordSubscriptionEntity.setTimeEnding(event.getEntitlement().getTimeEnding() != null ? event.getEntitlement().getTimeEnding().toInstant() : null);
+            entityManager.getTransaction().commit();
+        }
+    }
+
+    @Override
+    public void onEntitlementDelete(@NotNull EntitlementDeleteEvent event) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(DiscordEventAdapter.class)) {
+            DiscordSubscriptionEntity discordSubscriptionEntity = entityManager.find(DiscordSubscriptionEntity.class, event.getEntitlement().getId());
+            if (discordSubscriptionEntity == null) {
+                MainLogger.get().error("Cannot delete entitlement with id {} because it doesn't exist!", event.getEntitlement().getId());
+                return;
+            }
+
+            entityManager.getTransaction().begin();
+            entityManager.remove(discordSubscriptionEntity);
+            entityManager.getTransaction().commit();
+        }
     }
 
     @Override
