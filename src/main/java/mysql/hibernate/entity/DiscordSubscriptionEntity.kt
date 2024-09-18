@@ -4,9 +4,7 @@ import mysql.hibernate.EntityManagerWrapper
 import mysql.hibernate.InstantConverter
 import mysql.hibernate.template.HibernateEntity
 import java.time.Instant
-import javax.persistence.Convert
-import javax.persistence.Entity
-import javax.persistence.Id
+import javax.persistence.*
 
 
 @Entity(name = "DiscordSubscription")
@@ -22,6 +20,7 @@ class DiscordSubscriptionEntity(key: String) : HibernateEntity() {
     @Convert(converter = InstantConverter::class)
     var timeEnding: Instant? = null
 
+    @Enumerated(EnumType.STRING)
     var sku: SKU = SKU.BASIC
 
 
