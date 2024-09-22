@@ -53,8 +53,11 @@ public class GuildEntityProcessors implements ExceptionRunnable {
         AtomicInteger voiceActivityActions = new AtomicInteger(0);
         AtomicInteger autoSellActions = new AtomicInteger(0);
         AtomicInteger autoWorkActions = new AtomicInteger(0);
-        AtomicInteger birthdayActions = new AtomicInteger(-1);
+        AtomicInteger birthdayActions = new AtomicInteger(0);
 
+        int birthdayQuarter = LocalDateTime.now().getMinute() / 15;
+        boolean checkBirthdays = birthdayQuarter != lastBirthdayQuarter;
+        lastBirthdayQuarter = birthdayQuarter;
         HashMap<Long, HashSet<Guild>> reminderGuildMap = new HashMap<>();
 
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(GuildEntityProcessors.class)) {
@@ -65,7 +68,7 @@ public class GuildEntityProcessors implements ExceptionRunnable {
                     processAutoSell(guild, autoSellActions);
                     processAutoWork(guild, guildEntity, autoWorkActions, reminderGuildMap);
                 }
-                if (guildEntity.getBirthday().getActive()) {
+                if (checkBirthdays && guildEntity.getBirthday().getActive()) {
                     processBirthday(guild, guildEntity, birthdayActions);
                 }
                 entityManager.clear();
@@ -74,7 +77,7 @@ public class GuildEntityProcessors implements ExceptionRunnable {
             MainLogger.get().info("Voice Channel - {} Actions", voiceActivityActions.get());
             MainLogger.get().info("Auto Sell - {} Actions", autoSellActions.get());
             MainLogger.get().info("Auto Work - {} Actions", autoWorkActions.get());
-            if (birthdayActions.get() >= 0) {
+            if (checkBirthdays) {
                 MainLogger.get().info("Birthday - {} Actions", birthdayActions.get());
             }
 
@@ -155,13 +158,6 @@ public class GuildEntityProcessors implements ExceptionRunnable {
     }
 
     private synchronized void processBirthday(Guild guild, GuildEntity guildEntity, AtomicInteger birthdayActions) {
-        int birthdayQuarter = LocalDateTime.now().getMinute() / 15;
-        if (birthdayQuarter == lastBirthdayQuarter) {
-            return;
-        }
-        lastBirthdayQuarter = birthdayQuarter;
-        birthdayActions.set(0);
-
         BirthdayEntity birthday = guildEntity.getBirthday();
         for (Map.Entry<Long, BirthdayUserEntryEntity> setEntry : birthday.getUserEntries().entrySet()) {
             long userId = setEntry.getKey();
