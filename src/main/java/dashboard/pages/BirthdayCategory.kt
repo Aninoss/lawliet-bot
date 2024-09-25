@@ -1,7 +1,7 @@
 package dashboard.pages
 
 import commands.Category
-import commands.runnables.configurationcategory.BirthdayConfigCommand
+import commands.runnables.birthdaycategory.BirthdayConfigCommand
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
@@ -30,11 +30,11 @@ class BirthdayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         get() = guildEntity.birthday
 
     override fun retrievePageTitle(): String {
-        return getString(Category.CONFIGURATION, "birthdayconfig_title")
+        return getString(Category.BIRTHDAYS, "birthdayconfig_title")
     }
 
     override fun retrievePageDescription(): String {
-        return getString(Category.CONFIGURATION, "birthdayconfig_home_desc")
+        return getString(Category.BIRTHDAYS, "birthdayconfig_home_desc")
             .replace("`", "\"")
             .replace("{PREFIX}", prefix)
     }
@@ -43,7 +43,7 @@ class BirthdayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         val innerContainer = VerticalContainer()
         innerContainer.isCard = true
 
-        val activeSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "birthdayconfig_home_active")) {
+        val activeSwitch = DashboardSwitch(getString(Category.BIRTHDAYS, "birthdayconfig_home_active")) {
             birthdayEntity.beginTransaction()
             birthdayEntity.active = !birthdayEntity.active
             log(entityManager, BotLogEntity.Event.BIRTHDAY_CONFIG_ACTIVE, atomicMember, null, birthdayEntity.active)
@@ -55,7 +55,7 @@ class BirthdayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         val channelComboBox = DashboardChannelComboBox(
                 this,
-                getString(Category.CONFIGURATION, "birthdayconfig_home_channel"),
+                getString(Category.BIRTHDAYS, "birthdayconfig_home_channel"),
                 DashboardComboBox.DataType.GUILD_MESSAGE_CHANNELS,
                 birthdayEntity.channelId,
                 true,
@@ -71,7 +71,7 @@ class BirthdayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         val roleComboBox = DashboardRoleComboBox(
             this,
-            getString(Category.CONFIGURATION, "birthdayconfig_home_role"),
+            getString(Category.BIRTHDAYS, "birthdayconfig_home_role"),
             birthdayEntity.roleId,
             true,
             true

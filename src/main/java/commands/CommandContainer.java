@@ -10,6 +10,9 @@ import commands.runnables.aitoyscategory.ColorCommand;
 import commands.runnables.aitoyscategory.ImitateCommand;
 import commands.runnables.aitoyscategory.Txt2ImgCommand;
 import commands.runnables.aitoyscategory.UpscalerCommand;
+import commands.runnables.birthdaycategory.BirthdayCommand;
+import commands.runnables.birthdaycategory.BirthdayConfigCommand;
+import commands.runnables.birthdaycategory.BirthdayListCommand;
 import commands.runnables.casinocategory.*;
 import commands.runnables.configurationcategory.*;
 import commands.runnables.externalcategory.*;
@@ -95,7 +98,6 @@ public class CommandContainer {
         commandList.add(CommandChannelShortcutsCommand.class);
         commandList.add(RolePlayBlockCommand.class);
         commandList.add(CustomRolePlayCommand.class);
-        commandList.add(BirthdayConfigCommand.class);
 
         //UTILITY
         commandList.add(VoteCommand.class);
@@ -106,7 +108,6 @@ public class CommandContainer {
         commandList.add(SuggestionCommand.class);
         commandList.add(CustomCommand.class);
         commandList.add(SetNSFWCommand.class);
-        commandList.add(BirthdayCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);
@@ -187,6 +188,11 @@ public class CommandContainer {
         commandList.add(InvitesCommand.class);
         commandList.add(InvitesTopCommand.class);
         commandList.add(InvitesManageCommand.class);
+
+        //BIRTHDAYS
+        commandList.add(BirthdayConfigCommand.class);
+        commandList.add(BirthdayCommand.class);
+        commandList.add(BirthdayListCommand.class);
 
         //INTERACTIONS
         commandList.add(AngryCommand.class);

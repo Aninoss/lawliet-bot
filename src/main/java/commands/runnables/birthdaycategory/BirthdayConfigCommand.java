@@ -1,4 +1,4 @@
-package commands.runnables.configurationcategory;
+package commands.runnables.birthdaycategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -23,7 +23,7 @@ import java.util.Locale;
 @CommandProperties(
         trigger = "birthdayconfig",
         userGuildPermissions = Permission.MANAGE_SERVER,
-        emoji = "🎁",
+        emoji = "⚙️",
         executableWithoutArgs = true,
         aliases = {"birthdaysettings"}
 )

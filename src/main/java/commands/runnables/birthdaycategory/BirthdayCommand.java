@@ -1,4 +1,4 @@
-package commands.runnables.utilitycategory;
+package commands.runnables.birthdaycategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;

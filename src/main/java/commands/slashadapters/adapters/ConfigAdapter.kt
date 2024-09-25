@@ -3,6 +3,7 @@ package commands.slashadapters.adapters
 import commands.Category
 import commands.CommandContainer
 import commands.CommandManager
+import commands.runnables.birthdaycategory.BirthdayConfigCommand
 import commands.runnables.configurationcategory.*
 import commands.runnables.fisherysettingscategory.FisheryCommand
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand

@@ -2,7 +2,7 @@ package events.scheduleevents.events;
 
 import commands.Category;
 import commands.Command;
-import commands.runnables.configurationcategory.BirthdayConfigCommand;
+import commands.runnables.birthdaycategory.BirthdayConfigCommand;
 import constants.ExceptionRunnable;
 import core.*;
 import core.cache.UserWithWorkFisheryDmReminderCache;
@@ -172,7 +172,7 @@ public class GuildEntityProcessors implements ExceptionRunnable {
 
                     GuildMessageChannel channel = birthday.getChannel().get().orElse(null);
                     if (channel != null && PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), BirthdayConfigCommand.class, channel, Permission.MESSAGE_SEND)) {
-                        channel.sendMessage(TextManager.getString(guildEntity.getLocale(), Category.CONFIGURATION, "birthdayconfig_message", member.getAsMention()))
+                        channel.sendMessage(TextManager.getString(guildEntity.getLocale(), Category.BIRTHDAYS, "birthdayconfig_message", member.getAsMention()))
                                 .queue();
                     }
 

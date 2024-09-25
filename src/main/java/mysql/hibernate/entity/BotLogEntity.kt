@@ -4,6 +4,7 @@ import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import commands.Category
 import commands.Command
+import commands.runnables.birthdaycategory.BirthdayConfigCommand
 import commands.runnables.configurationcategory.*
 import commands.runnables.fisherysettingscategory.FisheryCommand
 import commands.runnables.fisherysettingscategory.FisheryManageCommand

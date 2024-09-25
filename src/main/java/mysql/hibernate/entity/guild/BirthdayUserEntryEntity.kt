@@ -1,9 +1,6 @@
 package mysql.hibernate.entity.guild
 
-import java.time.Year
-import java.time.YearMonth
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 import javax.persistence.Embeddable
 
 @Embeddable
@@ -30,6 +27,22 @@ class BirthdayUserEntryEntity {
 
     fun updateTriggerYear() {
         triggerYear = Year.now(ZoneId.of(timeZoneEffectively)).value
+    }
+
+    fun getNextBirthday(): Instant? {
+        if (month == null || day == null) {
+            return null
+        }
+
+        val zoneId = ZoneId.of(timeZoneEffectively)
+        val now = ZonedDateTime.now(ZoneId.of(timeZoneEffectively))
+
+        val instant = LocalDate.of(now.year, month!!, day!!).atStartOfDay(zoneId).toInstant()
+        if (instant.plus(Duration.ofDays(1)).isBefore(Instant.now())) {
+            return LocalDate.of(now.year + 1, month!!, day!!).atStartOfDay(zoneId).toInstant()
+        } else {
+            return instant
+        }
     }
 
 }
