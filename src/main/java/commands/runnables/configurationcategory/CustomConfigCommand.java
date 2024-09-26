@@ -291,7 +291,7 @@ public class CustomConfigCommand extends NavigationAbstract implements OnReactio
 
     @Draw(state = STATE_EDIT)
     public EmbedBuilder onDrawEdit(Member member) {
-        setComponents(getGuildEntity().getCustomCommands().keySet().toArray(String[]::new));
+        setComponents(getGuildEntity().getCustomCommands().keySet().stream().map(str -> str + " ✕").toArray(String[]::new));
         return EmbedFactory.getEmbedDefault(
                 this,
                 getString("edit_desc"), getString("edit_title")

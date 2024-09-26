@@ -191,7 +191,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
         ArrayList<MemberCountDisplaySlot> channelNames = new ArrayList<>(memberCountData.getMemberCountDisplaySlots().values());
         String[] roleStrings = new String[channelNames.size()];
         for (int i = 0; i < roleStrings.length; i++) {
-            roleStrings[i] = channelNames.get(i).getMask();
+            roleStrings[i] = channelNames.get(i).getMask() + " ✕";
         }
         setComponents(roleStrings);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));

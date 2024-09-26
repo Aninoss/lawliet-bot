@@ -371,7 +371,7 @@ public class AlertsCommand extends NavigationAbstract {
                 .map(alert -> {
                     String trigger = alert.getCommandTrigger();
                     String channelName = StringUtil.shortenString(StringUtil.escapeMarkdown(new AtomicGuildMessageChannel(member.getGuild().getIdLong(), alert.getGuildMessageChannelId()).getPrefixedName(getLocale())), 40);
-                    String label = getString("slot_remove", false, channelName, trigger);
+                    String label = getString("slot_remove", false, channelName, trigger) + " ✕";
                     return Button.of(ButtonStyle.PRIMARY, String.valueOf(alert.hashCode()), label);
                 })
                 .collect(Collectors.toList());

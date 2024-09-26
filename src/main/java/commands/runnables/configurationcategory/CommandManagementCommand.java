@@ -208,7 +208,7 @@ public class CommandManagementCommand extends NavigationAbstract {
 
     @Draw(state = REMOVE_COMMANDS)
     public EmbedBuilder onDrawRemoveCommands(Member member) {
-        setComponents(DisabledCommands.getDisabledCommands(getGuildEntity()).toArray(new String[0]));
+        setComponents(DisabledCommands.getDisabledCommands(getGuildEntity()).stream().map(str -> str + " ✕").toArray(String[]::new));
         return EmbedFactory.getEmbedDefault(this, getString("state3_desc"), getString("state3_title"));
     }
 

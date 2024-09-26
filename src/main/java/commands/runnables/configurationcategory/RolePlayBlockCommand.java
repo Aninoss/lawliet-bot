@@ -235,7 +235,7 @@ public class RolePlayBlockCommand extends NavigationAbstract {
         RolePlayBlockEntity rolePlayBlock = getUserEntity().getRolePlayBlock();
         List<Button> buttons = rolePlayBlock.getAllowedUserIds().stream()
                 .map(userId -> {
-                    String label = AtomicUser.fromOutsideCache(userId).getPrefixedName(getLocale());
+                    String label = StringUtil.shortenString(AtomicUser.fromOutsideCache(userId).getPrefixedName(getLocale()), 40) + " ✕";
                     return Button.of(ButtonStyle.PRIMARY, String.valueOf(userId), label);
                 })
                 .collect(Collectors.toList());
@@ -260,7 +260,7 @@ public class RolePlayBlockCommand extends NavigationAbstract {
         RolePlayBlockEntity rolePlayBlock = getUserEntity().getRolePlayBlock();
         List<Button> buttons = rolePlayBlock.getBlockedUserIds().stream()
                 .map(userId -> {
-                    String label = AtomicUser.fromOutsideCache(userId).getPrefixedName(getLocale());
+                    String label = AtomicUser.fromOutsideCache(userId).getPrefixedName(getLocale()) + " ✕";
                     return Button.of(ButtonStyle.PRIMARY, String.valueOf(userId), label);
                 })
                 .collect(Collectors.toList());

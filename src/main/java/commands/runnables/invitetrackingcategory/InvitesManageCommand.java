@@ -225,7 +225,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                 .filter(inviteTrackingSlot -> inviteTrackingSlot.getInviterUserId() == atomicMember.getIdLong())
                 .map(inviteTrackingSlot -> {
                     AtomicMember atomicMember = new AtomicMember(member.getGuild().getIdLong(), inviteTrackingSlot.getMemberId());
-                    return Button.of(ButtonStyle.PRIMARY, atomicMember.getId(), atomicMember.getPrefixedName(getLocale()));
+                    return Button.of(ButtonStyle.PRIMARY, atomicMember.getId(), StringUtil.shortenString(atomicMember.getPrefixedName(getLocale()), 40) + " ✕");
                 })
                 .collect(Collectors.toList());
         setComponents(buttons);

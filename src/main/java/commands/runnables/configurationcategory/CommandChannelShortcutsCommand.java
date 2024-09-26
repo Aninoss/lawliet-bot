@@ -209,7 +209,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
                 .getCommandChannelShortcuts()
                 .keySet()
                 .stream()
-                .map(channelId -> new AtomicGuildMessageChannel(member.getGuild().getIdLong(), channelId).getPrefixedName(getLocale()))
+                .map(channelId -> StringUtil.shortenString(new AtomicGuildMessageChannel(member.getGuild().getIdLong(), channelId).getPrefixedName(getLocale()), 40) + " ✕")
                 .toArray(String[]::new);
         setComponents(options);
 
