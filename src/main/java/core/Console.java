@@ -35,6 +35,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Console {
@@ -54,6 +55,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("send_premium_code_notifications", Console::onSendPremiumCodeNotifications);
         tasks.put("clean_images", Console::onCleanImages);
         tasks.put("discord_backup", Console::onDiscordBackup);
         tasks.put("discord_secondary_domain", Console::onDiscordSecondaryDomain);
@@ -108,6 +110,10 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onSendPremiumCodeNotifications(String[] args) throws ExecutionException, InterruptedException {
+        SendPremiumCodeNotifications.execute();
     }
 
     private static void onCleanImages(String[] args) {
