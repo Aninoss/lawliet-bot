@@ -30,22 +30,23 @@ class DiscordSubscriptionEntity(key: String) : HibernateEntity() {
 
         @JvmStatic
         fun findValidDiscordSubscriptionEntitiesByUserId(entityManager: EntityManagerWrapper, userId: Long): List<DiscordSubscriptionEntity> {
-            return entityManager.createNativeQuery("{'userId': NumberLong('$userId')}", DiscordSubscriptionEntity::class.java).getResultList()
+            return entityManager.createQuery("FROM DiscordSubscription WHERE userId = :userId", DiscordSubscriptionEntity::class.java)
+                .setParameter("userId", userId)
+                .resultList
                 .map {
-                    val entity = it as DiscordSubscriptionEntity
-                    entity.entityManager = entityManager
-                    return@map entity
+                    it.entityManager = entityManager
+                    return@map it
                 }
                 .filter { it.timeEnding == null || it.timeEnding!!.isAfter(Instant.now()) }
         }
 
         @JvmStatic
         fun findAllValidDiscordSubscriptionEntities(entityManager: EntityManagerWrapper): List<DiscordSubscriptionEntity> {
-            return entityManager.createNativeQuery("", DiscordSubscriptionEntity::class.java).getResultList()
+            return entityManager.createQuery("FROM DiscordSubscription", DiscordSubscriptionEntity::class.java)
+                .resultList
                 .map {
-                    val entity = it as DiscordSubscriptionEntity
-                    entity.entityManager = entityManager
-                    return@map entity
+                    it.entityManager = entityManager
+                    return@map it
                 }
                 .filter { it.timeEnding == null || it.timeEnding!!.isAfter(Instant.now()) }
         }
