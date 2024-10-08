@@ -296,6 +296,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onEntitlementCreate(@NotNull EntitlementCreateEvent event) {
+        MainLogger.get().info("New entitlement (ID: {})", event.getEntitlement().getId());
+
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(DiscordEventAdapter.class)) {
             DiscordSubscriptionEntity discordSubscriptionEntity = new DiscordSubscriptionEntity(event.getEntitlement().getId());
             discordSubscriptionEntity.setUserId(event.getEntitlement().getUserIdLong());
@@ -316,6 +318,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onEntitlementUpdate(@NotNull EntitlementUpdateEvent event) {
+        MainLogger.get().info("Entitlement update (ID: {})", event.getEntitlement().getId());
+
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(DiscordEventAdapter.class)) {
             DiscordSubscriptionEntity discordSubscriptionEntity = entityManager.find(DiscordSubscriptionEntity.class, event.getEntitlement().getId());
             if (discordSubscriptionEntity == null) {
@@ -326,6 +330,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
             entityManager.getTransaction().begin();
             discordSubscriptionEntity.setTimeEnding(event.getEntitlement().getTimeEnding() != null ? event.getEntitlement().getTimeEnding().toInstant() : null);
             entityManager.getTransaction().commit();
+
+            MainLogger.get().info("Entitlement (ID: {}) time ending: {}", event.getEntitlement().getId(), event.getEntitlement().getTimeEnding());
         }
     }
 
