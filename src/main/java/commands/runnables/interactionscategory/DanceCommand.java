@@ -1,8 +1,9 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "dance",
@@ -43,7 +44,6 @@ public class DanceCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736255695296528484/758372718806171788/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/781298738953715722/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/816316872294137916/dance.gif",
-                "https://cdn.discordapp.com/attachments/736255695296528484/816323356437381160/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/834502905369329735/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/834502917180227614/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/834502929511612516/dance.gif",
@@ -87,7 +87,8 @@ public class DanceCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736255695296528484/881894363909746718/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/881894470084345897/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/881894568101032006/dance.gif",
-                "https://cdn.discordapp.com/attachments/736255695296528484/881894778357309470/dance.gif"
+                "https://cdn.discordapp.com/attachments/736255695296528484/881894778357309470/dance.gif",
+                "https://cdn.discordapp.com/attachments/736255695296528484/1293172018484871261/dance.gif"
         );
     }
 
