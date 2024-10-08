@@ -56,7 +56,7 @@ public class InviteFilter extends AutoModAbstract {
 
     @Override
     protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
-        String content = message.getContentRaw();
+        String content = JDAUtil.combineMessageContentRaw(message);
         for (String invite : message.getInvites()) {
             content = content.replace("https://discord.gg/", "discord.gg/")
                     .replace(invite, "\\*".repeat(6));

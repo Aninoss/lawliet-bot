@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageReference;
 import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
@@ -33,6 +34,12 @@ public class SlashHookSendMessageAction implements MessageCreateAction {
     @NotNull
     @Override
     public MessageCreateAction setNonce(@Nullable String nonce) {
+        throw new UnsupportedOperationException();
+    }
+
+    @NotNull
+    @Override
+    public MessageCreateAction setMessageReference(@NotNull MessageReference.MessageReferenceType messageReferenceType, @Nullable String s, @NotNull String s1, @NotNull String s2) {
         throw new UnsupportedOperationException();
     }
 
@@ -187,6 +194,13 @@ public class SlashHookSendMessageAction implements MessageCreateAction {
     @Override
     public MessageCreateAction setSuppressedNotifications(boolean suppressed) {
         webhookMessageAction = webhookMessageAction.setSuppressedNotifications(suppressed);
+        return this;
+    }
+
+    @NotNull
+    @Override
+    public MessageCreateAction setVoiceMessage(boolean b) {
+        webhookMessageAction = webhookMessageAction.setVoiceMessage(b);
         return this;
     }
 

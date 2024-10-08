@@ -34,7 +34,7 @@ public class WordFilter extends AutoModAbstract {
     protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log", StringUtil.escapeMarkdown(message.getAuthor().getName())))
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getChannel().getAsMention(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(message.getContentRaw(), 1024), true);
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(JDAUtil.combineMessageContentRaw(message), 1024), true);
 
         for (Long userId : wordFilterEntity.getLogReceiverUserIds()) {
             if (userId != message.getGuild().getSelfMember().getIdLong()) {
@@ -53,7 +53,7 @@ public class WordFilter extends AutoModAbstract {
     @Override
     protected boolean checkCondition(Message message) {
         return wordFilterEntity.getActive() &&
-                stringContainsWord(message.getContentRaw(), new ArrayList<>(wordFilterEntity.getWords())) &&
+                stringContainsWord(JDAUtil.combineMessageContentRaw(message), new ArrayList<>(wordFilterEntity.getWords())) &&
                 !wordFilterEntity.getExcludedMemberIds().contains(message.getAuthor().getIdLong()) &&
                 !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR);
     }

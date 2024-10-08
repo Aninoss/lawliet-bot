@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
+import net.dv8tion.jda.api.entities.messages.MessageSnapshot;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
@@ -29,10 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.CheckReturnValue;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JDAUtil {
@@ -294,6 +292,22 @@ public class JDAUtil {
         return collection.stream()
                 .map(MentionableAtomicAsset::getId)
                 .collect(Collectors.toList());
+    }
+
+    public static String combineMessageContentRaw(Message message) {
+        StringBuilder sb = new StringBuilder(message.getContentRaw());
+
+        MessageReference messageReference = message.getMessageReference();
+        if (messageReference != null && messageReference.getType() == MessageReference.MessageReferenceType.FORWARD) {
+            for (MessageSnapshot messageSnapshot : message.getMessageSnapshots()) {
+                if (!sb.isEmpty()) {
+                    sb.append("\n");
+                }
+                sb.append(messageSnapshot.getContentRaw());
+            }
+        }
+
+        return sb.toString();
     }
 
 }

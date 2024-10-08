@@ -14,11 +14,14 @@ public class LinkFilter {
 
     public static boolean check(Message message) {
         Guild guild = message.getGuild();
-
-        if ((guild.getIdLong() == AssetIds.ANICORD_SERVER_ID || guild.getIdLong() == AssetIds.SUPPORT_SERVER_ID) &&
-                !BotPermissionUtil.can(message.getMember(), Permission.MESSAGE_EMBED_LINKS) &&
-                InternetUtil.stringHasURL(message.getContentRaw())
+        if ((guild.getIdLong() != AssetIds.ANICORD_SERVER_ID && guild.getIdLong() != AssetIds.SUPPORT_SERVER_ID) ||
+                BotPermissionUtil.can(message.getMember(), Permission.MESSAGE_EMBED_LINKS)
         ) {
+            return true;
+        }
+
+        String content = JDAUtil.combineMessageContentRaw(message);
+        if (InternetUtil.stringHasURL(content)) {
             message.delete().queue();
             if (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID) {
                 String text = "⚠️ Du musst verifiziert sein, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#1004011415499190292>";
@@ -26,7 +29,7 @@ public class LinkFilter {
                         .flatMap(messageChannel -> messageChannel.sendMessage(text))
                         .queue();
                 message.getGuild().getChannelById(GuildMessageChannel.class, 819350890263085097L)
-                        .sendMessage("LINK BLOCK FOR " + StringUtil.escapeMarkdown(message.getAuthor().getName()) + " IN " + message.getChannel().getAsMention() + ": " + message.getContentRaw())
+                        .sendMessage("LINK BLOCK FOR " + StringUtil.escapeMarkdown(message.getAuthor().getName()) + " IN " + message.getChannel().getAsMention() + ": " + content)
                         .queue();
             }
             return false;
