@@ -107,8 +107,6 @@ public class GiveawayScheduler {
                                         int numberOfWinners, boolean reroll
     ) {
         GuildMessageChannel channel = (GuildMessageChannel) message.getChannel();
-        List<Member> members = MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).join();
-
         users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
         Collections.shuffle(users);
         List<User> winners = users.subList(0, Math.min(users.size(), numberOfWinners));
@@ -160,8 +158,9 @@ public class GiveawayScheduler {
         }
 
         List<Role> roles = AtomicRole.to(giveaway.getPrizeRoles());
-        if (!roles.isEmpty() && !members.isEmpty() && PermissionCheckRuntime.botCanManageRoles(locale, GiveawayCommand.class, roles)) {
-            for (Member member : members) {
+        if (!roles.isEmpty() && !winners.isEmpty() && PermissionCheckRuntime.botCanManageRoles(locale, GiveawayCommand.class, roles)) {
+            List<Member> winnerMembers = MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), winners).join();
+            for (Member member : winnerMembers) {
                 channel.getGuild().modifyMemberRoles(member, roles, Collections.emptySet())
                         .reason(Command.getCommandLanguage(GiveawayCommand.class, locale).getTitle())
                         .queue();
