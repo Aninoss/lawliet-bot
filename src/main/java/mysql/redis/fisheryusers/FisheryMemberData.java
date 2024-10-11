@@ -9,16 +9,14 @@ import core.assets.MemberAsset;
 import core.cache.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
-import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import modules.fishery.*;
-import mysql.redis.RedisManager;
+import modules.graphics.FisheryGraphics;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.casinostats.DBCasinoStats;
+import mysql.redis.RedisManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -29,6 +27,8 @@ import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
 import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -624,12 +624,21 @@ public class FisheryMemberData implements MemberAsset {
 
             /* generate account embed */
             FisheryRecentFishGainsData finalFisheryRecentFishGainsDataAfterwards = fisheryRecentFishGainsDataAfterwards;
-            return generateUserChangeEmbed(member, guildEntity, fishAdd, coinsAdd,
-                    finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
-                    finalFisheryRecentFishGainsDataAfterwards.getRecentFishGains(),
-                    fisheryRecentFishGainsDataPrevious.getRecentFishGains(), fishPrevious, coinsPrevious, newDailyStreak,
-                    dailyStreakPrevious, banned
-            );
+            if (guildEntity.getFishery().getGraphicallyGeneratedAccountCardsEffectively()) {
+                return generateUserChangeEmbedCard(member, guildEntity, fishAdd, coinsAdd,
+                        finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
+                        finalFisheryRecentFishGainsDataAfterwards.getRecentFishGains(),
+                        fisheryRecentFishGainsDataPrevious.getRecentFishGains(), fishPrevious, coinsPrevious, newDailyStreak,
+                        dailyStreakPrevious, banned
+                );
+            } else {
+                return generateUserChangeEmbed(member, guildEntity, fishAdd, coinsAdd,
+                        finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
+                        finalFisheryRecentFishGainsDataAfterwards.getRecentFishGains(),
+                        fisheryRecentFishGainsDataPrevious.getRecentFishGains(), fishPrevious, coinsPrevious, newDailyStreak,
+                        dailyStreakPrevious, banned
+                );
+            }
         });
     }
 
@@ -644,7 +653,7 @@ public class FisheryMemberData implements MemberAsset {
 
         String patreonEmoji = "👑";
         String displayName = member.getEffectiveName();
-        while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) {
+        while (!displayName.isEmpty() && displayName.startsWith(patreonEmoji)) {
             displayName = displayName.substring(patreonEmoji.length());
         }
 
@@ -700,6 +709,67 @@ public class FisheryMemberData implements MemberAsset {
                         TextManager.getString(locale, TextManager.GENERAL, "voice_activity", voiceStatus)
                 );
             }
+        }
+
+        return eb;
+    }
+
+    private synchronized EmbedBuilder generateUserChangeEmbedCard(Member member, GuildEntity guildEntity, long fishAdd, long coinsAdd,
+                                                              long rank, long rankPrevious, long fishIncome,
+                                                              long fishIncomePrevious, long fishPrevious,
+                                                              long coinsPrevious, Long newDailyStreak,
+                                                              long dailyStreakPrevious, boolean isBanned
+    ) {
+        Locale locale = guildEntity.getLocale();
+        boolean patreon = PatreonCache.getInstance().hasPremium(memberId, false);
+
+        String patreonEmoji = "👑";
+        String displayName = member.getEffectiveName();
+        while (!displayName.isEmpty() && displayName.startsWith(patreonEmoji)) {
+            displayName = displayName.substring(patreonEmoji.length());
+        }
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patreon, displayName, patreonEmoji), null, member.getEffectiveAvatarUrl());
+
+        if (patreon) eb.setColor(Color.YELLOW);
+        if (fishAdd > 0 || (fishAdd == 0 && coinsAdd > 0)) {
+            eb.setColor(Color.GREEN);
+        } else if (coinsAdd <= 0 && (fishAdd < 0 || coinsAdd < 0)) {
+            eb.setColor(Color.RED);
+        }
+
+        try {
+            dailyStreakPrevious = newDailyStreak != null ? dailyStreakPrevious : getDailyStreak();
+            long[] values = new long[] {
+                    fishIncome,
+                    fishPrevious + fishAdd,
+                    coinsPrevious + coinsAdd,
+                    getDailyStreak()
+            };
+
+            long[] valueChanges = new long[] {
+                    fishIncome - fishIncomePrevious,
+                    fishAdd,
+                    coinsAdd,
+                    getDailyStreak() - dailyStreakPrevious,
+            };
+
+            String subtext = null;
+            if (isBanned) {
+                subtext = TextManager.getString(locale, TextManager.GENERAL, "banned");
+            } else {
+                Boolean voiceStatus = getVoiceStatus(guildEntity, member);
+                if (voiceStatus != null) {
+                    subtext = TextManager.getString(locale, TextManager.GENERAL, "voice_activity", voiceStatus);
+                }
+            }
+
+            InputStream inputStream = FisheryGraphics.createAccountCard(locale, values, valueChanges,
+                    rank, member.getGuild().getMemberCount(), rank - rankPrevious, getActivePowerUps(), subtext);
+            eb.setImage(InternetUtil.getUrlFromInputStream(inputStream, "png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         return eb;

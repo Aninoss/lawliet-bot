@@ -70,6 +70,7 @@ class BotLogEntity(
         FISHERY_POWER_UPS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryCommand::class.java, "fishery_dashboard_powerups"),
         FISHERY_FISH_REMINDERS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryCommand::class.java, "fishery_dashboard_reminders"),
         FISHERY_COIN_GIFT_LIMIT(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryCommand::class.java, "fishery_dashboard_coingiftlimit"),
+        FISHERY_ACCOUNT_CARDS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryCommand::class.java, "fishery_cards_dashboard"),
         FISHERY_TREASURE_CHEST_PROBABILITY(ValuesRelationship.OLD_AND_NEW, ValueType.DOUBLE, FisheryCommand::class.java, "fishery_probabilities_treasure"),
         FISHERY_POWER_UP_PROBABILITY(ValuesRelationship.OLD_AND_NEW, ValueType.DOUBLE, FisheryCommand::class.java, "fishery_probabilities_powerups"),
         FISHERY_WORK_INTERVAL(ValuesRelationship.OLD_AND_NEW, ValueType.DURATION, FisheryCommand::class.java, "fishery_dashboard_workinterval"),

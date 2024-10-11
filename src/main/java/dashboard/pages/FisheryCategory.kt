@@ -548,6 +548,31 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         switchCoinLimit.isChecked = fisheryEntity.coinGiftLimit
         container.add(switchCoinLimit, DashboardSeparator(true))
 
+        val switchAccountCards = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_cards_dashboard")) {
+            if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
+            guildEntity.beginTransaction()
+            fisheryEntity.graphicallyGeneratedAccountCards = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_ACCOUNT_CARDS, atomicMember, null, it.data)
+            guildEntity.commitTransaction()
+
+            ActionResult()
+        }
+        switchAccountCards.isEnabled = isPremium
+        switchAccountCards.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mcards_desc")
+        switchAccountCards.isChecked = fisheryEntity.graphicallyGeneratedAccountCardsEffectively
+        container.add(switchAccountCards)
+
+        if (!isPremium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
+        }
+        container.add(DashboardSeparator(true))
+
         val probabilitiesContainer = HorizontalContainer()
         probabilitiesContainer.allowWrap = true
 

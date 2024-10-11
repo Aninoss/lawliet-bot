@@ -55,6 +55,16 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
             _coinGiftLimit = value
         }
 
+    @Column(name = "$FISHERY.graphicallyGeneratedAccountCards")
+    private var _graphicallyGeneratedAccountCards: Boolean? = null
+    var graphicallyGeneratedAccountCards: Boolean
+        get() = _graphicallyGeneratedAccountCards ?: false
+        set(value) {
+            _graphicallyGeneratedAccountCards = value
+        }
+    val graphicallyGeneratedAccountCardsEffectively: Boolean
+        get() = graphicallyGeneratedAccountCards && ServerPatreonBoostCache.get(guildId)
+
     @Column(name = "$FISHERY.treasureChestProbabilityInPercent")
     private var _treasureChestProbabilityInPercent: Double? = null
     var treasureChestProbabilityInPercent: Double

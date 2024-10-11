@@ -143,6 +143,21 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     return true;
                 }
 
+                fishery.beginTransaction();
+                fishery.setGraphicallyGeneratedAccountCards(!fishery.getGraphicallyGeneratedAccountCards());
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ACCOUNT_CARDS, event.getMember(), null, fishery.getGraphicallyGeneratedAccountCards());
+                fishery.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("cardsset", fishery.getGraphicallyGeneratedAccountCards()));
+                stopLock = true;
+                return true;
+            }
+            case 5 -> {
+                if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                    return true;
+                }
+
                 String treasureChestsId = "treasure_chests";
                 TextInput textTreasureChests = TextInput.create(treasureChestsId, getString("probabilities_treasure"), TextInputStyle.SHORT)
                         .setValue(StringUtil.doubleToString(fishery.getTreasureChestProbabilityInPercentEffectively(), 2, getLocale()))
@@ -208,7 +223,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 event.replyModal(modal).queue();
                 return false;
             }
-            case 5 -> {
+            case 6 -> {
                 if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
                     return true;
@@ -222,12 +237,12 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 event.replyModal(modal).queue();
                 return false;
             }
-            case 6 -> {
+            case 7 -> {
                 setState(STATE_SET_EXCLUDED_CHANNELS);
                 stopLock = true;
                 return true;
             }
-            case 7 -> {
+            case 8 -> {
                 if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
                     fishery.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.ACTIVE);
@@ -244,7 +259,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 stopLock = true;
                 return true;
             }
-            case 8 -> {
+            case 9 -> {
                 if (fishery.getFisheryStatus() == FisheryStatus.ACTIVE) {
                     if (stopLock) {
                         stopLock = false;
@@ -273,15 +288,16 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         FisheryEntity fishery = getGuildEntity().getFishery();
 
         String[] options = getString("state0_options_" + fishery.getFisheryStatus().ordinal()).split("\n");
-        setComponents(options, fishery.getFisheryStatus() == FisheryStatus.ACTIVE ? null : Set.of(6), Set.of(7));
+        setComponents(options, fishery.getFisheryStatus() == FisheryStatus.ACTIVE ? null : Set.of(8), Set.of(9));
 
         GuildMessageChannel channel = getGuildMessageChannel().get();
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[fishery.getFisheryStatus().ordinal()] + "**\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
-                .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, fishery.getTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
-                .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, fishery.getPowerUps()).getFormatted()), getString("state0_mpowerups_desc"), true)
-                .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
-                .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
+                .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, fishery.getTreasureChests()).getFormatted()), "-# " + getString("state0_mtreasurechests_desc"), true)
+                .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, fishery.getPowerUps()).getFormatted()), "-# " + getString("state0_mpowerups_desc"), true)
+                .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), "-# " + getString("state0_mreminders_desc"), true)
+                .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), "-# " + getString("state0_mcoinsgivenlimit_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
+                .addField(getString("state0_mcards_title", StringUtil.getEmojiForBoolean(channel, fishery.getGraphicallyGeneratedAccountCardsEffectively()).getFormatted(), Emojis.COMMAND_ICON_PREMIUM.getFormatted()), "-# " + getString("state0_mcards_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
                 .addField(getString("state0_mprobs", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), generateProbabilitiesTextValue(fishery) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
                 .addField(getString("state0_mworkinterval", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(fishery.getWorkIntervalMinutesEffectively())), true)
                 .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
