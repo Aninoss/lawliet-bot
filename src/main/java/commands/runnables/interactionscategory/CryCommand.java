@@ -1,8 +1,9 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "cry",
@@ -107,7 +108,14 @@ public class CryCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736255198808375307/881893079093768222/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/881893227391778876/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/881893404198436906/cry.gif",
-                "https://cdn.discordapp.com/attachments/736255198808375307/881893675502821396/cry.gif"
+                "https://cdn.discordapp.com/attachments/736255198808375307/881893675502821396/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/1295028060512587817/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/1295028352675090463/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/1295028454127042600/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/1295028547970142332/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/1295029281231208499/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/1295029874100273152/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/1295030071123509278/cry.gif"
         );
     }
 

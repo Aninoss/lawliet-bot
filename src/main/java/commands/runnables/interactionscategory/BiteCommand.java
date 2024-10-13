@@ -1,8 +1,9 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "bite",
@@ -30,7 +31,6 @@ public class BiteCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272948289077308/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272953817432184/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272959609765918/bite.gif",
-                "https://cdn.discordapp.com/attachments/736272811789779006/736272970309304390/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272976814538812/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272988722167808/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272993193427035/bite.gif",
@@ -43,7 +43,14 @@ public class BiteCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736272811789779006/834489283703734302/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/834489296710270996/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/834489308818833418/bite.gif",
-                "https://cdn.discordapp.com/attachments/736272811789779006/881892257886765066/bite.gif"
+                "https://cdn.discordapp.com/attachments/736272811789779006/881892257886765066/bite.gif",
+                "https://cdn.discordapp.com/attachments/736272811789779006/1295025875036672040/bite.gif",
+                "https://cdn.discordapp.com/attachments/736272811789779006/1295025934054981673/bite.gif",
+                "https://cdn.discordapp.com/attachments/736272811789779006/1295026209297793127/bite.gif",
+                "https://cdn.discordapp.com/attachments/736272811789779006/1295026627251535903/bite.gif",
+                "https://cdn.discordapp.com/attachments/736272811789779006/1295026791139901561/bite.gif",
+                "https://cdn.discordapp.com/attachments/736272811789779006/1295027255852011634/bite.gif",
+                "https://cdn.discordapp.com/attachments/736272811789779006/1295027618026094672/bite.gif"
         );
     }
 
