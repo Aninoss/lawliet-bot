@@ -174,30 +174,30 @@ public class FisheryGraphics {
 
         BufferedImage coinImage = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES,"coin.png"));
         g2d.drawImage(coinImage, 65 + labelWidth, 521, null);
-        g2d.drawString(fontExtraSmall.getIterator(coinGiftLimit != 0 ? StringUtil.numToString(coinGiftLimit) : "∞"), 98 + labelWidth, 526 + getTextHeight(frc, fontExtraSmall));
+        drawStringScaledToBounds(g2d, frc, fontExtraSmall, coinGiftLimit != 0 ? StringUtil.numToString(coinGiftLimit) : "∞", 98 + labelWidth, 526 + getTextHeight(frc, fontExtraSmall), 716 - (98 + labelWidth), false);
     }
 
     private static void drawGearSlot(Graphics2D g2d, Locale locale, FontRenderContext frc, AttributedStringGenerator fontSmall,
                                      AttributedStringGenerator fontExtraSmall, String label, int i,
                                      String level, String value) {
-        int xAdd = (i / 4) * 368;
+        int xAdd = (i / 4) * 338;
         int yAdd = (i % 4) * 98;
 
         drawStringScaledToBounds(g2d, frc, fontSmall, label, 111 + xAdd, 147 + yAdd + getTextHeight(frc, fontSmall) / 2, 168, false);
 
         String levelString = TextManager.getString(locale, Category.FISHERY, "fisherycat_level", level);
         double levelWidth = fontSmall.getStringBounds(levelString, frc).getWidth();
-        double levelScaleX = Math.min(1.0, 75.0 / levelWidth);
+        double levelScaleX = Math.min(1.0, 55.0 / levelWidth);
 
         g2d.setColor(Color.BLACK);
-        drawStringScaled(g2d, frc, fontSmall, levelString, (int) (350 + xAdd - Math.min(75.0, levelWidth) / 2.0), 147 + yAdd + getTextHeight(frc, fontSmall) / 2, levelScaleX, false);
+        drawStringScaled(g2d, frc, fontSmall, levelString, (int) (330 + xAdd - Math.min(55.0, levelWidth) / 2.0), 147 + yAdd + getTextHeight(frc, fontSmall) / 2, levelScaleX, false);
         g2d.setColor(Color.WHITE);
 
         double valueWidth = fontExtraSmall.getStringBounds(value, frc).getWidth();
         if (i != 4) {
             valueWidth += 10 + fontExtraSmall.getStringBounds(TextManager.getString(locale, Category.FISHERY, "fisherycat_gearsubtitle_" + i), frc).getWidth();
         }
-        double valueScaleX = Math.min(1.0, (279.0 + (i == 4 ? 33.0 : 0.0)) / valueWidth);
+        double valueScaleX = Math.min(1.0, (249.0 + (i == 4 ? 33.0 : 0.0)) / valueWidth);
 
         double valueNumberWidth = drawStringScaled(g2d, frc, fontExtraSmall, value, 129 + xAdd - (i == 4 ? 33 : 0), 181 + yAdd + getTextHeight(frc, fontExtraSmall), valueScaleX, false);
         if (i != 4) {
