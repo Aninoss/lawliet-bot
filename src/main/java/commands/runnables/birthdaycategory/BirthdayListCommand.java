@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
         emoji = "📅",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        releaseDate = { 2024, 10, 14 }
+        releaseDate = { 2024, 10, 23 }
 )
 public class BirthdayListCommand extends ListAbstract {
 

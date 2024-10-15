@@ -9,10 +9,15 @@ import core.*;
 import core.cache.UserBannedCache;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;
+import core.utils.InternetUtil;
+import core.utils.StringUtil;
+import modules.graphics.FisheryGraphics;
+import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryMemberGearData;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -25,6 +30,8 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.*;
 
@@ -171,6 +178,25 @@ public class Fishery {
                 return "•";
             }
         }
+    }
+
+    public static String generateGearCardUrl(Locale locale, FisheryMemberData fisheryMemberData, boolean powerUpBonus, List<Role> roles, int roleLvl, FisheryEntity fishery) throws IOException {
+        String roleName = !roles.isEmpty() && roleLvl > 0 && roleLvl <= roles.size()
+                ? "@" + roles.get(roleLvl - 1).getName()
+                : TextManager.getString(locale, Category.FISHERY, "fisherycat_gear_norole");
+        long coinGiftLimit = fishery.getCoinGiftLimit() ? fisheryMemberData.getCoinsGiveReceivedMax() : 0;
+
+        ArrayList<FisheryMemberGearData> gearList = new ArrayList<>(fisheryMemberData.getGearMap().values());
+        long[] levels = new long[gearList.size()];
+        long[] values = new long[gearList.size()];
+        for (int i = 0; i < gearList.size(); i++) {
+            FisheryMemberGearData slot = gearList.get(i);
+            levels[i] = slot.getLevel();
+            values[i] = slot.getEffect();
+        }
+
+        InputStream inputStream = FisheryGraphics.createGearCard(locale, levels, values, roleName, coinGiftLimit, powerUpBonus);
+        return InternetUtil.getUrlFromInputStream(inputStream, "png");
     }
 
 }

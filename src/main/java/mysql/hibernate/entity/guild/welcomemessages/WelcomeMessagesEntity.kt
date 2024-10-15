@@ -33,8 +33,4 @@ class WelcomeMessagesEntity : HibernateEmbeddedEntity<GuildEntity>() {
         leave.postLoad(hibernateEntity)
     }
 
-    fun isUsed(): Boolean { //TODO: remove after migration
-        return join.isUsed() || dm.isUsed() || leave.isUsed()
-    }
-
 }

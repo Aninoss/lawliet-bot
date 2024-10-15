@@ -48,8 +48,4 @@ class AutoChannelEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDisco
     override val guildId: Long
         get() = hibernateEntity.guildId
 
-    fun isUsed(): Boolean { //TODO: remove after migration
-        return _active != null || _nameMask != null || parentChannelIds.isNotEmpty() || _beginLocked != null || childChannelIdsToParentChannelId.isNotEmpty()
-    }
-
 }

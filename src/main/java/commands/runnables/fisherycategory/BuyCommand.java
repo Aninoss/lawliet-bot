@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -166,7 +167,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     }
 
     @Override
-    public EmbedBuilder draw(Member member, int state) {
+    public EmbedBuilder draw(Member member, int state) throws IOException {
         FisheryEntity fishery = getGuildEntity().getFishery();
         List<Role> roles = fishery.getRoles();
 
@@ -203,21 +204,12 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         StringUtil.numToString(fisheryMemberData.getCoins()),
                         StringUtil.numToString(coupons)
                 );
-                String status = getString(
-                        "status",
-                        numToStringWithPowerUpBonus(fisheryMemberData.getMemberGear(FisheryGear.MESSAGE).getEffect(), powerUpBonus),
-                        StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.DAILY).getEffect()),
-                        numToStringWithPowerUpBonus(fisheryMemberData.getMemberGear(FisheryGear.VOICE).getEffect(), powerUpBonus),
-                        StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.TREASURE).getEffect()),
-                        !roles.isEmpty() && roleLvl > 0 && roleLvl <= roles.size() ? StringUtil.escapeMarkdown(roles.get(roleLvl - 1).getName()) : "-",
-                        StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.SURVEY).getEffect()),
-                        StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect()),
-                        fishery.getCoinGiftLimit() ? StringUtil.numToString(fisheryMemberData.getCoinsGiveReceivedMax()) : "∞"
-                );
 
-                EmbedBuilder statusEmbed = EmbedFactory.getEmbedDefault(this, StringUtil.shortenStringLine(statusCurrencies + "\n\n" + status, 1024))
-                        .setTitle(getString("status_title"));
+                EmbedBuilder statusEmbed = fishery.getGraphicallyGeneratedAccountCardsEffectively()
+                        ? getGearEmbedCard(fisheryMemberData, powerUpBonus, roles, roleLvl, fishery, statusCurrencies)
+                        : getGearEmbedDefault(powerUpBonus, roles, roleLvl, fishery, statusCurrencies);
                 setAdditionalEmbeds(statusEmbed.build());
+
                 setComponents(options.toArray(new String[0]));
                 return catalogEmbed;
 
@@ -227,6 +219,29 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
             default:
                 return null;
         }
+    }
+
+    private EmbedBuilder getGearEmbedDefault(boolean powerUpBonus, List<Role> roles, int roleLvl, FisheryEntity fishery, String statusCurrencies) {
+        String status = getString(
+                "status",
+                numToStringWithPowerUpBonus(fisheryMemberData.getMemberGear(FisheryGear.MESSAGE).getEffect(), powerUpBonus),
+                StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.DAILY).getEffect()),
+                numToStringWithPowerUpBonus(fisheryMemberData.getMemberGear(FisheryGear.VOICE).getEffect(), powerUpBonus),
+                StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.TREASURE).getEffect()),
+                !roles.isEmpty() && roleLvl > 0 && roleLvl <= roles.size() ? StringUtil.escapeMarkdown(roles.get(roleLvl - 1).getName()) : "-",
+                StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.SURVEY).getEffect()),
+                StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect()),
+                fishery.getCoinGiftLimit() ? StringUtil.numToString(fisheryMemberData.getCoinsGiveReceivedMax()) : "∞"
+        );
+
+        return EmbedFactory.getEmbedDefault(this, StringUtil.shortenStringLine(statusCurrencies + "\n\n" + status, 1024))
+                .setTitle(getString("status_title"));
+    }
+
+    private EmbedBuilder getGearEmbedCard(FisheryMemberData fisheryMemberData, boolean powerUpBonus, List<Role> roles, int roleLvl, FisheryEntity fishery, String statusCurrencies) throws IOException {
+        return EmbedFactory.getEmbedDefault(this, statusCurrencies)
+                .setTitle(getString("status_title"))
+                .setImage(Fishery.generateGearCardUrl(getLocale(), fisheryMemberData, powerUpBonus, roles, roleLvl, fishery));
     }
 
     private List<FisheryMemberGearData> getUpgradableGears() {

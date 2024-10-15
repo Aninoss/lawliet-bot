@@ -34,7 +34,7 @@ public class FisheryGraphics {
         Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
 
         g2d.drawImage(backgroundImage, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
-        drawTexts(g2d, locale, values, valueChanges, rank, totalRank, rankChange, subtext);
+        drawAccountTexts(g2d, locale, values, valueChanges, rank, totalRank, rankChange, subtext);
 
         for (int i = 0; i < activePowerUps.size(); i++) {
             drawPowerUp(g2d, activePowerUps.get(i), i);
@@ -47,8 +47,8 @@ public class FisheryGraphics {
         }
     }
 
-    private static void drawTexts(Graphics2D g2d, Locale locale, long[] values, long[] valueChanges,
-                                  long rank, long totalRank, long rankChange, String subtext
+    private static void drawAccountTexts(Graphics2D g2d, Locale locale, long[] values, long[] valueChanges,
+                                         long rank, long totalRank, long rankChange, String subtext
     ) {
         FontRenderContext frc = new FontRenderContext(null, true, true);
         g2d.setColor(Color.WHITE);
@@ -62,7 +62,7 @@ public class FisheryGraphics {
         String[] labels = TextManager.getString(locale, Category.FISHERY, "fisherycat_valuelabels").split("\n");
         for (int i = 0; i < labels.length; i++) {
             String label = labels[i];
-            drawSlot(g2d, frc, fontSmall, label, values[i], valueChanges[i], i, valueChanges[i] >= 0 ? Color.GREEN : Color.RED);
+            drawAccountSlot(g2d, frc, fontSmall, label, values[i], valueChanges[i], i, valueChanges[i] >= 0 ? Color.GREEN : Color.RED);
         }
 
         String rankChangeString = rankChange != 0 ? (" (" + (rankChange >= 0 ? "+" : "") + StringUtil.numToString(rankChange) + ")") : null;
@@ -76,8 +76,8 @@ public class FisheryGraphics {
         }
     }
 
-    private static void drawSlot(Graphics2D g2d, FontRenderContext frc, AttributedStringGenerator fontSmall, String label,
-                                 long value, long valueChange, int i, Color valueChangeColor
+    private static void drawAccountSlot(Graphics2D g2d, FontRenderContext frc, AttributedStringGenerator fontSmall, String label,
+                                        long value, long valueChange, int i, Color valueChangeColor
     ) {
         drawStringScaledToBounds(g2d, frc, fontSmall, label, 110, 147 + 58 * i + getTextHeight(frc, fontSmall) / 2, 200, false);
 
@@ -128,6 +128,85 @@ public class FisheryGraphics {
     private static void drawPowerUp(Graphics2D g2d, FisheryPowerUp powerUp, int i) throws IOException {
         BufferedImage image = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES, String.format("powerup/%s.png", powerUp.name().toLowerCase())));
         g2d.drawImage(image, 650 - 64 - (64 + 8) * i, 374,null);
+    }
+
+    public static InputStream createGearCard(Locale locale, long[] levels, long[] values, String roleName, long coinGiftLimit, boolean powerUpBonus) throws IOException {
+        BufferedImage backgroundImage = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES,"fishery_gear_card.png"));
+        BufferedImage drawImage = new BufferedImage(backgroundImage.getWidth(), backgroundImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
+
+        g2d.drawImage(backgroundImage, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
+        drawGearTexts(g2d, locale, levels, values, roleName, coinGiftLimit, powerUpBonus);
+
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            ImageIO.write(drawImage, "png", os);
+            g2d.dispose();
+            return new ByteArrayInputStream(os.toByteArray());
+        }
+    }
+
+    private static void drawGearTexts(Graphics2D g2d, Locale locale, long[] levels, long[] values, String roleName, long coinGiftLimit, boolean powerUpBonus) throws IOException {
+        FontRenderContext frc = new FontRenderContext(null, true, true);
+        g2d.setColor(Color.WHITE);
+
+        AttributedStringGenerator fontLarge = new AttributedStringGenerator(TEXT_FONT_LARGE);
+        AttributedStringGenerator fontSmall = new AttributedStringGenerator(TEXT_FONT_SMALL);
+        AttributedStringGenerator fontExtraSmall = new AttributedStringGenerator(TEXT_FONT_EXTRA_SMALL);
+
+        g2d.drawString(fontLarge.getIterator(TextManager.getString(locale, Category.FISHERY, "fisherycat_fisherygear")), 50, 50 + getTextHeight(frc, fontLarge));
+
+        String[] labels = TextManager.getString(locale, Category.FISHERY, "fisherycat_gearvaluelabels").split("\n");
+        for (int i = 0; i < labels.length; i++) {
+            String label = labels[i];
+            String valueString = i == 4 ? roleName : "+" + StringUtil.numToString(values[i]);
+            if ((i == 0 || i == 2) && powerUpBonus) {
+                valueString += " (+" + StringUtil.numToString(Math.round(values[i] * 0.25)) + ")";
+            }
+
+            drawGearSlot(g2d, locale, frc, fontSmall, fontExtraSmall, label, i, StringUtil.numToString(levels[i]), valueString);
+        }
+
+        String coinGiftLabel = TextManager.getString(locale, Category.FISHERY, "fisherycat_gear_giftlimit");
+        g2d.setColor(new Color(0.5f, 0.5f, 0.5f));
+        g2d.drawString(fontExtraSmall.getIterator(coinGiftLabel), 50, 526 + getTextHeight(frc, fontExtraSmall));
+        g2d.setColor(Color.WHITE);
+        int labelWidth = (int) fontExtraSmall.getStringBounds(coinGiftLabel, frc).getWidth();
+
+        BufferedImage coinImage = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES,"coin.png"));
+        g2d.drawImage(coinImage, 65 + labelWidth, 521, null);
+        g2d.drawString(fontExtraSmall.getIterator(coinGiftLimit != 0 ? StringUtil.numToString(coinGiftLimit) : "∞"), 98 + labelWidth, 526 + getTextHeight(frc, fontExtraSmall));
+    }
+
+    private static void drawGearSlot(Graphics2D g2d, Locale locale, FontRenderContext frc, AttributedStringGenerator fontSmall,
+                                     AttributedStringGenerator fontExtraSmall, String label, int i,
+                                     String level, String value) {
+        int xAdd = (i / 4) * 368;
+        int yAdd = (i % 4) * 98;
+
+        drawStringScaledToBounds(g2d, frc, fontSmall, label, 111 + xAdd, 147 + yAdd + getTextHeight(frc, fontSmall) / 2, 168, false);
+
+        String levelString = TextManager.getString(locale, Category.FISHERY, "fisherycat_level", level);
+        double levelWidth = fontSmall.getStringBounds(levelString, frc).getWidth();
+        double levelScaleX = Math.min(1.0, 75.0 / levelWidth);
+
+        g2d.setColor(Color.BLACK);
+        drawStringScaled(g2d, frc, fontSmall, levelString, (int) (350 + xAdd - Math.min(75.0, levelWidth) / 2.0), 147 + yAdd + getTextHeight(frc, fontSmall) / 2, levelScaleX, false);
+        g2d.setColor(Color.WHITE);
+
+        double valueWidth = fontExtraSmall.getStringBounds(value, frc).getWidth();
+        if (i != 4) {
+            valueWidth += 10 + fontExtraSmall.getStringBounds(TextManager.getString(locale, Category.FISHERY, "fisherycat_gearsubtitle_" + i), frc).getWidth();
+        }
+        double valueScaleX = Math.min(1.0, (279.0 + (i == 4 ? 33.0 : 0.0)) / valueWidth);
+
+        double valueNumberWidth = drawStringScaled(g2d, frc, fontExtraSmall, value, 129 + xAdd - (i == 4 ? 33 : 0), 181 + yAdd + getTextHeight(frc, fontExtraSmall), valueScaleX, false);
+        if (i != 4) {
+            g2d.setColor(new Color(0.5f, 0.5f, 0.5f));
+            drawStringScaled(g2d, frc, fontExtraSmall, TextManager.getString(locale, Category.FISHERY, "fisherycat_gearsubtitle_" + i),
+                    (int) (129 + xAdd + valueNumberWidth + 10.0 * valueScaleX), 181 + yAdd + getTextHeight(frc, fontExtraSmall), valueScaleX, false
+            );
+            g2d.setColor(Color.WHITE);
+        }
     }
 
     private static int getTextHeight(FontRenderContext frc, AttributedStringGenerator fontWelcome) {
