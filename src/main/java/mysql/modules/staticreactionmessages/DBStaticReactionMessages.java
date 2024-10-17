@@ -79,6 +79,10 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
     }
 
     private void removeStaticReaction(StaticReactionMessageData staticReactionMessageData) {
+        if (staticReactionMessageData == null) {
+            return;
+        }
+
         if (staticReactionMessageData.getCommand().equals(Command.getCommandProperties(ReactionRolesCommand.class).trigger())) {
             try (GuildEntity guildEntity = HibernateManager.findGuildEntity(staticReactionMessageData.getGuildId(), DBStaticReactionMessages.class)) {
                 guildEntity.beginTransaction();
