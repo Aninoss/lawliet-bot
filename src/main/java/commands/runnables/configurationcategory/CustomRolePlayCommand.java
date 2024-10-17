@@ -254,6 +254,11 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                 return true;
             }
             case 8 -> {
+                if (config.getImageFilenames().isEmpty()) {
+                    setLog(LogStatus.FAILURE, getString("error_nogifs"));
+                    return true;
+                }
+
                 currentImage = 0;
                 deleteLock = true;
                 setState(STATE_REMOVE_ATTACHMENTS);
