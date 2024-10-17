@@ -95,7 +95,8 @@ public class GiveawayScheduler {
         for (MessageReaction reaction : message.getReactions()) {
             if (EmojiUtil.equals(reaction.getEmoji(), giveaway.getEmoji())) {
                 List<User> users = reaction.retrieveUsers().complete();
-                processGiveaway(giveaway, locale, message, new ArrayList<>(users), winners, reroll);
+                List<Member> members = MemberCacheController.getInstance().loadMembersWithUsers(message.getGuild(), users).join();
+                processGiveaway(giveaway, locale, message, new ArrayList<>(members), winners, reroll);
                 return true;
             }
         }
@@ -103,17 +104,17 @@ public class GiveawayScheduler {
         return false;
     }
 
-    private static void processGiveaway(GiveawayEntity giveaway, Locale locale, Message message, ArrayList<User> users,
+    private static void processGiveaway(GiveawayEntity giveaway, Locale locale, Message message, ArrayList<Member> members,
                                         int numberOfWinners, boolean reroll
     ) {
         GuildMessageChannel channel = (GuildMessageChannel) message.getChannel();
-        users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
-        Collections.shuffle(users);
-        List<User> winners = users.subList(0, Math.min(users.size(), numberOfWinners));
+        members.removeIf(member -> member.getUser().isBot() || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == member.getIdLong()));
+        Collections.shuffle(members);
+        List<Member> winners = members.subList(0, Math.min(members.size(), numberOfWinners));
 
         StringBuilder mentions = new StringBuilder();
-        for (User user : winners) {
-            mentions.append(user.getAsMention()).append(" ");
+        for (Member member : winners) {
+            mentions.append(member.getAsMention()).append(" ");
         }
 
         String title = giveaway.getItem();
@@ -132,7 +133,7 @@ public class GiveawayScheduler {
         if (!winners.isEmpty()) {
             eb.addField(
                     Emojis.ZERO_WIDTH_SPACE.getFormatted(),
-                    new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getName()) + "**"),
+                    new ListGen<Member>().getList(winners, ListGen.SLOT_TYPE_BULLET, member -> "**" + StringUtil.escapeMarkdown(member.getUser().getName()) + "**"),
                     false
             );
         } else {
@@ -159,8 +160,7 @@ public class GiveawayScheduler {
 
         List<Role> roles = AtomicRole.to(giveaway.getPrizeRoles());
         if (!roles.isEmpty() && !winners.isEmpty() && PermissionCheckRuntime.botCanManageRoles(locale, GiveawayCommand.class, roles)) {
-            List<Member> winnerMembers = MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), winners).join();
-            for (Member member : winnerMembers) {
+            for (Member member : winners) {
                 channel.getGuild().modifyMemberRoles(member, roles, Collections.emptySet())
                         .reason(Command.getCommandLanguage(GiveawayCommand.class, locale).getTitle())
                         .queue();
