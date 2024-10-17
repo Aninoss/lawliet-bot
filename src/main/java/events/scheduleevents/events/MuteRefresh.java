@@ -5,6 +5,7 @@ import commands.runnables.moderationcategory.MuteCommand;
 import constants.ExceptionRunnable;
 import core.MainLogger;
 import core.MemberCacheController;
+import core.PermissionCheckRuntime;
 import core.Program;
 import core.utils.BotPermissionUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
@@ -58,8 +59,8 @@ public class MuteRefresh implements ExceptionRunnable {
                             if (expiration.isAfter(timeOutEnd)) {
                                 Thread.sleep(2000 + r.nextInt(3000));
                                 counter.incrementAndGet();
-                                if (!BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
-                                    Locale locale = entityManager.findGuildEntity(serverMuteData.getGuildId()).getLocale();
+                                Locale locale = entityManager.findGuildEntity(serverMuteData.getGuildId()).getLocale();
+                                if (PermissionCheckRuntime.botHasPermission(locale, MuteCommand.class, member.getGuild(), Permission.MODERATE_MEMBERS) && !BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
                                     member.timeoutUntil(expiration)
                                             .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
                                             .complete();
