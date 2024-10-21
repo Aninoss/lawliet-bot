@@ -1,15 +1,16 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "praise", "yaoipat", "yuripat", "pet" }
+        aliases = { "praise", "yaoipat", "yuripat", "pet", "caress" }
 )
 public class PatCommand extends RolePlayAbstract {
 
@@ -83,7 +84,13 @@ public class PatCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736275536317382717/938229898726760458/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/954006748858040350/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/958311054910296064/pat.gif",
-                "https://cdn.discordapp.com/attachments/736275536317382717/958311155976241172/pat.gif"
+                "https://cdn.discordapp.com/attachments/736275536317382717/958311155976241172/pat.gif",
+                "https://cdn.discordapp.com/attachments/736275536317382717/1297878569049002017/pat.gif",
+                "https://cdn.discordapp.com/attachments/736275536317382717/1297878651978780692/pat.gif",
+                "https://cdn.discordapp.com/attachments/736275536317382717/1297878711294492714/pat.gif",
+                "https://cdn.discordapp.com/attachments/736275536317382717/1297878942761619508/pat.gif",
+                "https://cdn.discordapp.com/attachments/736275536317382717/1297879011912843324/pat.gif",
+                "https://cdn.discordapp.com/attachments/736275536317382717/1297879065214189588/pat.gif"
         );
     }
 
