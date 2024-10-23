@@ -207,6 +207,7 @@ public class CommandContainer {
         commandList.add(FacepalmCommand.class);
         commandList.add(JumpCommand.class);
         commandList.add(LaughCommand.class);
+        commandList.add(NervousCommand.class);
         commandList.add(NoCommand.class);
         commandList.add(NomCommand.class);
         commandList.add(NoseBleedCommand.class);
