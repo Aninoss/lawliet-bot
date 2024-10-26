@@ -10,7 +10,7 @@ import java.util.Locale;
         trigger = "txt2img",
         emoji = "🖌️",
         executableWithoutArgs = false,
-        aliases = {"stablediffusion", "diffusion", "imagine"}
+        aliases = {"stablediffusion", "diffusion", "imagine", "txt2image"}
 )
 public class Txt2ImgCommand extends RunPodAbstract {
 
@@ -22,7 +22,7 @@ public class Txt2ImgCommand extends RunPodAbstract {
     };
 
     public Txt2ImgCommand(Locale locale, String prefix) {
-        super(locale, prefix, "(nsfw), nipples, nude, naked, topless, ");
+        super(locale, prefix, "nsfw, nipples, nude, naked, topless, ");
     }
 
     @Override

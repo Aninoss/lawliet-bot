@@ -33,6 +33,8 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,25 +50,27 @@ import java.util.stream.Collectors;
         trigger = "upscaler",
         emoji = "📈",
         executableWithoutArgs = true,
-        aliases = {"waifu2x", "waifu4x"}
+        aliases = {"waifu2x", "waifu4x", "upscale"}
 )
 public class UpscalerCommand extends Command implements OnStringSelectMenuListener {
 
     public static int MAX_IMAGES = 5;
+    public static long MAX_ALLOWED_PIXEL_SIZE = 1024 * 1024;
     private static final ScaleAndModel[] SCALE_AND_MODELS = new ScaleAndModel[]{
-            new ScaleAndModel(1, UpscalerModel.R_ESRGAN),
-            new ScaleAndModel(1, UpscalerModel.NMKD_SIAX),
-            new ScaleAndModel(1, UpscalerModel.NMKD_ULTRAYANDERE),
-            new ScaleAndModel(2, UpscalerModel.R_ESRGAN),
-            new ScaleAndModel(2, UpscalerModel.NMKD_SIAX),
-            new ScaleAndModel(2, UpscalerModel.NMKD_ULTRAYANDERE),
-            new ScaleAndModel(4, UpscalerModel.R_ESRGAN),
-            new ScaleAndModel(4, UpscalerModel.NMKD_SIAX),
-            new ScaleAndModel(4, UpscalerModel.NMKD_ULTRAYANDERE),
+            new ScaleAndModel(1, UpscalerModel.R_ESRGAN, Long.MAX_VALUE),
+            new ScaleAndModel(1, UpscalerModel.NMKD_SIAX, Long.MAX_VALUE),
+            new ScaleAndModel(1, UpscalerModel.NMKD_ULTRAYANDERE, Long.MAX_VALUE),
+            new ScaleAndModel(2, UpscalerModel.R_ESRGAN, Long.MAX_VALUE),
+            new ScaleAndModel(2, UpscalerModel.NMKD_SIAX, Long.MAX_VALUE),
+            new ScaleAndModel(2, UpscalerModel.NMKD_ULTRAYANDERE, Long.MAX_VALUE),
+            new ScaleAndModel(4, UpscalerModel.R_ESRGAN, 614_400L),
+            new ScaleAndModel(4, UpscalerModel.NMKD_SIAX, 614_400L),
+            new ScaleAndModel(4, UpscalerModel.NMKD_ULTRAYANDERE, 614_400L),
     };
 
     private List<String> base64Images;
     private PredictionResult predictionResult = null;
+    private long biggestImagePixels = 0L;
 
     public UpscalerCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -79,6 +83,8 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
             base64Images = attachedFiles.stream()
                     .map(file -> {
                         try {
+                            BufferedImage image = ImageIO.read(file);
+                            biggestImagePixels = Math.max(biggestImagePixels, (long) image.getWidth() * image.getHeight());
                             return FileUtil.fileToBase64(file);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
@@ -100,8 +106,10 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
 
         event.deferReply();
         base64Images = imageAttachments.stream()
-                .filter(attachment -> (long) attachment.getWidth() * attachment.getHeight() < 1_000_000L)
+                .filter(attachment -> (long) attachment.getWidth() * attachment.getHeight() <= MAX_ALLOWED_PIXEL_SIZE)
                 .map(attachment -> {
+                    biggestImagePixels = Math.max(biggestImagePixels, (long) attachment.getWidth() * attachment.getHeight());
+
                     try {
                         InputStream inputStream = attachment.getProxy().download().get();
                         String base64 = InternetUtil.inputStreamToBase64(inputStream);
@@ -169,10 +177,13 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
                     .setPlaceholder(getString("home_placeholder"));
             for (int i = 0; i < SCALE_AND_MODELS.length; i++) {
                 ScaleAndModel scaleAndModel = SCALE_AND_MODELS[i];
-                menuBuilder.addOption(
-                        getString("model_" + scaleAndModel.model.name(), String.valueOf(scaleAndModel.scale)),
-                        String.valueOf(i)
-                );
+                if (biggestImagePixels <= scaleAndModel.maxAllowedPixels) {
+                    menuBuilder.addOption(
+                            getString("model_style_" + scaleAndModel.model.name(), String.valueOf(scaleAndModel.scale)),
+                            String.valueOf(i),
+                            getString("model_name_" + scaleAndModel.model.name())
+                    );
+                }
             }
             SelectMenu menu = menuBuilder.build();
             actionRows.add(ActionRow.of(menu));
@@ -236,10 +247,12 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
 
         private final int scale;
         private final UpscalerModel model;
+        private final long maxAllowedPixels;
 
-        public ScaleAndModel(int scale, UpscalerModel model) {
+        public ScaleAndModel(int scale, UpscalerModel model, long maxAllowedPixels) {
             this.scale = scale;
             this.model = model;
+            this.maxAllowedPixels = maxAllowedPixels;
         }
 
     }

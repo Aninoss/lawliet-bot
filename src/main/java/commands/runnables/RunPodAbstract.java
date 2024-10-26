@@ -5,6 +5,7 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.CommandManager;
 import commands.runnables.aitoyscategory.UpscalerCommand;
+import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
@@ -42,14 +43,13 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public abstract class RunPodAbstract extends NavigationAbstract {
 
     public static int LIMIT_CREATIONS_PER_WEEK = 50;
     public static int PROMPT_MAX_LENGTH = 2000;
-    public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark, duplicates";
+    public static String DEFAULT_NEGATIVE_PROMPT = "low-res, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, monochrome";
     private static final String[] INAPPROPRIATE_CONTENT_FILTERS = {"nigga", "nigger", "niggas", "niggers", "rape", "raping", "raped"};
 
     private static final int STATE_ADJUST_IMAGES = 1,
@@ -88,31 +88,11 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             return false;
         }
 
-        if (args.contains("||")) {
-            String[] parts = args.split("\\|\\|");
-            if (parts.length <= 2) {
-                prompt = parts[0].trim();
-                negativePrompt = parts.length == 2 ? parts[1].trim() : "";
-            } else {
-                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ambiguous_negativeprompt", "||")))
-                        .exceptionally(ExceptionLogger.get());
-                return false;
-            }
-        } else if (args.contains("|")) {
+        if (args.contains("|")) {
             String[] parts = args.split("\\|");
             if (parts.length <= 2) {
                 prompt = parts[0].trim();
-                String tempNegativePromptInput = parts.length == 2 ? parts[1].trim() : "";
-                StringBuilder negativePromptBuilder = new StringBuilder(tempNegativePromptInput);
-                for (String p : DEFAULT_NEGATIVE_PROMPT.split(", ")) {
-                    if (!tempNegativePromptInput.matches("(?i)(^|.*,)[ ]*" + Pattern.quote(p) + "[ ]*(,.*|$)")) {
-                        if (!negativePromptBuilder.isEmpty()) {
-                            negativePromptBuilder.append(", ");
-                        }
-                        negativePromptBuilder.append(p);
-                    }
-                }
-                negativePrompt = negativePromptBuilder.toString();
+                negativePrompt = parts.length == 2 ? parts[1].trim() : "";
             } else {
                 drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ambiguous_negativeprompt", "|")))
                         .exceptionally(ExceptionLogger.get());
@@ -120,7 +100,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             }
         } else {
             prompt = args;
-            negativePrompt = DEFAULT_NEGATIVE_PROMPT;
+            negativePrompt = "";
         }
         prompt = StringUtil.shortenString(prompt, PROMPT_MAX_LENGTH);
         negativePrompt = StringUtil.shortenString(negativePrompt, PROMPT_MAX_LENGTH);
@@ -153,9 +133,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
                 String negativePromptId = "negative_prompt";
                 TextInput textInputNegativePrompt = TextInput.create(negativePromptId, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_negativeprompt_title"), TextInputStyle.PARAGRAPH)
-                        .setValue(negativePrompt)
-                        .setMinLength(1)
+                        .setValue(negativePrompt.isBlank() ? null : negativePrompt)
+                        .setMinLength(0)
                         .setMaxLength(PROMPT_MAX_LENGTH)
+                        .setRequired(false)
                         .build();
 
                 Modal modal = ModalMediator.createDrawableCommandModal(this, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_default_prompts"), e -> {
@@ -167,7 +148,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                             }
 
                             prompt = newPrompt;
-                            negativePrompt = e.getValue(negativePromptId).getAsString();
+                            negativePrompt = e.getValue(negativePromptId) != null ? e.getValue(negativePromptId).getAsString() : "";
                             setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_default_promptupdate"));
                             return null;
                         }).addComponents(ActionRow.of(textInputPrompt), ActionRow.of(textInputNegativePrompt))
@@ -229,7 +210,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         txt2img.commitTransaction();
 
         setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_set",
-                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + aspectRatio.name())
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + aspectRatio.name(),
+                        String.valueOf(aspectRatio.getWidth(this instanceof Txt2HentaiCommand)),
+                        String.valueOf(aspectRatio.getHeight(this instanceof Txt2HentaiCommand))
+                )
         ));
         setState(DEFAULT_STATE);
         return true;
@@ -277,13 +261,20 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, localImages);
 
         StableDiffusionModel model = StableDiffusionModel.values()[Integer.parseInt(event.getValues().get(0))];
-        String predictionId = RunPodDownloader.createTxt2ImgPrediction(model, localPrompt, additionalNegativePrompt + localNegativePrompt, localImages, localAspectRatio).get();
+        String predictionId = RunPodDownloader.createTxt2ImgPrediction(
+                model,
+                localPrompt + model.getAdditionalPrompt(),
+                additionalNegativePrompt + localNegativePrompt + (localNegativePrompt.isEmpty() ? "" : ", ") + DEFAULT_NEGATIVE_PROMPT + model.getAdditionalNegativePrompt(),
+                localImages,
+                localAspectRatio
+        ).get();
+
         AtomicReference<PredictionResult> predictionResult = new AtomicReference<>(null);
         Instant startTime = Instant.now();
         AtomicLong messageId = new AtomicLong(0);
         AtomicReference<Throwable> error = new AtomicReference<>();
 
-        String modelName = getString("model_" + model.name());
+        String modelName = getString("model_name_" + model.name());
         setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
 
         if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, localImages,
@@ -335,8 +326,9 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 continue;
             }
             menuBuilder.addOption(
-                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_run", getString("model_" + model.name())),
-                    String.valueOf(i)
+                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_run", getString("model_style_" + model.name())),
+                    String.valueOf(i),
+                    getString("model_name_" + model.name())
             );
         }
         actionRows.add(ActionRow.of(menuBuilder.build()));
@@ -360,7 +352,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     @Draw(state = STATE_ADJUST_RATIO)
     public EmbedBuilder drawAdjustRatio(Member member) {
         String[] options = Arrays.stream(AspectRatio.values())
-                .map(ratio -> TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + ratio.name()))
+                .map(ratio -> TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + ratio.name(),
+                        String.valueOf(ratio.getWidth(this instanceof Txt2HentaiCommand)),
+                        String.valueOf(ratio.getHeight(this instanceof Txt2HentaiCommand))
+                ))
                 .toArray(String[]::new);
 
         setComponents(options);
@@ -456,20 +451,21 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                         false
                 );
 
-        if (!negativePrompt.isEmpty()) {
-            eb.addField(
-                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_negativeprompt_title"),
-                    "```" + StringUtil.shortenString(StringUtil.escapeMarkdownInField(negativePrompt), MessageEmbed.VALUE_MAX_LENGTH - 6) + "```",
-                    false
-            );
-        }
+        eb.addField(
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_negativeprompt_title"),
+                negativePrompt.isEmpty() ? TextManager.getString(getLocale(), TextManager.GENERAL, "notset") : "```" + StringUtil.shortenString(StringUtil.escapeMarkdownInField(negativePrompt), MessageEmbed.VALUE_MAX_LENGTH - 6) + "```",
+                false
+        );
 
         String options = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_options",
                 StringUtil.numToString(images),
-                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + aspectRatio.name())
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + aspectRatio.name(),
+                        String.valueOf(aspectRatio.getWidth(this instanceof Txt2HentaiCommand)),
+                        String.valueOf(aspectRatio.getHeight(this instanceof Txt2HentaiCommand))
+                )
         );
         if (model != null) {
-            String modelName = getString("model_" + model.name());
+            String modelName = getString("model_name_" + model.name());
             options += "\n" + TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_options_model", modelName);
         }
 
@@ -495,7 +491,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                         List<String> newOutputs = InternetUtil.base64ToTempUrl(predictionResult.get().getOutputs());
                         predictionResult.get().setOutputs(newOutputs);
                     }
-                    if (model.getCheckNsfw()) {
+                    if (model.getCheckNsfw() && Program.productionMode()) {
                         predictionResult.get().setOutputs(processNsfwImages(predictionResult.get().getOutputs()));
                     }
                     Txt2ImgLogger.log(prompt, member, model.name(), predictionResult.get().getOutputs());
