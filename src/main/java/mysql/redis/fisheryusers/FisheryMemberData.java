@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 public class FisheryMemberData implements MemberAsset {
 
     private final long memberId;
-    private final FisheryGuildData fisheryGuildBean;
+    private final FisheryGuildData fisheryGuildData;
 
     public final String KEY_ACCOUNT;
 
@@ -64,19 +64,19 @@ public class FisheryMemberData implements MemberAsset {
     public final String FIELD_POWERUP = "powerup";
     public final String FIELD_COUPONS = "coupons";
 
-    FisheryMemberData(FisheryGuildData fisheryGuildBean, long memberId) {
-        this.fisheryGuildBean = fisheryGuildBean;
+    FisheryMemberData(FisheryGuildData fisheryGuildData, long memberId) {
+        this.fisheryGuildData = fisheryGuildData;
         this.memberId = memberId;
-        this.KEY_ACCOUNT = "fishery_account:" + fisheryGuildBean.getGuildId() + ":" + memberId;
+        this.KEY_ACCOUNT = "fishery_account:" + fisheryGuildData.getGuildId() + ":" + memberId;
     }
 
     public FisheryGuildData getFisheryGuildData() {
-        return fisheryGuildBean;
+        return fisheryGuildData;
     }
 
     @Override
     public long getGuildId() {
-        return fisheryGuildBean.getGuildId();
+        return fisheryGuildData.getGuildId();
     }
 
     @Override
@@ -765,6 +765,7 @@ public class FisheryMemberData implements MemberAsset {
                 }
             }
 
+            FeatureLogger.inc(PremiumFeature.FISHERY_ACCOUNT_CARDS, getGuildId());
             InputStream inputStream = FisheryGraphics.createAccountCard(locale, values, valueChanges,
                     rank, member.getGuild().getMemberCount(), rank - rankPrevious, getActivePowerUps(), subtext);
             eb.setImage(InternetUtil.getUrlFromInputStream(inputStream, "png"));

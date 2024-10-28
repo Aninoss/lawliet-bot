@@ -8,9 +8,10 @@ import constants.Settings;
 import core.*;
 import core.cache.UserBannedCache;
 import core.components.ActionRows;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.schedule.MainScheduler;
 import core.utils.InternetUtil;
-import core.utils.StringUtil;
 import modules.graphics.FisheryGraphics;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
@@ -195,6 +196,7 @@ public class Fishery {
             values[i] = slot.getEffect();
         }
 
+        FeatureLogger.inc(PremiumFeature.FISHERY_ACCOUNT_CARDS, fishery.getGuildId());
         InputStream inputStream = FisheryGraphics.createGearCard(locale, levels, values, roleName, coinGiftLimit, powerUpBonus);
         return InternetUtil.getUrlFromInputStream(inputStream, "png");
     }
