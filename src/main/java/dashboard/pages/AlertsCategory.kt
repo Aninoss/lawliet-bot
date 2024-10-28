@@ -85,8 +85,13 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                 }
                 .map { trackerData ->
                     val atomicChannel = AtomicGuildMessageChannel(guild.idLong, trackerData.guildMessageChannelId)
+                    val label = if (trackerData.commandKey != null) {
+                        "${atomicChannel.getPrefixedName(locale)}: ${prefix}${trackerData.commandTrigger} ${trackerData.commandKey}"
+                    } else {
+                        "${atomicChannel.getPrefixedName(locale)}: ${prefix}${trackerData.commandTrigger}"
+                    }
                     val container = HorizontalContainer(
-                            DashboardText("${atomicChannel.getPrefixedName(locale)}: ${prefix}${trackerData.commandTrigger}"),
+                            DashboardText(label),
                             HorizontalPusher()
                     )
                     container.alignment = HorizontalContainer.Alignment.CENTER
