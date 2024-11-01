@@ -1,0 +1,97 @@
+Tu veux essayer le parachutisme ?|Oui|Non
+Quel type de personne veux-tu être considéré ?|Une personne gentille|Une personne amusante
+Qu'aimes-tu le moins ?|La chaleur|Le froid
+Peux-tu voir beaucoup d'étoiles depuis chez toi ?|Oui|Pas vraiment
+J'ai tendance à être...|Timide|Quelqu'un qui cherche l'attention
+Tu vis dans...|Une maison|Un appartement
+Ton ami a dix minutes de retard à un rendez-vous. Tu es...|En colère|Indifférent
+Portes-tu des lunettes ?|Oui|Non
+Combien d'heures dors-tu la nuit ?|Huit ou plus|Moins de huit
+Crois-tu à la voyance ?|Oui|Non
+Avec combien de personnes vis-tu ?|Quatre ou plus|Trois ou moins
+Crois-tu aux fantômes ?|Oui|Non
+Veux-tu vivre dans un pays étranger ?|Oui|Non
+Que préfères-tu regarder, le baseball ou le football ?|Baseball|Football
+Si je recevais de l'argent en cadeau, je...|Le dépenserais|L'économiserais
+Lis-tu souvent des livres ?|Oui|Pas tellement
+As-tu déjà vu un OVNI ?|Oui|Non
+Connais-tu les anniversaires de tous les membres de ta famille ?|Oui|Non
+Pendant les repas, à quoi fais-tu le plus attention ?|La quantité|Le goût
+Aimes-tu qu'on te prenne en photo ?|Oui|Non
+Aimes-tu les films d'horreur ?|Oui|Pas vraiment...
+Parles-tu plus de deux langues ?|Oui|Non
+Combien d'heures par jour regardes-tu la télé ?|Moins de deux heures|Plus de deux heures
+Te souviens-tu de ce que tu as mangé il y a deux jours ?|Oui|Non
+En quoi es-tu meilleur ?|Utiliser mon cerveau|Utiliser mes muscles
+J'enlève mes chaussures en entrant chez moi.|Oui|Non
+À quoi donnes-tu la priorité ?|Les loisirs|Le travail
+Je préfère...|Me fier à mon instinct|Réfléchir attentivement
+Fais-tu du bénévolat ?|Oui|Non
+Es-tu doué pour jouer d'un instrument de musique ?|Oui|Non
+Combien de repas prends-tu par jour ?|Deux ou moins|Trois ou plus
+Lis-tu souvent des bandes dessinées ?|Oui|Non
+Te laves-tu les cheveux tous les jours ?|Oui|Non
+Récemment, quand je sors, je porte...|Des manches courtes|Des manches longues
+Penses-tu être radin ?|Oui|Non
+À la fin d'un film, regardes-tu le générique jusqu'au bout ?|Oui|Non
+Quelle collation préfères-tu ?|Bonbons durs|Chewing-gum
+Quel type de nourriture préfères-tu ?|La cuisine de mon pays|La cuisine d'un autre pays
+Quelle boisson préfères-tu ?|Café|Thé
+Peux-tu nommer cinq pays insulaires (non reliés aux grands continents) ?|Oui|Non
+Pendant mon jour de congé, je préfère...|Sortir|Rester à la maison
+Je suis _______ en cuisine.|Bon|Pas bon
+Peux-tu voir une montagne depuis chez toi ?|Oui|Non
+As-tu déjà fait du ski ?|Oui|Non
+Te laves-tu les mains en rentrant chez toi ?|Oui|Pas vraiment
+Parles-tu régulièrement avec tes voisins ?|Oui|Non
+Te considères-tu superstitieux ?|Oui, je pense|Non, je ne pense pas
+Te vois-tu plutôt comme...|Une personne du matin|Une personne du soir
+Quelle activité préférerais-tu faire ?|Jogging|Natation
+Quelle eau bois-tu habituellement ?|Eau en bouteille|Eau du robinet
+As-tu déjà pêché ?|Oui|Non
+Lequel préfères-tu ?|Le fromage|Le yaourt
+En quoi es-tu meilleur ?|Parler|Écouter
+Portes-tu habituellement un chapeau ?|Oui|Non
+Ta coiffure a-t-elle changé au cours de l'année dernière ?|Oui|Non
+À quelle heure te réveilles-tu habituellement le matin ?|Avant sept heures|Après sept heures
+Quand tu sors, portes-tu une montre ?|Oui|Non
+As-tu déjà été sur un grand navire ?|Oui|Non
+La pièce où tu dors et celle où tu manges sont...|La même pièce|Des pièces différentes
+Quel souvenir de voyage préférerais-tu recevoir ?|Un produit alimentaire|Un produit non alimentaire
+Si je pouvais réaliser un souhait...|Je voudrais dormir plus|Manger plus de bonnes choses
+As-tu mangé des spaghetti la semaine dernière ?|Oui|Non
+À quelle fréquence bois-tu du lait ?|J'en bois tous les jours|Je n'en bois pas tous les jours
+Es-tu à l'aise pour porter les dernières tendances ?|Oui|Non
+Vas-tu souvent à la piscine ou à la salle de sport ?|Oui|Non
+Qu'utilises-tu le plus souvent ?|Crayon|Stylo à bille
+Fais-tu une sieste une fois ou plus par semaine ?|Oui|Non
+Les jours de pluie...|Je les aime|Je les déteste
+As-tu déjà nagé dans une rivière ?|Oui|Non
+Au cours de l'année dernière, es-tu allé à la bibliothèque ?|Oui|Non
+Quels artistes musicaux écoutes-tu le plus ?|Artistes masculins|Artistes féminins
+Quand une horloge digitale affiche 12:34, ça me fait sentir...|Un peu heureux|Rien
+Quand je mets mes chaussures, le pied par lequel je commence est...|Toujours le même|Indécis
+On t'appelle le plus souvent par ton...|Prénom|Surnom
+Portes-tu toujours des mouchoirs sur toi ?|Oui|Non
+Prends-tu des cours pour quelque chose ?|Oui|Non
+As-tu déjà joué au billard ?|Oui|Non
+Je me parle à moi-même...|Souvent|Presque jamais
+Qu'est-ce qui te fait te sentir mieux ? La gentillesse...|Que je montre aux autres|Qu'on me montre
+Connais-tu les règles des échecs ?|Je connais|Je ne connais pas
+Manges-tu des conserves ?|Souvent|Pas souvent
+À un rendez-vous fixé, je suis généralement...|Plus de 10 minutes en avance|Tout juste à l'heure
+20 pompes consécutives ou plus sont...|Facile|Impossible
+Peux-tu dire ce qui vient après "3,14" pour pi ?|Oui|Non
+As-tu déjà vu la Voie lactée ?|Oui|Non
+As-tu déjà mangé des légumes que tu as cultivés toi-même ?|Oui|Non
+J'ai un appareil qui peut lire des cassettes vidéo chez moi.|Vrai|Faux
+As-tu déjà porté de l'eau de toilette ?|Oui|Non
+Pour mon anniversaire, je préférerais recevoir...|Un bouquet de fleurs|Un gâteau
+Ta chambre ou ton bureau est...|rangé|en désordre
+Parler devant un grand groupe est...|Facile|Stressant
+Je pense que je suis plutôt...|Chanceux|Malchanceux
+Prends-tu le train au moins une fois par semaine ?|Oui|Non
+Es-tu un acheteur impulsif ?|Parfois|Rarement
+Si tu achetais une voiture, quelle couleur préférerais-tu ?|Une couleur qui se démarque|Une qui se fond dans la masse
+Que préfères-tu ?|La mayonnaise|Le ketchup
+Es-tu doué pour garder les secrets ?|Oui !|Pas vraiment

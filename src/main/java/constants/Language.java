@@ -1,15 +1,19 @@
 package constants;
 
+import net.dv8tion.jda.api.interactions.DiscordLocale;
+
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import net.dv8tion.jda.api.interactions.DiscordLocale;
 
 public enum Language {
 
     EN(new Locale("en_us"), "🇬🇧", false, DiscordLocale.ENGLISH_US),
     DE(new Locale("de_de"), "🇩🇪", false, DiscordLocale.GERMAN),
     ES(new Locale("es_es"), "🇪🇸", true, DiscordLocale.SPANISH),
-    RU(new Locale("ru_ru"), "🇷🇺", false, DiscordLocale.RUSSIAN);
+    RU(new Locale("ru_ru"), "🇷🇺", false, DiscordLocale.RUSSIAN),
+    FR(new Locale("fr_fr"), "🇫🇷", true, DiscordLocale.FRENCH),
+    PT(new Locale("pt_br"), "🇧🇷", true, DiscordLocale.PORTUGUESE_BRAZILIAN),
+    TR(new Locale("tr_tr"), "🇹🇷", true, DiscordLocale.TURKISH);
 
     public static Language from(Locale locale) {
         for (Language value : Language.values()) {

@@ -1,8 +1,9 @@
 package mysql.modules.devvotes;
 
-import java.util.Locale;
 import constants.Language;
 import core.assets.UserAsset;
+
+import java.util.Locale;
 
 public class DevVotesSlot implements UserAsset {
 
@@ -21,6 +22,9 @@ public class DevVotesSlot implements UserAsset {
             case "de" -> Language.DE.getLocale();
             case "es" -> Language.ES.getLocale();
             case "ru" -> Language.RU.getLocale();
+            case "fr" -> Language.FR.getLocale();
+            case "pt" -> Language.PT.getLocale();
+            case "tr" -> Language.TR.getLocale();
             default -> Language.EN.getLocale();
         };
     }

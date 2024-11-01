@@ -18,5 +18,6 @@ public interface RegexPatterns {
     Pattern TWITCH = Pattern.compile("^[a-zA-Z0-9][\\w]{2,24}$");
     Pattern HTTP_DOMAIN = Pattern.compile("https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}/?");
     Pattern YOUTUBE_HANDLE = Pattern.compile("@[\\w-]+");
+    Pattern CRUNCHYROLL_DUB = Pattern.compile(".*\\(.*(?<language>English|German|Spanish|Russian|French|Portuguese|Turkish).*\\)");
 
 }

@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class AnimeReleasesDownloader {
@@ -40,17 +41,11 @@ public class AnimeReleasesDownloader {
         ArrayList<String> newUsedIds = new ArrayList<>();
 
         for (AnimeReleasePost post : animeReleasePosts) {
-            boolean dub = post.getAnime().endsWith("Dub)") || post.getAnime().endsWith("(Russian)");
-            boolean validDub = post.getAnime().endsWith("(English Dub)") ||
-                    (post.getAnime().endsWith("(Russian)") && Language.from(locale) == Language.RU) ||
-                    (post.getAnime().endsWith("(Spanish Dub)") && Language.from(locale) == Language.ES) ||
-                    (post.getAnime().endsWith("(German Dub)") && Language.from(locale) == Language.DE);
-
-            boolean ok = postPassesFilter(post, filter) && (!dub || validDub);
+            Language dubLanguage = getDubLanguage(post.getAnime());
+            boolean noDub = dubLanguage == null && !post.getAnime().endsWith(" Dub)");
+            boolean ok = postPassesFilter(post, filter) && (noDub || Language.from(locale) == Language.EN || dubLanguage == Language.from(locale));
             if (ok) {
-                if (!currentUsedIds.contains(post.getId()) &&
-                        (postList.size() == 0 || newestPostId != null)
-                ) {
+                if (!currentUsedIds.contains(post.getId()) && (postList.isEmpty() || newestPostId != null)) {
                     postList.add(post);
                 }
                 newUsedIds.add(String.valueOf(post.getId()));
@@ -59,7 +54,7 @@ public class AnimeReleasesDownloader {
 
         StringBuilder sb = new StringBuilder();
         newUsedIds.forEach(str -> sb.append("|").append(str));
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             newestPostId = sb.substring(1);
         } else {
             newestPostId = "";
@@ -68,9 +63,28 @@ public class AnimeReleasesDownloader {
         return new PostBundle<>(postList, newestPostId);
     }
 
+    private static Language getDubLanguage(String anime) {
+        Matcher matcher = RegexPatterns.CRUNCHYROLL_DUB.matcher(anime);
+        if (matcher.find()) {
+            String language = matcher.group("language");
+            return switch (language) {
+                case "English" -> Language.EN;
+                case "German" -> Language.DE;
+                case "Spanish" -> Language.ES;
+                case "Russian" -> Language.RU;
+                case "French" -> Language.FR;
+                case "Portuguese" -> Language.PT;
+                case "Turkish" -> Language.TR;
+                default -> null;
+            };
+        } else {
+            return null;
+        }
+    }
+
     private static boolean postPassesFilter(AnimeReleasePost post, List<String> filter) {
         String postUrl = post.getUrl().replaceAll(RegexPatterns.HTTP_DOMAIN.pattern(), "");
-        return filter.size() == 0 ||
+        return filter.isEmpty() ||
                 filter.get(0).equalsIgnoreCase("all") ||
                 filter.stream().anyMatch(f -> StringUtil.stringContainsVague(post.getAnime(), f)) ||
                 filter.stream().anyMatch(f -> StringUtil.stringContainsVague(postUrl, f));
@@ -117,6 +131,8 @@ public class AnimeReleasesDownloader {
         String anime = data.getString("title");
         if (anime.contains(" - Episode ")) {
             anime = anime.substring(0, anime.indexOf(" - Episode "));
+        } else if (anime.contains(" - ")) {
+            anime = anime.substring(0, anime.lastIndexOf(" - "));
         } else {
             anime = data.getString("crunchyroll:seriesTitle");
         }
@@ -147,7 +163,7 @@ public class AnimeReleasesDownloader {
                 episodeTitle = String.valueOf(value);
             }
         }
-        if (episodeTitle.length() == 0) {
+        if (episodeTitle.isEmpty()) {
             episodeTitle = null;
         }
 

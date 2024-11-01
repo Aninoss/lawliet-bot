@@ -1,0 +1,97 @@
+Paraşütle atlamayı denemek ister misin?|Evet|Hayır
+Nasıl biri olarak görülmek istersin?|İyi kalpli biri|Eğlenceli biri
+Hangisinden en az hoşlanırsın?|Sıcak|Soğuk
+Evinden çok yıldız görebiliyor musun?|Evet|Pek değil
+Genellikle...|Utangacım|İlgi çekmeyi severim
+Şurada yaşıyorsun...|Ev|Apartman
+Arkadaşın buluşmaya on dakika geç kaldı. Sen...|Kızgınsın|Umursamıyorsun
+Gözlük takıyor musun?|Evet|Hayır
+Geceleri kaç saat uyuyorsun?|Sekiz veya daha fazla|Sekizden az
+Fal bakmaya inanır mısın?|Evet|Hayır
+Kaç kişiyle yaşıyorsun?|Dört veya daha fazla|Üç veya daha az
+Hayaletlerin var olduğuna inanıyor musun?|Evet|Hayır
+Yabancı bir ülkede yaşamak ister misin?|Evet|Hayır
+Hangisini izlemeyi tercih edersin, beyzbol mu futbol mu?|Beyzbol|Futbol
+Para hediye alsam...|Harcarım|Biriktiririm
+Sık sık kitap okur musun?|Evet|Pek değil
+Hiç UFO gördün mü?|Evet|Hayır
+Tüm aile üyelerinin doğum günlerini biliyor musun?|Evet|Hayır
+Yemek zamanı hangisine daha çok dikkat edersin?|Miktar|Tat
+Fotoğrafının çekilmesini sever misin?|Evet|Hayır
+Korku filmlerini sever misin?|Evet|Pek değil...
+İkiden fazla dil konuşabiliyor musun?|Evet|Hayır
+Günde kaç saat TV izlersin?|İki saatten az|İki saatten fazla
+İki gün önce akşam yemeğinde ne yediğini hatırlıyor musun?|Evet|Hayır
+Hangisinde daha iyisin?|Zekamı kullanmakta|Gücümü kullanmakta
+Eve girince ayakkabılarımı çıkarırım.|Evet|Hayır
+Hangisine öncelik verirsin?|Hobiler|İş
+Tercihim...|İçgüdülerime güvenmek|Dikkatlice düşünmek
+Gönüllü çalışır mısın?|Evet|Hayır
+Müzik aleti çalmakta iyi misin?|Evet|Hayır
+Günde kaç öğün yersin?|İki veya daha az|Üç veya daha fazla
+Sık sık çizgi roman okur musun?|Evet|Hayır
+Her gün saçını yıkar mısın?|Evet|Hayır
+Son zamanlarda dışarı çıktığımda...|Kısa kollu|Uzun kollu giyindim
+Cimri olduğunu düşünüyor musun?|Evet|Hayır
+Film bittiğinde jenerik sonuna kadar izler misin?|Evet|Hayır
+Hangi atıştırmalığı tercih edersin?|Sert şeker|Sakız
+Hangi tür yemeği tercih edersin?|Kendi ülkemin yemeği|Başka ülkenin yemeği
+Hangi içeceği daha çok tercih edersin?|Kahve|Çay
+Beş ada ülkesi (büyük kıtalara bağlı olmayan) sayabilir misin?|Evet|Hayır
+İzin günümde tercihim...|Dışarı çıkmak|Evde kalmak
+Yemek yapmakta ______.|İyiyim|İyi değilim
+Evinden dağ görebiliyor musun?|Evet|Hayır
+Hiç kayak yaptın mı?|Evet|Hayır
+Eve gelince ellerini yıkar mısın?|Evet|Pek değil
+Komşularınla düzenli konuşur musun?|Evet|Hayır
+Kendini batıl inançlı biri olarak görüyor musun?|Evet, öyle düşünüyorum|Hayır, öyle düşünmüyorum
+Kendini daha çok...|Sabah insanı|Gece insanı olarak görüyorum
+Hangi aktiviteyi yapmayı tercih edersin?|Koşu|Yüzme
+Genellikle hangi suyu içersin?|Şişe su|Musluk suyu
+Hiç balık tutmaya gittin mi?|Evet|Hayır
+Hangisini tercih edersin?|Peynir|Yoğurt
+Hangisinde daha iyisin?|Konuşmak|Dinlemek
+Genellikle şapka takar mısın?|Evet|Hayır
+Saç stilin son bir yılda değişti mi?|Evet|Hayır
+Sabah genelde kaçta uyanırsın?|Yediden önce|Yediden sonra
+Dışarı çıkarken saat takar mısın?|Evet|Hayır
+Hiç büyük bir gemiye bindin mi?|Evet|Hayır
+Uyuduğun oda ile yemek yediğin oda...|Aynı oda|Farklı odalar
+Hangi seyahat hediyeliğini almayı tercih edersin?|Yiyecek|Yiyecek olmayan
+Bir dileğin gerçekleşse...|Daha çok uyumak isterim|Daha lezzetli yemekler yemek
+Geçen hafta spagetti yedin mi?|Evet|Hayır
+Ne sıklıkla süt içersin?|Her gün içerim|Her gün içmem
+Son moda kıyafetleri giymekte kendine güvenir misin?|Evet|Hayır
+Sık sık yüzme havuzuna veya spor salonuna gider misin?|Evet|Hayır
+Hangisini daha sık kullanırsın?|Kurşun kalem|Tükenmez kalem
+Haftada bir veya daha fazla şekerleme yapar mısın?|Evet|Hayır
+Yağmurlu günler...|Severim|Nefret ederim
+Hiç nehirde yüzdün mü?|Evet|Hayır
+Geçen yıl kütüphaneye gittin mi?|Evet|Hayır
+Hangi müzisyenleri daha çok dinlersin?|Erkek sanatçılar|Kadın sanatçılar
+Dijital saat 12:34'ü gösterdiğinde...|Biraz mutlu oluyorum|Hiçbir şey hissetmiyorum
+Ayakkabı giyerken başladığım ayak...|Her zaman aynı|Kararsız
+Genellikle sana...|İlk adınla|Lakabınla seslenirler
+Yanında her zaman mendil taşır mısın?|Evet|Hayır
+Herhangi bir ders alıyor musun?|Evet|Hayır
+Hiç bilardo oynadın mı?|Evet|Hayır
+Kendi kendime konuşurum...|Sık sık|Neredeyse hiç
+Seni ne daha iyi hissettirir? İyilik...|Başkalarına gösterdiğim|Bana gösterilen
+Satranç kurallarını biliyor musun?|Biliyorum|Bilmiyorum
+Konserve yemek yer misin?|Sık sık|Sık değil
+Belirlenen buluşma saatine genelde...|10 dakikadan fazla erken|Tam zamanında gelirim
+Aralıksız 20 şınav...|Kolay|İmkansız
+Pi sayısında "3.14"ten sonra ne geldiğini söyleyebilir misin?|Evet|Hayır
+Hiç Samanyolu'nu gördün mü?|Evet|Hayır
+Hiç kendi yetiştirdiğin sebzeleri yedin mi?|Evet|Hayır
+Evimde video kaset oynatabilecek bir cihaz var.|Doğru|Yanlış
+Hiç parfüm kullandın mı?|Evet|Hayır
+Doğum günümde tercihim...|Çiçek buketi|Pasta almak
+Odan veya masam...|Düzenli|Dağınık
+Kalabalık bir grubun önünde konuşmak...|Kolay|Gergin edici
+Bence ben daha çok...|Şanslıyım|Şanssızım
+Haftada en az bir kez trene biner misin?|Evet|Hayır
+Anlık alışveriş yapar mısın?|Bazen|Nadiren
+Bir araba alsan, hangi rengi tercih edersin?|Göze çarpan bir renk|Sıradan bir renk
+Hangisini tercih edersin?|Mayonez|Ketçap
+Sır saklamakta iyi misin?|Evet!|Pek değil

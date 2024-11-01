@@ -34,7 +34,7 @@ import java.util.Locale;
 )
 public class LanguageCommand extends Command implements OnStringSelectMenuListener {
 
-    private final Language[] LANGUAGES = new Language[] { Language.EN, Language.DE, Language.ES, Language.RU };
+    private final Language[] LANGUAGES = new Language[] { Language.EN, Language.DE, Language.ES, Language.RU, Language.FR, Language.PT, Language.TR };
 
     private boolean set = false;
 
