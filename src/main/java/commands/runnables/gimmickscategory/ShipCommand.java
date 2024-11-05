@@ -3,6 +3,7 @@ package commands.runnables.gimmickscategory;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.RandomPicker;
@@ -16,10 +17,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Random;
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -56,7 +56,7 @@ public class ShipCommand extends Command {
         }
 
         list.sort(Comparator.comparingLong(ISnowflake::getIdLong));
-        String idString = String.valueOf(list.get(0).getIdLong() + list.get(1).getIdLong());
+        String idString = String.valueOf(list.get(0).getIdLong() + list.get(1).getIdLong() + getDateValue());
         int randomNum = String.valueOf(idString.hashCode()).hashCode();
         int percentage = new Random(randomNum).nextInt(101);
         for (CustomShipValues customShipValue : customShipValues) {
@@ -82,6 +82,12 @@ public class ShipCommand extends Command {
         addFileAttachment(is, "ship.png");
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
+    }
+
+    private int getDateValue() {
+        LocalDate localDate = LocalDate.now();
+        return localDate.get(WeekFields.of(Language.EN.getLocale()).weekOfYear()) +
+                localDate.getYear() * 100;
     }
 
 
