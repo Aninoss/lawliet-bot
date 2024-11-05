@@ -3,7 +3,6 @@ package commands.runnables.gimmickscategory;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import constants.AssetIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.RandomPicker;
@@ -67,10 +66,7 @@ public class ShipCommand extends Command {
             }
         }
 
-        int n = RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), 7).get();
-        if (event.getGuild().getIdLong() == AssetIds.WEBGATE_SERVER_ID) {
-            n = 7;
-        }
+        int n = RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), 8).get();
 
         event.deferReply();
         InputStream is = ShipGraphics.createImageShip(list.get(0).getUser(), list.get(1).getUser(), n, percentage);
