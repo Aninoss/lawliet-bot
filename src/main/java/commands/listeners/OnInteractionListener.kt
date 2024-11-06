@@ -30,13 +30,15 @@ interface OnInteractionListener : Drawable {
 
     fun deregisterListenersWithComponentMessage() {
         val command = this as Command
-        command.drawMessageId.ifPresent { messageId: Long ->
-            command.guildMessageChannel.ifPresent { channel: GuildMessageChannel ->
-                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.commandEvent.isMessageReceivedEvent()) {
-                    val messageIds = listOf(messageId.toString(), command.commandEvent.messageReceivedEvent!!.messageId)
-                    channel.deleteMessagesByIds(messageIds).queue()
-                } else if (BotPermissionUtil.canReadHistory(channel)) {
-                    channel.deleteMessageById(messageId).queue()
+        if (!command.ephemeralMessages) {
+            command.drawMessageId.ifPresent { messageId: Long ->
+                command.guildMessageChannel.ifPresent { channel: GuildMessageChannel ->
+                    if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.commandEvent.isMessageReceivedEvent()) {
+                        val messageIds = listOf(messageId.toString(), command.commandEvent.messageReceivedEvent!!.messageId)
+                        channel.deleteMessagesByIds(messageIds).queue()
+                    } else if (BotPermissionUtil.canReadHistory(channel)) {
+                        channel.deleteMessageById(messageId).queue()
+                    }
                 }
             }
         }

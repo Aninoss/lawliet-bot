@@ -1,4 +1,4 @@
-package modules.moduserinteractions;
+package modules;
 
 import commands.Category;
 import commands.Command;

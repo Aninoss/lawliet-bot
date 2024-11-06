@@ -1,10 +1,5 @@
 package commands.runnables.splatoon2category;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -23,6 +18,12 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
 @CommandProperties(
         trigger = "splatnet",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
@@ -40,7 +41,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        event.deferReply();
+        deferReply();
         EmbedBuilder eb = getEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());

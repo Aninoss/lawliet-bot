@@ -42,7 +42,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         }
         SendEvent.sendException(message);
 
-        if (errorDisplayLimiter.checkAndSet(0L, MAX_ERRORS_PER_MINUTE, Duration.ofMinutes(1)).isPresent()) {
+        if (Program.productionMode() && errorDisplayLimiter.checkAndSet(0L, MAX_ERRORS_PER_MINUTE, Duration.ofMinutes(1)).isPresent()) {
             return FilterReply.DENY;
         }
 

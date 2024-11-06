@@ -268,10 +268,14 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         }
 
         ArrayList<Button> controlButtonList = new ArrayList<>();
+        boolean newComponents = false;
         if (CommandContainer.getListener(OnButtonListener.class, this).isPresent()) {
-            String key = state == DEFAULT_STATE ? "list_close" : "list_back";
-            Button backButton = Button.of(ButtonStyle.SECONDARY, BUTTON_ID_BACK, TextManager.getString(getLocale(), TextManager.GENERAL, key));
-            controlButtonList.add(backButton);
+            newComponents = true;
+            if ((!getEphemeralMessages() || state != DEFAULT_STATE)) {
+                String key = state == DEFAULT_STATE ? "list_close" : "list_back";
+                Button backButton = Button.of(ButtonStyle.SECONDARY, BUTTON_ID_BACK, TextManager.getString(getLocale(), TextManager.GENERAL, key));
+                controlButtonList.add(backButton);
+            }
         }
         if (loadComponents) {
             List<ActionRow> tempActionRows = getActionRows();
@@ -294,12 +298,15 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
             if (actionRows.size() > MAX_ROWS_PER_PAGE) {
                 EmbedUtil.setFooter(eb, this, TextManager.getString(locale, TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
+                newComponents = true;
                 controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_PREV, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")));
                 controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next")));
             }
 
-            if (!controlButtonList.isEmpty()) {
-                displayActionRowList.add(ActionRow.of(controlButtonList));
+            if (newComponents) {
+                if (!controlButtonList.isEmpty()) {
+                    displayActionRowList.add(ActionRow.of(controlButtonList));
+                }
                 setActionRows(displayActionRowList);
             } else {
                 setActionRows();

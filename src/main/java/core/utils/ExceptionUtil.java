@@ -1,8 +1,5 @@
 package core.utils;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.runnables.NavigationAbstract;
@@ -11,6 +8,10 @@ import core.MainLogger;
 import core.TextManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Locale;
 
 public class ExceptionUtil {
 
@@ -45,7 +46,7 @@ public class ExceptionUtil {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + TextManager.getString(locale, TextManager.GENERAL, "error_submit"));
-            event.replyMessageEmbeds(guildEntity, eb.build()).queue();
+            event.replyMessageEmbeds(guildEntity, true, eb.build()).queue();
         }
 
         int state = -1;

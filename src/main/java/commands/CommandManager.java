@@ -132,7 +132,7 @@ public class CommandManager {
         if (CoolDownManager.getCoolDownData(event.getMember().getIdLong()).canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
 
-            if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                         .setDescription(desc);
@@ -159,7 +159,7 @@ public class CommandManager {
         if (cooldownUserData.canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", TimeFormat.RELATIVE.after(Duration.ofSeconds(waitingSec.get())).toString());
 
-            if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
@@ -178,7 +178,7 @@ public class CommandManager {
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_args");
-        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "wrong_args"))
                     .setDescription(desc);
@@ -201,7 +201,7 @@ public class CommandManager {
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description");
         String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_releaseday", TimeFormat.DATE_TIME_SHORT.atInstant(TimeUtil.localDateToInstant(releaseDate)).toString());
 
-        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PREMIUM_COLOR)
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"))
@@ -223,7 +223,7 @@ public class CommandManager {
             return true;
         }
 
-        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
             sendError(event, guildEntity, EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
             sendErrorNoEmbed(event, guildEntity, TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
@@ -256,7 +256,7 @@ public class CommandManager {
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_description", command.getPrefix());
-        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_title", command.getPrefix()))
                     .setDescription(desc);
@@ -273,7 +273,7 @@ public class CommandManager {
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description");
-        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title", command.getPrefix()))
                     .setDescription(desc);
@@ -289,7 +289,7 @@ public class CommandManager {
     }
 
     private static boolean botCanUseEmbeds(CommandEvent event, GuildEntity guildEntity, Command command) {
-        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || !command.getCommandProperties().requiresEmbeds() || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || !command.getCommandProperties().requiresEmbeds() || event.isGenericCommandInteractionEvent()) {
             return true;
         }
 
@@ -309,8 +309,8 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(CommandEvent event, GuildEntity guildEntity, String text, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWrite(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
-            RestAction<Message> messageAction = event.replyMessage(guildEntity, TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "command_block", text))
+        if (BotPermissionUtil.canWrite(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
+            RestAction<Message> messageAction = event.replyMessage(guildEntity, true, TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "command_block", text))
                     .setComponents(ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
@@ -321,19 +321,21 @@ public class CommandManager {
     }
 
     private static void sendError(CommandEvent event, GuildEntity guildEntity, EmbedBuilder eb, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
-            if (autoDelete) {
-                eb.setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
-            }
-
-            RestAction<Message> messageAction = event.replyMessageEmbeds(guildEntity, List.of(eb.build()))
-                    .setComponents(ActionRows.of(buttons));
-            if (autoDelete) {
-                messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
-            } else {
-                messageAction.queue();
-            }
+        if (!BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) && !event.isGenericCommandInteractionEvent()) {
+            return;
         }
+
+        if (event.isMessageReceivedEvent() && autoDelete) {
+            eb.setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
+        }
+
+        event.replyMessageEmbeds(guildEntity, true, List.of(eb.build()))
+                .setComponents(ActionRows.of(buttons))
+                .queue(message -> {
+                    if (event.isMessageReceivedEvent() && autoDelete) {
+                        autoRemoveMessageAfterCountdown(event, message);
+                    }
+                });
     }
 
     private static void autoRemoveMessageAfterCountdown(CommandEvent event, Message message) {
@@ -378,7 +380,7 @@ public class CommandManager {
     }
 
     private static boolean botCanPost(CommandEvent event, Command command) {
-        if (BotPermissionUtil.canWrite(event.getMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWrite(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
             return true;
         }
 

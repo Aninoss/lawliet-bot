@@ -29,6 +29,9 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     @Column(name = ROLE_PLAY_BLOCK)
     val rolePlayBlock = RolePlayBlockEntity()
 
+    var translateTargetLanguageCode: String? = null
+    var translateFormal: Boolean? = null
+
 
     constructor() : this("0")
 

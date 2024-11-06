@@ -9,7 +9,7 @@ import core.TextManager;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUserContextInteractionAbstract;
-import modules.moduserinteractions.ModUserInteractionManager;
+import modules.ModUserInteractionManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;

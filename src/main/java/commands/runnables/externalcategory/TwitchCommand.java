@@ -46,7 +46,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
             return false;
         }
 
-        event.deferReply();
+        deferReply();
         Optional<TwitchStream> streamOpt = twitchDownloader.retrieveStream(args).get();
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, args);

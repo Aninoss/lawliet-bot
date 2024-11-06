@@ -49,7 +49,7 @@ public class PremiumCommand extends Command {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, content)
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png");
 
-        event.deferReply();
+        deferReply();
         StringBuilder sb = new StringBuilder();
         for (int i = Settings.PATREON_ROLE_IDS.length - 1; i >= 3; i--) {
             sb.append(getPatreonUsersString(i));

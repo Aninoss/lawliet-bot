@@ -34,7 +34,7 @@ public class DadJokeCommand extends Command {
             int n = RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), jokeList.size()).get();
             joke = jokeList.get(n);
         } else {
-            event.deferReply();
+            deferReply();
             joke = new JSONObject(HttpRequest.get("https://icanhazdadjoke.com/slack").get().getBody())
                     .getJSONArray("attachments")
                     .getJSONObject(0)

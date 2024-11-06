@@ -14,7 +14,7 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.InteractionListenerHandler;
 import events.discordevents.eventtypeabstracts.StringSelectMenuAbstract;
-import modules.moduserinteractions.ModUserInteractionManager;
+import modules.ModUserInteractionManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;

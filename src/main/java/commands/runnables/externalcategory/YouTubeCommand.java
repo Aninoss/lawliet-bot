@@ -42,7 +42,7 @@ public class YouTubeCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException, IOException {
-        event.deferReply();
+        deferReply();
 
         List<YouTubeVideo> videos;
         try {

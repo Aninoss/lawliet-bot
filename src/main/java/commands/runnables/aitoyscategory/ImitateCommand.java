@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "imitate",
-        emoji = "\uD83D\uDD01",
+        emoji = "🔁",
         executableWithoutArgs = true,
         patreonRequired = true,
         enableCacheWipe = false,

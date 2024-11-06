@@ -71,7 +71,7 @@ public abstract class DeepAIAbstract extends Command {
             }
         }
 
-        event.deferReply();
+        deferReply();
         return new JSONObject(DeepAI.request(getUrl(), imageUrl).get().getBody())
                 .getString("output_url");
     }

@@ -71,6 +71,7 @@ public abstract class Command implements OnTriggerListener {
     private String memberMention;
     private String memberEffectiveAvatarUrl;
     private String username;
+    private boolean ephemeralMessages = false;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -202,7 +203,7 @@ public abstract class Command implements OnTriggerListener {
     private CompletableFuture<Message> drawMessage(EmbedBuilder eb, boolean newMessage) {
         GuildMessageChannel channel = getGuildMessageChannel().orElse(null);
         if (channel != null) {
-            if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isSlashCommandInteractionEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isGenericCommandInteractionEvent()) {
                 EmbedUtil.addLog(eb, logStatus, log);
                 return drawMessage(channel, null, eb, newMessage);
             } else {
@@ -303,10 +304,10 @@ public abstract class Command implements OnTriggerListener {
             }
         } else {
             if (content != null) {
-                messageAction = commandEvent.replyMessage(getGuildEntity(), content)
+                messageAction = commandEvent.replyMessage(getGuildEntity(), ephemeralMessages, content)
                         .setEmbeds(embeds);
             } else {
-                messageAction = commandEvent.replyMessageEmbeds(getGuildEntity(), embeds);
+                messageAction = commandEvent.replyMessageEmbeds(getGuildEntity(), ephemeralMessages, embeds);
             }
         }
 
@@ -396,6 +397,10 @@ public abstract class Command implements OnTriggerListener {
 
     public Optional<Long> getDrawMessageId() {
         return getDrawMessage().map(ISnowflake::getIdLong);
+    }
+
+    public void deferReply() {
+        commandEvent.deferReply(getEphemeralMessages());
     }
 
     public LogStatus getLogStatus() {
@@ -626,6 +631,14 @@ public abstract class Command implements OnTriggerListener {
 
     public boolean hasAttachment(String key) {
         return attachments.containsKey(key);
+    }
+
+    public void setEphemeralMessages(boolean ephemeralMessages) {
+        this.ephemeralMessages = ephemeralMessages;
+    }
+
+    public boolean getEphemeralMessages() {
+        return ephemeralMessages;
     }
 
     public void setAtomicGuild(Guild guild) {

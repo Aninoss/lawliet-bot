@@ -41,10 +41,10 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        event.deferReply();
+        deferReply();
         PostBundle<AnimeReleasePost> posts = AnimeReleasesDownloader.getPosts(getLocale(), null, args);
 
-        if (posts.getPosts().size() > 0) {
+        if (!posts.getPosts().isEmpty()) {
             EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(posts.getPosts().get(0)), getPrefix(), getTrigger());
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return true;

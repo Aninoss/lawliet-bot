@@ -143,7 +143,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
         this.args = args;
         ArrayList<String> usedResults = new ArrayList<>();
-        event.deferReply();
+        deferReply();
         do {
             List<BooruImage> pornImages;
             try {

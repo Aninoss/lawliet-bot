@@ -104,7 +104,7 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
             return false;
         }
 
-        event.deferReply();
+        deferReply();
         base64Images = imageAttachments.stream()
                 .filter(attachment -> (long) attachment.getWidth() * attachment.getHeight() <= MAX_ALLOWED_PIXEL_SIZE)
                 .map(attachment -> {

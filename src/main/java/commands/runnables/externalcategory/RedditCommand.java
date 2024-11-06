@@ -57,13 +57,13 @@ public class RedditCommand extends Command implements OnAlertListener {
             args = forceSubreddit;
         }
 
-        if (args.length() == 0) {
+        if (args.isEmpty()) {
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
                     .exceptionally(ExceptionLogger.get());
             return false;
         } else {
             String finalArgs = args;
-            event.deferReply();
+            deferReply();
             try {
                 return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, JDAUtil.channelIsNsfw(event.getChannel())).get()
                         .map(post -> {

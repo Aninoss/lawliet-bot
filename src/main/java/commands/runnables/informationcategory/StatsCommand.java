@@ -35,7 +35,7 @@ public class StatsCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        event.deferReply();
+        deferReply();
 
         String dephordName = "???";
         try {

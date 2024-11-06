@@ -8,7 +8,8 @@ import core.MainLogger;
 import core.Program;
 import core.ShardManager;
 import core.SlashAssociations;
-import modules.moduserinteractions.ModUserInteractionManager;
+import modules.ModUserInteractionManager;
+import modules.translate.TranslateMessageInteractionManager;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.JDA;
@@ -132,6 +133,7 @@ public class SlashCommandManager {
             }
         }
         commandDataList.addAll(ModUserInteractionManager.generateUserCommands());
+        commandDataList.addAll(TranslateMessageInteractionManager.generateMessageCommands());
         return commandDataList;
     }
 

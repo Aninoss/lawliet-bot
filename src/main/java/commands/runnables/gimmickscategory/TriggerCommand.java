@@ -33,7 +33,7 @@ public class TriggerCommand extends MemberAccountAbstract {
 
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
-        event.deferReply();
+        deferReply();
         inputStream = TriggerGraphics.createImageTriggered(member.getUser());
         return EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.escapeMarkdown(member.getEffectiveName())))
                 .setImage("attachment://trigger.gif");

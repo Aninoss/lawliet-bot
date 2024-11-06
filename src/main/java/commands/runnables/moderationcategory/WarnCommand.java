@@ -78,7 +78,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     protected MentionList<User> getUserList(CommandEvent event, String args) throws Throwable {
         Guild guild = event.getGuild();
         if (includeNotInGuild || !guild.isLoaded()) {
-            event.deferReply();
+            deferReply();
         }
 
         MentionList<Member> memberMention = MentionUtil.getMembers(guild, args, event.getRepliedMember());
@@ -146,7 +146,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             );
             registerButtonListener(event.getMember());
         } else {
-            event.deferReply();
+            deferReply();
             boolean success = checkAndExecute(event.getMessageChannel(), event.getMember());
             drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
             return success;

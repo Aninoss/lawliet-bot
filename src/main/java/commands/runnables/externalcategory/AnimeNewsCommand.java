@@ -39,7 +39,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        event.deferReply();
+        deferReply();
         List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(getLocale());
         EmbedBuilder eb;
         if (articles != null && !articles.isEmpty()) {

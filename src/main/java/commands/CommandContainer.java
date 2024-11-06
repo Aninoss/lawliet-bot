@@ -6,10 +6,7 @@ import com.google.common.cache.RemovalCause;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
-import commands.runnables.aitoyscategory.ColorCommand;
-import commands.runnables.aitoyscategory.ImitateCommand;
-import commands.runnables.aitoyscategory.Txt2ImgCommand;
-import commands.runnables.aitoyscategory.UpscalerCommand;
+import commands.runnables.aitoyscategory.*;
 import commands.runnables.birthdaycategory.BirthdayCommand;
 import commands.runnables.birthdaycategory.BirthdayConfigCommand;
 import commands.runnables.birthdaycategory.BirthdayListCommand;
@@ -72,6 +69,7 @@ public class CommandContainer {
         commandList.add(ColorCommand.class);
         commandList.add(Txt2ImgCommand.class);
         commandList.add(UpscalerCommand.class);
+        commandList.add(TranslateCommand.class);
 
         //CONFIGURATION
         commandList.add(LanguageCommand.class);

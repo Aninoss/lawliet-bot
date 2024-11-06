@@ -40,7 +40,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        event.deferReply();
+        deferReply();
         List<MangaUpdatesSeries> seriesList = MangaUpdatesDownloader.searchSeries(args);
         if (!seriesList.isEmpty()) {
             MangaUpdatesSeries series = seriesList.get(0);

@@ -51,7 +51,7 @@ public class SlashCommandCommand extends SlashCommandAbstract {
         deferIfNotAcknowledged(event);
         CommandEvent commandEvent = new CommandEvent(event);
         try {
-            CommandManager.manage(new CommandEvent(event), command, args, guildEntity, getStartTime());
+            CommandManager.manage(commandEvent, command, args, guildEntity, getStartTime());
         } catch (Throwable e) {
             ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity);
         }

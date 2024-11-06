@@ -83,7 +83,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
 
             this.args = args;
             FeatureLogger.inc(PremiumFeature.PIXIV, event.getGuild().getIdLong());
-            event.deferReply();
+            deferReply();
             try {
                 return pixivDownloader.retrieveImage(event.getGuild().getIdLong(), args, JDAUtil.channelIsNsfw(event.getChannel()), filterSet).get()
                         .map(image -> {

@@ -65,7 +65,9 @@ public class SupportTemplates {
                 event.getTarget().delete().queue();
             }
             case 4 -> text = TEXT_GIF_REQUEST_INFO;
-            default -> text = "Unknown error";
+            default -> {
+                return;
+            }
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
