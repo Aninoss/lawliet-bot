@@ -137,7 +137,7 @@ public class CommandManagementCommand extends NavigationAbstract {
         } else {
             GuildEntity guildEntity = getGuildEntity();
             Set<String> disabledCommandsAndCateogories = guildEntity.getDisabledCommandsAndCategories();
-            String trigger = event.getButton().getLabel();
+            String trigger = event.getButton().getLabel().split(" ")[0];
 
             if (disabledCommandsAndCateogories.contains(trigger)) {
                 guildEntity.beginTransaction();
