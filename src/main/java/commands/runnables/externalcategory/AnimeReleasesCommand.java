@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "crunchyroll",
-        emoji = "\uD83D\uDCFA",
+        emoji = "📺",
         executableWithoutArgs = true,
         aliases = { "animereleases", "animerelease" }
 )

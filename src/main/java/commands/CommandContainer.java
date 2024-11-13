@@ -290,6 +290,7 @@ public class CommandContainer {
         commandList.add(AnimeNewsCommand.class);
         commandList.add(AnimeReleasesCommand.class);
         commandList.add(MangaUpdatesCommand.class);
+        commandList.add(AnilistCommand.class);
         commandList.add(DadJokeCommand.class);
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);
