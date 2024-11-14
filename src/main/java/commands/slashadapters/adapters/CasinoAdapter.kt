@@ -27,7 +27,25 @@ class CasinoAdapter : SlashAdapter() {
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         for (clazz in CommandContainer.getFullCommandList()) {
             val command = CommandManager.createCommandByClass(clazz, Language.EN.locale, "/")
-            if (command.category == Category.CASINO && command !is CasinoStatsCommand) {
+            if (command.category != Category.CASINO) {
+                continue
+            }
+
+            if (command is CasinoStatsCommand) {
+                val subcommandData = generateSubcommandData(command.commandProperties.trigger, command.trigger + "_description")
+                val optionData = generateOptionData(OptionType.STRING, "game", "casinostats_game", false)
+                    .addChoices(generateChoice("casinostats_allgames", "all"))
+
+                for (clazz2 in CommandContainer.getFullCommandList()) {
+                    val command2 = CommandManager.createCommandByClass(clazz2, Language.EN.locale, "/")
+                    if (CasinoStatsCommand.commandIsValid(command2)) {
+                        optionData.addChoices(generateChoice("${command2.trigger}_title", command2.trigger))
+                    }
+                }
+
+                subcommandData.addOptions(optionData)
+                commandData.addSubcommands(subcommandData)
+            } else {
                 val subcommandData = generateSubcommandData(command.commandProperties.trigger, command.trigger + "_description")
                 if (command is CasinoMultiplayerAbstract ||
                     command is CasinoAbstract && command.allowBet()

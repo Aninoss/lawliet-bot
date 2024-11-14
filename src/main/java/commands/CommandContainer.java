@@ -66,7 +66,6 @@ public class CommandContainer {
 
         //AI TOYS
         commandList.add(ImitateCommand.class);
-        commandList.add(ColorCommand.class);
         commandList.add(Txt2ImgCommand.class);
         commandList.add(UpscalerCommand.class);
         commandList.add(TranslateCommand.class);
