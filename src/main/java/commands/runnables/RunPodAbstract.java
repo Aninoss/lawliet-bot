@@ -326,7 +326,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 continue;
             }
             menuBuilder.addOption(
-                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_run", getString("model_style_" + model.name())),
+                    getString("model_style_" + model.name()),
                     String.valueOf(i),
                     getString("model_name_" + model.name())
             );
