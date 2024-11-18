@@ -65,7 +65,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         if (!channelMention.getList().isEmpty()) {
             channel = channelMention.getList().get(0);
         }
-        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionsMissingEmbed(
                 getLocale(),
                 channel,
                 event.getMember(),

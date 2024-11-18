@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 
 public class BotPermissionUtil {
 
-    public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Member member,
-                                                                   Permission[] userGuildPermissions, Permission[] userChannelPermissions,
-                                                                   Permission[] botGuildPermissions, Permission[] botChannelPermissions
+    public static EmbedBuilder getUserAndBotPermissionsMissingEmbed(Locale locale, GuildChannel channel, Member member,
+                                                                    Permission[] userGuildPermissions, Permission[] userChannelPermissions,
+                                                                    Permission[] botGuildPermissions, Permission[] botChannelPermissions
     ) {
         HashSet<Permission> userPermission = new HashSet<>(getMissingPermissions(member, userGuildPermissions));
         userPermission.addAll(getMissingPermissions(channel, member, userChannelPermissions));
@@ -30,68 +30,20 @@ public class BotPermissionUtil {
         HashSet<Permission> botPermission = new HashSet<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
         botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
 
-        return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
+        return getUserPermissionsMissingEmbed(locale, userPermission, botPermission);
     }
 
-    public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, Member member,
-                                                                   Permission[] userGuildPermissions, Permission[] botGuildPermissions
+    public static EmbedBuilder getUserAndBotPermissionsMissingEmbed(Locale locale, Member member,
+                                                                    Permission[] userGuildPermissions, Permission[] botGuildPermissions
     ) {
-        return getUserPermissionMissingEmbed(
+        return getUserPermissionsMissingEmbed(
                 locale,
                 getMissingPermissions(member, userGuildPermissions),
                 getMissingPermissions(member.getGuild().getSelfMember(), botGuildPermissions)
         );
     }
 
-    public static String getBotPermissionsMissingText(Locale locale, GuildChannel channel, Permission... permissions) {
-        List<Permission> missing = getMissingPermissions(channel, channel.getGuild().getSelfMember(), permissions);
-        if (missing.isEmpty()) {
-            return null;
-        }
-
-        StringBuilder sb = new StringBuilder(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_bot"))
-                .append(" ");
-
-        for (int i = 0; i < missing.size(); i++) {
-            if (i > 0) sb.append(", ");
-            sb.append(TextManager.getString(locale, TextManager.PERMISSIONS, missing.get(i).name()));
-        }
-
-        return sb.toString();
-    }
-
-    public static EmbedBuilder getBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Permission[] botGuildPermissions, Permission[] botChannelPermissions) {
-        List<Permission> botPermission = new ArrayList<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
-        botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
-        return getUserPermissionMissingEmbed(locale, Collections.emptyList(), botPermission);
-    }
-
-    public static List<Permission> getMissingPermissions(Member member, Permission... permissions) {
-        return Arrays.stream(permissions)
-                .filter(permission -> !member.hasPermission(permission))
-                .collect(Collectors.toList());
-    }
-
-    public static List<Permission> getMissingPermissions(GuildChannel channel, Member member, Permission... permissions) {
-        LinkedHashSet<Permission> permissionSet = new LinkedHashSet<>(Arrays.asList(permissions));
-        permissionSet.add(Permission.VIEW_CHANNEL);
-
-        if (channel instanceof ThreadChannel && permissionSet.contains(Permission.MESSAGE_SEND)) {
-            permissionSet.add(Permission.MESSAGE_SEND_IN_THREADS);
-        }
-
-        return permissionSet.stream()
-                .filter(permission -> !member.hasPermission(channel, permission))
-                .collect(Collectors.toList());
-    }
-
-    public static List<Permission> getMissingPermissions(GuildChannel channel, Role role, Permission... permissions) {
-        return Arrays.stream(permissions)
-                .filter(permission -> !role.getPermissionsExplicit(channel).contains(permission))
-                .collect(Collectors.toList());
-    }
-
-    public static EmbedBuilder getUserPermissionMissingEmbed(Locale locale, Collection<Permission> userPermissions, Collection<Permission> botPermissions) {
+    public static EmbedBuilder getUserPermissionsMissingEmbed(Locale locale, Collection<Permission> userPermissions, Collection<Permission> botPermissions) {
         EmbedBuilder eb = null;
         if (!userPermissions.isEmpty() || !botPermissions.isEmpty()) {
             eb = EmbedFactory.getEmbedError()
@@ -119,6 +71,67 @@ public class BotPermissionUtil {
         }
 
         return eb;
+    }
+
+    public static String getUserPermissionsMissingText(Locale locale, Member member, GuildChannel channel, Permission... permissions) {
+        List<Permission> missing = getMissingPermissions(channel, member, permissions);
+        if (missing.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_channel_you", "#" + channel.getName()))
+                .append(" ");
+
+        for (int i = 0; i < missing.size(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(TextManager.getString(locale, TextManager.PERMISSIONS, missing.get(i).name()));
+        }
+
+        return sb.toString();
+    }
+
+    public static String getBotPermissionsMissingText(Locale locale, GuildChannel channel, Permission... permissions) {
+        List<Permission> missing = getMissingPermissions(channel, channel.getGuild().getSelfMember(), permissions);
+        if (missing.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_channel_bot", "#" + channel.getName()))
+                .append(" ");
+
+        for (int i = 0; i < missing.size(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(TextManager.getString(locale, TextManager.PERMISSIONS, missing.get(i).name()));
+        }
+
+        return sb.toString();
+    }
+
+    public static List<Permission> getMissingPermissions(Member member, Permission... permissions) {
+        return Arrays.stream(permissions)
+                .filter(permission -> !member.hasPermission(permission))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Permission> getMissingPermissions(GuildChannel channel, Member member, Permission... permissions) {
+        if (!member.hasPermission(channel, Permission.VIEW_CHANNEL)) {
+            return List.of(Permission.VIEW_CHANNEL);
+        }
+
+        LinkedHashSet<Permission> permissionSet = new LinkedHashSet<>(Arrays.asList(permissions));
+        if (channel instanceof ThreadChannel && permissionSet.contains(Permission.MESSAGE_SEND)) {
+            permissionSet.add(Permission.MESSAGE_SEND_IN_THREADS);
+        }
+
+        return permissionSet.stream()
+                .filter(permission -> !member.hasPermission(channel, permission))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Permission> getMissingPermissions(GuildChannel channel, Role role, Permission... permissions) {
+        return Arrays.stream(permissions)
+                .filter(permission -> !role.getPermissionsExplicit(channel).contains(permission))
+                .collect(Collectors.toList());
     }
 
     public static boolean canKick(Member memberToKick) {

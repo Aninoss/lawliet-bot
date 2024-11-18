@@ -115,6 +115,17 @@ public class TranslateCommand extends NavigationAbstract {
                                 return null;
                             }
 
+                            String permissionsMissingUser = BotPermissionUtil.getUserPermissionsMissingText(getLocale(), e.getMember(), channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY);
+                            if (permissionsMissingUser != null) {
+                                setLog(LogStatus.FAILURE, permissionsMissingUser);
+                                return null;
+                            }
+                            String permissionsMissingBot = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY);
+                            if (permissionsMissingBot != null) {
+                                setLog(LogStatus.FAILURE, permissionsMissingBot);
+                                return null;
+                            }
+
                             Language sourceLanguage;
                             Language targetLanguage;
                             try {
@@ -288,12 +299,14 @@ public class TranslateCommand extends NavigationAbstract {
         if (channel == null) {
             return null;
         }
-        if (!BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) {
-            setLog(LogStatus.FAILURE, getString("noaccess_bot", channel.getName()));
+        String permissionsMissingUser = BotPermissionUtil.getUserPermissionsMissingText(getLocale(), member, channel, Permission.MESSAGE_HISTORY);
+        if (permissionsMissingUser != null) {
+            setLog(LogStatus.FAILURE, permissionsMissingUser);
             return null;
         }
-        if (!BotPermissionUtil.can(member, channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) {
-            setLog(LogStatus.FAILURE, getString("noaccess_user", channel.getName()));
+        String permissionsMissingBot = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), channel, Permission.MESSAGE_HISTORY);
+        if (permissionsMissingBot != null) {
+            setLog(LogStatus.FAILURE, permissionsMissingBot);
             return null;
         }
 

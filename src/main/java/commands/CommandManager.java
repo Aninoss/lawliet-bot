@@ -233,7 +233,7 @@ public class CommandManager {
     }
 
     private static boolean checkPermissions(CommandEvent event, GuildEntity guildEntity, Command command) {
-        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionsMissingEmbed(
                 command.getLocale(),
                 event.getMessageChannel(),
                 event.getMember(),

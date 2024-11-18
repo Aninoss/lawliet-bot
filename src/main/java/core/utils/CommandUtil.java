@@ -43,7 +43,7 @@ public class CommandUtil {
         Permission[] finalPermissions = permissionSet.toArray(Permission[]::new);
 
         if (channel != null) {
-            EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+            EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionsMissingEmbed(
                     command.getLocale(),
                     channel,
                     event.getMember(),

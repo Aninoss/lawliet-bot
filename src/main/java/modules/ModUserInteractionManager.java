@@ -86,7 +86,7 @@ public class ModUserInteractionManager {
     }
 
     private static EmbedBuilder checkPermissions(Member member, Command command) {
-        return BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+        return BotPermissionUtil.getUserAndBotPermissionsMissingEmbed(
                 command.getLocale(),
                 member,
                 command.getAdjustedUserGuildPermissions(),

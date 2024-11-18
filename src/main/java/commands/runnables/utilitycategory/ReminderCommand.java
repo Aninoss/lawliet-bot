@@ -61,7 +61,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         }
 
         if (channel != null) {
-            EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+            EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionsMissingEmbed(
                     getLocale(),
                     event.getMember(),
                     new Permission[]{Permission.MANAGE_SERVER},

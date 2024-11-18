@@ -722,7 +722,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
     @Override
     public void onStaticButton(@NotNull ButtonInteractionEvent event, @Nullable String secondaryId) {
         long bannedUserId = Long.parseLong(secondaryId);
-        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionsMissingEmbed(
                 getLocale(),
                 event.getMember(),
                 new Permission[]{Permission.BAN_MEMBERS},

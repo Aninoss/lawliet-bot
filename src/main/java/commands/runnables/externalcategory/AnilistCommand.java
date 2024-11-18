@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "anilist",
         emoji = "⛩️",
         executableWithoutArgs = false,
-        releaseDate = { 2024, 11, 21 },
+        releaseDate = { 2024, 11, 25 },
         aliases = { "anime" }
 )
 public class AnilistCommand extends Command implements OnAlertListener {
