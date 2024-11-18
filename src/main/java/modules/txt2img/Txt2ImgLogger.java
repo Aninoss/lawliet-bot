@@ -13,22 +13,24 @@ import java.util.concurrent.TimeUnit;
 
 public class Txt2ImgLogger {
 
-    public static void log(String prompt, Member member, String model, List<String> imageUrls) throws ExecutionException, InterruptedException {
+    public static void log(String prompt, String negativePrompt, Member member, String model, List<String> imageUrls) throws ExecutionException, InterruptedException {
         Guild guild = member.getGuild();
         User user = member.getUser();
         IncomingWebhookClient webhookClient = WebhookClient.createClient(user.getJDA(), System.getenv("TXT2IMG_LOG_WEBHOOK"));
 
         ArrayList<MessageEmbed> embeds = new ArrayList<>();
         for (String imageUrl : imageUrls) {
-            MessageEmbed webhookEmbed = new EmbedBuilder()
+            EmbedBuilder eb = new EmbedBuilder()
                     .setTitle(model, ExternalLinks.LAWLIET_WEBSITE)
                     .setAuthor(user.getName() + " - " + user.getId(), null, user.getEffectiveAvatarUrl())
                     .setColor(new Color(254, 254, 254).getRGB())
-                    .setDescription("```" + StringUtil.escapeMarkdownInField(prompt) + "```")
+                    .addField("Prompt", "```" + StringUtil.shortenString(StringUtil.escapeMarkdownInField(prompt), MessageEmbed.VALUE_MAX_LENGTH - 6) + "```", false)
                     .setImage(imageUrl)
-                    .setFooter(guild.getName() + " - " + guild.getId())
-                    .build();
-            embeds.add(webhookEmbed);
+                    .setFooter(guild.getName() + " - " + guild.getId());
+            if (!negativePrompt.isEmpty()) {
+                eb.addField("Negative Prompt", "```" + StringUtil.shortenString(StringUtil.escapeMarkdownInField(negativePrompt), MessageEmbed.VALUE_MAX_LENGTH - 6) + "```", false);
+            }
+            embeds.add(eb.build());
         }
         webhookClient.sendMessageEmbeds(embeds).queue(m -> {
             m.delete().queueAfter(1, TimeUnit.SECONDS);

@@ -494,7 +494,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                     if (model.getCheckNsfw() && Program.productionMode()) {
                         predictionResult.get().setOutputs(processNsfwImages(predictionResult.get().getOutputs()));
                     }
-                    Txt2ImgLogger.log(prompt, member, model.name(), predictionResult.get().getOutputs());
+                    Txt2ImgLogger.log(prompt, negativePrompt, member, model.name(), predictionResult.get().getOutputs());
                 }
             } catch (Throwable e) {
                 MainLogger.get().error("Prediction failed", e);
