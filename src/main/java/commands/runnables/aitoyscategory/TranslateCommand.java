@@ -12,6 +12,8 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MainLogger;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
@@ -77,6 +79,8 @@ public class TranslateCommand extends NavigationAbstract {
         } else {
             textSource = StringUtil.shortenString(args, MessageEmbed.VALUE_MAX_LENGTH);
         }
+
+        FeatureLogger.inc(PremiumFeature.TRANSLATE, event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
     }
