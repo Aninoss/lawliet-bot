@@ -5,7 +5,6 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.CommandManager;
 import commands.runnables.aitoyscategory.UpscalerCommand;
-import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
@@ -211,8 +210,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
         setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_set",
                 TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + aspectRatio.name(),
-                        String.valueOf(aspectRatio.getWidth(this instanceof Txt2HentaiCommand)),
-                        String.valueOf(aspectRatio.getHeight(this instanceof Txt2HentaiCommand))
+                        String.valueOf(aspectRatio.getWidth()),
+                        String.valueOf(aspectRatio.getHeight())
                 )
         ));
         setState(DEFAULT_STATE);
@@ -353,8 +352,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     public EmbedBuilder drawAdjustRatio(Member member) {
         String[] options = Arrays.stream(AspectRatio.values())
                 .map(ratio -> TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + ratio.name(),
-                        String.valueOf(ratio.getWidth(this instanceof Txt2HentaiCommand)),
-                        String.valueOf(ratio.getHeight(this instanceof Txt2HentaiCommand))
+                        String.valueOf(ratio.getWidth()),
+                        String.valueOf(ratio.getHeight())
                 ))
                 .toArray(String[]::new);
 
@@ -460,8 +459,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         String options = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_options",
                 StringUtil.numToString(images),
                 TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + aspectRatio.name(),
-                        String.valueOf(aspectRatio.getWidth(this instanceof Txt2HentaiCommand)),
-                        String.valueOf(aspectRatio.getHeight(this instanceof Txt2HentaiCommand))
+                        String.valueOf(aspectRatio.getWidth()),
+                        String.valueOf(aspectRatio.getHeight())
                 )
         );
         if (model != null) {

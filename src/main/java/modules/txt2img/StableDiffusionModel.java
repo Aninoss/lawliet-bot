@@ -10,107 +10,106 @@ import java.util.function.Function;
 
 public enum StableDiffusionModel {
 
-    REALISTIC_VISION(
-            "f3xzap2iaijkd2",
-            9200,
+    STOIQO_NEWREALITY_SFW(
+            "gevo8ndzux6u9i",
+            12000,
             true,
             true,
             Set.of(Txt2ImgCommand.class),
-            "",
-            "",
+            ", masterpiece, best quality, 8K, ultra-detailed, photorealistic",
+            ", anime, cartoon",
             params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth(false))
-                    .put("height", params.aspectRatio.getHeight(false))
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
                     .put("cfg_scale", 4)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")
-                    .put("enable_hr", true)
-                    .put("hr_scale", params.aspectRatio.getScaling())
-                    .put("hr_upscaler", "4x-UltraSharp")
-                    .put("denoising_strength", "0.3")
     ),
 
-    DREAMSHAPER(
-            "0osgqg6v71hsmk",
-            5800,
+    WAI_ANI_SFW(
+            "sf4z2vuf6zo417",
+            12000,
             true,
-            true,
+            false,
             Set.of(Txt2ImgCommand.class),
-            "",
+            ", source_anime, score_9, score_8_up, score_7_up, zPDXL3, zPDXLpg, rating_safe",
             "",
             params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth(false))
-                    .put("height", params.aspectRatio.getHeight(false))
-                    .put("cfg_scale", 5)
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
+                    .put("cfg_scale", 7)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")
                     .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
-                    .put("enable_hr", true)
-                    .put("hr_scale", params.aspectRatio.getScaling())
-                    .put("hr_upscaler", "R-ESRGAN 4x+ Anime6B")
-                    .put("hr_second_pass_steps", 10)
-                    .put("denoising_strength", "0.3")
     ),
 
-    MEINAMIX(
-            "yj8156feamkasn",
-            9000,
+    SEMIMERGEIJ_SFW(
+            "idpk0o19b3n6ex",
+            12000,
             true,
-            true,
+            false,
             Set.of(Txt2ImgCommand.class),
-            "",
+            ", source_anime, score_9, score_8_up, score_7_up, zPDXL3, zPDXLpg, rating_safe",
             "",
             params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth(false))
-                    .put("height", params.aspectRatio.getHeight(false))
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
                     .put("cfg_scale", 7)
                     .put("steps", 30)
                     .put("batch_size", params.images)
-                    .put("sampler_name", "DPM++ SDE Karras")
+                    .put("sampler_name", "Euler a")
                     .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
-                    .put("enable_hr", true)
-                    .put("hr_scale", params.aspectRatio.getScaling())
-                    .put("hr_upscaler", "R-ESRGAN 4x+ Anime6B")
-                    .put("hr_second_pass_steps", 10)
-                    .put("denoising_strength", "0.3")
     ),
 
-    GHOSTMIX(
-            "fbj6it4t2lv86m",
-            10000,
+    NOVA_FURRY_SFW(
+            "7lh2avgf34pryg",
+            12000,
             true,
-            true,
+            false,
             Set.of(Txt2ImgCommand.class),
-            "",
+            ", source_furry, BREAK, furry, anthro, detailed face and eyes, zPDXL3, zPDXLpg, rating_safe",
             "",
             params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth(false))
-                    .put("height", params.aspectRatio.getHeight(false))
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
                     .put("cfg_scale", 7)
                     .put("steps", 30)
                     .put("batch_size", params.images)
-                    .put("sampler_name", "DPM++ SDE Karras")
+                    .put("sampler_name", "Euler a")
                     .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
-                    .put("enable_hr", true)
-                    .put("hr_scale", params.aspectRatio.getScaling())
-                    .put("hr_upscaler", "R-ESRGAN 4x+ Anime6B")
-                    .put("hr_second_pass_steps", 10)
-                    .put("denoising_strength", "0.3")
     ),
 
-    WAI_ANI(
+    NOVA_ANIMAL_SFW(
+            "h0agh6vvqgp0bv",
+            12000,
+            true,
+            false,
+            Set.of(Txt2ImgCommand.class),
+            ", source_furry, BREAK, furry, anthro, realistic, photo, detailed face and eyes, zPDXL3, zPDXLpg, rating_safe",
+            "",
+            params -> new JSONObject()
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
+                    .put("cfg_scale", 7)
+                    .put("steps", 30)
+                    .put("batch_size", params.images)
+                    .put("sampler_name", "Euler a")
+                    .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
+    ),
+
+    WAI_ANI_NSFW(
             "sf4z2vuf6zo417",
             12000,
             true,
             false,
             Set.of(Txt2HentaiCommand.class),
             ", source_anime, score_9, score_8_up, score_7_up, zPDXL3, zPDXLxxx, rating_explicit",
-            ", 3d",
+            "",
             params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth(true))
-                    .put("height", params.aspectRatio.getHeight(true))
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
                     .put("cfg_scale", 7)
                     .put("steps", 30)
                     .put("batch_size", params.images)
@@ -118,7 +117,7 @@ public enum StableDiffusionModel {
                     .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
     ),
 
-    SEMIMERGEIJ(
+    SEMIMERGEIJ_NSFW(
             "idpk0o19b3n6ex",
             12000,
             true,
@@ -127,8 +126,8 @@ public enum StableDiffusionModel {
             ", source_anime, score_9, score_8_up, score_7_up, zPDXL3, zPDXLxxx, rating_explicit",
             "",
             params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth(true))
-                    .put("height", params.aspectRatio.getHeight(true))
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
                     .put("cfg_scale", 7)
                     .put("steps", 30)
                     .put("batch_size", params.images)
@@ -136,7 +135,7 @@ public enum StableDiffusionModel {
                     .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
     ),
 
-    NOVA_FURRY(
+    NOVA_FURRY_NSFW(
             "7lh2avgf34pryg",
             12000,
             true,
@@ -145,8 +144,8 @@ public enum StableDiffusionModel {
             ", source_furry, BREAK, furry, anthro, detailed face and eyes, zPDXL3, zPDXLxxx, rating_explicit",
             "",
             params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth(true))
-                    .put("height", params.aspectRatio.getHeight(true))
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
                     .put("cfg_scale", 7)
                     .put("steps", 30)
                     .put("batch_size", params.images)
@@ -154,7 +153,7 @@ public enum StableDiffusionModel {
                     .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
     ),
 
-    NOVA_ANIMAL(
+    NOVA_ANIMAL_NSFW(
             "h0agh6vvqgp0bv",
             12000,
             true,
@@ -163,8 +162,8 @@ public enum StableDiffusionModel {
             ", source_furry, BREAK, furry, anthro, realistic, photo, detailed face and eyes, zPDXL3, zPDXLxxx, rating_explicit",
             "",
             params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth(true))
-                    .put("height", params.aspectRatio.getHeight(true))
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
                     .put("cfg_scale", 7)
                     .put("steps", 30)
                     .put("batch_size", params.images)
