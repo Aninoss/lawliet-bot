@@ -35,50 +35,62 @@ public abstract class AutoModAbstract {
         boolean isTicketChannel = guildEntity.getTickets().getTicketChannels()
                 .containsKey(message.getChannel().getIdLong());
 
-        if (!message.getAuthor().isBot() && !isTicketChannel && checkCondition(message)) {
-            try {
-                Class<? extends Command> commandClass = getCommandClass();
-                if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), commandClass, message.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
-                    message.delete().submit()
-                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
-                }
-                punish(message, guildEntity, commandClass);
-                return false;
-            } catch (Throwable e) {
-                MainLogger.get().error("Exception in auto mod check", e);
-            }
+        Member member = getMember();
+        if (member == null || member.getUser().isBot() || isTicketChannel || !checkCondition(message, member)) {
+            return true;
         }
 
-        return true;
+        try {
+            Class<? extends Command> commandClass = getCommandClass();
+            if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), commandClass, message.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
+                message.delete().submit()
+                        .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
+            }
+            punish(message, member, guildEntity, commandClass);
+            return false;
+        } catch (Throwable e) {
+            MainLogger.get().error("Exception in auto mod check", e);
+            return true;
+        }
     }
 
-    private void punish(Message message, GuildEntity guildEntity, Class<? extends Command> commandClass) {
-        Guild guild = message.getGuild();
-        Member member = message.getMember();
+    private void punish(Message message, Member member, GuildEntity guildEntity, Class<? extends Command> commandClass) {
+        Guild guild = member.getGuild();
         CommandProperties commandProperties = Command.getCommandProperties(commandClass);
         Locale locale = guildEntity.getLocale();
         String commandTitle = Command.getCommandLanguage(commandClass, locale).getTitle();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(commandProperties.emoji() + " " + commandTitle);
-        designEmbed(message, locale, eb);
+        designEmbed(message, member, locale, eb);
 
         Command command = CommandManager.createCommandByClass(commandClass, locale, guildEntity.getPrefix());
-        Mod.postLogMembers(command, eb, guildEntity.getModeration(), member, willBanMember(message, locale)).join();
+        Mod.postLogMembers(command, eb, guildEntity.getModeration(), member, willBanMember(message, member, locale)).join();
         Mod.insertWarning(guildEntity, member, guild.getSelfMember(), commandTitle,
-                withAutoActions(message, locale)
+                withAutoActions(message, member, locale)
         );
     }
 
-    protected boolean willBanMember(Message message, Locale locale) {
+    protected boolean willBanMember(Message message, Member member, Locale locale) {
         return false;
     }
 
-    protected abstract boolean withAutoActions(Message message, Locale locale);
+    protected abstract boolean withAutoActions(Message message, Member member, Locale locale);
 
-    protected abstract void designEmbed(Message message, Locale locale, EmbedBuilder eb);
+    protected abstract void designEmbed(Message message, Member member, Locale locale, EmbedBuilder eb);
 
     protected abstract Class<? extends Command> getCommandClass();
 
-    protected abstract boolean checkCondition(Message message);
+    protected abstract boolean checkCondition(Message message, Member member);
+
+    private Member getMember() {
+        Member member = message.getMember();
+        if (member != null && !member.getUser().isBot()) {
+            return member;
+        }
+        if (message.getInteraction() != null) {
+            return message.getInteraction().getMember();
+        }
+        return null;
+    }
 
 }

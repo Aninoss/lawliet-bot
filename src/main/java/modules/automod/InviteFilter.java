@@ -12,6 +12,7 @@ import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.guild.InviteFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.util.Locale;
@@ -27,26 +28,26 @@ public class InviteFilter extends AutoModAbstract {
     }
 
     @Override
-    protected boolean willBanMember(Message message, Locale locale) {
+    protected boolean willBanMember(Message message, Member member, Locale locale) {
         return inviteFilterEntity.getAction() == InviteFilterEntity.Action.BAN_USER &&
                 PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.BAN_MEMBERS) &&
-                BotPermissionUtil.canInteract(message.getGuild(), message.getAuthor());
+                member.getGuild().getSelfMember().canInteract(member);
     }
 
     @Override
-    protected boolean withAutoActions(Message message, Locale locale) {
-        if (willBanMember(message, locale)) {
+    protected boolean withAutoActions(Message message, Member member, Locale locale) {
+        if (willBanMember(message, member, locale)) {
             message.getGuild()
-                    .ban(message.getMember(), 0, TimeUnit.DAYS)
+                    .ban(member, 0, TimeUnit.DAYS)
                     .reason(TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
         } else if (inviteFilterEntity.getAction() == InviteFilterEntity.Action.KICK_USER &&
                 PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.KICK_MEMBERS) &&
-                BotPermissionUtil.canInteract(message.getGuild(), message.getAuthor())
+                member.getGuild().getSelfMember().canInteract(member)
         ) {
             message.getGuild()
-                    .kick(message.getMember(), TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
+                    .kick(member, TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
         }
@@ -55,14 +56,14 @@ public class InviteFilter extends AutoModAbstract {
     }
 
     @Override
-    protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
+    protected void designEmbed(Message message, Member member, Locale locale, EmbedBuilder eb) {
         String content = JDAUtil.combineMessageContentRaw(message);
         for (String invite : message.getInvites()) {
             content = content.replace("https://discord.gg/", "discord.gg/")
                     .replace(invite, "\\*".repeat(6));
         }
 
-        eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", StringUtil.escapeMarkdown(message.getAuthor().getName())))
+        eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", StringUtil.escapeMarkdown(member.getUser().getName())))
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[inviteFilterEntity.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), StringUtil.shortenString(content, 1024), false);
@@ -82,11 +83,11 @@ public class InviteFilter extends AutoModAbstract {
     }
 
     @Override
-    protected boolean checkCondition(Message message) {
+    protected boolean checkCondition(Message message, Member member) {
         return inviteFilterEntity.getActive() &&
-                !inviteFilterEntity.getExcludedMemberIds().contains(message.getAuthor().getIdLong()) &&
+                !inviteFilterEntity.getExcludedMemberIds().contains(member.getIdLong()) &&
                 !JDAUtil.collectionContainsChannelOrParent(inviteFilterEntity.getExcludedChannelIds(), message.getChannel()) &&
-                !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR) &&
+                !BotPermissionUtil.can(member, Permission.ADMINISTRATOR) &&
                 !message.getInvites().isEmpty();
     }
 

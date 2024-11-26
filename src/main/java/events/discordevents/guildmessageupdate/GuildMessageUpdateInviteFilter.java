@@ -8,7 +8,7 @@ import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 
-@DiscordEvent(priority = EventPriority.HIGH, allowBannedUser = true)
+@DiscordEvent(priority = EventPriority.HIGH, allowBannedUser = true, allowBots = true)
 public class GuildMessageUpdateInviteFilter extends GuildMessageUpdateAbstract {
 
     @Override
