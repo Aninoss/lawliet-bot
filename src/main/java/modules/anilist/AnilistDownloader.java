@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 public class AnilistDownloader {
 
@@ -55,6 +56,33 @@ public class AnilistDownloader {
             }
             """;
 
+    private static final String GET_CHARACTERS_QUERY = """
+            query ($page: Int, $perPage: Int) {
+            	Page(page: $page, perPage: $perPage) {
+            		characters(sort: FAVOURITES_DESC) {
+            			name {
+            				full
+            			}
+            			siteUrl
+            			image {
+            				large
+            			}
+            			media(perPage: 1) {
+            				nodes {
+            					title {
+            						romaji
+            						english
+            					}
+            				}
+            			}
+            			age
+            			gender
+            			favourites
+            		}
+            	}
+            }
+            """;
+
     public static AnilistMedia getMediaBySearch(String search, boolean allowNsfw) throws ExecutionException, InterruptedException {
         return getMedia(search, null, allowNsfw);
     }
@@ -87,6 +115,44 @@ public class AnilistDownloader {
             suggestions.add(title);
         }
         return Collections.unmodifiableList(suggestions);
+    }
+
+    public static List<AnilistCharacter> getCharacters(int page) throws ExecutionException, InterruptedException {
+        JSONObject variablesJson = new JSONObject();
+        variablesJson.put("page", page);
+        variablesJson.put("perPage", 100);
+
+        JSONObject jsonBody = new JSONObject();
+        jsonBody.put("query", GET_CHARACTERS_QUERY);
+        jsonBody.put("variables", variablesJson);
+
+        String response = HttpCache.post("https://graphql.anilist.co", jsonBody.toString(), "application/json", Duration.ofHours(24)).get()
+                .getBody();
+        if (response.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        JSONArray charactersJson = new JSONObject(response).getJSONObject("data").getJSONObject("Page").getJSONArray("characters");
+        ArrayList<AnilistCharacter> characters = new ArrayList<>();
+        for (int i = 0; i < charactersJson.length(); i++) {
+            JSONObject characterJson = charactersJson.getJSONObject(i);
+            JSONArray mediaJson = characterJson.getJSONObject("media").getJSONArray("nodes");
+            if (characterJson.isNull("age") || !characterIsAdult(characterJson.getString("age"))) {
+                continue;
+            }
+
+            AnilistCharacter anilistCharacter = new AnilistCharacter(
+                    characterJson.getJSONObject("name").getString("full"),
+                    characterJson.getString("siteUrl"),
+                    characterJson.isNull("image") ? null : characterJson.getJSONObject("image").getString("large"),
+                    mediaJson.isEmpty() ? null : extractTitle(mediaJson.getJSONObject(0).getJSONObject("title")),
+                    characterJson.isNull("age") ? null : characterJson.getString("age"),
+                    characterJson.isNull("gender") ? null : characterJson.getString("gender"),
+                    characterJson.getInt("favourites")
+            );
+            characters.add(anilistCharacter);
+        }
+        return Collections.unmodifiableList(characters);
     }
 
     private static AnilistMedia getMedia(String search, Integer id, boolean allowNsfw) throws ExecutionException, InterruptedException {
@@ -151,6 +217,12 @@ public class AnilistDownloader {
         } else {
             return "";
         }
+    }
+
+    private static boolean characterIsAdult(String age) {
+        return Stream.of(age.split("\\D+"))
+                .map(Integer::parseInt)
+                .allMatch(a -> a >= 18);
     }
 
 }
