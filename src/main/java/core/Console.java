@@ -11,6 +11,7 @@ import core.utils.*;
 import events.scheduleevents.events.*;
 import javafx.util.Pair;
 import modules.SupportTemplates;
+import modules.anilist.AnilistCharacterFile;
 import modules.casinologs.CasinoLogCache;
 import modules.fishery.Fishery;
 import modules.repair.MainRepair;
@@ -29,6 +30,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -55,6 +57,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("collect_anilist_characters", Console::onCollectAnilistCharacters);
         tasks.put("send_premium_code_notifications", Console::onSendPremiumCodeNotifications);
         tasks.put("clean_images", Console::onCleanImages);
         tasks.put("discord_backup", Console::onDiscordBackup);
@@ -110,6 +113,11 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onCollectAnilistCharacters(String[] args) throws IOException, ExecutionException, InterruptedException {
+        AnilistCharacterFile.collect();
+        System.out.println("Done!");
     }
 
     private static void onSendPremiumCodeNotifications(String[] args) throws ExecutionException, InterruptedException {

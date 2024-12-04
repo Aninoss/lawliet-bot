@@ -5,6 +5,8 @@ import core.TextManager;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -95,22 +97,16 @@ public final class TimeUtil {
         return roundCeiling.toInstant(ZoneOffset.UTC);
     }
 
-    public static Instant instantRoundDownToHour(Instant instant) {
-        LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
-        LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.HOURS);
-        return roundCeiling.toInstant(ZoneOffset.UTC);
-    }
-
     public static Instant setInstantToNextDay(Instant instant) {
-        LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault());
+        LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
         LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.DAYS).plusDays(1);
-        return roundCeiling.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        return roundCeiling.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant();
     }
 
-    public static Instant instantRoundDownToDay(Instant instant) {
-        LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault());
-        LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.DAYS);
-        return roundCeiling.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+    public static Instant setInstantToNextWeek(Instant instant) {
+        LocalDate date = instant.atZone(ZoneOffset.UTC).toLocalDate();
+        LocalDate nextMonday = date.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        return nextMonday.atStartOfDay(ZoneOffset.UTC).toInstant();
     }
 
     public static Instant parseDateString(String str) {
@@ -160,13 +156,8 @@ public final class TimeUtil {
         return ldt1.atZone(ZoneOffset.ofHours(offset)).toInstant();
     }
 
-    public static boolean instantHasHour(Instant instant, int hour) {
-        Calendar calendar = GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
-        return calendar.get(Calendar.HOUR_OF_DAY) == hour;
-    }
-
     public static boolean instantHasWeekday(Instant instant, int weekday) {
-        Calendar calendar = GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
+        Calendar calendar = GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneOffset.UTC));
         return calendar.get(Calendar.DAY_OF_WEEK) == weekday;
     }
 
@@ -186,6 +177,15 @@ public final class TimeUtil {
     public static int currentHourOfDay() {
         Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+
+    public static int getCurrentWeekOfYear() {
+        return LocalDate.now().get(WeekFields.of(Locale.UK).weekOfYear());
+    }
+
+    public static int getCurrentYear() {
+        LocalDate localDate = LocalDate.now();
+        return localDate.getYear();
     }
 
 }

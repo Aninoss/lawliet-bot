@@ -63,6 +63,7 @@ public class CommandContainer {
         commandList.add(SayCommand.class);
         commandList.add(TopicCommand.class);
         commandList.add(EveryoneCommand.class);
+        commandList.add(SmashOrPassCommand.class);
 
         //AI TOYS
         commandList.add(ImitateCommand.class);
