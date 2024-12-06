@@ -1,10 +1,12 @@
 package core.utils;
 
+import constants.Language;
 import core.TextManager;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.WeekFields;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -186,6 +188,16 @@ public final class TimeUtil {
     public static int currentHourOfDay() {
         Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+
+    public static int getCurrentWeekInYear() {
+        LocalDate localDate = LocalDate.now();
+        return localDate.get(WeekFields.of(Language.EN.getLocale()).weekOfYear());
+    }
+
+    public static int getCurrentYear() {
+        LocalDate localDate = LocalDate.now();
+        return localDate.getYear();
     }
 
 }

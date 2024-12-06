@@ -3,20 +3,22 @@ package modules.anilist;
 public class AnilistCharacter {
 
     private final String name;
-    private final String siteUrl;
+    private final String characterUrl;
     private final String imageUrl;
     private final String mediaName;
+    private final String mediaUrl;
     private final String age;
     private final String gender;
     private final int favourites;
 
-    public AnilistCharacter(String name, String siteUrl, String imageUrl, String mediaName, String age, String gender, int favourites) {
+    public AnilistCharacter(String name, String characterUrl, String imageUrl, String mediaName, String mediaUrl, String age, String gender, int favourites) {
         this.name = name;
-        this.siteUrl = siteUrl;
-        this.imageUrl = imageUrl;
-        this.mediaName = mediaName;
-        this.age = age;
-        this.gender = gender;
+        this.characterUrl = characterUrl;
+        this.imageUrl = stringSetNullIfEmpty(imageUrl);
+        this.mediaName = stringSetNullIfEmpty(mediaName);
+        this.mediaUrl = stringSetNullIfEmpty(mediaUrl);
+        this.age = stringSetNullIfEmpty(age);
+        this.gender = stringSetNullIfEmpty(gender);
         this.favourites = favourites;
     }
 
@@ -25,7 +27,7 @@ public class AnilistCharacter {
     }
 
     public String getSiteUrl() {
-        return siteUrl;
+        return characterUrl;
     }
 
     public String getImageUrl() {
@@ -34,6 +36,10 @@ public class AnilistCharacter {
 
     public String getMediaName() {
         return mediaName;
+    }
+
+    public String getMediaUrl() {
+        return mediaUrl;
     }
 
     public String getAge() {
@@ -48,17 +54,8 @@ public class AnilistCharacter {
         return favourites;
     }
 
-    @Override
-    public String toString() {
-        return "AnilistCharacter{" +
-                "name='" + name + '\'' +
-                ", siteUrl='" + siteUrl + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", mediaName='" + mediaName + '\'' +
-                ", age='" + age + '\'' +
-                ", gender='" + gender + '\'' +
-                ", favourites=" + favourites +
-                '}';
+    private String stringSetNullIfEmpty(String string) {
+        return string == null || string.isEmpty() ? null : string;
     }
 
 }

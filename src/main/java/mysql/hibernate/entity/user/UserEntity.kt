@@ -32,6 +32,30 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     var translateTargetLanguageCode: String? = null
     var translateFormal: Boolean? = null
 
+    @Column(name = "smashOrPassYear")
+    private var _smashOrPassYear: Int? = null
+    var smashOrPassYear: Int
+        get() = _smashOrPassYear ?: 0
+        set(value) {
+            _smashOrPassYear = value
+        }
+
+    @Column(name = "smashOrPassWeek")
+    private var _smashOrPassWeek: Int? = null
+    var smashOrPassWeek: Int
+        get() = _smashOrPassWeek ?: 0
+        set(value) {
+            _smashOrPassWeek = value
+        }
+
+    @Column(name = "smashOrPassIndex")
+    private var _smashOrPassIndex: Int? = null
+    var smashOrPassIndex: Int
+        get() = _smashOrPassIndex ?: 0
+        set(value) {
+            _smashOrPassIndex = value
+        }
+
 
     constructor() : this("0")
 

@@ -1,6 +1,7 @@
 package modules.anilist;
 
 import core.internet.HttpCache;
+import core.utils.StringUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -73,6 +74,7 @@ public class AnilistDownloader {
             						romaji
             						english
             					}
+            					siteUrl
             				}
             			}
             			age
@@ -146,7 +148,8 @@ public class AnilistDownloader {
                     characterJson.getString("siteUrl"),
                     characterJson.isNull("image") ? null : characterJson.getJSONObject("image").getString("large"),
                     mediaJson.isEmpty() ? null : extractTitle(mediaJson.getJSONObject(0).getJSONObject("title")),
-                    characterJson.isNull("age") ? null : characterJson.getString("age"),
+                    mediaJson.isEmpty() ? null : mediaJson.getJSONObject(0).getString("siteUrl"),
+                    characterJson.getString("age"),
                     characterJson.isNull("gender") ? null : characterJson.getString("gender"),
                     characterJson.getInt("favourites")
             );
@@ -221,6 +224,7 @@ public class AnilistDownloader {
 
     private static boolean characterIsAdult(String age) {
         return Stream.of(age.split("\\D+"))
+                .filter(StringUtil::stringIsInt)
                 .map(Integer::parseInt)
                 .allMatch(a -> a >= 18);
     }
