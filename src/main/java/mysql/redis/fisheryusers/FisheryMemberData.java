@@ -743,15 +743,15 @@ public class FisheryMemberData implements MemberAsset {
             dailyStreakPrevious = newDailyStreak != null ? dailyStreakPrevious : getDailyStreak();
             long[] values = new long[] {
                     fishIncome,
-                    fishPrevious + fishAdd,
-                    coinsPrevious + coinsAdd,
+                    Math.min(fishPrevious + fishAdd, Settings.FISHERY_MAX),
+                    Math.min(coinsPrevious + coinsAdd, Settings.FISHERY_MAX),
                     getDailyStreak()
             };
 
             long[] valueChanges = new long[] {
                     fishIncome - fishIncomePrevious,
-                    fishAdd,
-                    coinsAdd,
+                    Math.min(fishAdd, Settings.FISHERY_MAX - fishPrevious),
+                    Math.min(coinsAdd, Settings.FISHERY_MAX - coinsPrevious),
                     getDailyStreak() - dailyStreakPrevious,
             };
 
