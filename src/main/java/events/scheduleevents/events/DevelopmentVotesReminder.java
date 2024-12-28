@@ -27,6 +27,10 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
+        if (Calendar.getInstance().get(Calendar.MONTH) == Calendar.JANUARY) {
+            return;
+        }
+
         if (Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 1 && Program.productionMode()) {
             try {
                 executeVoteNotification();
