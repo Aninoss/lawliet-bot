@@ -238,7 +238,10 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
         }
 
         predictionResult = RunPodDownloader.retrieveUpscalePrediction(predictionId).get();
-        drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
+        drawMessage(draw(member)).exceptionally(exception -> {
+            error.set(exception);
+            return null;
+        });
         return List.of(PredictionResult.Status.IN_QUEUE, PredictionResult.Status.IN_PROGRESS).contains(predictionResult.getStatus());
     }
 
