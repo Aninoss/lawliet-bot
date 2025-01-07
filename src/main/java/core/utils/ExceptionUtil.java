@@ -53,7 +53,7 @@ public class ExceptionUtil {
         if (command instanceof NavigationAbstract) {
             state = ((NavigationAbstract) command).getState();
         }
-        MainLogger.get().error("Exception for command \"{}\" (state {}) and code {}", command.getTrigger(), state, code, throwable);
+        MainLogger.get().error("Exception for command \"{}\" (state {}; args \"{}\") and code {}", command.getTrigger(), state, command.getArgs(), code, throwable);
     }
 
     public static String exceptionToString(Throwable throwable) {

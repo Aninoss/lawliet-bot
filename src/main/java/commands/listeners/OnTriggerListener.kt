@@ -31,6 +31,7 @@ interface OnTriggerListener {
     @Throws(Throwable::class)
     fun processTrigger(event: CommandEvent, args: String, guildEntity: GuildEntity, freshCommand: Boolean): Boolean {
         val command = this as Command
+        command.args = args
         if (freshCommand && event.isGenericCommandInteractionEvent()) {
             val interactionResponse: InteractionResponse = SlashCommandResponse(event.genericCommandInteractionEvent!!.hook)
             command.interactionResponse = interactionResponse

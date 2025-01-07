@@ -72,6 +72,7 @@ public abstract class Command implements OnTriggerListener {
     private String memberEffectiveAvatarUrl;
     private String username;
     private boolean ephemeralMessages = false;
+    private String args;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -639,6 +640,14 @@ public abstract class Command implements OnTriggerListener {
 
     public boolean getEphemeralMessages() {
         return ephemeralMessages;
+    }
+
+    public String getArgs() {
+        return args;
+    }
+
+    public void setArgs(String args) {
+        this.args = args;
     }
 
     public void setAtomicGuild(Guild guild) {
