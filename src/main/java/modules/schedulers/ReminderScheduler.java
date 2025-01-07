@@ -65,8 +65,8 @@ public class ReminderScheduler {
                     .map(guild -> guild.getChannelById(GuildMessageChannel.class, reminderEntity.getGuildChannelId()))
                     .ifPresent(channel -> sendReminder(guildEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, channel));
         } else {
-            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), reminderEntity.getTargetId())
-                    .queue(channel -> sendReminder(reminderEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, channel));
+            PrivateChannel privateChannel = JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), reminderEntity.getTargetId()).complete();
+            sendReminder(reminderEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, privateChannel);
         }
     }
 
