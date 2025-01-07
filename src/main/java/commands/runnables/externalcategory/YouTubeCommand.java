@@ -6,6 +6,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.MainLogger;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.schedulers.AlertResponse;
@@ -48,6 +49,7 @@ public class YouTubeCommand extends Command implements OnAlertListener {
         try {
             videos = YouTubeDownloader.retrieveVideos(args);
         } catch (IOException e) {
+            MainLogger.get().error("YouTube exception", e);
             EmbedBuilder eb = EmbedFactory.getApiDownEmbed(this, "youtube.com");
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;

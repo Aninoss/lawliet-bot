@@ -34,6 +34,10 @@ public class YouTubeDownloader {
         }
 
         String channelId = extractChannelId(httpResponse.getBody());
+        if (channelId == null) {
+            return null;
+        }
+
         JSONArray jsonArray = retrieveJsonArray("https://www.youtube.com/feeds/videos.xml?channel_id=" + channelId);
         ArrayList<YouTubeVideo> posts = new ArrayList<>();
         for (int i = 0; i < Math.min(5, jsonArray.length()); i++) {
@@ -44,13 +48,13 @@ public class YouTubeDownloader {
         return posts;
     }
 
-    private static String extractChannelId(String body) throws IOException {
+    private static String extractChannelId(String body) {
         for (String channelFinderKey : CHANNEL_FINDER_KEYS) {
             if (body.contains(channelFinderKey)) {
                 return StringUtil.extractGroups(body, channelFinderKey, "\"")[0];
             }
         }
-        throw new IOException("Channel id not found");
+        return null;
     }
 
     private static JSONArray retrieveJsonArray(String downloadUrl) throws ExecutionException, InterruptedException, IOException {
