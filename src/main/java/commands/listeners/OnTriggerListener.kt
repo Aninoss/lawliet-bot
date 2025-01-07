@@ -4,6 +4,8 @@ import commands.Command
 import commands.CommandContainer
 import commands.CommandEvent
 import commands.runnables.configurationcategory.TriggerDeleteCommand
+import constants.ExceptionIds
+import core.ExceptionLogger
 import core.MemberCacheController
 import core.PermissionCheckRuntime
 import core.Program
@@ -74,7 +76,7 @@ interface OnTriggerListener {
             PermissionCheckRuntime.botHasPermission(guildEntity.locale, TriggerDeleteCommand::class.java, event.guildChannel, Permission.MESSAGE_MANAGE)
         ) {
             FeatureLogger.inc(PremiumFeature.TRIGGER_DELETE, event.guild.idLong)
-            event.message.delete().queue()
+            event.message.delete().submit().exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE))
         }
     }
 

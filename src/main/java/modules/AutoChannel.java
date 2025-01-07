@@ -2,6 +2,8 @@ package modules;
 
 import commands.Command;
 import commands.runnables.configurationcategory.AutoChannelCommand;
+import constants.ExceptionIds;
+import core.ExceptionLogger;
 import core.PermissionCheckRuntime;
 import core.utils.BotPermissionUtil;
 import mysql.hibernate.entity.guild.AutoChannelEntity;
@@ -75,7 +77,8 @@ public class AutoChannel {
         ) {
             voiceChannel.delete()
                     .reason(Command.getCommandLanguage(AutoChannelCommand.class, guildEntity.getLocale()).getTitle())
-                    .queue();
+                    .submit()
+                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_CHANNEL));
         }
     }
 
@@ -95,7 +98,8 @@ public class AutoChannel {
             if (voiceChannel != null && voiceChannel.getMembers().isEmpty()) {
                 voiceChannel.delete()
                         .reason(Command.getCommandLanguage(AutoChannelCommand.class, guildEntity.getLocale()).getTitle())
-                        .queue();
+                        .submit()
+                        .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_CHANNEL));
             }
         }
 

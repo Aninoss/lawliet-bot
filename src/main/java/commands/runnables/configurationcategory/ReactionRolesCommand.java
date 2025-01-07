@@ -53,7 +53,6 @@ import java.io.File;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 @CommandProperties(
         trigger = "reactionroles",
@@ -250,7 +249,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = STATE_CONFIG)
-    public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) throws ExecutionException, InterruptedException, TimeoutException {
+    public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) throws ExecutionException, InterruptedException {
         switch (i) {
             case -1:
                 if (!editMode) {
@@ -344,7 +343,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                     return true;
                 }
 
-                getEntityManager().getTransaction().begin();
+                try {
+                    getEntityManager().getTransaction().begin();
+                } catch (IllegalStateException e) {
+                    //ignore
+                }
+
                 if (editMode) {
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.REACTION_ROLES_EDIT, event.getMember(), previousTitle);
                 } else {
