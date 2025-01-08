@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.1.2'
+    implementation 'net.dv8tion:JDA:5.2.2'
     implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'org.hibernate.ogm:hibernate-ogm-mongodb:5.4.1.Final'
     implementation 'org.jboss.jbossts:jbossjta:4.16.6.Final'
