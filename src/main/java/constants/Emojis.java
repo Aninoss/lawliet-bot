@@ -105,4 +105,6 @@ public interface Emojis {
     CustomEmoji POWERUP_SHOP = Emoji.fromCustom("powerup_shop", 1077261351275204698L, false);
     CustomEmoji POWERUP_TEAM = Emoji.fromCustom("powerup_team", 1077261352722235442L, false);
 
+    CustomEmoji[] STEP_POINTS = { Emoji.fromCustom("step_point_inactive", 1326927792386084894L, false), Emoji.fromCustom("step_point_active", 1326927790888456233L, false) };
+
 }

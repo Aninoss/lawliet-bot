@@ -353,7 +353,7 @@ public class AlertsCommand extends NavigationAbstract {
                 .build();
 
         setComponents(entitySelectMenu);
-        return EmbedFactory.getEmbedDefault(this, getString("state5_description"), getString("state5_title"));
+        return EmbedFactory.getEmbedDefault(this, StringUtil.stepPoints(0, 5) + "\n\n" + getString("state5_description"), getString("state5_title"));
     }
 
     @Draw(state = STATE_REMOVE)
@@ -385,7 +385,7 @@ public class AlertsCommand extends NavigationAbstract {
         setComponents(getString("state1_options").split("\n"));
 
         List<Command> trackerCommands = getAllTrackerCommands();
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, StringUtil.stepPoints(1, 5) + "\n\n" + getString("state1_description"), getString("state1_title"));
 
         for (Category category : Category.independentValues()) {
             StringBuilder sb = new StringBuilder();
@@ -417,7 +417,7 @@ public class AlertsCommand extends NavigationAbstract {
     @Draw(state = STATE_KEY)
     public EmbedBuilder onDrawKey(Member member) {
         setComponents(getString("state3_options").split("\n"));
-        return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), commandCache.getCategory(), commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
+        return EmbedFactory.getEmbedDefault(this, StringUtil.stepPoints(2, 5) + "\n\n" + TextManager.getString(getLocale(), commandCache.getCategory(), commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
     }
 
     @Draw(state = STATE_USERMESSAGE)
@@ -425,7 +425,7 @@ public class AlertsCommand extends NavigationAbstract {
         setComponents(getString("state4_options").split("\n"));
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("state4_description", ExternalLinks.PREMIUM_WEBSITE),
+                StringUtil.stepPoints(3, 5) + "\n\n" + getString("state4_description", ExternalLinks.PREMIUM_WEBSITE),
                 getString("state4_title")
         );
     }
@@ -435,7 +435,7 @@ public class AlertsCommand extends NavigationAbstract {
         setComponents(getString("state6_options").split("\n"));
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("state6_description", ExternalLinks.PREMIUM_WEBSITE),
+                StringUtil.stepPoints(4, 5) + "\n\n" + getString("state6_description", ExternalLinks.PREMIUM_WEBSITE),
                 getString("state6_title")
         );
     }

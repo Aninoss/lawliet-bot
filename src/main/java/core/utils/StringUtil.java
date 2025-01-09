@@ -430,4 +430,12 @@ public final class StringUtil {
         return str.replaceAll(regex, replacement).toLowerCase();
     }
 
+    public static String stepPoints(int step, int stepsLength) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < stepsLength; i++) {
+            sb.append(Emojis.STEP_POINTS[step == i ? 1 : 0].getFormatted());
+        }
+        return sb.toString();
+    }
+
 }
