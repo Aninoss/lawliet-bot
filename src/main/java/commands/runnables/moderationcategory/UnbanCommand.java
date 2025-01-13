@@ -2,7 +2,6 @@ package commands.runnables.moderationcategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import core.MemberCacheController;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import mysql.hibernate.entity.BotLogEntity;
@@ -10,8 +9,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "unban",
@@ -29,15 +30,15 @@ public class UnbanCommand extends WarnCommand {
 
     @Override
     protected MentionList<User> getUserList(CommandEvent event, String args) throws ExecutionException, InterruptedException {
-        return MentionUtil.getUsersFromString(args, false).get();
+        List<User> bannedUsers = event.getGuild().retrieveBanList().complete().stream()
+                .map(Guild.Ban::getUser)
+                .collect(Collectors.toList());
+
+        return MentionUtil.getUsers(args, bannedUsers, null);
     }
 
     @Override
     protected void process(Guild guild, User target, String reason) throws ExecutionException, InterruptedException {
-        if (MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).get() != null) {
-            return;
-        }
-
         guild.unban(target)
                 .reason(reason)
                 .submit()
