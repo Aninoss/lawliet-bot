@@ -26,7 +26,7 @@ class InvitesTopAdapter : SlashAdapter() {
                 if (language == Language.EN) {
                     choice = Command.Choice(name, property)
                 } else {
-                    choice!!.setNameLocalization(language.discordLocale, name)
+                    choice!!.setNameLocalization(language.discordLocales[0], name)
                 }
             }
             optionData.addChoices(choice)

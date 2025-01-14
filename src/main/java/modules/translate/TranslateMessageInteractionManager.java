@@ -19,7 +19,7 @@ public class TranslateMessageInteractionManager {
                 .filter(language -> language != Language.EN)
                 .forEach(language -> {
                     String name = TextManager.getString(language.getLocale(), Category.AI_TOYS, "translate_interaction");
-                    commandData.setNameLocalization(language.getDiscordLocale(), name);
+                    commandData.setNameLocalization(language.getDiscordLocales()[0], name);
                 });
 
         return Collections.singletonList(commandData);

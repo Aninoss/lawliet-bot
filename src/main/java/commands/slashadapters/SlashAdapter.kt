@@ -69,13 +69,13 @@ abstract class SlashAdapter {
             Language.values().filter { it != Language.EN }
                 .forEach {
                     val description = TextManager.getString(it.locale, category, trigger + "_description")
-                    localizationMap.put(it.discordLocale, description)
+                    localizationMap.put(it.discordLocales[0], description)
                 }
         } else {
             Language.values().filter { it != Language.EN }
                 .forEach {
                     val description = TextManager.getString(it.locale, slash.descriptionCategory[0], slash.descriptionKey)
-                    localizationMap.put(it.discordLocale, description)
+                    localizationMap.put(it.discordLocales[0], description)
                 }
         }
         return localizationMap
@@ -160,7 +160,7 @@ abstract class SlashAdapter {
         Language.values().filter { it != Language.EN }
             .forEach {
                 val description = TextManager.getString(it.locale, descriptionCategory, descriptionKey)
-                optionData.setDescriptionLocalization(it.discordLocale, description)
+                optionData.setDescriptionLocalization(it.discordLocales[0], description)
             }
 
         return optionData
@@ -177,7 +177,7 @@ abstract class SlashAdapter {
         Language.values().filter { it != Language.EN }
             .forEach {
                 val name = TextManager.getString(it.locale, nameCategory, nameKey)
-                choice.setNameLocalization(it.discordLocale, name)
+                choice.setNameLocalization(it.discordLocales[0], name)
             }
 
         return choice
@@ -194,7 +194,7 @@ abstract class SlashAdapter {
         Language.values().filter { it != Language.EN }
             .forEach {
                 val description = TextManager.getString(it.locale, descriptionCategory, descriptionKey)
-                subcommandData.setDescriptionLocalization(it.discordLocale, description)
+                subcommandData.setDescriptionLocalization(it.discordLocales[0], description)
             }
 
         return subcommandData

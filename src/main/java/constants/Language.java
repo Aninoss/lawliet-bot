@@ -7,9 +7,9 @@ import java.util.NoSuchElementException;
 
 public enum Language {
 
-    EN(new Locale("en_us"), "🇬🇧", false, DiscordLocale.ENGLISH_US),
+    EN(new Locale("en_us"), "🇬🇧", false, DiscordLocale.ENGLISH_US, DiscordLocale.ENGLISH_UK),
     DE(new Locale("de_de"), "🇩🇪", false, DiscordLocale.GERMAN),
-    ES(new Locale("es_es"), "🇪🇸", true, DiscordLocale.SPANISH),
+    ES(new Locale("es_es"), "🇪🇸", true, DiscordLocale.SPANISH, DiscordLocale.SPANISH_LATAM),
     RU(new Locale("ru_ru"), "🇷🇺", false, DiscordLocale.RUSSIAN),
     FR(new Locale("fr_fr"), "🇫🇷", true, DiscordLocale.FRENCH),
     PT(new Locale("pt_br"), "🇧🇷", true, DiscordLocale.PORTUGUESE_BRAZILIAN),
@@ -33,16 +33,27 @@ public enum Language {
         throw new NoSuchElementException("Invalid locale");
     }
 
+    public static Language from(DiscordLocale locale) {
+        for (Language lang : Language.values()) {
+            for (DiscordLocale discordLocale : lang.getDiscordLocales()) {
+                if (discordLocale.equals(locale)) {
+                    return lang;
+                }
+            }
+        }
+        return null;
+    }
+
     private final Locale locale;
     private final String flag;
     private final boolean deepLGenerated;
-    private final DiscordLocale discordLocale;
+    private final DiscordLocale[] discordLocales;
 
-    Language(Locale locale, String flag, boolean deepLGenerated, DiscordLocale discordLocale) {
+    Language(Locale locale, String flag, boolean deepLGenerated, DiscordLocale... discordLocales) {
         this.locale = locale;
         this.flag = flag;
         this.deepLGenerated = deepLGenerated;
-        this.discordLocale = discordLocale;
+        this.discordLocales = discordLocales;
     }
 
     public Locale getLocale() {
@@ -57,7 +68,8 @@ public enum Language {
         return deepLGenerated;
     }
 
-    public DiscordLocale getDiscordLocale() {
-        return discordLocale;
+    public DiscordLocale[] getDiscordLocales() {
+        return discordLocales;
     }
+
 }

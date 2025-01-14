@@ -32,7 +32,7 @@ class FisheryManageAdapter : SlashAdapter() {
                 if (language == Language.EN) {
                     choice = Choice(name, component)
                 } else {
-                    choice!!.setNameLocalization(language.discordLocale, name)
+                    choice!!.setNameLocalization(language.discordLocales[0], name)
                 }
             }
             optionData.addChoices(choice)
