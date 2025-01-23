@@ -1,6 +1,5 @@
 package commands.runnables;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Category;
@@ -11,7 +10,10 @@ import commands.listeners.OnButtonListener;
 import constants.ExternalLinks;
 import constants.RegexPatterns;
 import constants.Settings;
-import core.*;
+import core.EmbedFactory;
+import core.ExceptionLogger;
+import core.Program;
+import core.TextManager;
 import core.cache.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
@@ -42,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -204,7 +205,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                             .collect(Collectors.toList());
                 }
             }
-            amount -= pornImages.size();
+
+            if (pornImages.size() < MAX_FILES_PER_MESSAGE) {
+                amount = 0;
+            } else {
+                amount -= pornImages.size();
+            }
 
             if (messageContent != null) {
                 ArrayList<Button> buttons = new ArrayList<>();
@@ -224,7 +230,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                             }
                         })
                         .exceptionally(ExceptionLogger.get());
-                TimeUnit.SECONDS.sleep(MAX_FILES_PER_MESSAGE / 2);
+                TimeUnit.SECONDS.sleep(MAX_FILES_PER_MESSAGE);
             }
         } while (amount > 0 && BotPermissionUtil.canWrite(event.getMessageChannel()));
 
@@ -442,40 +448,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             throw new IllegalTagException();
         }
 
-        ArrayList<CompletableFuture<Optional<BooruImage>>> futures = new ArrayList<>();
-        ArrayList<BooruImage> pornImages = new ArrayList<>();
-
-        for (int i = 0; i < amount; i++) {
-            try {
-                futures.add(
-                        booruImageDownloader.getPicture(guildId, domain, search, animatedOnly, mustBeExplicit, canBeVideo, nsfwFilter, usedResults, false)
-                );
-            } catch (ExecutionException | JsonProcessingException e) {
-                MainLogger.get().error("Error while downloading porn", e);
-            }
-        }
-
-        boolean error = true;
-        for (CompletableFuture<Optional<BooruImage>> future : futures) {
-            try {
-                Optional<BooruImage> pornImageOpt = future.get(10, TimeUnit.SECONDS);
-                error = false;
-                synchronized (this) {
-                    pornImageOpt.ifPresent(pornImage -> {
-                        pornImages.add(pornImage);
-                        usedResults.add(pornImage.getImageUrl());
-                    });
-                }
-            } catch (Throwable e) {
-                // ignore
-            }
-        }
-
-        if (error) {
+        try {
+            List<BooruImage> booruImages = booruImageDownloader.getImages(guildId, domain, search, animatedOnly, mustBeExplicit, canBeVideo, nsfwFilter, usedResults, amount).get();
+            booruImages.forEach(booruImage -> usedResults.add(booruImage.getImageUrl()));
+            return booruImages;
+        } catch (Throwable e) {
             throw new IOException("Booru retrieval error");
         }
-
-        return pornImages;
     }
 
     protected void setNotice(String notice) {
