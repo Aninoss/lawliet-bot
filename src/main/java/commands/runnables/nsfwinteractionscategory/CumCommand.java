@@ -7,7 +7,7 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "cum",
-        emoji = "\uD83D\uDCA6",
+        emoji = "💦",
         executableWithoutArgs = true,
         nsfw = true,
         aliases = "semen",

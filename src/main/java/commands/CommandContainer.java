@@ -264,6 +264,7 @@ public class CommandContainer {
         commandList.add(BoobSuckCommand.class);
         commandList.add(CreampieCommand.class);
         commandList.add(CumCommand.class);
+        commandList.add(SquirtingCommand.class);
         commandList.add(DickRideCommand.class);
         commandList.add(FaceSitCommand.class);
         commandList.add(FingerCommand.class);
