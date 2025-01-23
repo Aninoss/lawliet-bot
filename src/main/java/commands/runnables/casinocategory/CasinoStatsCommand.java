@@ -110,7 +110,7 @@ public class CasinoStatsCommand extends Command implements OnButtonListener, OnS
 
     @Nullable
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         CasinoStatsData statsData = DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()));
         boolean enabled = DBCasinoTracking.getInstance().retrieve().isActive(member.getIdLong());
         boolean hasData = statsData.hasData();

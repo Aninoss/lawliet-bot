@@ -84,7 +84,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) {
+    public EmbedBuilder draw(Member member) {
         switch (mode) {
             case SET:
                 return EmbedFactory.getEmbedDefault(this, getSetText(member));

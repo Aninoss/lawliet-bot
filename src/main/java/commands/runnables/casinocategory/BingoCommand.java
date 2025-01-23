@@ -5,15 +5,12 @@ import commands.listeners.CommandProperties;
 import commands.runnables.CasinoMultiplayerAbstract;
 import constants.Emojis;
 import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.MainLogger;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
 import modules.BingoBoard;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -41,7 +38,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
     private boolean disclosurePending = true;
 
     public BingoCommand(Locale locale, String prefix) {
-        super(locale, prefix, 2, 8);
+        super(locale, prefix, 2, 8, false);
     }
 
     @Override
@@ -92,7 +89,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
 
                     deregisterListeners();
                     selectionMode = false;
-                    startDisclosure(event.getMember());
+                    startDisclosure();
                 }
                 return true;
             } else {
@@ -105,14 +102,14 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
         }
     }
 
-    private void startDisclosure(Member member) {
-        schedule(Duration.ofSeconds(3), () -> disclosureStep(member));
+    private void startDisclosure() {
+        schedule(Duration.ofSeconds(3), this::disclosureStep);
     }
 
-    private void disclosureStep(Member member) {
+    private void disclosureStep() {
         if (disclosurePending) {
             disclosurePending = false;
-            schedule(Duration.ofSeconds(2), () -> disclosureStep(member));
+            schedule(Duration.ofSeconds(2), this::disclosureStep);
         } else {
             ArrayList<Integer> winners = new ArrayList<>();
             for (int player = 0; player < playerToBoard.length; player++) {
@@ -128,18 +125,14 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
             } else {
                 ballsDisclosed++;
                 disclosurePending = true;
-                schedule(Duration.ofSeconds(3), () -> disclosureStep(member));
+                schedule(Duration.ofSeconds(3), this::disclosureStep);
             }
         }
-        try {
-            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
-        } catch (Throwable e) {
-            MainLogger.get().error("Exception", e);
-        }
+        redraw();
     }
 
     @Override
-    public EmbedBuilder drawCasino(Member member) {
+    public EmbedBuilder drawCasino() {
         StringBuilder sb = new StringBuilder();
         if (selectionMode) {
             sb.append(getString("selectboard"))

@@ -135,7 +135,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         return EmbedFactory.getEmbedDefault(
                 this,
                 getString("loading", rolesMention.isMultiple(), rolesMention.getMentionText(), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().orElse(null)), CANCEL_EMOJI.getFormatted())

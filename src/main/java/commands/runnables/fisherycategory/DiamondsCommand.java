@@ -66,7 +66,7 @@ public class DiamondsCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
         if (accountChangeEmbed != null) {
             setAdditionalEmbeds(accountChangeEmbed.build());

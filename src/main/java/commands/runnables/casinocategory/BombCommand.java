@@ -5,12 +5,9 @@ import commands.runnables.CasinoMultiplayerAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.MainLogger;
 import core.atomicassets.AtomicMember;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -49,7 +46,7 @@ public class BombCommand extends CasinoMultiplayerAbstract {
     private ScheduledFuture<?> timeOutFuture;
 
     public BombCommand(Locale locale, String prefix) {
-        super(locale, prefix, 2, 8);
+        super(locale, prefix, 2, 8, false);
     }
 
     @Override
@@ -77,7 +74,7 @@ public class BombCommand extends CasinoMultiplayerAbstract {
     }
 
     @Override
-    public EmbedBuilder drawCasino(Member member) {
+    public EmbedBuilder drawCasino() {
         List<AtomicMember> players = getPlayerList();
 
         StringBuilder sb = new StringBuilder();
@@ -108,14 +105,6 @@ public class BombCommand extends CasinoMultiplayerAbstract {
         setComponents(buttons);
 
         return EmbedFactory.getEmbedDefault(this, sb.toString());
-    }
-
-    private void redraw() {
-        try {
-            drawMessage(draw(getMember().get())).exceptionally(ExceptionLogger.get());
-        } catch (Throwable e) {
-            MainLogger.get().error("Exception", e);
-        }
     }
 
     private void refillColors() {

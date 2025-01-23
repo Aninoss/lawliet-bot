@@ -105,7 +105,7 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         return generateEmbed(
                 member,
                 MentionUtil.getMentionedStringOfMembers(getLocale(), selectMenuMemberMentions),

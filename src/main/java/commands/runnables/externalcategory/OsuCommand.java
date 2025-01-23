@@ -154,7 +154,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) {
+    public EmbedBuilder draw(Member member) {
         switch (status) {
             case CONNECTING:
                 setComponents(

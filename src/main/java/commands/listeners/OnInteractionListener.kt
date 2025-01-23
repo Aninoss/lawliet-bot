@@ -13,7 +13,7 @@ import core.interactionresponse.ComponentInteractionResponse
 import core.interactionresponse.InteractionResponse
 import core.utils.BotPermissionUtil
 import core.utils.ExceptionUtil
-import mysql.hibernate.entity.guild.GuildEntity
+import mysql.hibernate.EntityManagerWrapper
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
@@ -105,10 +105,13 @@ interface OnInteractionListener : Drawable {
         return CompletableFuture.failedFuture(NoSuchElementException("No message sent"))
     }
 
-    fun <T : GenericComponentInteractionCreateEvent> processInteraction(event: T, guildEntity: GuildEntity, task: ExceptionFunction<T, Boolean>) {
+    fun <T : GenericComponentInteractionCreateEvent> processInteraction(event: T, entityManager: EntityManagerWrapper, task: ExceptionFunction<T, Boolean>) {
         val command = this as Command
+        val guildEntity = entityManager.findGuildEntity(command.guildId.get())
         val interactionResponse: InteractionResponse = ComponentInteractionResponse(event)
-        command.interactionResponse = interactionResponse
+        if (event.guild != null) {
+            command.interactionResponse = interactionResponse
+        }
         command.guildEntity = guildEntity
         try {
             if (command.commandProperties.requiresFullMemberCache) {
@@ -116,7 +119,7 @@ interface OnInteractionListener : Drawable {
             }
             if (task.apply(event)) {
                 CommandContainer.refreshListeners(command)
-                val eb = draw(event.member!!)
+                val eb = draw(event.member)
                 if (eb != null) {
                     (this as Command).drawMessage(eb)
                             .exceptionally(ExceptionLogger.get())

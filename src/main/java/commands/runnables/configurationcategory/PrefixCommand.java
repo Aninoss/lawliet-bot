@@ -81,7 +81,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         String prefix = getGuildEntity().getPrefix();
         setComponents(getString("button"));
         return EmbedFactory.getEmbedDefault(this, getString("current", StringUtil.escapeMarkdownInField(prefix)));

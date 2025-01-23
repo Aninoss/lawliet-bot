@@ -321,7 +321,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     @Nullable
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         throw new UnsupportedOperationException();
     }
 

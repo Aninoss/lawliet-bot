@@ -132,7 +132,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         if (ebCache != null) {
             EmbedBuilder eb = ebCache;
             ebCache = null;

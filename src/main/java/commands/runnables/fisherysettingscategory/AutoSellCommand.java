@@ -129,7 +129,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
 
     @Nullable
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         Integer currentThreshold = DBAutoSell.getInstance().retrieve().getThreshold(member.getIdLong());
         switch (mode) {
             case SET -> {

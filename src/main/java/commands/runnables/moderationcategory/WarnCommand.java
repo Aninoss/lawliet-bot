@@ -253,7 +253,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) {
+    public EmbedBuilder draw(Member member) {
         switch (status) {
             case COMPLETED:
                 EmbedBuilder eb = getSuccessEmbed();

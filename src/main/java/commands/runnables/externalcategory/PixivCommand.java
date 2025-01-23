@@ -203,7 +203,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
 
     @Nullable
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         String imageUrl = pixivImage.getImageUrls().get(imageIndex);
 
         String proxyImageUrl = downloadAndProxyImage(pixivImage.getId(), imageUrl, imageIndex);

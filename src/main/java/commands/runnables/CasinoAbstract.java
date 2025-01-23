@@ -261,7 +261,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) {
+    public EmbedBuilder draw(Member member) {
         lastEmbedBuilder = drawCasino(getMemberEffectiveName().orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
         hasCancelButton = getActionRows().stream().anyMatch(b -> b.getButtons().contains(BUTTON_CANCEL));
         return lastEmbedBuilder;

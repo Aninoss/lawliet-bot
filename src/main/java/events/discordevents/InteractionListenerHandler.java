@@ -6,6 +6,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 
 import java.util.function.Consumer;
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
 public interface InteractionListenerHandler<T extends GenericComponentInteractionCreateEvent> {
 
     default boolean handleInteraction(T event, Class<?> clazz, Consumer<CommandListenerMeta<?>> listenerMetaConsumer) {
-        if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
+        if (event.getChannel() instanceof PrivateChannel || BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
             for (CommandListenerMeta<?> listener : CommandContainer.getListeners(clazz)) {
                 switch (listener.check(event)) {
                     case ACCEPT -> {

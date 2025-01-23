@@ -180,6 +180,7 @@ public class CommandContainer {
         commandList.add(TowerCommand.class);
         commandList.add(BingoCommand.class);
         commandList.add(BombCommand.class);
+        commandList.add(MatchingCardsCommand.class);
 
         //INVITE TRACKING
         commandList.add(InviteTrackingCommand.class);

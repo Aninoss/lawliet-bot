@@ -144,7 +144,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         StringBuilder areaBuilder = new StringBuilder();
 
         for (int y = 0; y < area.length; y++) {

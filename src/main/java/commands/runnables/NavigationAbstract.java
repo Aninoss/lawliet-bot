@@ -232,7 +232,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) {
+    public EmbedBuilder draw(Member member) {
         return null;
     }
 

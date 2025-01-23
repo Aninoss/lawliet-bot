@@ -37,7 +37,7 @@ public class StringSelectMenuModUserAction extends StringSelectMenuAbstract impl
 
     @Override
     public boolean onStringSelectMenu(StringSelectInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
-        if (!event.getComponentId().startsWith(ModUserInteractionManager.SELECT_MENU_ID)) {
+        if (!event.getComponentId().startsWith(ModUserInteractionManager.SELECT_MENU_ID) || event.getGuild() == null) {
             return true;
         }
 

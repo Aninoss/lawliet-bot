@@ -166,7 +166,7 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
 
     @Nullable
     @Override
-    public EmbedBuilder draw(@NotNull Member member) {
+    public EmbedBuilder draw(Member member) {
         if (predictionResult == null) {
             ArrayList<ActionRow> actionRows = new ArrayList<>();
             Button button = Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE + "?tab=1", getString("buybutton"));

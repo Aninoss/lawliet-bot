@@ -94,7 +94,7 @@ public class SmashOrPassCommand extends Command implements OnButtonListener {
 
     @Nullable
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         if (index >= MAX_CHARACTERS_PER_CYCLE) {
             setComponents(getString("complete_button"));
             Instant instantNext = TimeUtil.setInstantToNextWeek(Instant.now());

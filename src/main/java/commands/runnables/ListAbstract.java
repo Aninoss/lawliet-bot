@@ -141,7 +141,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(getPageSize())));
 

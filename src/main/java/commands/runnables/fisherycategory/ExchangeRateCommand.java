@@ -90,7 +90,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) {
+    public EmbedBuilder draw(Member member) {
         EmbedBuilder eb = generateEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         return eb;

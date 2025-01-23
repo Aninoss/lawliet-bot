@@ -19,7 +19,7 @@ public class ButtonClickCommandsStatic extends ButtonClickAbstract {
 
     @Override
     public boolean onButtonClick(ButtonInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
-        if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
+        if (event.getGuild() == null || !BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
             return true;
         }
 

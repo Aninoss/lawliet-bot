@@ -107,7 +107,7 @@ public class LanguageCommand extends Command implements OnStringSelectMenuListen
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         Language language = Language.from(getLocale());
         if (set && language.isDeepLGenerated()) {
             setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));

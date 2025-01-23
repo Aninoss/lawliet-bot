@@ -40,7 +40,7 @@ public class CommandPermissionsCommand extends Command implements OnButtonListen
 
     @Nullable
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         if (!synched) {
             setComponents(getString("button"));
         }

@@ -18,26 +18,24 @@ public class InteractionAbstract extends DiscordEventAbstract {
                                            ArrayList<DiscordEventAbstract> listenerList,
                                            DiscordEventAbstract.EventExecution function
     ) {
-        if (event.isFromGuild()) {
-            int eventAgeMillis = (int) Duration.between(event.getTimeCreated().toInstant(), Instant.now()).toMillis();
-            try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMillis(1500 - eventAgeMillis)))  {
-                asyncTimer.setTimeOutListener(t -> {
-                    if (!event.isAcknowledged()) {
-                        if (event instanceof GenericComponentInteractionCreateEvent) {
-                            ((GenericComponentInteractionCreateEvent) event).deferEdit().queue();
-                        } else if (event instanceof ModalInteractionEvent) {
-                            ((ModalInteractionEvent) event).deferEdit().queue();
-                        }
+        int eventAgeMillis = (int) Duration.between(event.getTimeCreated().toInstant(), Instant.now()).toMillis();
+        try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMillis(1500 - eventAgeMillis)))  {
+            asyncTimer.setTimeOutListener(t -> {
+                if (!event.isAcknowledged()) {
+                    if (event instanceof GenericComponentInteractionCreateEvent) {
+                        ((GenericComponentInteractionCreateEvent) event).deferEdit().queue();
+                    } else if (event instanceof ModalInteractionEvent) {
+                        ((ModalInteractionEvent) event).deferEdit().queue();
                     }
+                }
+            });
+
+            try(AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
+                timeOutTimer.setTimeOutListener(t -> {
+                    MainLogger.get().error("Interaction \"{}\" of guild {} stuck", event.getIdLong(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
                 });
 
-                try(AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
-                    timeOutTimer.setTimeOutListener(t -> {
-                        MainLogger.get().error("Interaction \"{}\" of guild {} stuck", event.getIdLong(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
-                    });
-
-                    execute(listenerList, event.getUser(), event.getGuild().getIdLong(), function);
-                }
+                execute(listenerList, event.getUser(), event.getGuild() != null ? event.getGuild().getIdLong() : 0L, function);
             }
         }
     }

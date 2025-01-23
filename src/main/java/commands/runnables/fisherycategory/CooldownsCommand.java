@@ -88,7 +88,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnStr
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         FisheryDmReminderEntity.Type[] types = FisheryDmReminderEntity.Type.values();
 
         StringSelectMenu.Builder builder = StringSelectMenu.create("reminders");

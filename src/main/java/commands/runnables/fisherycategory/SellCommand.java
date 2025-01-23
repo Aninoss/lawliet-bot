@@ -135,7 +135,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         if (!completed) {
             setComponents(
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_ENTERNUMBER, getString("enternumber")),

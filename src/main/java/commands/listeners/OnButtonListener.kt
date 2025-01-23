@@ -1,9 +1,10 @@
 package commands.listeners
 
 import commands.CommandListenerMeta.CheckResponse
-import mysql.hibernate.entity.guild.GuildEntity
+import mysql.hibernate.EntityManagerWrapper
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
+import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent
 import java.util.concurrent.CompletableFuture
 
 interface OnButtonListener : OnInteractionListener {
@@ -19,12 +20,12 @@ interface OnButtonListener : OnInteractionListener {
         return registerInteractionListener(member, OnButtonListener::class.java, draw, { onButtonOverridden() })
     }
 
-    fun registerButtonListener(member: Member, draw: Boolean, validityChecker: (ButtonInteractionEvent) -> CheckResponse): CompletableFuture<Long> {
+    fun registerButtonListener(member: Member, draw: Boolean, validityChecker: (GenericComponentInteractionCreateEvent) -> CheckResponse): CompletableFuture<Long> {
         return registerInteractionListener(member, OnButtonListener::class.java, draw, { onButtonOverridden() }, validityChecker)
     }
 
-    fun processButton(event: ButtonInteractionEvent, guildEntity: GuildEntity) {
-        processInteraction(event, guildEntity) { onButton(it) }
+    fun processButton(event: ButtonInteractionEvent, entityManager: EntityManagerWrapper) {
+        processInteraction(event, entityManager) { onButton(it) }
     }
 
     @Throws(Throwable::class)

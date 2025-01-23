@@ -208,7 +208,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         if (!interrupt) {
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             if (memberFilter.isEmpty()) {
