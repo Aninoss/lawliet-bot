@@ -134,7 +134,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
             FeatureLogger.inc(PremiumFeature.PIXIV, slot.getGuildId());
             Optional<PostBundle<PixivImage>> postBundleOpt;
             try {
-                postBundleOpt = pixivDownloader.retrieveImagesBulk(slot.getGuildId(), key, slot.getArgs().orElse(null), filterSet).get();
+                postBundleOpt = pixivDownloader.retrieveImagesBulk(key, slot.getArgs().orElse(null), filterSet).get();
             } catch (ExecutionException e) {
                 slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
                 return AlertResponse.CONTINUE;

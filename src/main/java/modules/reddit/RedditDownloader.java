@@ -20,7 +20,7 @@ public class RedditDownloader {
     public CompletableFuture<Optional<RedditPost>> retrievePost(long guildId, String input, boolean nsfwAllowed) {
         String[] inputExt = extractSubredditAndOrderBy(input);
         if (inputExt != null) {
-            return RestClient.WEBCACHE.get("reddit/single/" + guildId + "/" + nsfwAllowed + "/" + inputExt[0] + "/" + inputExt[1])
+            return RestClient.WEBCACHE.getClient(input).get("reddit/single/" + guildId + "/" + nsfwAllowed + "/" + inputExt[0] + "/" + inputExt[1])
                     .thenApply(response -> {
                         if (response.getCode() / 100 == 5) {
                             throw new CompletionException(new IOException("Reddit retrieval error"));
@@ -49,7 +49,7 @@ public class RedditDownloader {
     public CompletableFuture<Optional<PostBundle<RedditPost>>> retrievePostsBulk(String input, String args) {
         String[] inputExt = extractSubredditAndOrderBy(input);
         if (inputExt != null) {
-            return RestClient.WEBCACHE.get("reddit/bulk/" + inputExt[0] + "/" + inputExt[1])
+            return RestClient.WEBCACHE.getClient(input).get("reddit/bulk/" + inputExt[0] + "/" + inputExt[1])
                     .thenApply(response -> {
                         if (response.getCode() / 100 == 5) {
                             throw new CompletionException(new IOException("Reddit retrieval error"));

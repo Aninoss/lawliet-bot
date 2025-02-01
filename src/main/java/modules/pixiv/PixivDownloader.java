@@ -31,7 +31,7 @@ public class PixivDownloader {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return RestClient.WEBCACHE.post("pixiv_single", "application/json", mapper.writeValueAsString(pixivRequest))
+        return RestClient.WEBCACHE.getClient(word).post("pixiv_single", "application/json", mapper.writeValueAsString(pixivRequest))
                 .thenApply(response -> {
                     if (response.getCode() / 100 == 5) {
                         throw new CompletionException(new IOException("Pixiv retrieval error"));
@@ -52,9 +52,7 @@ public class PixivDownloader {
                 });
     }
 
-    public CompletableFuture<Optional<PostBundle<PixivImage>>> retrieveImagesBulk(long guildId, String word, String args,
-                                                                                  HashSet<String> filterSet
-    ) throws JsonProcessingException {
+    public CompletableFuture<Optional<PostBundle<PixivImage>>> retrieveImagesBulk(String word, String args, HashSet<String> filterSet) throws JsonProcessingException {
         PixivRequest pixivRequest = new PixivRequest()
                 .setWord(word)
                 .setFilters(List.copyOf(filterSet))
@@ -63,7 +61,7 @@ public class PixivDownloader {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return RestClient.WEBCACHE.post("pixiv_bulk", "application/json", mapper.writeValueAsString(pixivRequest))
+        return RestClient.WEBCACHE.getClient(word).post("pixiv_bulk", "application/json", mapper.writeValueAsString(pixivRequest))
                 .thenApply(response -> {
                     if (response.getCode() / 100 == 5) {
                         throw new CompletionException(new IOException("Reddit retrieval error"));

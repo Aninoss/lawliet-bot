@@ -5,6 +5,7 @@ import core.internet.HttpRequest;
 import core.internet.HttpResponse;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class RestClient {
@@ -19,8 +20,9 @@ public class RestClient {
             System.getenv("RATELIMITER_AUTH")
     );
 
-    public static final RestClient WEBCACHE = new RestClient(
-            System.getenv("WEBCACHE_HOST"),
+    public static final DistributedRestClients WEBCACHE = new DistributedRestClients(
+            List.of(System.getenv("WEBCACHE_HOST").split(",")),
+            System.getenv("WEBCACHE_HOST_LOCAL"),
             Integer.parseInt(System.getenv("WEBCACHE_PORT")),
             "api/",
             System.getenv("WEBCACHE_AUTH")
@@ -33,7 +35,7 @@ public class RestClient {
             System.getenv("SYNC_AUTH")
     );
 
-    private RestClient(String domain, int port, String path, String auth) {
+    public RestClient(String domain, int port, String path, String auth) {
         this.url = String.format("http://%s:%d/%s", domain, port, path);
         this.auth = auth;
     }

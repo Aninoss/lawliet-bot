@@ -1,9 +1,10 @@
 package core.internet;
 
-import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
 import core.MainLogger;
 import core.restclient.RestClient;
+
+import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 public class HttpCache {
 
@@ -12,7 +13,7 @@ public class HttpCache {
                 new HttpHeader("X-Proxy-Url", url),
                 new HttpHeader("X-Proxy-Minutes", String.valueOf(duration.toMinutes()))
         };
-        return RestClient.WEBCACHE.get("cached_proxy", headers)
+        return RestClient.WEBCACHE.getClient(url).get("cached_proxy", headers)
                 .thenApply(httpResponse -> {
                     checkResponseCode(url, httpResponse);
                     return httpResponse;
@@ -24,7 +25,7 @@ public class HttpCache {
                 new HttpHeader("X-Proxy-Url", url),
                 new HttpHeader("X-Proxy-Minutes", String.valueOf(duration.toMinutes()))
         };
-        return RestClient.WEBCACHE.post("cached_proxy", contentType, body, headers)
+        return RestClient.WEBCACHE.getClient(url + ":" + body + ":" + contentType).post("cached_proxy", contentType, body, headers)
                 .thenApply(httpResponse -> {
                     checkResponseCode(url, httpResponse);
                     return httpResponse;

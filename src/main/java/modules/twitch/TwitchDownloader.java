@@ -1,7 +1,5 @@
 package modules.twitch;
 
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,11 +8,14 @@ import constants.RegexPatterns;
 import core.restclient.RestClient;
 import core.utils.InternetUtil;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
 public class TwitchDownloader {
 
     public CompletableFuture<Optional<TwitchStream>> retrieveStream(String name) {
         if (RegexPatterns.TWITCH.matcher(name).matches()) {
-            return RestClient.WEBCACHE.get("twitch/" + InternetUtil.escapeForURL(name.toLowerCase()))
+            return RestClient.WEBCACHE.getClient(name).get("twitch/" + InternetUtil.escapeForURL(name.toLowerCase()))
                     .thenApply(response -> {
                         String content = response.getBody();
                         if (content.startsWith("{")) {

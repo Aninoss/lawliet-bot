@@ -42,7 +42,7 @@ public class BooruImageDownloader {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return RestClient.WEBCACHE.post("booru_v2", "application/json", mapper.writeValueAsString(booruRequest))
+        return RestClient.WEBCACHE.getClient(domain + ":" + searchTerm + ":" + canBeVideo + ":" + filters.hashCode()).post("booru_v2", "application/json", mapper.writeValueAsString(booruRequest))
                 .thenApply(response -> {
                     if (response.getCode() / 100 == 5) {
                         throw new CompletionException(new IOException("Booru retrieval error"));

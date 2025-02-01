@@ -28,7 +28,7 @@ public class BooruAutoComplete {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return RestClient.WEBCACHE.get("booru_autocomplete/" + domain + "/" + encodedSearch + "/")
+        return RestClient.WEBCACHE.getClient(domain + ":" + search).get("booru_autocomplete/" + domain + "/" + encodedSearch + "/")
                 .thenApply(response -> {
                     String content = response.getBody();
                     if (content.startsWith("[")) {

@@ -1,8 +1,9 @@
 package core;
 
-import java.util.concurrent.CompletableFuture;
 import core.restclient.RestClient;
 import org.json.JSONObject;
+
+import java.util.concurrent.CompletableFuture;
 
 public class RandomPicker {
 
@@ -12,7 +13,7 @@ public class RandomPicker {
         json.put("guildId", guildId);
         json.put("size", size);
 
-        return RestClient.WEBCACHE.post("random", "application/json", json.toString())
+        return RestClient.WEBCACHE.getLocalClient().post("random", "application/json", json.toString())
                 .thenApply(httpResponse -> Integer.parseInt(httpResponse.getBody()));
     }
 

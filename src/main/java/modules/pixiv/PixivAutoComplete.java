@@ -28,7 +28,7 @@ public class PixivAutoComplete {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return RestClient.WEBCACHE.get("pixiv_autocomplete/" + encodedSearch + "/")
+        return RestClient.WEBCACHE.getClient(encodedSearch).get("pixiv_autocomplete/" + encodedSearch + "/")
                 .thenApply(response -> {
                     String content = response.getBody();
                     if (content.startsWith("[")) {
