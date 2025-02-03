@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class HttpClient {
 
     private static final OkHttpClient client = IOUtil.newHttpClientBuilder()
-            .callTimeout(10, TimeUnit.SECONDS)
+            .callTimeout(15, TimeUnit.SECONDS)
             .build();
 
     public static OkHttpClient getClient() {

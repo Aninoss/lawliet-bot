@@ -6,6 +6,7 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 public class HttpRequest {
@@ -36,7 +37,7 @@ public class HttpRequest {
         HttpClient.getClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                try(ResponseBody body = response.body()) {
+                try (ResponseBody body = response.body()) {
                     int code = response.code();
                     HttpResponse httpResponse = new HttpResponse()
                             .setCode(code)
@@ -44,7 +45,7 @@ public class HttpRequest {
                     future.complete(httpResponse);
 
                     if (code / 100 != 2 &&
-                            !url.startsWith("http://" + System.getenv("WEBCACHE_HOST") + ":" + System.getenv("WEBCACHE_PORT"))
+                            (Arrays.stream(System.getenv("WEBCACHE_HOST").split(",")).noneMatch(host -> url.startsWith("http://" + host + ":" + System.getenv("WEBCACHE_PORT"))) || code != 503)
                     ) {
                         MainLogger.get().warn("Error code {} for URL {}", code, url);
                     }
