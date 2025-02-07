@@ -79,9 +79,9 @@ public class ModUserInteractionManager {
             return null;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_description", command.getPrefix());
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_description", SlashAssociations.findName(command.getClass()));
         return EmbedFactory.getEmbedError()
-                .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_title", command.getPrefix()))
+                .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_title"))
                 .setDescription(desc);
     }
 

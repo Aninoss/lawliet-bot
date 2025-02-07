@@ -255,10 +255,10 @@ public class CommandManager {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_description", command.getPrefix());
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_description", SlashAssociations.findName(command.getClass()));
         if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_title", command.getPrefix()))
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_title"))
                     .setDescription(desc);
             sendError(event, guildEntity, eb, true);
         } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
