@@ -16,12 +16,10 @@ import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
-import modules.fishery.FisheryStatus;
 import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -31,10 +29,8 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "fisheryroles",
@@ -65,32 +61,9 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         .setCheckAccess(true)
                         .setMinMax(0, MAX_ROLES)
                         .setDescription(getString("state1_description"))
-                        .enableHibernateTransaction()
-                        .setGetter(() -> getRoles().stream().map(ISnowflake::getIdLong).collect(Collectors.toList()))
-                        .setSetter(roleIds -> {
-                            FisheryEntity fishery = getGuildEntity().getFishery();
-                            ArrayList<Long> addedRoleIds = new ArrayList<>();
-                            ArrayList<Long> removedRoleIds = new ArrayList<>();
-
-                            for (long newRoleId : roleIds) {
-                                if (!fishery.getRoleIds().contains(newRoleId)) {
-                                    addedRoleIds.add(newRoleId);
-                                }
-                            }
-                            for (long oldRoleId : fishery.getRoleIds()) {
-                                if (!roleIds.contains(oldRoleId)) {
-                                    removedRoleIds.add(oldRoleId);
-                                }
-                            }
-
-                            if (fishery.getFisheryStatus() == FisheryStatus.STOPPED) {
-                                CollectionUtil.replace(fishery.getRoleIds(), roleIds);
-                                BotLogEntity.log(fishery.getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), addedRoleIds, removedRoleIds);
-                            } else {
-                                fishery.getRoleIds().addAll(addedRoleIds);
-                                BotLogEntity.log(fishery.getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), addedRoleIds, null);
-                            }
-                        }),
+                        .setLogEvent(BotLogEntity.Event.FISHERY_ROLES)
+                        .setGetter(() -> getGuildEntity().getFishery().getRoleIds())
+                        .setSetter(roleIds -> CollectionUtil.replace(getGuildEntity().getFishery().getRoleIds(), roleIds)),
                 new GuildChannelsStateProcessor(this, STATE_SET_ANNOUNCEMENT_CHANNEL, DEFAULT_STATE, getString("state0_mannouncementchannel"))
                         .setCheckPermissions(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
                         .setMinMax(0, 1)

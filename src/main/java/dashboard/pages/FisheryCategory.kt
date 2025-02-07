@@ -313,16 +313,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 true,
                 FisheryRolesCommand::class,
                 BotLogEntity.Event.FISHERY_ROLES
-        ) { event ->
-            if (fisheryEntity.fisheryStatus != FisheryStatus.STOPPED && event.type == "remove") {
-                return@DashboardMultiRolesComboBox ActionResult()
-                        .withRedraw()
-                        .withErrorMessage(getString(Category.FISHERY_SETTINGS, "fisheryroles_roleremoveconditions"))
-            } else {
-                return@DashboardMultiRolesComboBox null
-            }
-        }
-        container.add(rolesComboBox)
+        )
+        container.add(rolesComboBox, DashboardText(getString(Category.FISHERY_SETTINGS, "fisheryroles_roleremovenote"), DashboardText.Style.WARNING))
 
         val announcementChannelComboBox = DashboardChannelComboBox(
                 this,
