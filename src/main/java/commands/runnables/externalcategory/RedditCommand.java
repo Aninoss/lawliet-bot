@@ -13,22 +13,21 @@ import core.utils.EmbedUtil;
 import core.utils.InternetUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
-import modules.PostBundle;
 import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
@@ -139,64 +138,75 @@ public class RedditCommand extends Command implements OnAlertListener {
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             slot.sendMessage(getLocale(), false, eb.build());
             return AlertResponse.STOP_AND_DELETE;
-        } else {
-            slot.setNextRequest(Instant.now().plus(120, ChronoUnit.MINUTES));
+        }
 
-            Optional<PostBundle<RedditPost>> postBundleOpt;
-            try {
-                postBundleOpt = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
-            } catch (ExecutionException e) {
-                slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
-                return AlertResponse.CONTINUE;
-            }
+        List<RedditPost> redditPosts;
+        try {
+            redditPosts = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
+        } catch (ExecutionException e) {
+            slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
+            return AlertResponse.CONTINUE;
+        }
 
-            GuildMessageChannel channel = slot.getGuildMessageChannel().get();
-            boolean containsOnlyNsfw = true;
-
-            if (postBundleOpt.isPresent()) {
-                PostBundle<RedditPost> postBundle = postBundleOpt.get();
-                int totalEmbedSize = 0;
-                ArrayList<MessageEmbed> embedList = new ArrayList<>();
-                for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
-                    RedditPost post = postBundle.getPosts().get(i);
-                    if (!post.isNsfw() || JDAUtil.channelIsNsfw(channel)) {
-                        MessageEmbed messageEmbed = getEmbed(post).build();
-                        totalEmbedSize += messageEmbed.getLength();
-                        embedList.add(0, messageEmbed);
-                        containsOnlyNsfw = false;
-                        if (slot.getArgs().isEmpty()) {
-                            break;
-                        }
-                    }
-                }
-
-                if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
-                    EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale(), getPrefix());
-                    EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    slot.sendMessage(getLocale(), false, eb.build());
-                    return AlertResponse.STOP_AND_DELETE;
-                }
-
-                if (embedList.size() > 0) {
-                    while (totalEmbedSize > MessageEmbed.EMBED_MAX_LENGTH_BOT) {
-                        totalEmbedSize -= embedList.remove(0).getLength();
-                    }
-                    slot.sendMessage(getLocale(), true, embedList);
-                }
-
-                slot.setArgs(postBundle.getNewestPost());
-                return AlertResponse.CONTINUE_AND_SAVE;
+        slot.setNextRequest(Instant.now().plus(120, ChronoUnit.MINUTES));
+        if (redditPosts.isEmpty()) {
+            if (slot.getArgs().isEmpty() || nextRequestPreviously.isBefore(Instant.now().minus(Duration.ofDays(30)))) {
+                EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, key);
+                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+                slot.sendMessage(getLocale(), false, eb.build());
+                return AlertResponse.STOP_AND_DELETE;
             } else {
-                if (slot.getArgs().isEmpty() || nextRequestPreviously.isBefore(Instant.now().minus(Duration.ofDays(30)))) {
-                    EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, key);
-                    EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    slot.sendMessage(getLocale(), false, eb.build());
-                    return AlertResponse.STOP_AND_DELETE;
-                } else {
-                    return AlertResponse.CONTINUE;
-                }
+                return AlertResponse.CONTINUE_AND_SAVE;
             }
         }
+
+        ArrayList<String> idList = slot.getArgs().map(args -> new ArrayList<>(List.of(args.split("\\|"))))
+                .orElse(new ArrayList<>());
+        ArrayList<String> newIdList = new ArrayList<>();
+        int totalEmbedSize = 0;
+        boolean containsOnlyNsfw = true;
+        ArrayList<MessageEmbed> embedList = new ArrayList<>();
+
+        if (slot.getArgs().isEmpty()) {
+            for (int i = 1; i < Math.min(50, redditPosts.size()); i++) {
+                idList.add(0, redditPosts.get(i).getId());
+            }
+        }
+        for (int i = 0; i < Math.min(50, redditPosts.size()) && embedList.size() < 5; i++) {
+            RedditPost post = redditPosts.get(i);
+            if (post.isNsfw() && !JDAUtil.channelIsNsfw(slot.getGuildMessageChannel().get())) {
+                continue;
+            }
+            containsOnlyNsfw = false;
+            if (!idList.contains(post.getId())) {
+                MessageEmbed messageEmbed = getEmbed(post).build();
+                totalEmbedSize += messageEmbed.getLength();
+                embedList.add(0, messageEmbed);
+                newIdList.add(0, post.getId());
+            }
+        }
+
+        idList.addAll(newIdList);
+        while (idList.size() > 250) {
+            idList.remove(0);
+        }
+
+        if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
+            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale(), getPrefix());
+            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+            slot.sendMessage(getLocale(), false, eb.build());
+            return AlertResponse.STOP_AND_DELETE;
+        }
+
+        if (!embedList.isEmpty()) {
+            while (totalEmbedSize > MessageEmbed.EMBED_MAX_LENGTH_BOT) {
+                totalEmbedSize -= embedList.remove(0).getLength();
+            }
+            slot.sendMessage(getLocale(), true, embedList);
+        }
+
+        slot.setArgs(Strings.join(idList, '|'));
+        return AlertResponse.CONTINUE_AND_SAVE;
     }
 
     @Override
