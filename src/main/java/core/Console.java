@@ -431,7 +431,7 @@ public class Console {
         long serverId = Long.parseLong(args[1]);
         ShardManager.getLocalGuildById(serverId).ifPresent(guild ->
                 MainLogger.get().info("{} | Members: {} | Owner: {} | Shard {} | Premium: {}", guild.getName(),
-                        guild.getMemberCount(), guild.getOwner().getUser().getName(),
+                        guild.getMemberCount(), guild.getOwner() != null ? guild.getOwner().getUser().getName() : "<Null>",
                         guild.getJDA().getShardInfo().getShardId(), PatreonCache.getInstance().isUnlocked(serverId)
                 )
         );
