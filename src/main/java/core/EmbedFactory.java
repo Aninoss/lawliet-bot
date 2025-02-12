@@ -4,10 +4,7 @@ import commands.Command;
 import constants.ExternalLinks;
 import constants.Settings;
 import core.utils.EmbedUtil;
-import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -149,21 +146,6 @@ public class EmbedFactory {
             actionRowList.add(ActionRow.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"))));
         }
         return eb;
-    }
-
-    public static EmbedBuilder getWrittenByServerStaffEmbed(Locale locale) {
-        return new EmbedBuilder()
-                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
-    }
-
-    public static EmbedBuilder getWrittenByServerStaffEmbed(Guild guild, Locale locale) {
-        return new EmbedBuilder()
-                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", StringUtil.escapeMarkdown(guild.getName())));
-    }
-
-    public static EmbedBuilder getWrittenByUserEmbed(User user, Locale locale) {
-        return new EmbedBuilder()
-                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "user_text", StringUtil.escapeMarkdown(user.getName())));
     }
 
 }

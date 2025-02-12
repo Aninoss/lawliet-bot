@@ -5,7 +5,9 @@ import constants.Language;
 import core.ShardManager;
 import core.TextManager;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.apache.commons.text.StringEscapeUtils;
@@ -436,6 +438,21 @@ public final class StringUtil {
             sb.append(Emojis.STEP_POINTS[step == i ? 1 : 0].getFormatted());
         }
         return sb.toString();
+    }
+
+    public static String addWrittenByUserDisclaimer(String text, Locale locale, User user, Integer characterLimit) {
+        String disclaimer = "\n-# " + TextManager.getString(locale, TextManager.GENERAL, "user_text", StringUtil.escapeMarkdown(user.getName()));
+        return (characterLimit != null ? shortenString(text, characterLimit - disclaimer.length()) : text) + disclaimer;
+    }
+
+    public static String addWrittenByServerStaffDisclaimer(String text, Locale locale, Integer characterLimit) {
+        String disclaimer = "\n-# " + TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text");
+        return (characterLimit != null ? shortenString(text, characterLimit - disclaimer.length()) : text) + disclaimer;
+    }
+
+    public static String addWrittenByServerStaffDisclaimer(String text, Locale locale, Guild guild, Integer characterLimit) {
+        String disclaimer = "\n-# " +  TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", StringUtil.escapeMarkdown(guild.getName()));
+        return (characterLimit != null ? shortenString(text, characterLimit - disclaimer.length()) : text) + disclaimer;
     }
 
 }

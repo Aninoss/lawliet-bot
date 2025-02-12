@@ -1,13 +1,12 @@
 package modules.schedulers;
 
-import commands.Category;
 import commands.runnables.utilitycategory.ReminderCommand;
-import core.*;
+import core.MainLogger;
+import core.PermissionCheckRuntime;
+import core.ShardManager;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.schedule.MainScheduler;
-import core.utils.BotPermissionUtil;
-import core.utils.InternetUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.EntityManagerWrapper;
@@ -78,32 +77,21 @@ public class ReminderScheduler {
                 Permission.MESSAGE_SEND
         )) {
             String userMessage = StringUtil.shortenString(reminderEntity.getMessage(), MessageEmbed.VALUE_MAX_LENGTH);
-            if (channel instanceof PrivateChannel ||
-                    (BotPermissionUtil.canWriteEmbed((GuildMessageChannel) channel) && !InternetUtil.stringHasURL(userMessage))
-            ) {
-                EmbedBuilder eb;
-                if (channel instanceof PrivateChannel) {
-                    try {
-                        User user = ShardManager.fetchUserById(reminderEntity.getTargetId()).get();
-                        eb = EmbedFactory.getWrittenByUserEmbed(user, locale);
-                    } catch (InterruptedException | ExecutionException e) {
-                        MainLogger.get().error("Was not able to fetch user with id {}", reminderEntity.getTargetId(), e);
-                        return;
-                    }
-                } else {
-                    eb = EmbedFactory.getWrittenByServerStaffEmbed(locale);
+            if (channel instanceof PrivateChannel) {
+                try {
+                    User user = ShardManager.fetchUserById(reminderEntity.getTargetId()).get();
+                    userMessage = StringUtil.addWrittenByUserDisclaimer(userMessage, locale, user, MessageEmbed.VALUE_MAX_LENGTH);
+                } catch (InterruptedException | ExecutionException e) {
+                    MainLogger.get().error("Was not able to fetch user with id {}", reminderEntity.getTargetId(), e);
+                    return;
                 }
-
-                channel.sendMessage(userMessage)
-                        .setEmbeds(eb.build())
-                        .setAllowedMentions(null)
-                        .queue();
             } else {
-                String content = TextManager.getString(locale, Category.UTILITY, "reminder_action", userMessage);
-                channel.sendMessage(content)
-                        .setAllowedMentions(null)
-                        .queue();
+                userMessage = StringUtil.addWrittenByServerStaffDisclaimer(userMessage, locale, MessageEmbed.VALUE_MAX_LENGTH);
             }
+
+            channel.sendMessage(userMessage)
+                    .setAllowedMentions(null)
+                    .queue();
         }
 
         if (reminderEntity.getIntervalMinutesEffectively() != null) {

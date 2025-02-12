@@ -183,8 +183,8 @@ public class Ticket {
             if (ticketsEntity.getGreetingText() != null &&
                     PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel, Permission.MESSAGE_SEND)
             ) {
-                channel.sendMessage(ticketsEntity.getGreetingText())
-                        .addEmbeds(EmbedFactory.getWrittenByServerStaffEmbed(locale).build())
+                String content = StringUtil.addWrittenByServerStaffDisclaimer(ticketsEntity.getGreetingText(), locale, Message.MAX_CONTENT_LENGTH);
+                channel.sendMessage(content)
                         .setAllowedMentions(null)
                         .queue();
             }

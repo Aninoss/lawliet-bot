@@ -1,10 +1,8 @@
 package mysql.modules.tracker;
 
-import commands.Category;
 import core.DiscordDomain;
 import core.MainLogger;
 import core.ShardManager;
-import core.TextManager;
 import core.assets.GuildMessageChannelAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.featurelogger.FeatureLogger;
@@ -111,7 +109,7 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
             return Optional.empty();
         }
         Optional<String> userMessageOpt = getUserMessage()
-                .map(message -> TextManager.getString(locale, Category.CONFIGURATION, "alerts_action", StringUtil.shortenString(message, 1024)));
+                .map(message -> StringUtil.addWrittenByServerStaffDisclaimer(message, locale, 1024));
         if (userMessageOpt.isPresent()) {
             FeatureLogger.inc(PremiumFeature.ALERTS_USER_MESSAGE, getGuildId());
         }
@@ -142,14 +140,14 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
 
     public Optional<Long> sendMessage(Locale locale, boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
         if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
-            content = getEffectiveUserMessage(locale).get() + "\n" + content;
+            content = getEffectiveUserMessage(locale).get() + "\n\n" + content;
         }
         return processMessage(locale, true, acceptUserMessage, content, Collections.emptyList(), actionRows);
     }
 
     public Optional<Long> editMessage(Locale locale, boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
         if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
-            content = getEffectiveUserMessage(locale).get() + "\n" + content;
+            content = getEffectiveUserMessage(locale).get() + "\n\n" + content;
         }
         return processMessage(locale, false, acceptUserMessage, content, Collections.emptyList(), actionRows);
     }

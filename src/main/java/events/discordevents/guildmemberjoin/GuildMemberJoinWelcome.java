@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
@@ -79,12 +80,11 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                     .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
                     .queue();
         } else {
-            EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(event.getGuild(), locale);
             File imageFile = dm.getImageFile();
             JDAUtil.openPrivateChannel(member)
                     .flatMap(messageChannel -> {
-                                MessageCreateAction messageCreateAction = messageChannel.sendMessage(content)
-                                        .addEmbeds(eb.build());
+                                String newContent = StringUtil.addWrittenByServerStaffDisclaimer(content, locale, event.getGuild(), Message.MAX_CONTENT_LENGTH);
+                                MessageCreateAction messageCreateAction = messageChannel.sendMessage(newContent);
                                 if (imageFile != null) {
                                     messageCreateAction.addFiles(FileUpload.fromData(imageFile));
                                 }
@@ -132,6 +132,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
             messageCreateAction.addEmbeds(eb.build())
                     .queue();
         } else {
+            content = StringUtil.addWrittenByServerStaffDisclaimer(content, locale, Message.MAX_CONTENT_LENGTH);
             MessageCreateAction messageCreateAction = channel.sendMessage(content);
             switch (join.getAttachmentType()) {
                 case GENERATED_BANNERS -> {
@@ -144,10 +145,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                     }
                 }
             }
-
-            EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(locale);
-            messageCreateAction.addEmbeds(eb.build())
-                    .queue();
+            messageCreateAction.queue();
         }
     }
 
