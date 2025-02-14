@@ -3,6 +3,7 @@ package commands.runnables.configurationcategory;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
+import commands.stateprocessor.FileListStateProcessor;
 import commands.stateprocessor.FileStateProcessor;
 import commands.stateprocessor.GuildChannelsStateProcessor;
 import commands.stateprocessor.StringStateProcessor;
@@ -51,13 +52,14 @@ public class WelcomeCommand extends NavigationAbstract {
 
     public static int MAX_WELCOME_TITLE_LENGTH = 20;
     public static int MAX_TEXT_LENGTH = MessageEmbed.VALUE_MAX_LENGTH;
+    public static int MAX_IMAGES = 25;
 
     public static final int STATE_SET_TEXT = 1,
             STATE_SET_CHANNEL = 2,
             STATE_SET_BANNER_BACKGROUND = 3,
             STATE_EXAMPLE = 4,
             STATE_SET_ATTACHMENT_TYPE = 5,
-            STATE_SET_IMAGE = 6;
+            STATE_SET_IMAGES = 6;
 
 
     private int category = 0;
@@ -128,30 +130,23 @@ public class WelcomeCommand extends NavigationAbstract {
                                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WELCOME_BANNER_BACKGROUND_RESET, event.getMember());
                             }
                         }),
-                new FileStateProcessor(this, STATE_SET_IMAGE, DEFAULT_STATE, getString("dashboard_image"))
-                        .setClearButton(true)
+                new FileListStateProcessor(this, STATE_SET_IMAGES, DEFAULT_STATE, getString("dashboard_image"), "welcome_images")
                         .setAllowGifs(true)
+                        .setMaxFiles(MAX_IMAGES)
+                        .deleteRemovedFiles()
+                        .setDescription(getString("state6_desc"))
                         .enableHibernateTransaction()
-                        .setGetter(() -> getWelcomeMessagesAbstractEntity().getImageFilename())
-                        .setSetter(attachment -> {
+                        .setGetter(() -> getWelcomeMessagesAbstractEntity().getImageFiles())
+                        .setSetter(newFiles -> {
                             WelcomeMessagesAbstractEntity entity = getWelcomeMessagesAbstractEntity();
-                            if (entity.getImageFilename() != null) {
-                                entity.getImageFile().delete();
-                            }
-
-                            String newUrl = null;
-                            if (attachment != null) {
-                                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("%s/%s.%s", entity.getFileDir(), RandomUtil.generateRandomString(30), attachment.getFileExtension()));
-                                FileUtil.downloadImageAttachment(attachment, tempFile);
-                                newUrl = tempFile.cdnGetUrl();
-                            }
+                            boolean add = newFiles.size() > entity.getImageFiles().size();
+                            CollectionUtil.replace(entity.getImageFiles(), newFiles);
 
                             switch (category) {
-                                case 0 -> BotLogEntity.log(getEntityManager(), newUrl != null ? BotLogEntity.Event.WELCOME_IMAGE_SET : BotLogEntity.Event.WELCOME_IMAGE_RESET, event.getMember());
-                                case 1 -> BotLogEntity.log(getEntityManager(), newUrl != null ? BotLogEntity.Event.WELCOME_DM_IMAGE_SET : BotLogEntity.Event.WELCOME_DM_IMAGE_RESET, event.getMember());
-                                case 2 -> BotLogEntity.log(getEntityManager(), newUrl != null ? BotLogEntity.Event.WELCOME_LEAVE_IMAGE_SET : BotLogEntity.Event.WELCOME_LEAVE_IMAGE_RESET, event.getMember());
+                                case 0 -> BotLogEntity.log(getEntityManager(), add ? BotLogEntity.Event.WELCOME_IMAGES_ADD : BotLogEntity.Event.WELCOME_IMAGES_REMOVE, event.getMember());
+                                case 1 -> BotLogEntity.log(getEntityManager(), add ? BotLogEntity.Event.WELCOME_DM_IMAGES_ADD : BotLogEntity.Event.WELCOME_DM_IMAGES_REMOVE, event.getMember());
+                                case 2 -> BotLogEntity.log(getEntityManager(), add ? BotLogEntity.Event.WELCOME_LEAVE_IMAGES_ADD : BotLogEntity.Event.WELCOME_LEAVE_IMAGES_REMOVE, event.getMember());
                             }
-                            entity.setImageUrl(newUrl);
                         })
         ));
         return true;
@@ -239,7 +234,7 @@ public class WelcomeCommand extends NavigationAbstract {
                     case GENERATED_BANNERS ->
                             eb.addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(join.getBannerTitle()), true);
                     case IMAGE ->
-                            eb.addField(getString("state0_mimagespecified"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getImageFilename() != null), true);
+                            eb.addField(getString("state0_mimagespecified"), StringUtil.numToString(join.getImageFilenames().size()), true);
                 }
                 return eb;
             }
@@ -250,7 +245,7 @@ public class WelcomeCommand extends NavigationAbstract {
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getActive()), true)
                         .addField(getString("state0_mdescription"), text.isEmpty() ? TextManager.getString(getLocale(), TextManager.GENERAL, "notset") : text, true)
                         .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getEmbeds()), true)
-                        .addField(getString("state0_mimagespecified"), StringUtil.getOnOffForBoolean(channel, getLocale(), dm.getImageFilename() != null), true);
+                        .addField(getString("state0_mimagespecified"), StringUtil.numToString(dm.getImageFilenames().size()), true);
             }
             case 2 -> {
                 WelcomeMessagesLeaveEntity leave = welcomeMessages.getLeave();
@@ -259,7 +254,7 @@ public class WelcomeCommand extends NavigationAbstract {
                         .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(leave.getText()), 1024), true)
                         .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getEmbeds()), true)
                         .addField(getString("state0_mchannel"), leave.getChannel().getPrefixedNameInField(getLocale()), true)
-                        .addField(getString("state0_mimagespecified"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getImageFilename() != null), true);
+                        .addField(getString("state0_mimagespecified"), StringUtil.numToString(leave.getImageFilenames().size()), true);
             }
             default -> throw new UnsupportedOperationException("Invalid category");
         }
@@ -292,7 +287,7 @@ public class WelcomeCommand extends NavigationAbstract {
             }
         }
 
-        return eb.setImage(entity.getImageUrl());
+        return eb.setImage(entity.retrieveRandomImageUrl());
     }
 
     @Draw(state = STATE_SET_ATTACHMENT_TYPE)
@@ -346,7 +341,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return false;
             }
             case 6 -> {
-                setState(join.getAttachmentType() == WelcomeMessagesJoinEntity.AttachmentType.GENERATED_BANNERS ? STATE_SET_BANNER_BACKGROUND : STATE_SET_IMAGE);
+                setState(join.getAttachmentType() == WelcomeMessagesJoinEntity.AttachmentType.GENERATED_BANNERS ? STATE_SET_BANNER_BACKGROUND : STATE_SET_IMAGES);
                 return true;
             }
             case 7 -> {
@@ -383,7 +378,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return true;
             }
             case 3 -> {
-                setState(STATE_SET_IMAGE);
+                setState(STATE_SET_IMAGES);
                 return true;
             }
             case 4 -> {
@@ -424,7 +419,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return true;
             }
             case 4 -> {
-                setState(STATE_SET_IMAGE);
+                setState(STATE_SET_IMAGES);
                 return true;
             }
             case 5 -> {

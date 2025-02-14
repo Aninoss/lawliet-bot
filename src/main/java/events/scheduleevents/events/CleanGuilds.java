@@ -13,6 +13,7 @@ import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -64,15 +65,9 @@ public class CleanGuilds implements ExceptionRunnable {
                 if (welcomeBackgroundFile.exists()) {
                     welcomeBackgroundFile.delete();
                 }
-                if (guildEntity.getWelcomeMessages().getJoin().getImageFilename() != null) {
-                    guildEntity.getWelcomeMessages().getJoin().getImageFile().delete();
-                }
-                if (guildEntity.getWelcomeMessages().getDm().getImageFilename() != null) {
-                    guildEntity.getWelcomeMessages().getDm().getImageFile().delete();
-                }
-                if (guildEntity.getWelcomeMessages().getLeave().getImageFilename() != null) {
-                    guildEntity.getWelcomeMessages().getLeave().getImageFile().delete();
-                }
+                guildEntity.getWelcomeMessages().getJoin().getImageFiles().forEach(File::delete);
+                guildEntity.getWelcomeMessages().getDm().getImageFiles().forEach(File::delete);
+                guildEntity.getWelcomeMessages().getLeave().getImageFiles().forEach(File::delete);
                 if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.STOPPED) {
                     FisheryUserManager.deleteGuildData(guildEntity.getGuildId());
                 }

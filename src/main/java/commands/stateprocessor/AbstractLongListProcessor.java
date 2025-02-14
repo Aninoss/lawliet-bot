@@ -3,11 +3,9 @@ package commands.stateprocessor;
 import commands.runnables.NavigationAbstract;
 import core.utils.JDAUtil;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import org.glassfish.jersey.internal.util.Producer;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +57,7 @@ public class AbstractLongListProcessor<T extends AbstractStateProcessor<List<Lon
     }
 
     @Override
-    protected ArrayList<ActionRow> createActionRows() {
+    protected void addComponents(NavigationAbstract command) {
         List<Long> valueList = get();
         if (valueList == null) {
             valueList = Collections.emptyList();
@@ -77,9 +75,7 @@ public class AbstractLongListProcessor<T extends AbstractStateProcessor<List<Lon
                 .setRequiredRange(min, max)
                 .build();
 
-        ArrayList<ActionRow> actionRows = new ArrayList<>();
-        actionRows.add(ActionRow.of(entitySelectMenu));
-        return actionRows;
+        getCommand().setComponents(entitySelectMenu);
     }
 
 }

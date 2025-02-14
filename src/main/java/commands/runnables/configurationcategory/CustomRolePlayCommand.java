@@ -2,21 +2,17 @@ package commands.runnables.configurationcategory;
 
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.MessageInputResponse;
 import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
 import commands.stateprocessor.EmojiStateProcessor;
+import commands.stateprocessor.FileListStateProcessor;
 import commands.stateprocessor.StringStateProcessor;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
-import core.LocalFile;
 import core.TextManager;
-import core.modals.ModalMediator;
 import core.modals.StringModalBuilder;
-import core.utils.FileUtil;
-import core.utils.InternetUtil;
-import core.utils.RandomUtil;
+import core.utils.CollectionUtil;
 import core.utils.StringUtil;
 import modules.CustomRolePlay;
 import mysql.hibernate.entity.BotLogEntity;
@@ -27,17 +23,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "customrp",
@@ -62,16 +53,13 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
             STATE_SET_TEXT_NO_MEMBERS = 4,
             STATE_SET_TEXT_SINGLE_MEMBER = 5,
             STATE_SET_TEXT_MULTI_MEMBERS = 6,
-            STATE_ADD_ATTACHMENTS = 7,
-            STATE_REMOVE_ATTACHMENTS = 8;
+            STATE_SET_ATTACHMENTS = 7;
 
     private EmojiStateProcessor emojiStateProcessor;
     private CustomRolePlayEntity config;
     private String trigger;
     private String oldTrigger;
-    private final ArrayList<File> attachmentFiles = new ArrayList<>();
     private boolean updateMode;
-    private int currentImage = 0;
     private boolean deleteLock = true;
 
     public CustomRolePlayCommand(Locale locale, String prefix) {
@@ -104,34 +92,15 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                         .setDescription(getString("text_members_desc"))
                         .setClearButton(true)
                         .setGetter(() -> config.getTextMultiMembers())
-                        .setSetter(input -> config.setTextMultiMembers(input))
+                        .setSetter(input -> config.setTextMultiMembers(input)),
+                new FileListStateProcessor(this, STATE_SET_ATTACHMENTS, STATE_CONFIG, getString("config_property_attachments"), "customrp")
+                        .setAllowGifs(true)
+                        .setMaxFiles(MAX_ATTACHMENTS)
+                        .setGetter(() -> config.getImageFiles())
+                        .setSetter(newFiles -> CollectionUtil.replace(config.getImageFiles(), newFiles))
         ));
         registerReactionListener(event.getMember());
         return true;
-    }
-
-    @ControllerMessage(state = STATE_ADD_ATTACHMENTS)
-    public MessageInputResponse onMessageAddAttachments(MessageReceivedEvent event, String input) {
-        List<File> attachments = event.getMessage().getAttachments().stream()
-                .filter(attachment -> InternetUtil.uriIsImage(attachment.getUrl(), true))
-                .map(attachment -> {
-                    LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("customrp/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
-                    FileUtil.downloadImageAttachment(attachment, tempFile);
-                    return tempFile;
-                })
-                .limit(MAX_ATTACHMENTS - config.getImageFilenames().size())
-                .collect(Collectors.toList());
-
-        if (attachments.isEmpty()) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
-            return MessageInputResponse.FAILED;
-        }
-
-        config.getImageFilenames().addAll(attachments.stream().map(File::getName).collect(Collectors.toList()));
-        attachmentFiles.addAll(attachments);
-        setLog(LogStatus.SUCCESS, getString("log_addattachment", attachments.size() != 1, StringUtil.numToString(attachments.size())));
-        setState(STATE_CONFIG);
-        return MessageInputResponse.SUCCESS;
     }
 
     @ControllerButton(state = DEFAULT_STATE)
@@ -186,8 +155,6 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
     public boolean onButtonAdd(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1 -> {
-                attachmentFiles.forEach(File::delete);
-                attachmentFiles.clear();
                 setState(updateMode ? STATE_EDIT_SELECT : DEFAULT_STATE);
                 return true;
             }
@@ -245,26 +212,11 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                 return true;
             }
             case 7 -> {
-                if (config.getImageFilenames().size() >= MAX_ATTACHMENTS) {
-                    setLog(LogStatus.FAILURE, getString("error_attachmentlimitreached"));
-                    return true;
-                }
                 deleteLock = true;
-                setState(STATE_ADD_ATTACHMENTS);
+                setState(STATE_SET_ATTACHMENTS);
                 return true;
             }
             case 8 -> {
-                if (config.getImageFilenames().isEmpty()) {
-                    setLog(LogStatus.FAILURE, getString("error_nogifs"));
-                    return true;
-                }
-
-                currentImage = 0;
-                deleteLock = true;
-                setState(STATE_REMOVE_ATTACHMENTS);
-                return true;
-            }
-            case 9 -> {
                 GuildEntity guildEntity = getGuildEntity();
                 Map<String, CustomRolePlayEntity> customRolePlay = guildEntity.getCustomRolePlayCommands();
 
@@ -289,13 +241,12 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                 }
                 guildEntity.commitTransaction();
 
-                attachmentFiles.clear();
                 deleteLock = true;
                 setLog(LogStatus.SUCCESS, getString("log_success", updateMode ? oldTrigger : trigger));
                 setState(updateMode ? STATE_EDIT_SELECT : DEFAULT_STATE);
                 return true;
             }
-            case 10 -> {
+            case 9 -> {
                 if (deleteLock) {
                     deleteLock = false;
                     setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
@@ -310,7 +261,6 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CUSTOM_ROLE_PLAY_DELETE, event.getMember(), oldTrigger);
                 guildEntity.commitTransaction();
 
-                attachmentFiles.clear();
                 setLog(LogStatus.SUCCESS, getString("log_deleted", oldTrigger));
                 setState(customRolePlay.isEmpty() ? DEFAULT_STATE : STATE_EDIT_SELECT);
                 return true;
@@ -318,72 +268,6 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
         }
 
         return true;
-    }
-
-    @ControllerButton(state = STATE_ADD_ATTACHMENTS)
-    public boolean onButtonAddAttachments(ButtonInteractionEvent event, int i) {
-        if (i == -1) {
-            setState(STATE_CONFIG);
-            return true;
-        }
-        return false;
-    }
-
-    @ControllerButton(state = STATE_REMOVE_ATTACHMENTS)
-    public boolean onButtonRemoveAttachments(ButtonInteractionEvent event, int i) {
-        switch (i) {
-            case -1 -> {
-                setState(STATE_CONFIG);
-                return true;
-            }
-            case 0 -> {
-                currentImage -= 1;
-                if (currentImage < 0) {
-                    currentImage = config.getImageFilenames().size() - 1;
-                }
-                return true;
-            }
-            case 1 -> {
-                int attachmentsSize = config.getImageFilenames().size();
-                String textId = "page";
-                String textLabel = getString("goto_label", String.valueOf(attachmentsSize));
-                TextInput message = TextInput.create(textId, textLabel, TextInputStyle.SHORT)
-                        .setPlaceholder(String.valueOf(currentImage + 1))
-                        .setMinLength(1)
-                        .setMaxLength(2)
-                        .build();
-
-                String title = TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto");
-                Modal modal = ModalMediator.createDrawableCommandModal(this, title, e -> {
-                            String pageString = e.getValue(textId).getAsString();
-                            if (StringUtil.stringIsInt(pageString)) {
-                                currentImage = Math.min(attachmentsSize - 1, Math.max(0, Integer.parseInt(pageString) - 1));
-                            }
-                            return null;
-                        }).addComponents(ActionRow.of(message))
-                        .build();
-
-                event.replyModal(modal).queue();
-                return false;
-            }
-            case 2 -> {
-                currentImage += 1;
-                if (currentImage >= config.getImageFilenames().size()) {
-                    currentImage = 0;
-                }
-                return true;
-            }
-            case 3 -> {
-                config.getImageFilenames().remove(currentImage);
-                currentImage = Math.min(currentImage, config.getImageFilenames().size() - 1);
-                if (config.getImageFilenames().isEmpty()) {
-                    setState(STATE_CONFIG);
-                }
-                setLog(LogStatus.SUCCESS, getString("log_removeattachment"));
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -404,9 +288,9 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
 
         String[] options = getString("config_options").split("\n");
         if (!updateMode) {
-            options[10] = "";
+            options[9] = "";
         }
-        setComponents(options, Set.of(9), Set.of(10), trigger == null || config.getImageFilenames().isEmpty() ? Set.of(9) : null);
+        setComponents(options, Set.of(8), Set.of(9), trigger == null || config.getImageFilenames().isEmpty() ? Set.of(8) : null);
 
         return EmbedFactory.getEmbedDefault(this, getString("config_desc"), getString("config_title", updateMode))
                 .addField(getString("config_property_trigger"), trigger != null ? "`" + trigger + "`" : notSet, true)
@@ -423,26 +307,6 @@ public class CustomRolePlayCommand extends NavigationAbstract implements OnReact
     public EmbedBuilder onDrawEdit(Member member) {
         setComponents(getGuildEntity().getCustomRolePlayCommands().keySet().toArray(String[]::new));
         return EmbedFactory.getEmbedDefault(this, getString("edit_desc"), getString("edit_title"));
-    }
-
-    @Draw(state = STATE_ADD_ATTACHMENTS)
-    public EmbedBuilder onDrawAddAttachments(Member member) {
-        return EmbedFactory.getEmbedDefault(this, getString("addattachments_desc"), getString("addattachments_title"));
-    }
-
-    @Draw(state = STATE_REMOVE_ATTACHMENTS)
-    public EmbedBuilder onDrawRemoveAttachments(Member member) {
-        String[] options = new String[]{
-                TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous"),
-                TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto"),
-                TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"),
-                getString("removeattachments_delete")
-        };
-        setComponents(options, null, Set.of(3));
-        return EmbedFactory.getEmbedDefault(this, getString("removeattachments_current",
-                        StringUtil.numToString(currentImage + 1), StringUtil.numToString(config.getImageFilenames().size())),
-                        getString("removeattachments_title")
-                ).setImage(config.getImageUrls().get(currentImage));
     }
 
     private String stressVariables(String text) {

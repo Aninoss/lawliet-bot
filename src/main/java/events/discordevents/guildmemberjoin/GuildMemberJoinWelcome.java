@@ -74,13 +74,13 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(content)
                     .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", event.getGuild().getName()))
-                    .setImage(dm.getImageUrl());
+                    .setImage(dm.retrieveRandomImageUrl());
 
             JDAUtil.openPrivateChannel(member)
                     .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
                     .queue();
         } else {
-            File imageFile = dm.getImageFile();
+            File imageFile = dm.retrieveRandomImageFile();
             JDAUtil.openPrivateChannel(member)
                     .flatMap(messageChannel -> {
                                 String newContent = StringUtil.addWrittenByServerStaffDisclaimer(content, locale, event.getGuild(), Message.MAX_CONTENT_LENGTH);
@@ -127,7 +127,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                     InputStream inputStream = WelcomeGraphics.createImageWelcome(member, join.getBannerTitle()).join();
                     messageCreateAction.addFiles(FileUpload.fromData(inputStream, "welcome.png"));
                 }
-                case IMAGE -> eb.setImage(join.getImageUrl());
+                case IMAGE -> eb.setImage(join.retrieveRandomImageUrl());
             }
             messageCreateAction.addEmbeds(eb.build())
                     .queue();
@@ -140,8 +140,9 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                     messageCreateAction.addFiles(FileUpload.fromData(inputStream, "welcome.png"));
                 }
                 case IMAGE -> {
-                    if (join.getImageFilename() != null) {
-                        messageCreateAction.addFiles(FileUpload.fromData(join.getImageFile()));
+                    File imageFile = join.retrieveRandomImageFile();
+                    if (imageFile != null) {
+                        messageCreateAction.addFiles(FileUpload.fromData(imageFile));
                     }
                 }
             }

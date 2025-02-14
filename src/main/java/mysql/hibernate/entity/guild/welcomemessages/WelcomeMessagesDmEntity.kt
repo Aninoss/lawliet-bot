@@ -3,6 +3,7 @@ package mysql.hibernate.entity.guild.welcomemessages
 import commands.Category
 import core.TextManager
 import javax.persistence.Column
+import javax.persistence.ElementCollection
 import javax.persistence.Embeddable
 
 const val DM = "$WELCOME_MESSAGES.dm"
@@ -36,11 +37,7 @@ class WelcomeMessagesDmEntity : WelcomeMessagesAbstractEntity() {
 
     override var imageFilename: String? = null
 
-    fun isUsed(): Boolean {
-        return _active != null ||
-                _text != null ||
-                _embeds != null ||
-                imageFilename != null
-    }
+    @ElementCollection
+    override var imageFilenames: MutableList<String> = mutableListOf()
 
 }

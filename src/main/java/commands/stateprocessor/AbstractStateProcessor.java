@@ -13,13 +13,13 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.glassfish.jersey.internal.util.Producer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -60,6 +60,10 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
         return (V) this;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public V setClearButton(boolean clearButton) {
         this.clearButton = clearButton;
         return (V) this;
@@ -94,7 +98,7 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
 
     public boolean controllerButton(ButtonInteractionEvent event, int i) throws Throwable {
         if (i == -1) {
-            command.setState(stateBack);
+            goBack();
             return true;
         }
         if (clearButton && event.getComponentId().equals(BUTTON_ID_CLEAR)) {
@@ -113,18 +117,16 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
     }
 
     public EmbedBuilder draw(Member member) throws Throwable {
-        ArrayList<ActionRow> actionRows = createActionRows();
         if (clearButton) {
             Button button = Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CLEAR, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_clear"));
-            actionRows.add(ActionRow.of(button));
+            command.setComponents(button);
+        } else {
+            addComponents(command);
         }
 
-        if (actionRows.isEmpty()) {
-            addComponents(command);
-        } else {
-            command.setActionRows(actionRows);
-        }
-        return EmbedFactory.getEmbedDefault(command, description, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, description, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_adjust", propertyName));
+        modifyEmbed(eb, command.getLocale());
+        return eb;
     }
 
     protected T get() {
@@ -132,10 +134,14 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
     }
 
     protected void set(U u) {
-        set(u, true);
+        set(u, true, null);
     }
 
     protected void set(U u, boolean goBack) {
+        set(u, goBack, null);
+    }
+
+    protected void set(U u, boolean goBack, Consumer<EntityManagerWrapper> entityManagerProcessor) {
         EntityManagerWrapper entityManager = command.getEntityManager();
         if (hibernateTransaction) {
             entityManager.getTransaction().begin();
@@ -147,7 +153,9 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
             old = (T) List.copyOf((List<?>) old);
         }
 
-        if (logEvent != null) {
+        if (entityManagerProcessor != null) {
+            entityManagerProcessor.accept(entityManager);
+        } else if (logEvent != null) {
             if (old instanceof List<?> && u instanceof List<?>) {
                 addBotLogEntryForList(entityManager, command.getGuildId().get(), command.getMemberId().get(), (List<?>) old, (List<?>) u);
             } else {
@@ -166,8 +174,18 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
             command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.COMMANDS, "stateprocessor_log_notchanged", propertyName));
         }
         if (goBack) {
-            command.setState(stateBack);
+            goBack();
         }
+    }
+
+    protected void goBack() {
+        command.setState(stateBack);
+    }
+
+    protected void addComponents(NavigationAbstract command) {
+    }
+
+    protected void modifyEmbed(EmbedBuilder eb, Locale locale) {
     }
 
     private void addBotLogEntry(EntityManagerWrapper entityManager, long guildId, long memberId, T oldValue, U newValue) {
@@ -198,13 +216,6 @@ public abstract class AbstractStateProcessor<T, U, V extends AbstractStateProces
             }
             case SINGLE_VALUE_COLUMN -> BotLogEntity.log(entityManager, logEvent, guildId, memberId, null, newValues);
         }
-    }
-
-    protected ArrayList<ActionRow> createActionRows() {
-        return new ArrayList<>();
-    }
-
-    protected void addComponents(NavigationAbstract command) {
     }
 
 }

@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 
+import java.io.File;
 import java.util.HashSet;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)
@@ -57,7 +58,7 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setDescription(content)
                             .setFooter(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "serverstaff_text"))
-                            .setImage(leave.getImageUrl());
+                            .setImage(leave.retrieveRandomImageUrl());
 
                     channel.sendMessage(sb.toString())
                             .addEmbeds(eb.build())
@@ -65,8 +66,9 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
                 } else {
                     content = StringUtil.addWrittenByServerStaffDisclaimer(content, guildEntity.getLocale(), Message.MAX_CONTENT_LENGTH);
                     MessageCreateAction messageCreateAction = channel.sendMessage(content);
-                    if (leave.getImageFilename() != null) {
-                        messageCreateAction.addFiles(FileUpload.fromData(leave.getImageFile()));
+                    File imageFile = leave.retrieveRandomImageFile();
+                    if (imageFile != null) {
+                        messageCreateAction.addFiles(FileUpload.fromData(imageFile));
                     }
                     messageCreateAction.queue();
                 }

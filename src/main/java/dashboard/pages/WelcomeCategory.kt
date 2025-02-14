@@ -166,20 +166,24 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         when(joinEntity.attachmentType) {
             WelcomeMessagesJoinEntity.AttachmentType.GENERATED_BANNERS -> innerContainer.add(DashboardSeparator(), generateJoinAttachmentsBannerField())
             WelcomeMessagesJoinEntity.AttachmentType.IMAGE -> {
-                val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), joinEntity.getFileDir(), 1) { e ->
-                    joinEntity.getImageFile()?.delete()
+                val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), joinEntity.getFileDir(), WelcomeCommand.MAX_IMAGES) { e ->
+                    if (e.type == "add") {
+                        guildEntity.beginTransaction()
+                        BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_IMAGES_ADD, atomicMember);
+                        joinEntity.imageUrls += e.data
+                        guildEntity.commitTransaction()
+                    } else {
+                        joinEntity.urlToFile(e.data).delete()
 
-                    val newFilename = if (e.type == "add") e.data.split("/")[5] else null
-                    guildEntity.beginTransaction()
-                    BotLogEntity.log(entityManager, if (newFilename != null) BotLogEntity.Event.WELCOME_IMAGE_SET else BotLogEntity.Event.WELCOME_IMAGE_RESET, atomicMember);
-                    joinEntity.imageFilename = newFilename
-                    guildEntity.commitTransaction()
-
+                        guildEntity.beginTransaction()
+                        BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_IMAGES_REMOVE, atomicMember);
+                        joinEntity.imageUrls -= e.data
+                        guildEntity.commitTransaction()
+                    }
                     return@DashboardImageUpload ActionResult()
                         .withRedraw()
                 }
-                imageUpload.values = if (joinEntity.imageUrl != null) listOf(joinEntity.imageUrl) else emptyList()
-                imageUpload.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_imageattachment_replace"))
+                imageUpload.values = joinEntity.imageUrls
                 innerContainer.add(DashboardSeparator(), imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
             }
             else -> {}
@@ -304,20 +308,24 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         embedSwitch.subtitle = getString(Category.CONFIGURATION, "welcome_dashboard_embeds_hint")
         container.add(embedSwitch, DashboardSeparator())
 
-        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), dmEntity.getFileDir(), 1) { e ->
-            dmEntity.getImageFile()?.delete()
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), dmEntity.getFileDir(), WelcomeCommand.MAX_IMAGES) { e ->
+            if (e.type == "add") {
+                guildEntity.beginTransaction()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_IMAGES_ADD, atomicMember);
+                dmEntity.imageUrls += e.data
+                guildEntity.commitTransaction()
+            } else {
+                dmEntity.urlToFile(e.data).delete()
 
-            val newFilename = if (e.type == "add") e.data.split("/")[5] else null
-            guildEntity.beginTransaction()
-            BotLogEntity.log(entityManager, if (newFilename != null) BotLogEntity.Event.WELCOME_DM_IMAGE_SET else BotLogEntity.Event.WELCOME_DM_IMAGE_RESET, atomicMember);
-            dmEntity.imageFilename = newFilename
-            guildEntity.commitTransaction()
-
+                guildEntity.beginTransaction()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_DM_IMAGES_REMOVE, atomicMember);
+                dmEntity.imageUrls -= e.data
+                guildEntity.commitTransaction()
+            }
             return@DashboardImageUpload ActionResult()
                 .withRedraw()
         }
-        imageUpload.values = if (dmEntity.imageUrl != null) listOf(dmEntity.imageUrl) else emptyList()
-        imageUpload.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_imageattachment_replace"))
+        imageUpload.values = dmEntity.imageUrls
         container.add(imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
 
         return container
@@ -395,20 +403,24 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
         container.add(DashboardSeparator())
 
-        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), leaveEntity.getFileDir(), 1) { e ->
-            leaveEntity.getImageFile()?.delete()
+        val imageUpload = DashboardImageUpload(getString(Category.CONFIGURATION, "welcome_dashboard_image"), leaveEntity.getFileDir(), WelcomeCommand.MAX_IMAGES) { e ->
+            if (e.type == "add") {
+                guildEntity.beginTransaction()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_IMAGES_ADD, atomicMember);
+                leaveEntity.imageUrls += e.data.split(",")
+                guildEntity.commitTransaction()
+            } else {
+                leaveEntity.urlToFile(e.data).delete()
 
-            val newFilename = if (e.type == "add") e.data.split("/")[5] else null
-            guildEntity.beginTransaction()
-            BotLogEntity.log(entityManager, if (newFilename != null) BotLogEntity.Event.WELCOME_LEAVE_IMAGE_SET else BotLogEntity.Event.WELCOME_LEAVE_IMAGE_RESET, atomicMember);
-            leaveEntity.imageFilename = newFilename
-            guildEntity.commitTransaction()
-
+                guildEntity.beginTransaction()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.WELCOME_LEAVE_IMAGES_REMOVE, atomicMember);
+                leaveEntity.imageUrls -= e.data
+                guildEntity.commitTransaction()
+            }
             return@DashboardImageUpload ActionResult()
                 .withRedraw()
         }
-        imageUpload.values = if (leaveEntity.imageUrl != null) listOf(leaveEntity.imageUrl) else emptyList()
-        imageUpload.enableConfirmationMessage(getString(Category.CONFIGURATION, "welcome_dashboard_imageattachment_replace"))
+        imageUpload.values = leaveEntity.imageUrls
         container.add(imageUpload, DashboardText(getString(Category.CONFIGURATION, "welcome_dashboard_image_hint"), Style.HINT))
 
         return container

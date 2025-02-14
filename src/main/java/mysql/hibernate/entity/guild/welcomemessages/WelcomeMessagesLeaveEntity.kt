@@ -6,6 +6,7 @@ import core.TextManager
 import core.atomicassets.AtomicGuildMessageChannel
 import modules.Welcome
 import javax.persistence.Column
+import javax.persistence.ElementCollection
 import javax.persistence.Embeddable
 
 const val LEAVE = "$WELCOME_MESSAGES.leave"
@@ -49,12 +50,7 @@ class WelcomeMessagesLeaveEntity : WelcomeMessagesAbstractEntity() {
 
     override var imageFilename: String? = null
 
-    fun isUsed(): Boolean {
-        return _active != null ||
-                _text != null ||
-                _embeds != null ||
-                _channelId != null ||
-                imageFilename != null
-    }
+    @ElementCollection
+    override var imageFilenames: MutableList<String> = mutableListOf()
 
 }

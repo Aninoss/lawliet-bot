@@ -1,12 +1,17 @@
 package core.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
 public class CollectionUtil {
 
     public static <T> void replace(Collection<T> oldCollection, Collection<T> newCollection) {
-        oldCollection.removeIf(oldItem -> !newCollection.contains(oldItem));
+        for (T t : new ArrayList<>(oldCollection)) {
+            if (!newCollection.contains(t)) {
+                oldCollection.remove(t);
+            }
+        }
         for (T newItem : newCollection) {
             if (!oldCollection.contains(newItem)) {
                 oldCollection.add(newItem);

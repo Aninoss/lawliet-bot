@@ -5,10 +5,7 @@ import core.ShardManager
 import core.TextManager
 import core.atomicassets.AtomicGuildMessageChannel
 import modules.Welcome
-import javax.persistence.Column
-import javax.persistence.Embeddable
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
+import javax.persistence.*
 
 const val JOIN = "$WELCOME_MESSAGES.join"
 
@@ -70,14 +67,7 @@ class WelcomeMessagesJoinEntity : WelcomeMessagesAbstractEntity() {
 
     override var imageFilename: String? = null
 
-    fun isUsed(): Boolean {
-        return _active != null ||
-                _text != null ||
-                _embeds != null ||
-                _channelId != null ||
-                _attachmentType != null ||
-                _bannerTitle != null ||
-                imageFilename != null
-    }
+    @ElementCollection
+    override var imageFilenames: MutableList<String> = mutableListOf()
 
 }
