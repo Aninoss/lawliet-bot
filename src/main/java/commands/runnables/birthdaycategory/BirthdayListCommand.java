@@ -5,17 +5,18 @@ import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.MemberCacheController;
 import core.atomicassets.AtomicMember;
 import javafx.util.Pair;
+import mysql.hibernate.entity.guild.BirthdayUserEntryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -50,7 +51,13 @@ public class BirthdayListCommand extends ListAbstract {
 
     @Override
     protected int configure(Member member, int orderBy) throws Throwable {
-        entries = getGuildEntity().getBirthday().getUserEntries().entrySet().stream()
+        Map<Long, BirthdayUserEntryEntity> birthdayEntries = getGuildEntity().getBirthday().getUserEntries();
+        Set<Long> memberIdSet = MemberCacheController.getInstance().loadMembers(member.getGuild(), birthdayEntries.keySet()).get().stream()
+                .map(ISnowflake::getIdLong)
+                .collect(Collectors.toSet());
+
+        entries = birthdayEntries.entrySet().stream()
+                .filter(entry -> memberIdSet.contains(entry.getKey()))
                 .map(entry -> new Entry(entry.getKey(), entry.getValue().getNextBirthday()))
                 .filter(entry -> entry.nextBirthday != null)
                 .sorted(Comparator.comparing(entry -> entry.nextBirthday))
