@@ -63,7 +63,6 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
         return userId.toLong()
     }
 
-    @PostLoad
     override fun postLoad() {
         txt2img.postLoad(this)
         fisheryDmReminders.values.forEach { it.postLoad(this) }

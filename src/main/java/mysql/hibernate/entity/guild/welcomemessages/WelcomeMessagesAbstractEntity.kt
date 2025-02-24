@@ -24,8 +24,17 @@ abstract class WelcomeMessagesAbstractEntity : HibernateEmbeddedEntity<GuildEnti
 
     override fun postLoad() {
         imageFilename?.let {
+            val newTransaction = !transactionIsActive()
+            if (newTransaction) {
+                beginTransaction()
+            }
+
             imageFilenames += it
             imageFilename = null
+
+            if (newTransaction) {
+                commitTransaction()
+            }
         }
     }
 

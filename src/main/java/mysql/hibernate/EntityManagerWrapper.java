@@ -57,6 +57,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
         T object = entityManager.find(entityClass, primaryKey);
         if (object != null) {
             ((HibernateEntity) object).setEntityManager(this);
+            ((HibernateEntity) object).postLoad();
         }
         return object;
     }
@@ -66,6 +67,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
         T object = entityManager.find(entityClass, primaryKey, properties);
         if (object != null) {
             ((HibernateEntity) object).setEntityManager(this);
+            ((HibernateEntity) object).postLoad();
         }
         return object;
     }
@@ -75,6 +77,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
         T object = entityManager.find(entityClass, primaryKey, lockMode);
         if (object != null) {
             ((HibernateEntity) object).setEntityManager(this);
+            ((HibernateEntity) object).postLoad();
         }
         return object;
     }
@@ -84,6 +87,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
         T object = entityManager.find(entityClass, primaryKey, lockMode, properties);
         if (object != null) {
             ((HibernateEntity) object).setEntityManager(this);
+            ((HibernateEntity) object).postLoad();
         }
         return object;
     }
@@ -94,6 +98,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
             try {
                 object = entityClass.getConstructor(primaryKey.getClass())
                         .newInstance(primaryKey);
+                ((HibernateEntity) object).setEntityManager(this);
                 ((HibernateEntity) object).postLoad();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException e) {
@@ -106,12 +111,11 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
                 entityManager.getTransaction().commit();
             } catch (RollbackException e) {
                 MainLogger.get().warn("Rollback exception on entity persistence for class {} and id {}", entityClass, primaryKey);
-                object = entityManager.find(entityClass, primaryKey);
+                object = find(entityClass, primaryKey);
                 if (object == null) {
                     throw e;
                 }
             }
-            ((HibernateEntity) object).setEntityManager(this);
         }
         return object;
     }
@@ -122,8 +126,8 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
             try {
                 object = entityClass.getConstructor(primaryKey.getClass())
                         .newInstance(primaryKey);
-                ((HibernateEntity) object).postLoad();
                 ((HibernateEntity) object).setEntityManager(this);
+                ((HibernateEntity) object).postLoad();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException e) {
                 throw new RuntimeException(e);
@@ -151,7 +155,10 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
                 .setParameter("value", fieldValue)
                 .getResultList()
                 .stream()
-                .peek(h -> h.setEntityManager(this))
+                .peek(h -> {
+                    h.setEntityManager(this);
+                    h.postLoad();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -182,7 +189,10 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
             List<T> resultList = createNativeQuery(queryString, entityClass)
                     .getResultList();
-            resultList.forEach(h -> h.setEntityManager(this));
+            resultList.forEach(h -> {
+                h.setEntityManager(this);
+                h.postLoad();
+            });
             return resultList;
         } else {
             List<Guild> guilds = ShardManager.getLocalGuilds();
@@ -202,7 +212,10 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
             List<T> resultList = createQuery("FROM " + entityClass.getName() + " WHERE " + whereStringBuilder, entityClass)
                     .getResultList();
-            resultList.forEach(h -> h.setEntityManager(this));
+            resultList.forEach(h -> {
+                h.setEntityManager(this);
+                h.postLoad();
+            });
             return resultList;
         }
     }
