@@ -7,7 +7,6 @@ interface HibernateEntityInterface : AutoCloseable {
     var entityManager: EntityManagerWrapper
     fun beginTransaction()
     fun commitTransaction()
-    fun transactionIsActive(): Boolean
     fun postLoad() {}
 
 }

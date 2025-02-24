@@ -14,10 +14,6 @@ abstract class HibernateEntity : HibernateEntityInterface {
         entityManager.transaction.commit()
     }
 
-    override fun transactionIsActive(): Boolean {
-        return entityManager.transaction.isActive
-    }
-
     override fun close() {
         entityManager.close()
     }

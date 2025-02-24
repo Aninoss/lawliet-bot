@@ -136,6 +136,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
         return guildId.toLong()
     }
 
+    @PostLoad
     override fun postLoad() {
         fishery.postLoad(this)
         moderation.postLoad(this)

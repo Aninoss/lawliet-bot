@@ -27,10 +27,6 @@ abstract class HibernateEmbeddedEntity<T : HibernateEntity>(hibernateEntity: T? 
         hibernateEntity.commitTransaction()
     }
 
-    override fun transactionIsActive(): Boolean {
-        return hibernateEntity.transactionIsActive();
-    }
-
     override fun close() {
         hibernateEntity.close()
     }
