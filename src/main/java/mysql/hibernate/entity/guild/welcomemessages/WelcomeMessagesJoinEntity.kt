@@ -65,8 +65,6 @@ class WelcomeMessagesJoinEntity : WelcomeMessagesAbstractEntity() {
             _bannerTitle = value
         }
 
-    override var imageFilename: String? = null
-
     @ElementCollection
     override var imageFilenames: MutableList<String> = mutableListOf()
 

@@ -1,7 +1,6 @@
 package mysql.hibernate.entity.guild.welcomemessages
 
 import core.LocalFile
-import mysql.hibernate.entity.assets.CdnImageAsset
 import mysql.hibernate.entity.assets.CdnImageListAsset
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.hibernate.template.HibernateDiscordInterface
@@ -10,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom
 import javax.persistence.Embeddable
 
 @Embeddable
-abstract class WelcomeMessagesAbstractEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordInterface, CdnImageAsset, CdnImageListAsset {
+abstract class WelcomeMessagesAbstractEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordInterface, CdnImageListAsset {
 
     abstract var active: Boolean
 
@@ -21,22 +20,6 @@ abstract class WelcomeMessagesAbstractEntity : HibernateEmbeddedEntity<GuildEnti
 
     override val guildId: Long
         get() = hibernateEntity.guildId
-
-    override fun postLoad() {
-        imageFilename?.let {
-            val newTransaction = !transactionIsActive()
-            if (newTransaction) {
-                beginTransaction()
-            }
-
-            imageFilenames += it
-            imageFilename = null
-
-            if (newTransaction) {
-                commitTransaction()
-            }
-        }
-    }
 
     override fun getFileDir(): String {
         return "welcome_images"

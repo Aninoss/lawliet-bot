@@ -35,8 +35,6 @@ class WelcomeMessagesDmEntity : WelcomeMessagesAbstractEntity() {
             _embeds = value
         }
 
-    override var imageFilename: String? = null
-
     @ElementCollection
     override var imageFilenames: MutableList<String> = mutableListOf()
 
