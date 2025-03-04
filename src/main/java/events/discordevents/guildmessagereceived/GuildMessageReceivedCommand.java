@@ -4,8 +4,8 @@ import commands.*;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
-import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
 import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
+import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
 import commands.runnables.utilitycategory.CustomCommand;
 import core.AsyncTimer;
 import core.MainLogger;
@@ -27,7 +27,6 @@ import mysql.hibernate.entity.CustomRolePlayEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autoquote.DBAutoQuote;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -160,32 +159,28 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     }
 
     private boolean manageMessageInput(MessageReceivedEvent event, GuildEntity guildEntity) {
-        GuildMessageChannel channel = event.getGuildChannel();
-        if (channel.getPermissionContainer() != null && BotPermissionUtil.canWriteEmbed(channel)) {
-            List<CommandListenerMeta<?>> listeners = CommandContainer.getListeners(OnMessageInputListener.class).stream()
-                    .filter(listener -> listener.check(event) == CommandListenerMeta.CheckResponse.ACCEPT)
-                    .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
-                    .collect(Collectors.toList());
+        List<CommandListenerMeta<?>> listeners = CommandContainer.getListeners(OnMessageInputListener.class).stream()
+                .filter(listener -> listener.check(event) == CommandListenerMeta.CheckResponse.ACCEPT)
+                .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
+                .collect(Collectors.toList());
 
-            if (!listeners.isEmpty()) {
-                try (AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
-                    timeOutTimer.setTimeOutListener(t -> {
-                        MainLogger.get().error("Message input \"{}\" of guild {} stuck", event.getMessage().getContentRaw(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
-                    });
+        if (!listeners.isEmpty()) {
+            try (AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
+                timeOutTimer.setTimeOutListener(t -> {
+                    MainLogger.get().error("Message input \"{}\" of guild {} stuck", event.getMessage().getContentRaw(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
+                });
 
-                    for (CommandListenerMeta<?> listener : listeners) {
-                        MessageInputResponse messageInputResponse = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event, guildEntity);
-                        if (messageInputResponse != null) {
-                            return true;
-                        }
+                for (CommandListenerMeta<?> listener : listeners) {
+                    MessageInputResponse messageInputResponse = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event, guildEntity);
+                    if (messageInputResponse != null) {
+                        return true;
                     }
-                    return false;
                 }
-            } else {
                 return false;
             }
+        } else {
+            return false;
         }
-        return false;
     }
 
 }

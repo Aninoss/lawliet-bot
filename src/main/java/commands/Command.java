@@ -529,17 +529,24 @@ public abstract class Command implements OnTriggerListener {
         return commandProperties.botGuildPermissions();
     }
 
-    public Permission[] getAdjustedBotChannelPermissions() {
+    public Permission[] getAdjustedBotChannelPermissions(boolean enactEmbedRequirement) {
         Permission[] permissions = commandProperties.botChannelPermissions();
-        return processBotPermissions(permissions);
+        return processBotPermissions(permissions, enactEmbedRequirement);
     }
 
-    private Permission[] processBotPermissions(Permission[] permissions) {
+    private Permission[] processBotPermissions(Permission[] permissions, boolean enactEmbedRequirement) {
         if (Arrays.stream(permissions).anyMatch(permission -> permission == Permission.ADMINISTRATOR)) {
             return new Permission[]{Permission.ADMINISTRATOR};
         }
 
-        if (this instanceof OnReactionListener || this instanceof OnStaticReactionAddListener || this instanceof OnStaticReactionRemoveListener) {
+        if ((this instanceof OnReactionListener || this instanceof OnStaticReactionAddListener || this instanceof OnStaticReactionRemoveListener) &&
+                Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_ADD_REACTION)
+        ) {
+            permissions = Arrays.copyOf(permissions, permissions.length + 1);
+            permissions[permissions.length - 1] = Permission.MESSAGE_ADD_REACTION;
+        }
+
+        if (this instanceof OnStaticReactionAddListener || this instanceof OnStaticReactionRemoveListener) {
             if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.VIEW_CHANNEL)) {
                 permissions = Arrays.copyOf(permissions, permissions.length + 1);
                 permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
@@ -547,10 +554,6 @@ public abstract class Command implements OnTriggerListener {
             if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_HISTORY)) {
                 permissions = Arrays.copyOf(permissions, permissions.length + 1);
                 permissions[permissions.length - 1] = Permission.MESSAGE_HISTORY;
-            }
-            if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_ADD_REACTION)) {
-                permissions = Arrays.copyOf(permissions, permissions.length + 1);
-                permissions[permissions.length - 1] = Permission.MESSAGE_ADD_REACTION;
             }
         }
 
@@ -561,7 +564,7 @@ public abstract class Command implements OnTriggerListener {
             }
         }
 
-        if (commandProperties.requiresEmbeds()) {
+        if (enactEmbedRequirement && commandProperties.requiresEmbeds()) {
             permissions = Arrays.copyOf(permissions, permissions.length + 1);
             permissions[permissions.length - 1] = Permission.MESSAGE_EMBED_LINKS;
         }
