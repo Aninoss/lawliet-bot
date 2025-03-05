@@ -40,6 +40,7 @@ public class AnilistDownloader {
                         episode
                     }
                     averageScore
+                    meanScore
                 }
             }
             """;
@@ -212,7 +213,7 @@ public class AnilistDownloader {
                 jsonObject.isNull("episodes") ? null : jsonObject.getInt("episodes"),
                 jsonObject.isNull("nextAiringEpisode") ? null : jsonObject.getJSONObject("nextAiringEpisode").getInt("episode") - 1,
                 jsonObject.isNull("nextAiringEpisode") ? null : Instant.ofEpochSecond(jsonObject.getJSONObject("nextAiringEpisode").getInt("airingAt")),
-                jsonObject.getInt("averageScore")
+                jsonObject.isNull("averageScore") ? jsonObject.getInt("meanScore") : jsonObject.getInt("averageScore")
         );
     }
 
