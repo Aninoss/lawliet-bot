@@ -204,7 +204,7 @@ public class AnilistDownloader {
         return new AnilistMedia(
                 jsonObject.getInt("id"),
                 extractTitle(jsonObject.getJSONObject("title")),
-                jsonObject.getString("description").replaceAll("<[^>]*>", ""),
+                jsonObject.isNull("description") ? "" : jsonObject.getString("description").replaceAll("<[^>]*>", ""),
                 jsonObject.getJSONObject("coverImage").getString("medium"),
                 jsonObject.getString("siteUrl"),
                 AnilistMedia.Status.valueOf(jsonObject.getString("status")),
