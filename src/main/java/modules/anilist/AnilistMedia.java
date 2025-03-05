@@ -19,11 +19,11 @@ public class AnilistMedia {
     private final Integer totalEpisodes;
     private final Integer currentEpisode;
     private final Instant nextEpisode;
-    private final int averageScore;
+    private final Integer averageScore;
 
     public AnilistMedia(int id, String title, String description, String coverImage, String anilistUrl, Status status,
                         boolean isAdult, List<String> genres, Integer totalEpisodes, Integer currentEpisode, Instant nextEpisode,
-                        int averageScore
+                        Integer averageScore
     ) {
         this.id = id;
         this.title = title;
@@ -83,7 +83,7 @@ public class AnilistMedia {
         return nextEpisode;
     }
 
-    public int getAverageScore() {
+    public Integer getAverageScore() {
         return averageScore;
     }
 

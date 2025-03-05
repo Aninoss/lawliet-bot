@@ -114,14 +114,18 @@ public class AnilistCommand extends Command implements OnAlertListener {
                     .append(getString("nextepisode", TimeFormat.DATE_TIME_SHORT.atInstant(media.getNextEpisode()).toString()));
         }
 
-        return EmbedFactory.getEmbedDefault(this)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle(StringUtil.shortenString(media.getTitle(), MessageEmbed.TITLE_MAX_LENGTH), media.getAnilistUrl())
                 .setDescription(StringUtil.shortenString(media.getDescription(), 512))
                 .setThumbnail(media.getCoverImage())
                 .addField(getString("genres"), String.join(", ", media.getGenres()), true)
                 .addField(getString("status"), getString("status_" + media.getStatus().name()), true)
-                .addField(getString("episodes"), episodesStringBuilder.toString(), true)
-                .addField(getString("score"), media.getAverageScore() + "%", true);
+                .addField(getString("episodes"), episodesStringBuilder.toString(), true);
+
+        if (media.getAverageScore() != null) {
+            eb.addField(getString("score"), media.getAverageScore() + "%", true);
+        }
+        return eb;
     }
 
 }

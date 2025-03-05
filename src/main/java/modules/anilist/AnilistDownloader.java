@@ -201,6 +201,13 @@ public class AnilistDownloader {
             genresList.add(genresJson.getString(i));
         }
 
+        Integer score = null;
+        if (!jsonObject.isNull("averageScore")) {
+            score = jsonObject.getInt("averageScore");
+        } else if (!jsonObject.isNull("meanScore")) {
+            score = jsonObject.getInt("meanScore");
+        }
+
         return new AnilistMedia(
                 jsonObject.getInt("id"),
                 extractTitle(jsonObject.getJSONObject("title")),
@@ -213,7 +220,7 @@ public class AnilistDownloader {
                 jsonObject.isNull("episodes") ? null : jsonObject.getInt("episodes"),
                 jsonObject.isNull("nextAiringEpisode") ? null : jsonObject.getJSONObject("nextAiringEpisode").getInt("episode") - 1,
                 jsonObject.isNull("nextAiringEpisode") ? null : Instant.ofEpochSecond(jsonObject.getJSONObject("nextAiringEpisode").getInt("airingAt")),
-                jsonObject.isNull("averageScore") ? jsonObject.getInt("meanScore") : jsonObject.getInt("averageScore")
+                score
         );
     }
 
