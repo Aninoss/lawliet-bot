@@ -24,7 +24,7 @@ public class HentaiBDSMCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated bdsm";
+        return "bdsm";
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.List;
 
 public class BooruImage {
 
+    private long id;
     private String imageUrl;
     private String originalImageUrl;
     private String pageUrl;
@@ -12,6 +13,16 @@ public class BooruImage {
     private Instant instant;
     private boolean video;
     private List<String> tags;
+
+    public long getId() {
+        return id;
+    }
+
+    public BooruImage setId(long id) {
+        this.id = id;
+        return this;
+
+    }
 
     public String getImageUrl() {
         return imageUrl;

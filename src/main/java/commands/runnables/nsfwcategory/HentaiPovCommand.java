@@ -24,7 +24,7 @@ public class HentaiPovCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated pov";
+        return "pov";
     }
 
     @Override

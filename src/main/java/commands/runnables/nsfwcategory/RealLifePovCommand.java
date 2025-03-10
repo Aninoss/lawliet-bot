@@ -24,7 +24,7 @@ public class RealLifePovCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "sex animated pov";
+        return "sex pov";
     }
 
     @Override

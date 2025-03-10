@@ -1,8 +1,9 @@
 package commands.runnables.externalcategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.SafebooruAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "softyaoi",

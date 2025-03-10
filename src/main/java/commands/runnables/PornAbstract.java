@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,8 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -53,6 +56,7 @@ import java.util.stream.Collectors;
 public abstract class PornAbstract extends Command implements OnAlertListener, OnButtonListener {
 
     public static int MAX_FILES_PER_MESSAGE = 5;
+    public static LocalDate NEW_ALERT_DATE = LocalDate.of(2025, 3, 14); //TODO: Update
 
     private static final BooruImageDownloader booruImageDownloader = new BooruImageDownloader();
 
@@ -66,7 +70,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         super(locale, prefix);
     }
 
-    public abstract List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults, boolean canBeVideo) throws Exception;
+    public abstract List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults, boolean canBeVideo, boolean bulkMode) throws Exception;
 
     public abstract boolean mustBeExplicit();
 
@@ -147,7 +151,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         do {
             List<BooruImage> pornImages;
             try {
-                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(MAX_FILES_PER_MESSAGE, (int) amount), usedResults, canBeVideo);
+                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(MAX_FILES_PER_MESSAGE, (int) amount), usedResults, canBeVideo, false);
             } catch (IllegalTagException e) {
                 if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel())) {
                     drawMessageNew(illegalTagsEmbed()).exceptionally(ExceptionLogger.get());
@@ -329,6 +333,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         GuildMessageChannel channel = slot.getGuildMessageChannel().get();
         boolean premium = PatreonCache.getInstance().isUnlocked(slot.getGuildId());
+        boolean newMode = !Program.productionMode() || slot.getCreationTime().isAfter(NEW_ALERT_DATE.atStartOfDay().toInstant(ZoneOffset.UTC));
 
         ArrayList<String> nsfwFiltersList = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
         HashSet<String> nsfwFilters = new HashSet<>();
@@ -339,13 +344,17 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 notice = TextManager.getString(getLocale(), Category.NSFW, "porn_novideo", ExternalLinks.PREMIUM_WEBSITE);
             }
 
-            String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.generateFilterString(nsfwFiltersList) + ":" + premium;
-            pornImages = alertsCache.get(
-                    cacheKey,
-                    () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium)
-            );
-            if (pornImages.isEmpty()) {
-                alertsCache.invalidate(cacheKey);
+            if (newMode) {
+                pornImages = getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium, true);
+            } else {
+                String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.generateFilterString(nsfwFiltersList) + ":" + premium;
+                pornImages = alertsCache.get(
+                        cacheKey,
+                        () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium, false)
+                );
+                if (pornImages.isEmpty()) {
+                    alertsCache.invalidate(cacheKey);
+                }
             }
         } catch (ExecutionException e) {
             if (e.getCause() instanceof IllegalTagException) {
@@ -377,6 +386,51 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
         }
 
+        if (newMode) {
+            ArrayList<Long> idList = new ArrayList<>();
+            slot.getArgs().ifPresent(args -> {
+                for (String idString : args.split("\\|")) {
+                    if (!StringUtil.stringIsLong(idString)) {
+                        continue;
+                    }
+                    idList.add(Long.parseLong(idString));
+                }
+            });
+
+            if (slot.getArgs().isEmpty()) {
+                for (int i = 1; i < pornImages.size(); i++) {
+                    idList.add(0, pornImages.get(i).getId());
+                }
+            }
+
+            ArrayList<BooruImage> usedBooruImages = new ArrayList<>();
+            List<BooruImage> sortedPornImage = pornImages.stream().sorted(Comparator.comparingInt(BooruImage::getScore).reversed()).collect(Collectors.toList());
+            for (BooruImage booruImage : sortedPornImage) {
+                if (!idList.contains(booruImage.getId())) {
+                    idList.add(booruImage.getId());
+                    usedBooruImages.add(booruImage);
+                }
+                if (usedBooruImages.size() >= MAX_FILES_PER_MESSAGE) {
+                    break;
+                }
+            }
+
+            while (idList.size() > 250) {
+                idList.remove(0);
+            }
+
+            slot.setArgs(Strings.join(idList, '|'));
+            slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
+            if (usedBooruImages.isEmpty()) {
+                return AlertResponse.CONTINUE_AND_SAVE;
+            }
+
+            pornImages = usedBooruImages;
+        } else {
+            slot.setArgs("found");
+            slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
+        }
+
         if (premium && pornImages.stream().anyMatch(BooruImage::getVideo)) {
             FeatureLogger.inc(PremiumFeature.BOORUS_VIDEOS, slot.getGuildId());
         }
@@ -386,7 +440,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
         Button reportButton = generateReportButton(pornImages);
         String messageContent;
-        if ((messageContent = generatePostMessagesText(pornImages, channel, 1, false)) != null) {
+        if ((messageContent = generatePostMessagesText(pornImages, channel, newMode ? MAX_FILES_PER_MESSAGE : 1, false)) != null) {
             try {
                 slot.sendMessage(getLocale(), true, messageContent, ActionRow.of(reportButton));
             } catch (InterruptedException e) {
@@ -394,8 +448,6 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
         }
 
-        slot.setArgs("found");
-        slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
@@ -443,13 +495,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
                                             String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
-                                            ArrayList<String> usedResults) throws IOException {
+                                            boolean bulkMode, ArrayList<String> usedResults) throws IOException {
         if (NSFWUtil.containsFilterTags(search, nsfwFilter)) {
             throw new IllegalTagException();
         }
 
         try {
-            List<BooruImage> booruImages = booruImageDownloader.getImages(guildId, domain, search, animatedOnly, mustBeExplicit, canBeVideo, nsfwFilter, usedResults, amount).get();
+            List<BooruImage> booruImages = booruImageDownloader.getImages(guildId, domain, search, animatedOnly, mustBeExplicit, canBeVideo, bulkMode, nsfwFilter, usedResults, amount).get();
             booruImages.forEach(booruImage -> usedResults.add(booruImage.getImageUrl()));
             return booruImages;
         } catch (Throwable e) {

@@ -1,11 +1,12 @@
 package commands.runnables;
 
-import java.io.IOException;
-import java.util.*;
 import commands.Category;
 import core.TextManager;
 import modules.porn.BooruImage;
 import modules.porn.TooManyTagsException;
+
+import java.io.IOException;
+import java.util.*;
 
 public abstract class PornSearchAbstract extends PornAbstract {
 
@@ -19,7 +20,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
 
     @Override
     public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount,
-                                           ArrayList<String> usedResults, boolean canBeVideo
+                                           ArrayList<String> usedResults, boolean canBeVideo, boolean bulkMode
     ) throws IOException {
         if (search.isEmpty()) {
             search = "animated";
@@ -47,7 +48,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
         nsfwFilters.addAll(getAdditionalFilters());
 
         return downloadPorn(guildId, nsfwFilters, amount, getDomain(), search, false, mustBeExplicit(),
-                canBeVideo, usedResults);
+                canBeVideo, bulkMode, usedResults);
     }
 
     @Override

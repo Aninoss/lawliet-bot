@@ -22,7 +22,7 @@ public class ThreeDHentaiCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated sex 3d";
+        return "sex 3d";
     }
 
     @Override

@@ -25,7 +25,7 @@ public class HentaiThreesomeCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated ffm_threesome";
+        return "ffm_threesome";
     }
 
     @Override

@@ -20,7 +20,7 @@ public class TrapCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated trap";
+        return "trap";
     }
 
     @Override

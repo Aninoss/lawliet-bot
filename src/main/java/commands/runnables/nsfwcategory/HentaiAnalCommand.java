@@ -24,7 +24,7 @@ public class HentaiAnalCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated sex anal -3d";
+        return "sex anal -3d";
     }
 
     @Override

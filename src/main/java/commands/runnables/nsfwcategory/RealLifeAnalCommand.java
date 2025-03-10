@@ -24,7 +24,7 @@ public class RealLifeAnalCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "sex animated anal";
+        return "sex anal";
     }
 
     @Override

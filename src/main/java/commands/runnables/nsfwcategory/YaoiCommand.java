@@ -22,7 +22,7 @@ public class YaoiCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated yaoi";
+        return "yaoi";
     }
 
     @Override

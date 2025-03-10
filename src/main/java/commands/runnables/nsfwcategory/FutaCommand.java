@@ -20,7 +20,7 @@ public class FutaCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated futa";
+        return "futa";
     }
 
     @Override

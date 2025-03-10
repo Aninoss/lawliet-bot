@@ -24,7 +24,7 @@ public class HentaiCreampieCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "cum_in_pussy animated";
+        return "cum_in_pussy";
     }
 
     @Override

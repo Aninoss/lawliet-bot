@@ -18,6 +18,7 @@ public class BooruRequest {
     private List<String> skippedResults;
     private boolean premium;
     private int number;
+    private boolean bulkMode;
 
     public BooruRequest setGuildId(long guildId) {
         this.guildId = guildId;
@@ -89,6 +90,11 @@ public class BooruRequest {
         return this;
     }
 
+    public BooruRequest setBulkMode(boolean bulkMode) {
+        this.bulkMode = bulkMode;
+        return this;
+    }
+
     public long getGuildId() {
         return guildId;
     }
@@ -143,6 +149,10 @@ public class BooruRequest {
 
     public int getNumber() {
         return number;
+    }
+
+    public boolean getBulkMode() {
+        return bulkMode;
     }
 
 }

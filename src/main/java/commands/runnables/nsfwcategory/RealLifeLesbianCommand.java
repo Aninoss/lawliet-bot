@@ -21,7 +21,7 @@ public class RealLifeLesbianCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated lesbian";
+        return "lesbian";
     }
 
     @Override

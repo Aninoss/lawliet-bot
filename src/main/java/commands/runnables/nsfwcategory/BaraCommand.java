@@ -22,7 +22,7 @@ public class BaraCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "bara animated";
+        return "bara";
     }
 
     @Override

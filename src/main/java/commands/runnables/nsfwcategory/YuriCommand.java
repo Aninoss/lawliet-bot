@@ -1,10 +1,11 @@
 package commands.runnables.nsfwcategory;
 
+import commands.listeners.CommandProperties;
+import commands.runnables.Rule34HentaiAbstract;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import commands.listeners.CommandProperties;
-import commands.runnables.Rule34HentaiAbstract;
 
 @CommandProperties(
         trigger = "yuri",
@@ -22,7 +23,7 @@ public class YuriCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated yuri";
+        return "yuri";
     }
 
     @Override

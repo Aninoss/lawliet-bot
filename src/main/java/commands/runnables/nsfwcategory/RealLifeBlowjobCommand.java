@@ -24,7 +24,7 @@ public class RealLifeBlowjobCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "fellatio animated";
+        return "fellatio";
     }
 
     @Override

@@ -24,7 +24,7 @@ public class RealLifeBDSMCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated bdsm";
+        return "bdsm";
     }
 
     @Override

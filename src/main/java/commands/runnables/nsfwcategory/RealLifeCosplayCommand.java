@@ -23,7 +23,7 @@ public class RealLifeCosplayCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "sex animated cosplay";
+        return "sex cosplay";
     }
 
     @Override

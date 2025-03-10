@@ -24,7 +24,7 @@ public class FemboyCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated femboy";
+        return "femboy";
     }
 
     @Override

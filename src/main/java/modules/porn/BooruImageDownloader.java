@@ -19,7 +19,7 @@ public class BooruImageDownloader {
 
     public CompletableFuture<List<BooruImage>> getImages(long guildId, String domain, String searchTerm,
                                                          boolean animatedOnly, boolean mustBeExplicit,
-                                                         boolean canBeVideo, Set<String> filters,
+                                                         boolean canBeVideo, boolean bulkMode, Set<String> filters,
                                                          List<String> skippedResults, int number
     ) throws JsonProcessingException {
         filters = new HashSet<>(filters);
@@ -37,7 +37,8 @@ public class BooruImageDownloader {
                 .setSkippedResults(skippedResults)
                 .setTest(false)
                 .setPremium(ServerPatreonBoostCache.get(guildId))
-                .setNumber(number);
+                .setNumber(number)
+                .setBulkMode(bulkMode);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());

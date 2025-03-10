@@ -24,7 +24,7 @@ public class HentaiBlowjobCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated fellatio -3d";
+        return "fellatio -3d";
     }
 
     @Override

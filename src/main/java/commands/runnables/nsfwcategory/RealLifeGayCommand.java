@@ -23,7 +23,7 @@ public class RealLifeGayCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated sex gay";
+        return "sex gay";
     }
 
     @Override

@@ -1,10 +1,11 @@
 package commands.runnables.nsfwcategory;
 
+import commands.listeners.CommandProperties;
+import commands.runnables.RealbooruAbstract;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import commands.listeners.CommandProperties;
-import commands.runnables.RealbooruAbstract;
 
 @CommandProperties(
         trigger = "rlporn",
@@ -23,7 +24,7 @@ public class RealLifePornCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "sex animated";
+        return "sex";
     }
 
     @Override

@@ -25,7 +25,7 @@ public class RealLifeThreesomeCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "sex animated threesome";
+        return "sex threesome";
     }
 
     @Override

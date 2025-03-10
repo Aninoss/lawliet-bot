@@ -25,7 +25,7 @@ public class HentaiFemaleAbsCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated muscular_female abs";
+        return "muscular_female abs";
     }
 
     @Override
