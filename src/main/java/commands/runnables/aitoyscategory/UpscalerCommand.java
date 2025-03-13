@@ -9,6 +9,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.LocalFile;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.featurelogger.FeatureLogger;
@@ -206,7 +207,9 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
                 return eb;
             }
             case COMPLETED -> {
-                List<String> imageUrls = InternetUtil.base64ToTempUrl(predictionResult.getOutputs());
+                List<String> imageUrls = InternetUtil.base64ToLocalFile(predictionResult.getOutputs()).stream()
+                        .map(LocalFile::cdnGetUrl)
+                        .collect(Collectors.toList());
                 EmbedBuilder mainEmbed = null;
                 ArrayList<MessageEmbed> additionalEmbeds = new ArrayList<>();
 

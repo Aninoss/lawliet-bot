@@ -28,9 +28,14 @@ public final class InternetUtil {
         }
     }
 
+    public static LocalFile getFileFromInputStream(InputStream inputStream, String fileExt) throws IOException {
+        LocalFile localFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%s.%s", RandomUtil.generateRandomString(30), fileExt));
+        FileUtil.writeInputStreamToFile(inputStream, localFile);
+        return localFile;
+    }
+
     public static String getUrlFromInputStream(InputStream inputStream, String fileExt) throws IOException {
-        LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%s.%s", RandomUtil.generateRandomString(30), fileExt));
-        return FileUtil.writeInputStreamToFile(inputStream, cdnFile);
+        return getFileFromInputStream(inputStream, fileExt).cdnGetUrl();
     }
 
     public static boolean uriIsImage(String url, boolean allowGifs) {
@@ -90,19 +95,18 @@ public final class InternetUtil {
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
-    public static List<String> base64ToTempUrl(List<String> base64Strings) {
-        ArrayList<String> imageUrls = new ArrayList<>();
+    public static List<LocalFile> base64ToLocalFile(List<String> base64Strings) {
+        ArrayList<LocalFile> localFiles = new ArrayList<>();
         for (String base64String : base64Strings) {
             byte[] bytes = Base64.getDecoder().decode(base64String);
             try (ByteArrayInputStream is = new ByteArrayInputStream(bytes)) {
-                String imageUrl = InternetUtil.getUrlFromInputStream(is, "png");
-                imageUrls.add(imageUrl);
+                localFiles.add(getFileFromInputStream(is, "png"));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return imageUrls;
+        return localFiles;
     }
 
 }

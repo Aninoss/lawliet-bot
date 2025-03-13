@@ -14,6 +14,7 @@ import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.modals.ModalMediator;
 import core.utils.*;
+import modules.graphics.AIWatermarkGraphics;
 import modules.txt2img.*;
 import mysql.hibernate.entity.user.Txt2ImgEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,6 +33,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -487,8 +489,15 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 predictionResult.set(RunPodDownloader.retrieveTxt2ImgPrediction(model, predictionId, startTime, images).get());
                 if (predictionResult.get().getStatus() == PredictionResult.Status.COMPLETED) {
                     if (model.getCustomModel()) {
-                        List<String> newOutputs = InternetUtil.base64ToTempUrl(predictionResult.get().getOutputs());
-                        predictionResult.get().setOutputs(newOutputs);
+                        List<LocalFile> newOutputs = InternetUtil.base64ToLocalFile(predictionResult.get().getOutputs());
+                        newOutputs.forEach(file -> {
+                            try {
+                                AIWatermarkGraphics.addAIWatermark(file);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                        predictionResult.get().setOutputs(newOutputs.stream().map(LocalFile::cdnGetUrl).collect(Collectors.toList()));
                     }
                     if (model.getCheckNsfw() && Program.productionMode()) {
                         predictionResult.get().setOutputs(processNsfwImages(predictionResult.get().getOutputs()));
