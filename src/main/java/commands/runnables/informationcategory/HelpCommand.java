@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.runnables.*;
 import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
+import commands.runnables.nsfwcategory.PersonalNSFWFilterCommand;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
 import constants.Emojis;
@@ -517,6 +518,7 @@ public class HelpCommand extends NavigationAbstract {
 
         StringBuilder withSearchKey = new StringBuilder();
         StringBuilder ai = new StringBuilder();
+        StringBuilder config = new StringBuilder();
         StringBuilder withoutSearchKeyHentai = new StringBuilder();
         StringBuilder withoutSearchKeyRealLife = new StringBuilder();
 
@@ -530,7 +532,7 @@ public class HelpCommand extends NavigationAbstract {
 
                 String extras = generateCommandIcons(channel, command, false, false, true);
                 if (command instanceof PornSearchAbstract) {
-                    withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
+                    withSearchKey.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title)).append("\n");
                 } else if (command instanceof PornPredefinedAbstract) {
                     if (command instanceof RealbooruAbstract) {
                         withoutSearchKeyRealLife.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
@@ -538,17 +540,21 @@ public class HelpCommand extends NavigationAbstract {
                         withoutSearchKeyHentai.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
                     }
                 } else if (command instanceof Txt2HentaiCommand) {
-                    ai.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
+                    ai.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title)).append("\n");
+                } else if (command instanceof PersonalNSFWFilterCommand) {
+                    config.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title)).append("\n");
                 }
             }
         }
 
-        if (!withSearchKey.isEmpty()) {
-            withSearchKey.append("\n").append(getString("nsfw_searchkey_on_eg")).append("\n").append(Emojis.ZERO_WIDTH_SPACE.getFormatted());
-            eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), false);
+        if (!config.isEmpty()) {
+            eb.addField(getString("nsfw_config"), config.toString(), false);
         }
         if (!ai.isEmpty()) {
-            eb.addField(getString("nsfw_ai"), ai.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), false);
+            eb.addField(getString("nsfw_ai"), ai.toString(), false);
+        }
+        if (!withSearchKey.isEmpty()) {
+            eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), false);
         }
         if (!withoutSearchKeyHentai.isEmpty()) {
             EmbedUtil.addFieldSplit(eb, getString("nsfw_searchkey_off_hentai"), withoutSearchKeyHentai.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);

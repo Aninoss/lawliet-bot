@@ -56,6 +56,9 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
             _smashOrPassIndex = value
         }
 
+    @ElementCollection
+    val personalNSFWFilter = mutableListOf<String>()
+
 
     constructor() : this("0")
 

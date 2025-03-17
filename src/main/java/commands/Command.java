@@ -694,6 +694,13 @@ public abstract class Command implements OnTriggerListener {
         return guildEntity.getEntityManager().findUserEntity(atomicMember.getIdLong());
     }
 
+    public UserEntity getUserEntityReadOnly() {
+        if (guildEntity == null) {
+            return null;
+        }
+        return guildEntity.getEntityManager().findUserEntityReadOnly(atomicMember.getIdLong());
+    }
+
     public EntityManagerWrapper getEntityManager() {
         if (guildEntity == null) {
             return null;

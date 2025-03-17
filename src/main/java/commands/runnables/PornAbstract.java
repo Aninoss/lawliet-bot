@@ -88,6 +88,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         List<String> nsfwFiltersList = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
         HashSet<String> nsfwFilters = new HashSet<>();
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
+        getUserEntityReadOnly().getPersonalNSFWFilter().forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
         args = args.replace("`", "");
 
         Matcher m = RegexPatterns.BOORU_NUMBER.matcher(args);
