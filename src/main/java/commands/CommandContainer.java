@@ -153,6 +153,7 @@ public class CommandContainer {
         commandList.add(AutoClaimCommand.class);
         commandList.add(AutoWorkCommand.class);
         commandList.add(AutoSellCommand.class);
+        commandList.add(AutoStocksCommand.class);
 
         //FISHERY
         commandList.add(AccountCommand.class);

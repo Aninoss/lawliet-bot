@@ -1,8 +1,11 @@
 package mysql.hibernate.entity.user
 
 import core.assets.UserAsset
+import modules.fishery.Stock
 import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.template.HibernateEntity
+import java.time.Duration
+import java.time.Instant
 import javax.persistence.*
 
 
@@ -59,6 +62,17 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     @ElementCollection
     val personalNSFWFilter = mutableListOf<String>()
 
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    val autoStocksBuyOrders = mutableMapOf<Stock, AutoStockOrderEntity>()
+
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    val autoStocksSellOrders = mutableMapOf<Stock, AutoStockOrderEntity>()
+
+    @ElementCollection
+    var autoStockActivities = mutableListOf<AutoStockActivityEntity>()
+
 
     constructor() : this("0")
 
@@ -71,6 +85,18 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
         txt2img.postLoad(this)
         fisheryDmReminders.values.forEach { it.postLoad(this) }
         rolePlayBlock.postLoad(this)
+        autoStocksBuyOrders.values.forEach { it.postLoad(this) }
+        autoStocksSellOrders.values.forEach { it.postLoad(this) }
+        autoStocksBuyOrders.values.forEach { it.postLoad(this) }
+        autoStocksSellOrders.values.forEach { it.postLoad(this) }
+    }
+
+    fun hasOutdatedAutoStockActivities(): Boolean {
+        return autoStockActivities.any { it.instant.isBefore(Instant.now().minus(Duration.ofDays(7))) }
+    }
+
+    fun cleanAutoStockActivities() {
+        autoStockActivities.removeIf { it.instant.isBefore(Instant.now().minus(Duration.ofDays(7))) }
     }
 
 }

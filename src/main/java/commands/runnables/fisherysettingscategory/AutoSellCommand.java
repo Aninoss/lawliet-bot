@@ -44,7 +44,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
-        if (args.length() > 0) {
+        if (!args.isEmpty()) {
             Integer newThreshold = null;
             boolean valueFound = false;
 

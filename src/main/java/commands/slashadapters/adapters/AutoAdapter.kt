@@ -5,6 +5,7 @@ import commands.Command
 import commands.CommandContainer
 import commands.runnables.fisherysettingscategory.AutoClaimCommand
 import commands.runnables.fisherysettingscategory.AutoSellCommand
+import commands.runnables.fisherysettingscategory.AutoStocksCommand
 import commands.runnables.fisherysettingscategory.AutoWorkCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
@@ -17,7 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
     name = "auto",
     descriptionCategory = [Category.FISHERY_SETTINGS],
     descriptionKey = "fisheryset_auto",
-    commandAssociations = [ AutoClaimCommand::class, AutoSellCommand::class, AutoWorkCommand::class ]
+    commandAssociations = [ AutoClaimCommand::class, AutoSellCommand::class, AutoWorkCommand::class, AutoStocksCommand::class ]
 )
 class AutoAdapter : SlashAdapter() {
 
