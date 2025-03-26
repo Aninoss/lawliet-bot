@@ -43,7 +43,7 @@ public class GDPR {
 
         JSONObject jsonObject = new JSONObject();
         RedisManager.update(jedis -> {
-            for (long guildId : FisheryUserManager.getGuildIdsForFisheryUser(userId)) {
+            for (long guildId : FisheryUserManager.getGuildIdsByUserId(userId, true)) {
                 FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guildId);
                 FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(userId);
 

@@ -192,13 +192,19 @@ public class FisheryMemberData implements MemberAsset {
 
     public void decreaseCoupons() {
         RedisManager.update(jedis -> {
-            jedis.hincrBy(KEY_ACCOUNT, FIELD_COUPONS, -1);
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hincrBy(KEY_ACCOUNT, FIELD_COUPONS, -1);
+            pipeline.sync();
         });
     }
 
     public void setCoupons(int coupons) {
         RedisManager.update(jedis -> {
-            jedis.hset(KEY_ACCOUNT, FIELD_COUPONS, String.valueOf(coupons));
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hset(KEY_ACCOUNT, FIELD_COUPONS, String.valueOf(coupons));
+            pipeline.sync();
         });
     }
 
@@ -226,13 +232,19 @@ public class FisheryMemberData implements MemberAsset {
 
     public void activatePowerUp(FisheryPowerUp powerUp, Instant expiration) {
         RedisManager.update(jedis -> {
-            jedis.hset(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal(), expiration.toString());
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hset(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal(), expiration.toString());
+            pipeline.sync();
         });
     }
 
     public void deletePowerUp(FisheryPowerUp powerUp) {
         RedisManager.update(jedis -> {
-            jedis.hdel(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal());
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hdel(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal());
+            pipeline.sync();
         });
     }
 
@@ -265,7 +277,11 @@ public class FisheryMemberData implements MemberAsset {
             RedisManager.update(jedis -> {
                 long coinsGiveReceived = RedisManager.parseLong(jedis.hget(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED));
                 long newCoinsGiveReceived = Math.min(coinsGiveReceived + value, Settings.FISHERY_MAX);
-                jedis.hset(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED, String.valueOf(newCoinsGiveReceived));
+
+                Pipeline pipeline = jedis.pipelined();
+                FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+                pipeline.hset(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED, String.valueOf(newCoinsGiveReceived));
+                pipeline.sync();
             });
         }
     }
@@ -283,7 +299,12 @@ public class FisheryMemberData implements MemberAsset {
             }
             coinsGiveReceivedMax = sum;
             long finalCoinsGiveReceivedMax = coinsGiveReceivedMax;
-            RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED_MAX, String.valueOf(finalCoinsGiveReceivedMax)));
+            RedisManager.update(jedis -> {
+                Pipeline pipeline = jedis.pipelined();
+                FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+                pipeline.hset(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED_MAX, String.valueOf(finalCoinsGiveReceivedMax));
+                pipeline.sync();
+            });
         }
 
         return coinsGiveReceivedMax;
@@ -291,7 +312,10 @@ public class FisheryMemberData implements MemberAsset {
 
     public void increaseDiamonds() {
         RedisManager.update(jedis -> {
-            jedis.hincrBy(KEY_ACCOUNT, FIELD_DIAMONDS, 1);
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hincrBy(KEY_ACCOUNT, FIELD_DIAMONDS, 1);
+            pipeline.sync();
         });
     }
 
@@ -301,7 +325,10 @@ public class FisheryMemberData implements MemberAsset {
 
     public void removeThreeDiamonds() {
         RedisManager.update(jedis -> {
-            jedis.hincrBy(KEY_ACCOUNT, FIELD_DIAMONDS, -3);
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hincrBy(KEY_ACCOUNT, FIELD_DIAMONDS, -3);
+            pipeline.sync();
         });
     }
 
@@ -340,6 +367,7 @@ public class FisheryMemberData implements MemberAsset {
         if (dailyValuesUpdated == null || LocalDate.now().isAfter(dailyValuesUpdated)) {
             RedisManager.update(jedis -> {
                 Pipeline pipeline = jedis.pipelined();
+                FisheryUserManager.setUserActiveOnGuild(pipeline, this);
                 pipeline.hset(KEY_ACCOUNT, FIELD_DAILY_VALUES_UPDATED, LocalDate.now().toString());
                 pipeline.hdel(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED);
                 pipeline.hdel(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED_MAX);
@@ -366,11 +394,21 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public void completeWork(long workIntervalMinutes) {
-        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_NEXT_WORK, Instant.now().plus(workIntervalMinutes, ChronoUnit.MINUTES).toString()));
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hset(KEY_ACCOUNT, FIELD_NEXT_WORK, Instant.now().plus(workIntervalMinutes, ChronoUnit.MINUTES).toString());
+            pipeline.sync();
+        });
     }
 
     public void removeWork() {
-        RedisManager.update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_NEXT_WORK));
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hdel(KEY_ACCOUNT, FIELD_NEXT_WORK);
+            pipeline.sync();
+        });
     }
 
     public boolean registerMessage(Message message, GuildEntity guildEntity) {
@@ -379,6 +417,7 @@ public class FisheryMemberData implements MemberAsset {
             FisheryMemberGearData fisheryMemberGearData = getMemberGear(FisheryGear.MESSAGE);
 
             Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
             Response<String> bannedUntilResp = pipeline.hget(KEY_ACCOUNT, FIELD_BANNED_UNTIL);
             Response<Long> messagesThisHourResp = pipeline.hincrBy(KEY_ACCOUNT, FIELD_MESSAGES_THIS_HOUR, 1);
             Response<String> messagesThisHourSlotResp = pipeline.hget(KEY_ACCOUNT, FIELD_MESSAGES_THIS_HOUR_SLOT);
@@ -469,6 +508,7 @@ public class FisheryMemberData implements MemberAsset {
             FisheryMemberGearData fisheryMemberGearData = getMemberGear(FisheryGear.VOICE);
 
             Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
             Response<String> bannedUntilResp = pipeline.hget(KEY_ACCOUNT, FIELD_BANNED_UNTIL);
             Response<String> voiceMinutesResp = pipeline.hget(KEY_ACCOUNT, FIELD_VOICE_MINUTES);
             Response<String> fishResp = pipeline.hget(KEY_ACCOUNT, FIELD_FISH);
@@ -513,13 +553,23 @@ public class FisheryMemberData implements MemberAsset {
 
     public void setFish(long fish) {
         long newFish = Math.max(Math.min(fish, Settings.FISHERY_MAX), 0);
-        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(newFish)));
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(newFish));
+            pipeline.sync();
+        });
     }
 
     public void setCoinsRaw(long coins) {
         long coinsHidden = getCoinsHidden();
         long newCoins = Math.max(Math.min(coins, Settings.FISHERY_MAX), coinsHidden);
-        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(newCoins)));
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(newCoins));
+            pipeline.sync();
+        });
     }
 
     public void addCoinsHidden(long value) {
@@ -535,14 +585,23 @@ public class FisheryMemberData implements MemberAsset {
                 long coinsRaw = RedisManager.parseLong(jedis.hget(KEY_ACCOUNT, FIELD_COINS));
                 long coinsHidden = getCoinsHidden();
                 long newCoins = Math.max(Math.min(coinsRaw + value, Settings.FISHERY_MAX), coinsHidden);
-                jedis.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(newCoins));
+
+                Pipeline pipeline = jedis.pipelined();
+                FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+                pipeline.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(newCoins));
+                pipeline.sync();
             });
         }
     }
 
     public void setDailyStreak(long dailyStreak) {
         long newDailyStreak = Math.max(Math.min(dailyStreak, Settings.FISHERY_MAX), 0);
-        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_DAILY_STREAK, String.valueOf(newDailyStreak)));
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hset(KEY_ACCOUNT, FIELD_DAILY_STREAK, String.valueOf(newDailyStreak));
+            pipeline.sync();
+        });
     }
 
     public void changeValues(long fishAdd, long coinsAdd) {
@@ -554,6 +613,7 @@ public class FisheryMemberData implements MemberAsset {
             long hour = TimeUtil.currentHour();
 
             Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
             Response<String> fishResp = pipeline.hget(KEY_ACCOUNT, FIELD_FISH);
             Response<String> recentFishGainsRawResp = pipeline.hget(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId);
             Response<Double> recentFishGainsProcessedResp = pipeline.zscore(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId));
@@ -602,6 +662,7 @@ public class FisheryMemberData implements MemberAsset {
 
             /* collect current data */
             Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
             Response<String> fishPreviousResp = pipeline.hget(KEY_ACCOUNT, FIELD_FISH);
             Response<String> coinsPreviousResp = pipeline.hget(KEY_ACCOUNT, FIELD_COINS);
             Response<String> dailyStreakPreviousResp = pipeline.hget(KEY_ACCOUNT, FIELD_DAILY_STREAK);
@@ -819,18 +880,33 @@ public class FisheryMemberData implements MemberAsset {
 
     public void updateDailyReceived() {
         if (!LocalDate.now().equals(getDailyReceived())) {
-            RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_DAILY_RECEIVED, LocalDate.now().toString()));
+            RedisManager.update(jedis -> {
+                Pipeline pipeline = jedis.pipelined();
+                FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+                pipeline.hset(KEY_ACCOUNT, FIELD_DAILY_RECEIVED, LocalDate.now().toString());
+                pipeline.sync();
+            });
         }
     }
 
     public void addUpvote(int upvotes) {
         if (upvotes > 0) {
-            RedisManager.update(jedis -> jedis.hincrBy(KEY_ACCOUNT, FIELD_UPVOTE_STACK, upvotes));
+            RedisManager.update(jedis -> {
+                Pipeline pipeline = jedis.pipelined();
+                FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+                pipeline.hincrBy(KEY_ACCOUNT, FIELD_UPVOTE_STACK, upvotes);
+                pipeline.sync();
+            });
         }
     }
 
     public void clearUpvoteStack() {
-        RedisManager.update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_UPVOTE_STACK));
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hdel(KEY_ACCOUNT, FIELD_UPVOTE_STACK);
+            pipeline.sync();
+        });
     }
 
     public void remove() {
@@ -839,6 +915,7 @@ public class FisheryMemberData implements MemberAsset {
             List<Map.Entry<String, String>> recentFishGainsRaw = RedisManager.hscan(jedis, getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW);
 
             Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.deleteUserActiveOnGuild(pipeline, this);
             pipeline.del(KEY_ACCOUNT);
             pipeline.zrem(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId));
             String[] keysRemove = recentFishGainsRaw.stream()

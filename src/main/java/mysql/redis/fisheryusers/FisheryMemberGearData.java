@@ -5,6 +5,7 @@ import constants.Settings;
 import core.assets.MemberAsset;
 import core.utils.NumberUtil;
 import mysql.redis.RedisManager;
+import redis.clients.jedis.Pipeline;
 
 public class FisheryMemberGearData implements MemberAsset {
 
@@ -39,7 +40,12 @@ public class FisheryMemberGearData implements MemberAsset {
 
     void setLevel(int level) {
         int newLevel = Math.min(level, Settings.FISHERY_GEAR_MAX);
-        RedisManager.update(jedis -> jedis.hset(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, String.valueOf(newLevel)));
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, fisheryMemberData);
+            pipeline.hset(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, String.valueOf(newLevel));
+            pipeline.sync();
+        });
     }
 
     void levelUp() {

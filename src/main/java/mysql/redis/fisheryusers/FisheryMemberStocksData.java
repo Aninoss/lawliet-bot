@@ -37,6 +37,7 @@ public class FisheryMemberStocksData {
     public void add(int number) {
         RedisManager.update(jedis -> {
             Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, fisheryMemberData);
             Response<String> sizeResp = pipeline.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_SHARES);
             Response<String> investedResp = pipeline.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_INVESTED);
             pipeline.sync();

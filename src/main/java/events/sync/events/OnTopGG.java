@@ -51,7 +51,7 @@ public class OnTopGG implements SyncServerFunction {
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
         AtomicInteger guilds = new AtomicInteger();
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(OnTopGG.class)) {
-            for (Long guildId : FisheryUserManager.getGuildIdsForFisheryUser(userId)) {
+            for (Long guildId : FisheryUserManager.getGuildIdsByUserId(userId, true)) {
                 if (entityManager.findGuildEntity(guildId).getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
                     continue;
                 }

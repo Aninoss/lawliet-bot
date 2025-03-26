@@ -9,12 +9,17 @@ import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Pipeline;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class FisheryUserManager {
+
+    public static final String KEY_FISHERY_GUILDS_BY_USER = "fishery_guilds_by_user:";
+    public static final String KEY_FISHERY_USERS_BY_GUILD = "fishery_users_by_guild:";
 
     private static final LoadingCache<Long, FisheryGuildData> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofHours(1))
@@ -36,8 +41,14 @@ public class FisheryUserManager {
     public static void deleteGuildData(long guildId) {
         FisheryGuildData fisheryGuildData = getGuildData(guildId);
         RedisManager.update(jedis -> {
-            List<String> accountKeys = RedisManager.scan(jedis, "fishery_account:" + guildId + ":*");
+            Set<String> userIds = jedis.hkeys(KEY_FISHERY_USERS_BY_GUILD + guildId);
             Pipeline pipeline = jedis.pipelined();
+            for (String userId : userIds) {
+                pipeline.hdel(KEY_FISHERY_GUILDS_BY_USER + userId, String.valueOf(guildId));
+            }
+            pipeline.del(KEY_FISHERY_USERS_BY_GUILD + guildId);
+
+            List<String> accountKeys = RedisManager.scan(jedis, "fishery_account:" + guildId + ":*");
             pipeline.del(fisheryGuildData.KEY_RECENT_FISH_GAINS_RAW);
             pipeline.del(fisheryGuildData.KEY_RECENT_FISH_GAINS_PROCESSED);
             pipeline.del(accountKeys.toArray(new String[0]));
@@ -61,22 +72,46 @@ public class FisheryUserManager {
         });
     }
 
-    public static List<Long> getGuildIdsForFisheryUser(long userId) {
-        ArrayList<Long> guildIds = new ArrayList<>();
-        RedisManager.update(jedis -> {
-            List<String> accountKeys = RedisManager.scan(jedis, "fishery_account:*:" + userId);
-            for (String accountKey : accountKeys) {
-                String[] parts = accountKey.split(":");
-                long fisheryGuildId = Long.parseLong(parts[1]);
-                long fisheryUserId = Long.parseLong(parts[2]);
-                if (fisheryUserId == userId) {
-                    guildIds.add(fisheryGuildId);
-                } else {
-                    MainLogger.get().error("Returning wrong entries for fishery user");
+    public static void setUserActiveOnGuild(Pipeline pipeline, FisheryMemberData fisheryMemberData) {
+        long guildId = fisheryMemberData.getGuildId();
+        long userId = fisheryMemberData.getMemberId();
+
+        pipeline.hset(KEY_FISHERY_GUILDS_BY_USER + userId, String.valueOf(guildId), Instant.now().toString());
+        pipeline.hset(KEY_FISHERY_USERS_BY_GUILD + guildId, String.valueOf(userId), Instant.now().toString());
+    }
+
+    public static void deleteUserActiveOnGuild(Pipeline pipeline, FisheryMemberData fisheryMemberData) {
+        deleteUserActiveOnGuild(pipeline, fisheryMemberData.getGuildId(), fisheryMemberData.getMemberId());
+    }
+
+    public static void deleteUserActiveOnGuild(Pipeline pipeline, long guildId, long userId) {
+        pipeline.hdel(FisheryUserManager.KEY_FISHERY_GUILDS_BY_USER + userId, String.valueOf(guildId));
+        pipeline.hdel(FisheryUserManager.KEY_FISHERY_USERS_BY_GUILD + guildId, String.valueOf(userId));
+    }
+
+    public static Set<Long> getGuildIdsByUserId(long userId, boolean slowSearch) {
+        return RedisManager.get(jedis -> {
+            HashSet<Long> guildIds = new HashSet<>();
+            jedis.hkeys(KEY_FISHERY_GUILDS_BY_USER + userId).stream()
+                    .map(Long::parseLong)
+                    .forEach(guildIds::add);
+
+            if (slowSearch) {
+                List<String> accountKeys = RedisManager.scan(jedis, "fishery_account:*:" + userId);
+                for (String accountKey : accountKeys) {
+                    String[] parts = accountKey.split(":");
+                    long fisheryGuildId = Long.parseLong(parts[1]);
+                    long fisheryUserId = Long.parseLong(parts[2]);
+                    if (fisheryUserId == userId) {
+                        guildIds.add(fisheryGuildId);
+                    } else {
+                        MainLogger.get().error("Returning wrong entries for fishery user");
+                    }
                 }
             }
+
+            return guildIds;
         });
-        return guildIds;
     }
 
 }
