@@ -31,7 +31,6 @@ public class ShardManager {
 
     private static final int GLOBAL_SHARD_ERROR_THRESHOLD = Integer.parseInt(requireNonNullElse(System.getenv("GLOBAL_SHARD_ERROR_THRESHOLD"), "6"));
 
-    private static final JDABlocker jdaBlocker = new JDABlocker();
     private static final HashMap<Integer, JDAWrapper> jdaMap = new HashMap<>();
     private static final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
     private static int shardIntervalMin = 0;
@@ -89,10 +88,6 @@ public class ShardManager {
         if (selfId == 0) {
             selfId = jda.getSelfUser().getIdLong();
         }
-    }
-
-    public static JDABlocker getJDABlocker() {
-        return jdaBlocker;
     }
 
     public static void addShardDisconnectConsumer(Consumer<Integer> consumer) {
@@ -207,23 +202,10 @@ public class ShardManager {
         return Math.abs((int) ((guildId >> 22) % totalShards));
     }
 
-    public static int getResponsibleShard(long guildId, int totalShards) {
-        return Math.abs((int) ((guildId >> 22) % totalShards));
-    }
-
     public static boolean guildIsManaged(long guildId) {
-        if (!jdaBlocker.guildIsAvailable(guildId)) {
-            return false;
-        }
-
-        for (JDAWrapper jda : jdaMap.values()) {
-            if (jda.getJDA().getGuilds().stream()
-                    .anyMatch(guild -> guild.getIdLong() == guildId)
-            ) {
-                return true;
-            }
-
-            if (jda.getJDA().getUnavailableGuilds().contains(String.valueOf(guildId))) {
+        for (JDAWrapper jdaWrapper : jdaMap.values()) {
+            JDA jda = jdaWrapper.getJDA();
+            if (jda.getGuildById(guildId) != null || jda.getUnavailableGuilds().contains(String.valueOf(guildId))) {
                 return true;
             }
         }
@@ -234,9 +216,7 @@ public class ShardManager {
     public static List<Guild> getLocalGuilds() {
         ArrayList<Guild> guildList = new ArrayList<>();
         for (JDAWrapper jda : jdaMap.values()) {
-            jda.getJDA().getGuilds().stream()
-                    .filter(guild -> jdaBlocker.guildIsAvailable(guild.getIdLong()))
-                    .forEach(guildList::add);
+            guildList.addAll(jda.getJDA().getGuilds());
         }
 
         return guildList;
@@ -268,7 +248,7 @@ public class ShardManager {
     }
 
     public static Optional<Guild> getLocalGuildById(long guildId) {
-        if (!jdaBlocker.guildIsAvailable(guildId) || totalShards <= 0) {
+        if (totalShards <= 0) {
             return Optional.empty();
         }
 
@@ -279,13 +259,13 @@ public class ShardManager {
 
     public static List<Guild> getLocalMutualGuilds(User user) {
         return getLocalGuilds().stream()
-                .filter(server -> jdaBlocker.guildIsAvailable(server.getIdLong()) && server.isMember(user))
+                .filter(server -> server.isMember(user))
                 .collect(Collectors.toList());
     }
 
     public static List<Guild> getLocalMutualGuilds(long userId) {
         return getLocalGuilds().stream()
-                .filter(server -> jdaBlocker.guildIsAvailable(server.getIdLong()) && server.getMembers().stream().anyMatch(m -> m.getIdLong() == userId))
+                .filter(server -> server.getMembers().stream().anyMatch(m -> m.getIdLong() == userId))
                 .collect(Collectors.toList());
     }
 

@@ -40,7 +40,6 @@ public abstract class DiscordEventAbstract {
 
     protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, long guildId, EventExecution function) {
         if ((user != null && user.getIdLong() == ShardManager.getSelfId()) ||
-                !ShardManager.getJDABlocker().guildIsAvailable(guildId) ||
                 (guildId != 0 && ShardManager.getLocalGuildById(guildId).isEmpty()) ||
                 listenerList.isEmpty()
         ) {
