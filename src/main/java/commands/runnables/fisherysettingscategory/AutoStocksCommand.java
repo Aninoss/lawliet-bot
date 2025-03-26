@@ -17,19 +17,24 @@ import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.user.AutoStockActivityEntity;
 import mysql.hibernate.entity.user.AutoStockOrderEntity;
 import mysql.hibernate.entity.user.UserEntity;
+import mysql.redis.RedisManager;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
+import redis.clients.jedis.Pipeline;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "autostocks",
@@ -139,6 +144,12 @@ public class AutoStocksCommand extends NavigationAbstract {
                 getStockOrderEntities().put(currentStock, currentOrder);
                 entityManager.getTransaction().commit();
 
+                RedisManager.update(jedis -> {
+                    Pipeline pipeline = jedis.pipelined();
+                    FisheryUserManager.setUserActiveOnGuild(pipeline, event.getGuild().getIdLong(), event.getUser().getIdLong());
+                    pipeline.sync();
+                });
+
                 setLog(LogStatus.SUCCESS, getString("submitted"));
                 setState(STATE_MANAGE_ORDERS);
                 return true;
@@ -185,12 +196,16 @@ public class AutoStocksCommand extends NavigationAbstract {
             userEntity.commitTransaction();
         }
 
+        Set<AutoStockActivityEntity> activities = Lists.reverse(new ArrayList<>(userEntity.getAutoStockActivities())).stream()
+                .limit(10)
+                .collect(Collectors.toSet());
+
         String buyOrders = new ListGen<Map.Entry<Stock, AutoStockOrderEntity>>()
                 .getList(userEntity.getAutoStocksBuyOrders().entrySet(), getLocale(), set -> getString("default_entry", set.getKey().getName(), StringUtil.numToString(set.getValue().getOrderThreshold())));
         String sellOrders = new ListGen<Map.Entry<Stock, AutoStockOrderEntity>>()
                 .getList(userEntity.getAutoStocksSellOrders().entrySet(), getLocale(), set -> getString("default_entry", set.getKey().getName(), StringUtil.numToString(set.getValue().getOrderThreshold())));
         String activityLog = new ListGen<AutoStockActivityEntity>()
-                .getList(Lists.reverse(new ArrayList<>(userEntity.getAutoStockActivities())), getLocale(), ListGen.SLOT_TYPE_BULLET, activity -> getString("default_activity_" + activity.getType().name(), activity.getValue() != 1, TimeFormat.DATE_TIME_SHORT.atInstant(activity.getInstant()).toString(), String.valueOf(activity.getValue()), activity.getStock().getName()));
+                .getList(activities, getLocale(), ListGen.SLOT_TYPE_BULLET, activity -> getString("default_activity_" + activity.getType().name(), activity.getValue() != 1, TimeFormat.DATE_TIME_SHORT.atInstant(activity.getInstant()).toString(), StringUtil.numToString(activity.getValue()), activity.getStock().getName()));
 
         setComponents(getString("default_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("helptext"))
@@ -210,7 +225,8 @@ public class AutoStocksCommand extends NavigationAbstract {
             String label = stockOrderEntities.containsKey(stock)
                     ? getString("default_entry_noemoji", stock.getName(), StringUtil.numToString(stockOrderEntities.get(stock).getOrderThreshold()))
                     : getString("default_entry_empty", stock.getName());
-            selectMenuBuilder.addOption(label, stock.name());
+            Emoji emoji = Emoji.fromUnicode(stockOrderEntities.containsKey(stock) ? ((stockOrderEntities.get(stock).getActive() ? "🟢" : "🔴")) : "⚫");
+            selectMenuBuilder.addOption(label, stock.name(), emoji);
         }
 
         setComponents(selectMenuBuilder.build());

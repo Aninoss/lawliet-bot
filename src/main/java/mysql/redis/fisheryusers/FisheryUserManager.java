@@ -73,9 +73,10 @@ public class FisheryUserManager {
     }
 
     public static void setUserActiveOnGuild(Pipeline pipeline, FisheryMemberData fisheryMemberData) {
-        long guildId = fisheryMemberData.getGuildId();
-        long userId = fisheryMemberData.getMemberId();
+        setUserActiveOnGuild(pipeline, fisheryMemberData.getGuildId(), fisheryMemberData.getMemberId());
+    }
 
+    public static void setUserActiveOnGuild(Pipeline pipeline, long guildId, long userId) {
         pipeline.hset(KEY_FISHERY_GUILDS_BY_USER + userId, String.valueOf(guildId), Instant.now().toString());
         pipeline.hset(KEY_FISHERY_USERS_BY_GUILD + guildId, String.valueOf(userId), Instant.now().toString());
     }

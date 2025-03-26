@@ -57,6 +57,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("auto_stocks", Console::onAutoStocks);
         tasks.put("collect_anilist_characters", Console::onCollectAnilistCharacters);
         tasks.put("send_premium_code_notifications", Console::onSendPremiumCodeNotifications);
         tasks.put("clean_images", Console::onCleanImages);
@@ -113,6 +114,10 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onAutoStocks(String[] args) {
+        AutoStocks.execute();
     }
 
     private static void onCollectAnilistCharacters(String[] args) throws IOException, ExecutionException, InterruptedException {
