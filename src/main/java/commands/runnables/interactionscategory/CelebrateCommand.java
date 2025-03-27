@@ -1,7 +1,5 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -15,6 +13,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
 @CommandProperties(
         trigger = "celebrate",
         emoji = "\uD83C\uDF89",
@@ -25,11 +26,11 @@ import org.jetbrains.annotations.NotNull;
 public class CelebrateCommand extends Command {
 
     protected String[] getGifs() {
-        return new String[] { "https://media1.tenor.com/images/53e00327a221637f76bdb3d20e4568a0/tenor.gif?itemid=7399759",
-                "https://media1.tenor.com/images/fbbd906d9cb5624fbafd7f536aec5cc3/tenor.gif?itemid=16786818",
-                "https://media1.tenor.com/images/3d2574a66760415d655fdd6f5e57c044/tenor.gif?itemid=18653960",
-                "https://media1.tenor.com/images/07869599e4a13f14ed4a6425c835537a/tenor.gif?itemid=15417564",
-                "https://media1.tenor.com/images/ade6ea654ec8e7c6de665d9c58836455/tenor.gif?itemid=16271642"
+        return new String[] { "https://c.tenor.com/XpOVHJWYrckAAAAC/tenor.gif",
+                "https://c.tenor.com/MGgHPbbIKZkAAAAC/tenor.gif",
+                "https://c.tenor.com/_QVrcKYzpioAAAAC/tenor.gif",
+                "https://c.tenor.com/CNnTbAEN-VEAAAAC/tenor.gif",
+                "https://c.tenor.com/mv30bEOV280AAAAd/tenor.gif"
         };
     }
 

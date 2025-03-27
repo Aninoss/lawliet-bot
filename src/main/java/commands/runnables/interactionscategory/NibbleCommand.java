@@ -1,8 +1,5 @@
 package commands.runnables.interactionscategory;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -18,6 +15,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
 @CommandProperties(
         trigger = "nibble",
         emoji = "👂",
@@ -32,10 +33,10 @@ public class NibbleCommand extends Command {
     }
 
     protected String[] getGifs() {
-        return new String[] { "https://media1.tenor.com/images/60369861b53a2f4c2b0e1012220d63fd/tenor.gif?itemid=14714300",
-                "https://media1.tenor.com/images/110de9f955f52fcce475013ed978210d/tenor.gif?itemid=15638962",
+        return new String[] { "https://c.tenor.com/ud5j_Rz2LUUAAAAC/tenor.gif",
+                "https://c.tenor.com/WpzQCttgP4YAAAAC/tenor.gif",
                 "https://cdn.weeb.sh/images/rkakblmiZ.gif",
-                "https://media1.tenor.com/images/5fcfef1acfa20cdd836aad39512e8fcc/tenor.gif"
+                "https://c.tenor.com/zkqAS7FNd5IAAAAd/tenor.gif"
         };
     }
 
