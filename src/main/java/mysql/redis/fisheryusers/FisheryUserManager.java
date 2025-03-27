@@ -42,13 +42,13 @@ public class FisheryUserManager {
         FisheryGuildData fisheryGuildData = getGuildData(guildId);
         RedisManager.update(jedis -> {
             Set<String> userIds = jedis.hkeys(KEY_FISHERY_USERS_BY_GUILD + guildId);
+            List<String> accountKeys = RedisManager.scan(jedis, "fishery_account:" + guildId + ":*");
+
             Pipeline pipeline = jedis.pipelined();
             for (String userId : userIds) {
                 pipeline.hdel(KEY_FISHERY_GUILDS_BY_USER + userId, String.valueOf(guildId));
             }
             pipeline.del(KEY_FISHERY_USERS_BY_GUILD + guildId);
-
-            List<String> accountKeys = RedisManager.scan(jedis, "fishery_account:" + guildId + ":*");
             pipeline.del(fisheryGuildData.KEY_RECENT_FISH_GAINS_RAW);
             pipeline.del(fisheryGuildData.KEY_RECENT_FISH_GAINS_PROCESSED);
             pipeline.del(accountKeys.toArray(new String[0]));
@@ -112,6 +112,16 @@ public class FisheryUserManager {
             }
 
             return guildIds;
+        });
+    }
+
+    public static Set<Long> getUserIdsByGuildId(long guildId) {
+        return RedisManager.get(jedis -> {
+            HashSet<Long> userIds = new HashSet<>();
+            jedis.hkeys(KEY_FISHERY_USERS_BY_GUILD + guildId).stream()
+                    .map(Long::parseLong)
+                    .forEach(userIds::add);
+            return userIds;
         });
     }
 

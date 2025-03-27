@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -57,6 +58,8 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("fishery_guilds_by_user", Console::onFisheryGuildsByUser);
+        tasks.put("fishery_users_by_guild", Console::onFisheryUsersByGuild);
         tasks.put("auto_stocks", Console::onAutoStocks);
         tasks.put("collect_anilist_characters", Console::onCollectAnilistCharacters);
         tasks.put("send_premium_code_notifications", Console::onSendPremiumCodeNotifications);
@@ -114,6 +117,18 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onFisheryGuildsByUser(String[] args) {
+        long userId = Long.parseLong(args[1]);
+        Set<Long> guildIds = FisheryUserManager.getGuildIdsByUserId(userId, false);
+        MainLogger.get().info("Fishery guilds by user id {}: {}", userId, StringUtils.join(guildIds, ", "));
+    }
+
+    private static void onFisheryUsersByGuild(String[] args) {
+        long guildId = Long.parseLong(args[1]);
+        Set<Long> userIds = FisheryUserManager.getUserIdsByGuildId(guildId);
+        MainLogger.get().info("Fishery users by guild id {}: {}", guildId, StringUtils.join(userIds, ", "));
     }
 
     private static void onAutoStocks(String[] args) {
