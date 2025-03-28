@@ -40,7 +40,8 @@ import java.util.stream.Collectors;
         trigger = "autostocks",
         emoji = "🤖",
         usesExtEmotes = true,
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        aliases = { "autostock", "autostonks", "autoshares", "autoshare", "autostockmarket" }
 )
 public class AutoStocksCommand extends NavigationAbstract {
 
