@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 public abstract class PornAbstract extends Command implements OnAlertListener, OnButtonListener {
 
     public static int MAX_FILES_PER_MESSAGE = 5;
-    public static LocalDate NEW_ALERT_DATE = LocalDate.of(2025, 3, 29);
+    public static LocalDate NEW_ALERT_DATE = LocalDate.of(2025, 3, 30);
 
     private static final BooruImageDownloader booruImageDownloader = new BooruImageDownloader();
 
