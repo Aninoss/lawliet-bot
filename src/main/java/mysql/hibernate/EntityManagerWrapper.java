@@ -101,9 +101,13 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
             }
 
             try {
-                entityManager.getTransaction().begin();
-                entityManager.persist(object);
-                entityManager.getTransaction().commit();
+                if (entityManager.getTransaction().isActive()) {
+                    entityManager.persist(object);
+                } else {
+                    entityManager.getTransaction().begin();
+                    entityManager.persist(object);
+                    entityManager.getTransaction().commit();
+                }
             } catch (RollbackException e) {
                 MainLogger.get().warn("Rollback exception on entity persistence for class {} and id {}", entityClass, primaryKey);
                 object = entityManager.find(entityClass, primaryKey);
