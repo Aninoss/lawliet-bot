@@ -61,6 +61,7 @@ public abstract class Command implements OnTriggerListener {
     private String log = "";
     private CommandEvent commandEvent = null;
     private InteractionResponse interactionResponse;
+    private boolean useInteractionResponse = true;
     private GuildEntity guildEntity;
     private boolean canHaveTimeOut = true;
     private List<ActionRow> actionRows = Collections.emptyList();
@@ -204,7 +205,7 @@ public abstract class Command implements OnTriggerListener {
     private CompletableFuture<Message> drawMessage(EmbedBuilder eb, boolean newMessage) {
         GuildMessageChannel channel = getGuildMessageChannel().orElse(null);
         if (channel != null) {
-            if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isGenericCommandInteractionEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(channel) || (useInteractionResponse && interactionResponse != null && interactionResponse.isValid())) {
                 EmbedUtil.addLog(eb, logStatus, log);
                 return drawMessage(channel, null, eb, newMessage);
             } else {
@@ -326,9 +327,7 @@ public abstract class Command implements OnTriggerListener {
     private RestAction<Message> drawMessageProcessEdit(GuildMessageChannel channel, String content, ArrayList<MessageEmbed> embeds,
                                                        List<ActionRow> actionRows, Collection<Message.MentionType> allowedMentions
     ) {
-        if (interactionResponse != null &&
-                interactionResponse.isValid()
-        ) {
+        if (useInteractionResponse && interactionResponse != null && interactionResponse.isValid()) {
             return interactionResponse.editMessageEmbeds(embeds, actionRows);
         } else {
             if (content != null) {
@@ -681,6 +680,10 @@ public abstract class Command implements OnTriggerListener {
 
     public InteractionResponse getInteractionResponse() {
         return interactionResponse;
+    }
+
+    public void disableInteractionResponse() {
+        useInteractionResponse = false;
     }
 
     public GuildEntity getGuildEntity() {

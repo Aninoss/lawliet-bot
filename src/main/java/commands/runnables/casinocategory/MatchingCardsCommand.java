@@ -49,7 +49,7 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
     private int attackValue = 0;
 
     public MatchingCardsCommand(Locale locale, String prefix) {
-        super(locale, prefix, 2, 4, true);
+        super(locale, prefix, 2, 8, true);
     }
 
     @Override
@@ -70,6 +70,13 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
 
     @Override
     public synchronized boolean onButtonCasino(ButtonInteractionEvent event, int player) {
+        if (currentPlayer != player) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("error_notyourturn")).build())
+                    .setEphemeral(true)
+                    .queue();
+            return false;
+        }
+
         if (!canDrawCards) {
             startNewTurn(false);
             return true;
@@ -131,12 +138,8 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
         }
         actionRows.add(ActionRow.of(selectMenuBuilder.build()));
 
-        if (currentPlayer == player) {
-            int drawNumber = Math.min(MAX_CARDS_PER_HAND, Math.max(1, attackValue));
-            Button button = Button.of(ButtonStyle.PRIMARY, "button", getString(canDrawCards ? "button_drawcards" : "button_endturn", drawNumber != 1, String.valueOf(drawNumber)));
-            actionRows.add(ActionRow.of(button));
-        }
-
+        Button button = Button.of(ButtonStyle.PRIMARY, "button", getString("button"));
+        actionRows.add(ActionRow.of(button));
         return actionRows;
     }
 
