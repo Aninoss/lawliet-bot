@@ -890,14 +890,12 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public void addUpvote(int upvotes) {
-        if (upvotes > 0) {
-            RedisManager.update(jedis -> {
-                Pipeline pipeline = jedis.pipelined();
-                FisheryUserManager.setUserActiveOnGuild(pipeline, this);
-                pipeline.hincrBy(KEY_ACCOUNT, FIELD_UPVOTE_STACK, upvotes);
-                pipeline.sync();
-            });
-        }
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hincrBy(KEY_ACCOUNT, FIELD_UPVOTE_STACK, upvotes);
+            pipeline.sync();
+        });
     }
 
     public void clearUpvoteStack() {
