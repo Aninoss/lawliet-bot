@@ -106,27 +106,27 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 TextInput textMin = TextInput.create(minId, getString("firstprice"), TextInputStyle.SHORT)
                         .setValue(StringUtil.numToString(fishery.getRolePriceMin()))
                         .setMinLength(1)
-                        .setMaxLength(16)
+                        .setMaxLength(21)
                         .build();
 
                 String maxId = "max";
                 TextInput textMax = TextInput.create(maxId, getString("lastprice"), TextInputStyle.SHORT)
                         .setValue(StringUtil.numToString(fishery.getRolePriceMax()))
                         .setMinLength(1)
-                        .setMaxLength(16)
+                        .setMaxLength(21)
                         .build();
 
                 Modal modal = ModalMediator.createDrawableCommandModal(this, getString("state0_mroleprices"), e -> {
                             String minStr = e.getValue(minId).getAsString();
-                            long priceMin = MentionUtil.getAmountExt(minStr);
-                            if (priceMin < 0 || priceMin > Settings.FISHERY_MAX) {
+                            long priceMin = Math.min(Settings.FISHERY_MAX, MentionUtil.getAmountExt(minStr));
+                            if (priceMin < 0) {
                                 setLog(LogStatus.FAILURE, getString("invalid_min", StringUtil.escapeMarkdown(minStr)));
                                 return null;
                             }
 
                             String maxStr = e.getValue(maxId).getAsString();
-                            long priceMax = MentionUtil.getAmountExt(maxStr);
-                            if (priceMax < 0 || priceMax > Settings.FISHERY_MAX) {
+                            long priceMax = Math.min(Settings.FISHERY_MAX, MentionUtil.getAmountExt(maxStr));
+                            if (priceMax < 0) {
                                 setLog(LogStatus.FAILURE, getString("invalid_max", StringUtil.escapeMarkdown(maxStr)));
                                 return null;
                             }
