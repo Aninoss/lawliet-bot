@@ -1,6 +1,5 @@
 package events.sync.events;
 
-import core.GlobalThreadPool;
 import core.MainLogger;
 import core.cache.UserBannedCache;
 import events.sync.SyncServerEvent;
@@ -33,18 +32,16 @@ public class OnTopGG implements SyncServerFunction {
             return null;
         }
 
-        GlobalThreadPool.submit(() -> {
-            long userId = jsonObject.getLong("user");
-            if (UserBannedCache.getInstance().isBanned(userId)) {
-                return;
-            }
+        long userId = jsonObject.getLong("user");
+        if (UserBannedCache.getInstance().isBanned(userId)) {
+            return null;
+        }
 
-            try {
-                processUpvote(userId, isWeekend);
-            } catch (ExecutionException | InterruptedException e) {
-                MainLogger.get().error("Exception", e);
-            }
-        });
+        try {
+            processUpvote(userId, isWeekend);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
