@@ -432,6 +432,9 @@ public class Ticket {
             EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.CONFIGURATION, "ticket_csv_warning"));
         }
 
+        if (!BotPermissionUtil.canWriteEmbed(announcementChannel)) {
+            return;
+        }
         DBStaticReactionMessages.getInstance().retrieve(ticketChannel.getGuild().getIdLong())
                 .remove(ticketChannelEntity.getLogMessageId());
         MessageEditAction messageAction = announcementChannel.editMessageById(ticketChannelEntity.getLogMessageId(), Emojis.ZERO_WIDTH_SPACE.getFormatted())
