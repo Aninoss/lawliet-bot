@@ -97,7 +97,6 @@ public class JDAUtil {
 
     private static PrivateChannel generatePrivateChannel(long privateChannelId) {
         return new PrivateChannel() {
-
             @Override
             public long getIdLong() {
                 return privateChannelId;
@@ -147,6 +146,11 @@ public class JDAUtil {
             @Override
             public RestAction<Void> delete() {
                 throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public boolean isDetached() {
+                return false;
             }
 
         };
