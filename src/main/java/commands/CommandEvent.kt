@@ -1,5 +1,6 @@
 package commands
 
+import core.schedule.MainScheduler
 import core.slashmessageaction.SlashAckSendMessageAction
 import core.slashmessageaction.SlashHookSendMessageAction
 import core.utils.JDAUtil
@@ -14,6 +15,8 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicBoolean
 
 class CommandEvent : GenericChannelEvent {
 
@@ -89,18 +92,28 @@ class CommandEvent : GenericChannelEvent {
     }
 
     @JvmOverloads
-    fun deferReply(ephemeral: Boolean = false) {
+    fun deferReply(ephemeral: Boolean = false, processing: AtomicBoolean) {
         if (ack) {
             return
         }
-
         ack = true
+
         genericCommandInteractionEvent?.let {
             if (!it.isAcknowledged) {
                 it.deferReply().setEphemeral(ephemeral).queue()
             }
         }
-        messageReceivedEvent?.guildChannel?.sendTyping()?.queue()
+        sendTyping(processing)
+    }
+
+    private fun sendTyping(processing: AtomicBoolean) {
+        if (!processing.get()) {
+            return
+        }
+
+        messageReceivedEvent?.guildChannel?.sendTyping()?.queue {
+            MainScheduler.schedule(Duration.ofSeconds(9)) { sendTyping(processing) }
+        }
     }
 
 }

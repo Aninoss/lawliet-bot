@@ -42,6 +42,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public abstract class Command implements OnTriggerListener {
@@ -53,6 +54,7 @@ public abstract class Command implements OnTriggerListener {
     private final CommandProperties commandProperties;
     private final Map<String, Object> attachments = new HashMap<>();
     private final ArrayList<Runnable> completedListeners = new ArrayList<>();
+    private final AtomicBoolean processing = new AtomicBoolean(false);
     private AtomicGuild atomicGuild;
     private AtomicGuildMessageChannel atomicGuildMessageChannel;
     private AtomicMember atomicMember;
@@ -400,7 +402,7 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public void deferReply() {
-        commandEvent.deferReply(getEphemeralMessages());
+        commandEvent.deferReply(getEphemeralMessages(), processing);
     }
 
     public LogStatus getLogStatus() {
@@ -650,6 +652,14 @@ public abstract class Command implements OnTriggerListener {
 
     public void setArgs(String args) {
         this.args = args;
+    }
+
+    public boolean getProcessing() {
+        return processing.get();
+    }
+
+    public void setProcessing(boolean processing) {
+        this.processing.set(processing);
     }
 
     public void setAtomicGuild(Guild guild) {

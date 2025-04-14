@@ -21,7 +21,6 @@ import mysql.modules.commandusages.DBCommandUsages
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.Duration
-import java.util.concurrent.atomic.AtomicBoolean
 
 interface OnTriggerListener {
 
@@ -32,20 +31,23 @@ interface OnTriggerListener {
     fun processTrigger(event: CommandEvent, args: String, guildEntity: GuildEntity, freshCommand: Boolean): Boolean {
         val command = this as Command
         command.args = args
+
         if (freshCommand && event.isGenericCommandInteractionEvent()) {
             val interactionResponse: InteractionResponse = SlashCommandResponse(event.genericCommandInteractionEvent!!.hook)
             command.interactionResponse = interactionResponse
         }
-        val isProcessing = AtomicBoolean(true)
         command.setAtomicAssets(event.messageChannel, event.member)
         command.commandEvent = event
+        command.processing = true
+
         if (Program.publicInstance()) {
             DBCommandUsages.getInstance().increase(command.trigger)
         }
         if (event.isMessageReceivedEvent()) {
             processTriggerDelete(event.messageReceivedEvent!!, guildEntity)
         }
-        addKillTimer(isProcessing)
+        addKillTimer()
+
         try {
             if (command.commandProperties.requiresFullMemberCache) {
                 MemberCacheController.getInstance().loadMembersFull(event.guild).get()
@@ -58,16 +60,16 @@ interface OnTriggerListener {
             ExceptionUtil.handleCommandException(e, command, event, guildEntity)
             return false
         } finally {
-            isProcessing.set(false)
+            command.processing = false
         }
     }
 
-    private fun addKillTimer(isProcessing: AtomicBoolean) {
+    private fun addKillTimer() {
         val command = this as Command
         val commandThread = Thread.currentThread()
         MainScheduler.schedule(Duration.ofSeconds(command.commandProperties.maxCalculationTimeSec.toLong())) {
             if (command.commandProperties.enableCacheWipe) {
-                CommandContainer.addCommandTerminationStatus(command, commandThread, isProcessing.get())
+                CommandContainer.addCommandTerminationStatus(command, commandThread, command.processing)
             }
         }
     }
