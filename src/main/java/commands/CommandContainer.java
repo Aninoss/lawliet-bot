@@ -195,6 +195,7 @@ public class CommandContainer {
         commandList.add(BirthdayListCommand.class);
 
         //INTERACTIONS
+        commandList.add(RolePlayGenderCommand.class);
         commandList.add(AngryCommand.class);
         commandList.add(AwkwardCommand.class);
         commandList.add(BegCommand.class);
@@ -247,13 +248,7 @@ public class CommandContainer {
         commandList.add(ThrowCommand.class);
         commandList.add(TickleCommand.class);
         commandList.add(WaveCommand.class);
-        commandList.add(YaoiCuddleCommand.class);
-        commandList.add(YaoiHugCommand.class);
-        commandList.add(YaoiKissCommand.class);
         commandList.add(YeetCommand.class);
-        commandList.add(YuriCuddleCommand.class);
-        commandList.add(YuriHugCommand.class);
-        commandList.add(YuriKissCommand.class);
 
         //NSFW INTERACTIONS
         commandList.add(SixtyNineCommand.class);
@@ -279,8 +274,6 @@ public class CommandContainer {
         commandList.add(SpankCommand.class);
         commandList.add(StripCommand.class);
         commandList.add(TittyFuckCommand.class);
-        commandList.add(YaoiFuckCommand.class);
-        commandList.add(YuriFuckCommand.class);
         commandList.add(BathroomFuckCommand.class);
 
         //EXTERNAL

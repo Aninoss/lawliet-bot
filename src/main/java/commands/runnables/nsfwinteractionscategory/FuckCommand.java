@@ -15,7 +15,34 @@ import java.util.Locale;
 public class FuckCommand extends RolePlayAbstract {
 
     public FuckCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true);
+
+        setFtfGifs(
+                "https://cdn.discordapp.com/attachments/736281485216317442/736281817845596320/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/736281899454169198/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283244990955611/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283255959060520/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283260031860786/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283266994405406/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283284023017492/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283293082714193/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283297788854282/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283343087206550/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283350062334032/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283359470157844/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283393096024134/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283405695713380/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283415682351104/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283431201276014/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283456941719642/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283473274339388/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283490856992858/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283499455053854/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/834849298096717874/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/834849312219463680/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/863573933479428176/yurifuck.gif"
+        );
+        setFtmGifs(
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281490484363344/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281495257219112/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281501951590430/fuck.gif",
@@ -31,8 +58,6 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281611712331796/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281619572195378/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281724828254241/fuck.gif",
-                "https://cdn.discordapp.com/attachments/736281485216317442/736281732835180565/fuck.gif",
-                "https://cdn.discordapp.com/attachments/736281485216317442/736281739852382308/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281746059952168/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281750543532126/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281763680092190/fuck.gif",
@@ -40,7 +65,6 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281794927919164/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281798841204846/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281806084767861/fuck.gif",
-                "https://cdn.discordapp.com/attachments/736281485216317442/736281817845596320/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281826154250270/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281834740252833/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281838242496602/fuck.gif",
@@ -51,7 +75,6 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281876154810408/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281881833897984/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281887823233105/fuck.gif",
-                "https://cdn.discordapp.com/attachments/736281485216317442/736281899454169198/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281906164924526/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281915144929311/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281920832405624/fuck.gif",
@@ -79,7 +102,6 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/834504891498102814/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/834504903023657000/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/834504915186483252/fuck.gif",
-                "https://cdn.discordapp.com/attachments/736281485216317442/834504927405015120/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/834504941166395513/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/834504957121789993/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/834504993163444294/fuck.gif",
@@ -128,6 +150,45 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/881904190358704148/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/1130880574412828672/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/1220286272581668864/fuck.gif"
+        );
+        setFtaGifs(
+                "https://cdn.discordapp.com/attachments/736281485216317442/736281732835180565/fuck.gif"
+        );
+        setMtmGifs(
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282666126540870/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282674771001514/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282683608662021/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282721147683077/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282730442129498/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282734363803758/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282742261547120/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282750390239425/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282759458193438/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282769197629490/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282776311169034/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282784410370148/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282790647169085/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282865708564560/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282873144803418/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282877402021888/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736282999921967134/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736283005601054860/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736283034310934608/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736283038224351272/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736283045077975081/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736283049439789066/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736283053487292446/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/736283058642223154/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848432635772928/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848443721187359/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848457453862964/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848479415107594/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848493922156544/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848505100370000/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848518304694292/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848533659123723/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848548377591848/yaoifuck.gif",
+                "https://cdn.discordapp.com/attachments/736282657062912080/834848562604802068/yaoifuck.gif"
         );
     }
 

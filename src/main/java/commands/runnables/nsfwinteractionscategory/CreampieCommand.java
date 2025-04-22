@@ -16,8 +16,12 @@ import java.util.Locale;
 public class CreampieCommand extends RolePlayAbstract {
 
     public CreampieCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
-                "https://cdn.discordapp.com/attachments/955839621902774272/955839871052808292/creampie.gif",
+        super(locale, prefix, true, false);
+
+        setFtfGifs(
+                "https://cdn.discordapp.com/attachments/955839621902774272/955839871052808292/creampie.gif"
+        );
+        setMtfGifs(
                 "https://cdn.discordapp.com/attachments/955839621902774272/955839955505139752/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/955840066230554644/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/955840111520649216/creampie.gif",
@@ -35,9 +39,13 @@ public class CreampieCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/955839621902774272/1073603217922994237/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/1073603841506955345/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/1073604277651648532/creampie.gif",
-                "https://cdn.discordapp.com/attachments/955839621902774272/1073604357951606784/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/1130880259626111097/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/1151398338701299783/creampie.gif"
+        );
+        setAtfGifs(
+        );
+        setAtaGifs(
+                "https://cdn.discordapp.com/attachments/955839621902774272/1073604357951606784/creampie.gif"
         );
     }
 

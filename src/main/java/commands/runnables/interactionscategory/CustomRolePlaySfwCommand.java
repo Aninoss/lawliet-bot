@@ -11,6 +11,7 @@ import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.mention.Mention;
 import core.utils.EmbedUtil;
+import core.utils.MentionUtil;
 import modules.CustomRolePlay;
 import mysql.hibernate.entity.CustomRolePlayEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -41,7 +42,8 @@ public class CustomRolePlaySfwCommand extends RolePlayAbstract {
         String trigger = args.split(" ")[0];
         customRolePlayEntity = getGuildEntity().getCustomRolePlayCommands().get(trigger);
         gifUrl = customRolePlayEntity.getImageUrls().get(RandomPicker.pick(trigger, event.getGuild().getIdLong(), customRolePlayEntity.getImageFilenames().size()).get());
-        return onTriggerInteractive(event, args.substring(trigger.length()).trim());
+        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember(), event.getRepliedMember());
+        return onTriggerInteractive(event, args.substring(trigger.length()).trim(), mention);
     }
 
     @Override

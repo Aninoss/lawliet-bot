@@ -19,6 +19,7 @@
         <class>mysql.hibernate.entity.GiveawayEntity</class>
         <class>mysql.hibernate.entity.DiscordSubscriptionEntity</class>
         <class>mysql.hibernate.entity.SmashOrPassCharacterEntity</class>
+        <class>mysql.hibernate.entity.user.RolePlayGender</class>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
             <property name="hibernate.ogm.datastore.database" value="Lawliet" />

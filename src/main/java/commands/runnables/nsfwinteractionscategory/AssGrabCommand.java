@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "assgrab",
@@ -15,13 +16,17 @@ import commands.runnables.RolePlayAbstract;
 public class AssGrabCommand extends RolePlayAbstract {
 
     public AssGrabCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, false);
+
+        setMtfGifs(
+                "https://cdn.discordapp.com/attachments/834460432818241566/834461989321441300/assgrab.gif"
+        );
+        setAtfGifs(
                 "https://cdn.discordapp.com/attachments/834460432818241566/834461925894127651/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834461937664000040/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834461948993208340/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834461961277931610/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834461976402460732/assgrab.gif",
-                "https://cdn.discordapp.com/attachments/834460432818241566/834461989321441300/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834462003274711077/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834462015236997191/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834462028906233866/assgrab.gif",

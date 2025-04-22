@@ -1,8 +1,9 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "kiss",
@@ -13,7 +14,34 @@ import commands.runnables.RolePlayAbstract;
 public class KissCommand extends RolePlayAbstract {
 
     public KissCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true);
+
+        setFtfGifs(
+                "https://cdn.discordapp.com/attachments/736280297171058759/834511426348777503/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736280297171058759/834511453821468692/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736280297171058759/834511717265309746/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281096764784780/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281104201285732/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281115098087506/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281124774346822/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281133649756273/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281140683604080/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281151748047088/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281161139093544/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281165736181860/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281173185265794/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281183738003456/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281204617248848/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849779824853023/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849792659947520/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849805246660608/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849818278887435/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849832022704158/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/863573727069077545/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/892166330340499506/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/925455445311782973/yurikiss.gif"
+        );
+        setFtmGifs(
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280301571145769/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280306797248512/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280315030667384/kiss.gif",
@@ -28,7 +56,6 @@ public class KissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280370638749776/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280375222861976/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280377659883550/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/736280379862024443/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280389391220776/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280393720004618/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280400212525066/kiss.gif",
@@ -43,7 +70,6 @@ public class KissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280466927255602/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280470999924874/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280473978011699/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/736280477849092166/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280490931257497/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280495012315295/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280499919519824/kiss.gif",
@@ -60,13 +86,9 @@ public class KissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511368614051940/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511382585802832/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511396309434368/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/834511409584537610/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/834511426348777503/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511439065645056/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/834511453821468692/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511467377328168/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511481617383454/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/834511494083117076/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511507374735390/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511521337573396/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511535048097812/kiss.gif",
@@ -75,14 +97,11 @@ public class KissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511579105853560/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511594099703898/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511608750669825/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/834511620428005377/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511636072759316/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511651582771231/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511663347531776/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511678011473951/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511693001523228/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/834511704565481522/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/834511717265309746/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511729211080814/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511742083268659/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511753823387678/kiss.gif",
@@ -97,9 +116,7 @@ public class KissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511884580946000/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511898649165824/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/834511910580912188/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/839773786684915722/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/860585235124977664/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/868914744185208852/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/881896934787403846/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/881897386094501928/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/881897560376213504/kiss.gif",
@@ -107,6 +124,65 @@ public class KissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280297171058759/925455200121131059/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/1063135577421119488/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/1065650002162094080/kiss.gif"
+        );
+        setFtaGifs(
+                "https://cdn.discordapp.com/attachments/736280297171058759/834511409584537610/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736280297171058759/834511494083117076/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736280297171058759/834511620428005377/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736280297171058759/834511704565481522/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736280297171058759/839773786684915722/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736280297171058759/868914744185208852/kiss.gif"
+        );
+        setMtmGifs(
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280751187689482/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280753842683994/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280757068234823/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280762189348965/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280765754769488/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280775162593280/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280778094411776/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280780505874502/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280783437955083/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280786956976168/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280798512152617/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280803624878210/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280806497976360/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280812973981786/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280816711106710/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280822331473930/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280826047889448/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280832011927622/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280839658143805/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280845991542824/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280852501233674/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280860105506816/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280871895695480/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280880162537472/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280893903077466/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280897053130844/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280901410881653/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280907043831869/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280913641734216/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280917433253928/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280925477928960/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736280930292989952/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736284287359254599/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/736284502275522670/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/774620635997011978/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/783699292757164102/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/783755433126264912/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/834848898065104946/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/834852296596783154/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/845981040148348998/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/912100600999723018/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/991345678464856094/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/1091393370502467664/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/1200732629784338442/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/1365344023430303754/yaoikiss.gif"
+        );
+        setAtaGifs(
+                "https://cdn.discordapp.com/attachments/736280297171058759/736280379862024443/kiss.gif",
+                "https://cdn.discordapp.com/attachments/736280297171058759/736280477849092166/kiss.gif"
         );
     }
 

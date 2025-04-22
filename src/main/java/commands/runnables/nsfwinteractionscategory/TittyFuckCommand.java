@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "tittyfuck",
@@ -15,7 +16,9 @@ import commands.runnables.RolePlayAbstract;
 public class TittyFuckCommand extends RolePlayAbstract {
 
     public TittyFuckCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true);
+
+        setFtmGifs(
                 "https://cdn.discordapp.com/attachments/834844814671478824/834844931423993946/tittyfuck.gif",
                 "https://cdn.discordapp.com/attachments/834844814671478824/834844958598758421/tittyfuck.gif",
                 "https://cdn.discordapp.com/attachments/834844814671478824/834844969951952916/tittyfuck.gif",

@@ -16,7 +16,12 @@ import java.util.Locale;
 public class FaceSitCommand extends RolePlayAbstract {
 
     public FaceSitCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, false);
+
+        setFtfGifs(
+                "https://cdn.discordapp.com/attachments/969970754944909332/1220286016531992606/facesit.gif"
+        );
+        setFtmGifs(
                 "https://cdn.discordapp.com/attachments/969970754944909332/969971027041980457/facesit.gif",
                 "https://cdn.discordapp.com/attachments/969970754944909332/969971063696031764/facesit.gif",
                 "https://cdn.discordapp.com/attachments/969970754944909332/969971096717766666/facesit.gif",
@@ -29,8 +34,7 @@ public class FaceSitCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/969970754944909332/969971995544526868/facesit.gif",
                 "https://cdn.discordapp.com/attachments/969970754944909332/969972020102185020/facesit.gif",
                 "https://cdn.discordapp.com/attachments/969970754944909332/1130881488284561530/facesit.gif",
-                "https://cdn.discordapp.com/attachments/969970754944909332/1130882325698314361/facesit.gif",
-                "https://cdn.discordapp.com/attachments/969970754944909332/1220286016531992606/facesit.gif"
+                "https://cdn.discordapp.com/attachments/969970754944909332/1130882325698314361/facesit.gif"
         );
     }
 

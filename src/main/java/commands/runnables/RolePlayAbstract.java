@@ -13,7 +13,10 @@ import core.mention.Mention;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import kotlin.Pair;
 import mysql.hibernate.entity.user.RolePlayBlockEntity;
+import mysql.hibernate.entity.user.RolePlayGender;
+import mysql.hibernate.entity.user.UserEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
@@ -22,30 +25,42 @@ import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public abstract class RolePlayAbstract extends Command implements OnEntitySelectMenuListener {
 
     private final boolean interactive;
-    private final String[] gifs;
+    private final boolean symmetrical;
+    private final HashMap<Pair<RolePlayGender, RolePlayGender>, String[]> gifs = new HashMap<>();
     private String gifUrl;
     private String quote = "";
     private List<Member> selectMenuMemberMentions;
 
-    public RolePlayAbstract(Locale locale, String prefix, boolean interactive, String... gifs) {
+    public RolePlayAbstract(Locale locale, String prefix, boolean interactive, String... otoGifs) {
+        this(locale, prefix, interactive, false, otoGifs);
+    }
+
+    public RolePlayAbstract(Locale locale, String prefix, boolean interactive, boolean symmetrical, String... newGifs) {
         super(locale, prefix);
         this.interactive = interactive;
-        this.gifs = gifs;
+        this.symmetrical = symmetrical;
+        setAtaGifs(newGifs);
     }
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
+        UserEntity userEntity = getUserEntityReadOnly();
+        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember(), event.getRepliedMember());
+
+        selectGif(userEntity, mention, event.getGuild().getIdLong());
+        if (userEntity.rolePlayGenderIsUnspecified()) {
+            setLog(null, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_gender", getPrefix()));
+        }
+
         if (interactive) {
-            return onTriggerInteractive(event, args);
+            return onTriggerInteractive(event, args, mention);
         } else {
             return onTriggerNonInteractive(event, args);
         }
@@ -55,8 +70,7 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         return interactive;
     }
 
-    public boolean onTriggerInteractive(CommandEvent event, String args) throws ExecutionException, InterruptedException {
-        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember(), event.getRepliedMember());
+    public boolean onTriggerInteractive(CommandEvent event, String args, Mention mention) throws ExecutionException, InterruptedException {
         boolean mentionPresent = !mention.getElementList().isEmpty();
         boolean selfReference = !mentionPresent && mention.containedBlockedUser();
 
@@ -84,7 +98,7 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         return true;
     }
 
-    public boolean onTriggerNonInteractive(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTriggerNonInteractive(CommandEvent event, String args) {
         if (!args.isEmpty()) {
             quote = "\n\n>>> " + args;
         }
@@ -113,6 +127,42 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         );
     }
 
+    protected void setFtfGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.FEMALE, RolePlayGender.FEMALE), newGifs);
+    }
+
+    protected void setFtmGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.FEMALE, RolePlayGender.MALE), newGifs);
+    }
+
+    protected void setFtaGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.FEMALE, RolePlayGender.ANY), newGifs);
+    }
+
+    protected void setMtfGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.MALE, RolePlayGender.FEMALE), newGifs);
+    }
+
+    protected void setMtmGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.MALE, RolePlayGender.MALE), newGifs);
+    }
+
+    protected void setMtaGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.MALE, RolePlayGender.ANY), newGifs);
+    }
+
+    protected void setAtfGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.ANY, RolePlayGender.FEMALE), newGifs);
+    }
+
+    protected void setAtmGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.ANY, RolePlayGender.MALE), newGifs);
+    }
+
+    protected void setAtaGifs(String... newGifs) {
+        gifs.put(new Pair<>(RolePlayGender.ANY, RolePlayGender.ANY), newGifs);
+    }
+
     protected EmbedBuilder generateEmbed(Member member, Mention mention, boolean onlySelfReference) throws ExecutionException, InterruptedException {
         String authorString = "**" + StringUtil.escapeMarkdown(member.getEffectiveName()) + "**";
         if (onlySelfReference) {
@@ -139,6 +189,70 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         eb.setImage(gifUrl);
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_footer").replace("{PREFIX}", getPrefix()));
         return eb;
+    }
+
+    private void selectGif(UserEntity userEntity, Mention mention, long guildId) throws ExecutionException, InterruptedException {
+        RolePlayGender selfGender = userEntity.getRolePlayGender();
+        List<RolePlayGender> otherGenders = mention.getElementList().stream()
+                .map(user -> getEntityManager().findUserEntityReadOnly(user.getIdLong()).getRolePlayGender())
+                .distinct()
+                .collect(Collectors.toList());
+
+        RolePlayGender otherGender = RolePlayGender.ANY;
+        if (otherGenders.size() == 1 && otherGenders.contains(RolePlayGender.FEMALE)) {
+            otherGender = RolePlayGender.FEMALE;
+        } else if (otherGenders.size() == 1 && otherGenders.contains(RolePlayGender.MALE)) {
+            otherGender = RolePlayGender.MALE;
+        }
+
+        if (selectGif(selfGender, otherGender, guildId)) {
+            return;
+        }
+        if (selectGif(otherGender, selfGender, guildId)) {
+            return;
+        }
+        if (selectGif(selfGender, RolePlayGender.ANY, guildId)) {
+            return;
+        }
+        if (selectGif(RolePlayGender.ANY, otherGender, guildId)) {
+            return;
+        }
+        selectGif(RolePlayGender.ANY, RolePlayGender.ANY, guildId);
+    }
+
+    private boolean selectGif(RolePlayGender selfGender, RolePlayGender otherGender, long guildId) throws ExecutionException, InterruptedException {
+        HashSet<String> validGifsSet = getValidGifs(selfGender, otherGender);
+        if (symmetrical) {
+            validGifsSet.addAll(getValidGifs(otherGender, selfGender));
+        }
+        List<String> validGifs = new ArrayList<>(validGifsSet);
+
+        if (validGifs.size() >= 3) {
+            gifUrl = validGifs.get(RandomPicker.pick(getTrigger() + "_" + selfGender.getId() + otherGender.getId(), guildId, validGifs.size()).get());
+            return true;
+        }
+        return false;
+    }
+
+    private HashSet<String> getValidGifs(RolePlayGender selfGender, RolePlayGender otherGender) {
+        HashSet<String> validGifs = new HashSet<>();
+
+        for (RolePlayGender selfGenderLookup : getFittingGenders(selfGender)) {
+            for (RolePlayGender otherGenderLookup : getFittingGenders(otherGender)) {
+                String[] validGifsArray = gifs.getOrDefault(new Pair<>(selfGenderLookup, otherGenderLookup), new String[0]);
+                validGifs.addAll(List.of(validGifsArray));
+            }
+        }
+
+        return validGifs;
+    }
+
+    private RolePlayGender[] getFittingGenders(RolePlayGender gender) {
+        return switch (gender) {
+            case FEMALE -> new RolePlayGender[] { RolePlayGender.FEMALE, RolePlayGender.ANY, };
+            case MALE -> new RolePlayGender[] { RolePlayGender.MALE, RolePlayGender.ANY, };
+            case ANY -> new RolePlayGender[] { RolePlayGender.FEMALE, RolePlayGender.MALE, RolePlayGender.ANY, };
+        };
     }
 
     private boolean containsBlockedUsers(long callerUserId, List<ISnowflake> users) {

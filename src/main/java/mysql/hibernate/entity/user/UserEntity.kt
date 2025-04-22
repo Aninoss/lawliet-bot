@@ -73,6 +73,15 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     @ElementCollection
     var autoStockActivities = mutableListOf<AutoStockActivityEntity>()
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rolePlayGender")
+    private var _rolePlayGender: RolePlayGender? = null
+    var rolePlayGender: RolePlayGender
+        get() = _rolePlayGender ?: RolePlayGender.ANY
+        set(value) {
+            _rolePlayGender = value
+        }
+
 
     constructor() : this("0")
 
@@ -97,6 +106,10 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
 
     fun cleanAutoStockActivities() {
         autoStockActivities.removeIf { it.instant.isBefore(Instant.now().minus(Duration.ofDays(7))) }
+    }
+
+    fun rolePlayGenderIsUnspecified(): Boolean {
+        return _rolePlayGender == null
     }
 
 }

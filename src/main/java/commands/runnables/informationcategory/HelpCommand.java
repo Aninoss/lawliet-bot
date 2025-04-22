@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.runnables.*;
 import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
+import commands.runnables.interactionscategory.RolePlayGenderCommand;
 import commands.runnables.nsfwcategory.PersonalNSFWFilterCommand;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
@@ -290,7 +291,10 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private void categoryRolePlay(Member member, EmbedBuilder eb) {
-        AtomicInteger counter = new AtomicInteger(0);
+        eb.setDescription(getString("roleplay_interactive_gender"));
+        buttonMap.put(0, Command.getCommandProperties(RolePlayGenderCommand.class).trigger());
+
+        AtomicInteger counter = new AtomicInteger(1);
         addRolePlayCommandList(member, eb, Category.INTERACTIONS, command -> !command.isInteractive(), counter);
         eb.addBlankField(false);
 
@@ -303,9 +307,10 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private void categoryNSFWRolePlay(Member member, EmbedBuilder eb) {
-        eb.setDescription(getString("interaction_nsfw_desc"));
+        eb.setDescription(getString("roleplay_interactive_gender"));
+        buttonMap.put(0, Command.getCommandProperties(RolePlayGenderCommand.class).trigger());
 
-        AtomicInteger counter = new AtomicInteger(0);
+        AtomicInteger counter = new AtomicInteger(1);
         eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
         addRolePlayCommandList(member, eb, Category.NSFW_INTERACTIONS, command -> true, counter);
 
@@ -319,6 +324,10 @@ public class HelpCommand extends NavigationAbstract {
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+            if (!(command instanceof RolePlayAbstract)) {
+                continue;
+            }
+
             String commandTrigger = command.getTrigger();
             if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())) {
                 buttonMap.put(counter.getAndIncrement(), command.getTrigger());

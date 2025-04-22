@@ -16,11 +16,12 @@ import java.util.Locale;
 public class CumCommand extends RolePlayAbstract {
 
     public CumCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, false);
+
+        setMtfGifs(
                 "https://cdn.discordapp.com/attachments/834500528426844160/834500917847916605/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834500928869761044/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834500940002230332/cum.gif",
-                "https://cdn.discordapp.com/attachments/834500528426844160/834500951191584809/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834500964269686784/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834500991411945482/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834501054635704420/cum.gif",
@@ -35,6 +36,9 @@ public class CumCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834500528426844160/881904994863951873/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/881905088447250443/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/1151397084436627466/cum.gif"
+        );
+        setAtfGifs(
+                "https://cdn.discordapp.com/attachments/834500528426844160/834500951191584809/cum.gif"
         );
     }
 
