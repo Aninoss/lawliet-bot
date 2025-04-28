@@ -137,7 +137,8 @@ public class HugCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736278340733894710/877645631051665519/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/881896699277238282/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/1150478633740271687/yaoihug.gif",
-                "https://cdn.discordapp.com/attachments/736278340733894710/1334543487915524247/yaoihug.gif"
+                "https://cdn.discordapp.com/attachments/736278340733894710/1334543487915524247/yaoihug.gif",
+                "https://cdn.discordapp.com/attachments/736278340733894710/1366354345246855258/yaoihug.gif"
         );
         setMtaGifs(
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277786779451483/hug.gif",
