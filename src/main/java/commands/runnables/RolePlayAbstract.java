@@ -5,6 +5,7 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.OnEntitySelectMenuListener;
 import commands.runnables.interactionscategory.BiteCommand;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.RandomPicker;
@@ -54,9 +55,9 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         UserEntity userEntity = getUserEntityReadOnly();
         Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember(), event.getRepliedMember());
 
-        selectGif(userEntity, mention, event.getGuild().getIdLong());
+        selectGif(userEntity, mention.getElementList(), event.getGuild().getIdLong());
         if (userEntity.rolePlayGenderIsUnspecified()) {
-            setLog(null, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_gender", getPrefix()));
+            setLog(LogStatus.WARNING, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_gender", getPrefix()));
         }
 
         if (interactive) {
@@ -110,11 +111,12 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
     }
 
     @Override
-    public boolean onEntitySelectMenu(@NotNull EntitySelectInteractionEvent event) {
+    public boolean onEntitySelectMenu(@NotNull EntitySelectInteractionEvent event) throws ExecutionException, InterruptedException {
         deregisterListeners();
         selectMenuMemberMentions = event.getMentions().getMembers().stream()
                 .filter(member -> member.getIdLong() != event.getUser().getIdLong())
                 .collect(Collectors.toList());
+        selectGif(getUserEntityReadOnly(), selectMenuMemberMentions, event.getGuild().getIdLong());
         return true;
     }
 
@@ -191,9 +193,9 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         return eb;
     }
 
-    private void selectGif(UserEntity userEntity, Mention mention, long guildId) throws ExecutionException, InterruptedException {
+    private void selectGif(UserEntity userEntity, List<? extends ISnowflake> mentionedUserIds, long guildId) throws ExecutionException, InterruptedException {
         RolePlayGender selfGender = userEntity.getRolePlayGender();
-        List<RolePlayGender> otherGenders = mention.getElementList().stream()
+        List<RolePlayGender> otherGenders = mentionedUserIds.stream()
                 .map(user -> getEntityManager().findUserEntityReadOnly(user.getIdLong()).getRolePlayGender())
                 .distinct()
                 .collect(Collectors.toList());
@@ -205,27 +207,39 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
             otherGender = RolePlayGender.MALE;
         }
 
-        if (selectGif(selfGender, otherGender, guildId)) {
+        String usedCommandTrigger = getAttachment("trigger", String.class);
+        if (usedCommandTrigger != null) {
+            if (usedCommandTrigger.toLowerCase().contains("yaoi")) {
+                selfGender = RolePlayGender.MALE;
+                otherGender = RolePlayGender.MALE;
+            } else if (usedCommandTrigger.toLowerCase().contains("yuri")) {
+                selfGender = RolePlayGender.FEMALE;
+                otherGender = RolePlayGender.FEMALE;
+            }
+        }
+
+        HashSet<String> gifSet = new HashSet<>();
+        if (selectGif(gifSet, selfGender, otherGender, guildId)) {
             return;
         }
-        if (selectGif(otherGender, selfGender, guildId)) {
+        if (selectGif(gifSet, otherGender, selfGender, guildId)) {
             return;
         }
-        if (selectGif(selfGender, RolePlayGender.ANY, guildId)) {
+        if (selectGif(gifSet, selfGender, RolePlayGender.ANY, guildId)) {
             return;
         }
-        if (selectGif(RolePlayGender.ANY, otherGender, guildId)) {
+        if (selectGif(gifSet, RolePlayGender.ANY, otherGender, guildId)) {
             return;
         }
-        selectGif(RolePlayGender.ANY, RolePlayGender.ANY, guildId);
+        selectGif(gifSet, RolePlayGender.ANY, RolePlayGender.ANY, guildId);
     }
 
-    private boolean selectGif(RolePlayGender selfGender, RolePlayGender otherGender, long guildId) throws ExecutionException, InterruptedException {
-        HashSet<String> validGifsSet = getValidGifs(selfGender, otherGender);
+    private boolean selectGif(HashSet<String> gifSet, RolePlayGender selfGender, RolePlayGender otherGender, long guildId) throws ExecutionException, InterruptedException {
+        gifSet.addAll(getValidGifs(selfGender, otherGender));
         if (symmetrical) {
-            validGifsSet.addAll(getValidGifs(otherGender, selfGender));
+            gifSet.addAll(getValidGifs(otherGender, selfGender));
         }
-        List<String> validGifs = new ArrayList<>(validGifsSet);
+        List<String> validGifs = new ArrayList<>(gifSet);
 
         if (validGifs.size() >= 3) {
             gifUrl = validGifs.get(RandomPicker.pick(getTrigger() + "_" + selfGender.getId() + otherGender.getId(), guildId, validGifs.size()).get());

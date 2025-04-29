@@ -96,37 +96,40 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             args = "";
         }
 
-        if (!commandTrigger.isEmpty()) {
-            Locale locale = guildEntity.getLocale();
-            Class<? extends Command> clazz;
-            clazz = CommandContainer.getCommandMap().get(commandTrigger);
+        if (commandTrigger.isEmpty()) {
+            return true;
+        }
 
-            CustomRolePlayEntity customRolePlayEntity;
-            if (clazz == null && guildEntity.getCustomCommands().get(commandTrigger) != null) {
-                clazz = CustomCommand.class;
-                args = commandTrigger;
-            } else if (clazz == null && (customRolePlayEntity = guildEntity.getCustomRolePlayCommandsEffectively().get(commandTrigger)) != null) {
-                clazz = customRolePlayEntity.getNsfw() ? CustomRolePlayNsfwCommand.class : CustomRolePlaySfwCommand.class;
-                args = commandTrigger + " " + args;
+        Locale locale = guildEntity.getLocale();
+        Class<? extends Command> clazz;
+        clazz = CommandContainer.getCommandMap().get(commandTrigger);
+
+        CustomRolePlayEntity customRolePlayEntity;
+        if (clazz == null && guildEntity.getCustomCommands().get(commandTrigger) != null) {
+            clazz = CustomCommand.class;
+            args = commandTrigger;
+        } else if (clazz == null && (customRolePlayEntity = guildEntity.getCustomRolePlayCommandsEffectively().get(commandTrigger)) != null) {
+            clazz = customRolePlayEntity.getNsfw() ? CustomRolePlayNsfwCommand.class : CustomRolePlaySfwCommand.class;
+            args = commandTrigger + " " + args;
+        }
+
+        if (clazz != null) {
+            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+            command.addAttachment("trigger", commandTrigger);
+            if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
+                Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
+                if (CommandManager.commandIsEnabledEffectively(guildEntity, helpCommand, event.getMember(), event.getGuildChannel())) {
+                    args = command.getTrigger();
+                    command = helpCommand;
+                    command.addAttachment("noargs", true);
+                }
             }
 
-            if (clazz != null) {
-                Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-                if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
-                    Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
-                    if (CommandManager.commandIsEnabledEffectively(guildEntity, helpCommand, event.getMember(), event.getGuildChannel())) {
-                        args = command.getTrigger();
-                        command = helpCommand;
-                        command.addAttachment("noargs", true);
-                    }
-                }
-
-                CommandEvent commandEvent = new CommandEvent(event);
-                try {
-                    CommandManager.manage(commandEvent, command, args, guildEntity, getStartTime());
-                } catch (Throwable e) {
-                    ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity);
-                }
+            CommandEvent commandEvent = new CommandEvent(event);
+            try {
+                CommandManager.manage(commandEvent, command, args, guildEntity, getStartTime());
+            } catch (Throwable e) {
+                ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity);
             }
         }
 

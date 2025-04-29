@@ -10,7 +10,7 @@ import java.util.Locale;
         emoji = "\uD83D\uDC50",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "snuggle" }
+        aliases = { "snuggle", "yaoicuddle", "yuricuddle" }
 )
 public class CuddleCommand extends RolePlayAbstract {
 

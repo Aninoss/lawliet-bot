@@ -10,7 +10,8 @@ import java.util.Locale;
         emoji = "\uD83D\uDECF️",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        aliases = { "yaoifuck", "yurifuck" }
 )
 public class FuckCommand extends RolePlayAbstract {
 

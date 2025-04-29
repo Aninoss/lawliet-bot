@@ -9,7 +9,8 @@ import java.util.Locale;
         trigger = "hug",
         emoji = "👐",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        aliases = { "yaoihug", "yurihug" }
 )
 public class HugCommand extends RolePlayAbstract {
 

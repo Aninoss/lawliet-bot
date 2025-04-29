@@ -9,7 +9,8 @@ import java.util.Locale;
         trigger = "kiss",
         emoji = "\uD83D\uDC8B",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        aliases = { "yaoikiss", "yurikiss" }
 )
 public class KissCommand extends RolePlayAbstract {
 
