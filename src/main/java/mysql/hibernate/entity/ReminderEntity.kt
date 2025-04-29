@@ -61,8 +61,7 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity(), LanguageAsse
         }
 
     val valid: Boolean
-        get() = type == Type.DM_REMINDER ||
-                (ShardManager.guildIsManaged(targetId) && ShardManager.getLocalGuildById(targetId).isPresent)
+        get() = type == Type.DM_REMINDER || ShardManager.guildIsManaged(targetId)
 
 
     constructor() : this(null)

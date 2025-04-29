@@ -39,6 +39,9 @@ public class ReminderScheduler {
     }
 
     public static void loadReminder(ReminderEntity reminderEntity) {
+        if (reminderEntity != null && reminderEntity.getTargetId() == 1283991509548662786L) {
+            MainLogger.get().info("[DEBUG] 0"); //TODO Remove again
+        }
         loadReminder(reminderEntity.getId(), reminderEntity.getTriggerTime());
     }
 
@@ -46,8 +49,17 @@ public class ReminderScheduler {
         MainScheduler.schedule(triggerTime, () -> {
             try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(ReminderScheduler.class)) {
                 ReminderEntity reminderEntity = entityManager.find(ReminderEntity.class, id);
+                if (reminderEntity != null && reminderEntity.getTargetId() == 1283991509548662786L) {
+                    MainLogger.get().info("[DEBUG] 1"); //TODO Remove again
+                }
                 if (reminderEntity != null && reminderEntity.getValid() && Instant.now().isAfter(reminderEntity.getTriggerTime())) {
+                    if (reminderEntity.getTargetId() == 1283991509548662786L) {
+                        MainLogger.get().info("[DEBUG] 2"); //TODO Remove again
+                    }
                     onReminderDue(entityManager, reminderEntity);
+                } else if (reminderEntity != null && reminderEntity.getTargetId() == 1283991509548662786L) {
+                    MainLogger.get().info("[DEBUG] A: {}", reminderEntity.getValid()); //TODO Remove again
+                    MainLogger.get().info("[DEBUG] B: {}", Instant.now().isAfter(reminderEntity.getTriggerTime()));//TODO Remove again
                 }
             }
         });
@@ -57,15 +69,35 @@ public class ReminderScheduler {
         entityManager.getTransaction().begin();
         entityManager.remove(reminderEntity);
         entityManager.getTransaction().commit();
+        if (reminderEntity.getTargetId() == 1283991509548662786L) {
+            MainLogger.get().info("[DEBUG] 3"); //TODO Remove again
+        }
 
         GuildEntity guildEntity = entityManager.findGuildEntity(reminderEntity.getConfirmationMessageGuildId());
         if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER) {
+            if (reminderEntity.getTargetId() == 1283991509548662786L) {
+                MainLogger.get().info("[DEBUG] 4"); //TODO Remove again
+            }
             ShardManager.getLocalGuildById(reminderEntity.getTargetId())
                     .map(guild -> guild.getChannelById(GuildMessageChannel.class, reminderEntity.getGuildChannelId()))
-                    .ifPresent(channel -> sendReminder(guildEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, channel));
+                    .ifPresent(channel -> {
+                        if (reminderEntity.getTargetId() == 1283991509548662786L) {
+                            MainLogger.get().info("[DEBUG] 5"); //TODO Remove again
+                        }
+                        sendReminder(guildEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, channel);
+                    });
         } else {
+            if (reminderEntity.getTargetId() == 1283991509548662786L) {
+                MainLogger.get().info("[DEBUG] 6"); //TODO Remove again
+            }
             PrivateChannel privateChannel = JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), reminderEntity.getTargetId()).complete();
+            if (reminderEntity.getTargetId() == 1283991509548662786L) {
+                MainLogger.get().info("[DEBUG] 7"); //TODO Remove again
+            }
             sendReminder(reminderEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, privateChannel);
+        }
+        if (reminderEntity.getTargetId() == 1283991509548662786L) {
+            MainLogger.get().info("[DEBUG] 8"); //TODO Remove again
         }
     }
 
