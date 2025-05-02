@@ -19,7 +19,7 @@ public class InteractionAbstract extends DiscordEventAbstract {
                                            DiscordEventAbstract.EventExecution function
     ) {
         int eventAgeMillis = (int) Duration.between(event.getTimeCreated().toInstant(), Instant.now()).toMillis();
-        try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMillis(1500 - eventAgeMillis)))  {
+        try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMillis(Math.max(200, 1500 - eventAgeMillis))))  {
             asyncTimer.setTimeOutListener(t -> {
                 if (!event.isAcknowledged()) {
                     if (event instanceof GenericComponentInteractionCreateEvent) {
