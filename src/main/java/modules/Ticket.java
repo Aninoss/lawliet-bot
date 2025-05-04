@@ -167,7 +167,7 @@ public class Ticket {
                         .retrieve(channel.getGuild().getIdLong())
                         .put(starterMessage.getIdLong(), new StaticReactionMessageData(starterMessage, commandProperties.trigger()));
             } catch (InterruptedException | ExecutionException e) {
-                MainLogger.get().error("Starter message could not be sent for ticket in guild {}", channel.getGuild().getIdLong());
+                MainLogger.get().error("Starter message could not be sent for ticket in guild {}", channel.getGuild().getIdLong(), e);
             }
 
             /* user message */
