@@ -20,7 +20,6 @@ public class BlowjobCommand extends RolePlayAbstract {
         setFtmGifs(
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491115314610277/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491215537242182/blowjob.gif",
-                "https://cdn.discordapp.com/attachments/834490895260844032/834491223678517288/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491235456516156/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491248382705684/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491260789063700/blowjob.gif",
