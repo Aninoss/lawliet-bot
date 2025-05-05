@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReference;
 import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
@@ -77,20 +76,20 @@ public class SlashAckSendMessageAction implements MessageCreateAction {
 
     @Override
     public void queue(@Nullable Consumer<? super Message> success, @Nullable Consumer<? super Throwable> failure) {
-        replyCallbackAction.flatMap(InteractionHook::retrieveOriginal)
+        replyCallbackAction.map(interactionHook -> interactionHook.getCallbackResponse().getMessage())
                 .queue(success, failure);
     }
 
     @Override
     public Message complete(boolean shouldQueue) throws RateLimitedException {
-        return replyCallbackAction.flatMap(InteractionHook::retrieveOriginal)
+        return replyCallbackAction.map(interactionHook -> interactionHook.getCallbackResponse().getMessage())
                 .complete(shouldQueue);
     }
 
     @NotNull
     @Override
     public CompletableFuture<Message> submit(boolean shouldQueue) {
-        return replyCallbackAction.flatMap(InteractionHook::retrieveOriginal)
+        return replyCallbackAction.map(interactionHook -> interactionHook.getCallbackResponse().getMessage())
                 .submit(shouldQueue);
     }
 
