@@ -1,13 +1,13 @@
 package core.interactionresponse;
 
-import java.util.Collection;
-import java.util.List;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
+
+import java.util.Collection;
+import java.util.List;
 
 public class ComponentInteractionResponse extends InteractionResponse {
 
@@ -36,7 +36,7 @@ public class ComponentInteractionResponse extends InteractionResponse {
             return event.replyEmbeds(embeds)
                     .setComponents(actionRows)
                     .setEphemeral(ephemeral)
-                    .flatMap(InteractionHook::retrieveOriginal);
+                    .map(interactionHook -> interactionHook.getCallbackResponse().getMessage());
         } else {
             return event.getHook().sendMessageEmbeds(embeds)
                     .setComponents(actionRows)
