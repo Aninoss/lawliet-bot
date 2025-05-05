@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -282,7 +281,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         long messageId = event.reply("")
                 .setEphemeral(true)
                 .setComponents(generatePlayerActionRows(player))
-                .flatMap(InteractionHook::retrieveOriginal)
+                .map(interactionHook -> interactionHook.getCallbackResponse().getMessage())
                 .complete()
                 .getIdLong();
         userPrivateTerminalMap.put(event.getUser().getIdLong(), messageId);
