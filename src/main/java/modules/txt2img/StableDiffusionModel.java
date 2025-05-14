@@ -27,18 +27,18 @@ public enum StableDiffusionModel {
                     .put("sampler_name", "Euler a")
     ),
 
-    WAI_ANI_SFW(
-            "sf4z2vuf6zo417",
+    WAI_SFW(
+            "p5ocrvhvqi5k3w",
             12000,
             true,
             false,
             Set.of(Txt2ImgCommand.class),
-            ", source_anime, score_9, score_8_up, score_7_up, zPDXL3, zPDXLpg, rating_safe",
-            "",
+            "masterpiece, best quality, amazing quality, ",
+            "bad quality, worst quality, worst detail, sketch, censor, signature, patreon, watermark, artist name, cropped, ",
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
                     .put("height", params.aspectRatio.getHeight())
-                    .put("cfg_scale", 7)
+                    .put("cfg_scale", 6)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")
@@ -64,17 +64,17 @@ public enum StableDiffusionModel {
     ),
 
     NOVA_FURRY_SFW(
-            "7lh2avgf34pryg",
+            "c3skif2r7lkbyu",
             12000,
             true,
             false,
             Set.of(Txt2ImgCommand.class),
-            ", source_furry, BREAK, furry, anthro, detailed face and eyes, zPDXL3, zPDXLpg, rating_safe",
-            "",
+            "masterpiece, best quality, amazing quality, very aesthetic, high resolution, ultra-detailed, absurdres, newest, scenery, furry, anthro, BREAK, detailed background, detailed hair, depth of field, detailed fluffy fur, photorealistic details, volumetric lighting, ",
+            "human, multiple tails, modern, recent, old, oldest, graphic, cartoon, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, very displeasing, (worst quality, bad quality:1.2), bad anatomy, sketch, jpeg artifacts, signature, watermark, username, simple background, conjoined, bad ai-generated, ",
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
                     .put("height", params.aspectRatio.getHeight())
-                    .put("cfg_scale", 7)
+                    .put("cfg_scale", 4)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")
@@ -82,35 +82,35 @@ public enum StableDiffusionModel {
     ),
 
     NOVA_ANIMAL_SFW(
-            "h0agh6vvqgp0bv",
+            "uer5tf6bt0fe35",
             12000,
             true,
             false,
             Set.of(Txt2ImgCommand.class),
-            ", source_furry, BREAK, furry, anthro, realistic, photo, detailed face and eyes, zPDXL3, zPDXLpg, rating_safe",
-            "",
+            "masterpiece, best quality, amazing quality, very aesthetic, high resolution, ultra-detailed, absurdres, scenery, photo, realistic, furry, anthro, BREAK, depth of field, detailed fluffy fur, photorealistic details, ",
+            "smooth skin, human, multiple tails, 2d, art, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst quality, bad quality:1.2), bad anatomy, sketch, jpeg artifacts, signature, watermark, username, simple background, conjoined, bad ai-generated, ",
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
                     .put("height", params.aspectRatio.getHeight())
-                    .put("cfg_scale", 7)
+                    .put("cfg_scale", 5)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")
                     .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
     ),
 
-    WAI_ANI_NSFW(
-            "sf4z2vuf6zo417",
+    WAI_NSFW(
+            "p5ocrvhvqi5k3w",
             12000,
             true,
             false,
             Set.of(Txt2HentaiCommand.class),
-            ", source_anime, score_9, score_8_up, score_7_up, zPDXL3, zPDXLxxx, rating_explicit",
-            "",
+            "masterpiece, best quality, amazing quality, explicit, lazynsfw, ",
+            "bad quality, worst quality, worst detail, sketch, censor, signature, patreon, watermark, artist name, cropped, ",
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
                     .put("height", params.aspectRatio.getHeight())
-                    .put("cfg_scale", 7)
+                    .put("cfg_scale", 6)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")
@@ -136,17 +136,17 @@ public enum StableDiffusionModel {
     ),
 
     NOVA_FURRY_NSFW(
-            "7lh2avgf34pryg",
+            "c3skif2r7lkbyu",
             12000,
             true,
             false,
             Set.of(Txt2HentaiCommand.class),
-            ", source_furry, BREAK, furry, anthro, detailed face and eyes, zPDXL3, zPDXLxxx, rating_explicit",
-            "",
+            "masterpiece, best quality, amazing quality, very aesthetic, high resolution, ultra-detailed, absurdres, newest, scenery, furry, anthro, BREAK, detailed background, detailed hair, depth of field, detailed fluffy fur, photorealistic details, volumetric lighting, explicit, lazynsfw, ",
+            "human, multiple tails, modern, recent, old, oldest, graphic, cartoon, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, very displeasing, (worst quality, bad quality:1.2), bad anatomy, sketch, jpeg artifacts, signature, watermark, username, simple background, conjoined, bad ai-generated, ",
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
                     .put("height", params.aspectRatio.getHeight())
-                    .put("cfg_scale", 7)
+                    .put("cfg_scale", 4)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")
@@ -154,17 +154,17 @@ public enum StableDiffusionModel {
     ),
 
     NOVA_ANIMAL_NSFW(
-            "h0agh6vvqgp0bv",
+            "uer5tf6bt0fe35",
             12000,
             true,
             false,
             Set.of(Txt2HentaiCommand.class),
-            ", source_furry, BREAK, furry, anthro, realistic, photo, detailed face and eyes, zPDXL3, zPDXLxxx, rating_explicit",
-            "",
+            "masterpiece, best quality, amazing quality, very aesthetic, high resolution, ultra-detailed, absurdres, scenery, photo, realistic, furry, anthro, BREAK, depth of field, detailed fluffy fur, photorealistic details, explicit, lazynsfw, ",
+            "smooth skin, human, multiple tails, 2d, art, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst quality, bad quality:1.2), bad anatomy, sketch, jpeg artifacts, signature, watermark, username, simple background, conjoined, bad ai-generated, ",
             params -> new JSONObject()
                     .put("width", params.aspectRatio.getWidth())
                     .put("height", params.aspectRatio.getHeight())
-                    .put("cfg_scale", 7)
+                    .put("cfg_scale", 5)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")

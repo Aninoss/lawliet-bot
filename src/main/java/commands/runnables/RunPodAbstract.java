@@ -50,7 +50,6 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     public static int LIMIT_CREATIONS_PER_WEEK = 50;
     public static int PROMPT_MAX_LENGTH = 2000;
-    public static String DEFAULT_NEGATIVE_PROMPT = "low-res, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, monochrome";
     private static final String[] INAPPROPRIATE_CONTENT_FILTERS = {"nigga", "nigger", "niggas", "niggers", "rape", "raping", "raped"};
 
     private static final int STATE_ADJUST_IMAGES = 1,
@@ -264,8 +263,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         StableDiffusionModel model = StableDiffusionModel.values()[Integer.parseInt(event.getValues().get(0))];
         String predictionId = RunPodDownloader.createTxt2ImgPrediction(
                 model,
-                localPrompt + model.getAdditionalPrompt(),
-                additionalNegativePrompt + localNegativePrompt + (localNegativePrompt.isEmpty() ? "" : ", ") + DEFAULT_NEGATIVE_PROMPT + model.getAdditionalNegativePrompt(),
+                model.getAdditionalPrompt() + localPrompt,
+                additionalNegativePrompt + model.getAdditionalNegativePrompt() + localNegativePrompt,
                 localImages,
                 localAspectRatio
         ).get();

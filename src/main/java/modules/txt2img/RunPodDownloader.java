@@ -23,6 +23,10 @@ public class RunPodDownloader {
         if (!negativePrompt.isBlank()) {
             inputJson.put("negative_prompt", negativePrompt);
         }
+        if (!Program.productionMode()) {
+            System.out.println("Prompt: " + prompt);
+            System.out.println("Negative Prompt: " + negativePrompt);
+        }
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("input", inputJson);
