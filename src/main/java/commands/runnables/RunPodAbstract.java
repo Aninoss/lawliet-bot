@@ -50,20 +50,21 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     public static int LIMIT_CREATIONS_PER_WEEK = 50;
     public static int PROMPT_MAX_LENGTH = 2000;
-    public static String DEFAULT_NEGATIVE_PROMPT = "low-res, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, (deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, monochrome";
     private static final String[] INAPPROPRIATE_CONTENT_FILTERS = {"nigga", "nigger", "niggas", "niggers", "rape", "raping", "raped"};
 
     private static final int STATE_ADJUST_IMAGES = 1,
             STATE_ADJUST_RATIO = 2,
             STATE_UPSCALE_RESULTS = 3;
 
+    private final String additionalPrompt;
     private final String additionalNegativePrompt;
     private String prompt;
     private String negativePrompt;
     private List<? extends File> previousImageFiles = null;
 
-    public RunPodAbstract(Locale locale, String prefix, String additionalNegativePrompt) {
+    public RunPodAbstract(Locale locale, String prefix, String additionalPrompt, String additionalNegativePrompt) {
         super(locale, prefix);
+        this.additionalPrompt = additionalPrompt;
         this.additionalNegativePrompt = additionalNegativePrompt;
     }
 
@@ -264,8 +265,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         StableDiffusionModel model = StableDiffusionModel.values()[Integer.parseInt(event.getValues().get(0))];
         String predictionId = RunPodDownloader.createTxt2ImgPrediction(
                 model,
-                localPrompt + model.getAdditionalPrompt(),
-                additionalNegativePrompt + localNegativePrompt + (localNegativePrompt.isEmpty() ? "" : ", ") + DEFAULT_NEGATIVE_PROMPT + model.getAdditionalNegativePrompt(),
+                additionalPrompt + model.getAdditionalPrompt() + localPrompt,
+                additionalNegativePrompt + model.getAdditionalNegativePrompt() + localNegativePrompt,
                 localImages,
                 localAspectRatio
         ).get();
@@ -275,7 +276,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         AtomicLong messageId = new AtomicLong(0);
         AtomicReference<Throwable> error = new AtomicReference<>();
 
-        String modelName = getString("model_name_" + model.name());
+        String modelName = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_name_" + model.name());
         setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
 
         if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, localImages,
@@ -323,13 +324,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
         for (int i = 0; i < StableDiffusionModel.values().length; i++) {
             StableDiffusionModel model = StableDiffusionModel.values()[i];
-            if (!model.getClasses().contains(getClass())) {
-                continue;
-            }
             menuBuilder.addOption(
-                    getString("model_style_" + model.name()),
+                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_style_" + model.name()),
                     String.valueOf(i),
-                    getString("model_name_" + model.name())
+                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_name_" + model.name())
             );
         }
         actionRows.add(ActionRow.of(menuBuilder.build()));
@@ -466,7 +464,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 )
         );
         if (model != null) {
-            String modelName = getString("model_name_" + model.name());
+            String modelName = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_name_" + model.name());
             options += "\n" + TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_options_model", modelName);
         }
 
@@ -488,18 +486,16 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             try {
                 predictionResult.set(RunPodDownloader.retrieveTxt2ImgPrediction(model, predictionId, startTime, images).get());
                 if (predictionResult.get().getStatus() == PredictionResult.Status.COMPLETED) {
-                    if (model.getCustomModel()) {
-                        List<LocalFile> newOutputs = InternetUtil.base64ToLocalFile(predictionResult.get().getOutputs());
-                        newOutputs.forEach(file -> {
-                            try {
-                                AIWatermarkGraphics.addAIWatermark(file);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                        predictionResult.get().setOutputs(newOutputs.stream().map(LocalFile::cdnGetUrl).collect(Collectors.toList()));
-                    }
-                    if (model.getCheckNsfw() && Program.productionMode()) {
+                    List<LocalFile> newOutputs = InternetUtil.base64ToLocalFile(predictionResult.get().getOutputs());
+                    newOutputs.forEach(file -> {
+                        try {
+                            AIWatermarkGraphics.addAIWatermark(file);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                    predictionResult.get().setOutputs(newOutputs.stream().map(LocalFile::cdnGetUrl).collect(Collectors.toList()));
+                    if (Program.productionMode()) {
                         predictionResult.get().setOutputs(processNsfwImages(predictionResult.get().getOutputs()));
                     }
                     Txt2ImgLogger.log(prompt, negativePrompt, member, model.name(), predictionResult.get().getOutputs());
