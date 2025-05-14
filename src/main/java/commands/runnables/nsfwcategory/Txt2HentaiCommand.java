@@ -22,7 +22,7 @@ public class Txt2HentaiCommand extends RunPodAbstract {
     private final String[] ADDITIONAL_TAGS = {"chibi"};
 
     public Txt2HentaiCommand(Locale locale, String prefix) {
-        super(locale, prefix, "looks underage, child, ");
+        super(locale, prefix, "explicit, lazynsfw, ", "looks underage, child, teen, ");
     }
 
     @Override
