@@ -56,13 +56,15 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             STATE_ADJUST_RATIO = 2,
             STATE_UPSCALE_RESULTS = 3;
 
+    private final String additionalPrompt;
     private final String additionalNegativePrompt;
     private String prompt;
     private String negativePrompt;
     private List<? extends File> previousImageFiles = null;
 
-    public RunPodAbstract(Locale locale, String prefix, String additionalNegativePrompt) {
+    public RunPodAbstract(Locale locale, String prefix, String additionalPrompt, String additionalNegativePrompt) {
         super(locale, prefix);
+        this.additionalPrompt = additionalPrompt;
         this.additionalNegativePrompt = additionalNegativePrompt;
     }
 
@@ -263,7 +265,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         StableDiffusionModel model = StableDiffusionModel.values()[Integer.parseInt(event.getValues().get(0))];
         String predictionId = RunPodDownloader.createTxt2ImgPrediction(
                 model,
-                model.getAdditionalPrompt() + localPrompt,
+                additionalPrompt + model.getAdditionalPrompt() + localPrompt,
                 additionalNegativePrompt + model.getAdditionalNegativePrompt() + localNegativePrompt,
                 localImages,
                 localAspectRatio
@@ -274,7 +276,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         AtomicLong messageId = new AtomicLong(0);
         AtomicReference<Throwable> error = new AtomicReference<>();
 
-        String modelName = getString("model_name_" + model.name());
+        String modelName = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_name_" + model.name());
         setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
 
         if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, localImages,
@@ -322,13 +324,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
         for (int i = 0; i < StableDiffusionModel.values().length; i++) {
             StableDiffusionModel model = StableDiffusionModel.values()[i];
-            if (!model.getClasses().contains(getClass())) {
-                continue;
-            }
             menuBuilder.addOption(
-                    getString("model_style_" + model.name()),
+                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_style_" + model.name()),
                     String.valueOf(i),
-                    getString("model_name_" + model.name())
+                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_name_" + model.name())
             );
         }
         actionRows.add(ActionRow.of(menuBuilder.build()));
@@ -465,7 +464,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 )
         );
         if (model != null) {
-            String modelName = getString("model_name_" + model.name());
+            String modelName = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_name_" + model.name());
             options += "\n" + TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_options_model", modelName);
         }
 
