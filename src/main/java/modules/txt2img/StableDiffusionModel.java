@@ -10,7 +10,6 @@ public enum StableDiffusionModel {
             "gevo8ndzux6u9i",
             12000,
             true,
-            false,
             "masterpiece, best quality, amazing quality, photorealistic, ",
             "3d, anime, 2d, bad quality, worst quality, worst detail, sketch, censor, simple background, ",
             params -> new JSONObject()
@@ -27,7 +26,6 @@ public enum StableDiffusionModel {
             "p5ocrvhvqi5k3w",
             12000,
             true,
-            false,
             "masterpiece, best quality, amazing quality, ",
             "bad quality, worst quality, worst detail, sketch, censor, signature, patreon, watermark, artist name, cropped, ",
             params -> new JSONObject()
@@ -44,7 +42,6 @@ public enum StableDiffusionModel {
             "yq3klb4sx1f1xn",
             12000,
             true,
-            false,
             "masterpiece, best quality, amazing quality, very aesthetic, high resolution, ultra-detailed, absurdres, newest, scenery, 3D, rendered, BREAK, depth of field, volumetric lighting, lazyreal, ",
             "modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, very displeasing, (worst quality, bad quality:1.2), bad anatomy, sketch, jpeg artifacts, signature, watermark, username, simple background, conjoined, bad ai-generated, ",
             params -> new JSONObject()
@@ -61,7 +58,6 @@ public enum StableDiffusionModel {
             "c3skif2r7lkbyu",
             12000,
             true,
-            false,
             "masterpiece, best quality, amazing quality, very aesthetic, high resolution, ultra-detailed, absurdres, newest, scenery, furry, anthro, BREAK, detailed background, detailed hair, depth of field, detailed fluffy fur, photorealistic details, volumetric lighting, ",
             "human, multiple tails, modern, recent, old, oldest, graphic, cartoon, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, cropped, very displeasing, (worst quality, bad quality:1.2), bad anatomy, sketch, jpeg artifacts, signature, watermark, username, simple background, conjoined, bad ai-generated, ",
             params -> new JSONObject()
@@ -78,7 +74,6 @@ public enum StableDiffusionModel {
             "uer5tf6bt0fe35",
             12000,
             true,
-            false,
             "masterpiece, best quality, amazing quality, very aesthetic, high resolution, ultra-detailed, absurdres, scenery, photo, realistic, furry, anthro, BREAK, depth of field, detailed fluffy fur, photorealistic details, ",
             "smooth skin, human, multiple tails, 2d, art, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst quality, bad quality:1.2), bad anatomy, sketch, jpeg artifacts, signature, watermark, username, simple background, conjoined, bad ai-generated, ",
             params -> new JSONObject()
@@ -94,18 +89,16 @@ public enum StableDiffusionModel {
     private final String modelId;
     private final int expectedTimeMs;
     private final boolean customModel;
-    private final boolean checkNsfw;
     private final String additionalPrompt;
     private final String additionalNegativePrompt;
     private final Function<ModelInputParameters, JSONObject> inputFunction;
 
-    StableDiffusionModel(String modelId, int expectedTimeMs, boolean customModel, boolean checkNsfw,
+    StableDiffusionModel(String modelId, int expectedTimeMs, boolean customModel,
                          String additionalPrompt, String additionalNegativePrompt, Function<ModelInputParameters, JSONObject> inputFunction
     ) {
         this.modelId = modelId;
         this.expectedTimeMs = expectedTimeMs;
         this.customModel = customModel;
-        this.checkNsfw = checkNsfw;
         this.additionalPrompt = additionalPrompt;
         this.additionalNegativePrompt = additionalNegativePrompt;
         this.inputFunction = inputFunction;
@@ -121,10 +114,6 @@ public enum StableDiffusionModel {
 
     public boolean getCustomModel() {
         return customModel;
-    }
-
-    public boolean getCheckNsfw() {
-        return checkNsfw;
     }
 
     public String getAdditionalPrompt() {

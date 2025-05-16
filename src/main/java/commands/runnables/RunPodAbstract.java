@@ -497,7 +497,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                         });
                         predictionResult.get().setOutputs(newOutputs.stream().map(LocalFile::cdnGetUrl).collect(Collectors.toList()));
                     }
-                    if (model.getCheckNsfw() && Program.productionMode()) {
+                    if (Program.productionMode()) {
                         predictionResult.get().setOutputs(processNsfwImages(predictionResult.get().getOutputs()));
                     }
                     Txt2ImgLogger.log(prompt, negativePrompt, member, model.name(), predictionResult.get().getOutputs());
