@@ -231,17 +231,21 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         if (selectGif(gifSet, RolePlayGender.ANY, otherGender, guildId)) {
             return;
         }
-        selectGif(gifSet, RolePlayGender.ANY, RolePlayGender.ANY, guildId);
+        selectGif(gifSet, RolePlayGender.ANY, RolePlayGender.ANY, guildId, true);
     }
 
     private boolean selectGif(HashSet<String> gifSet, RolePlayGender selfGender, RolePlayGender otherGender, long guildId) throws ExecutionException, InterruptedException {
+        return selectGif(gifSet, selfGender, otherGender, guildId, false);
+    }
+
+    private boolean selectGif(HashSet<String> gifSet, RolePlayGender selfGender, RolePlayGender otherGender, long guildId, boolean ignoreThreshold) throws ExecutionException, InterruptedException {
         gifSet.addAll(getValidGifs(selfGender, otherGender));
         if (symmetrical) {
             gifSet.addAll(getValidGifs(otherGender, selfGender));
         }
         List<String> validGifs = new ArrayList<>(gifSet);
 
-        if (validGifs.size() >= 3) {
+        if (validGifs.size() >= 3 || ignoreThreshold) {
             gifUrl = validGifs.get(RandomPicker.pick(getTrigger() + "_" + selfGender.getId() + otherGender.getId(), guildId, validGifs.size()).get());
             return true;
         }
