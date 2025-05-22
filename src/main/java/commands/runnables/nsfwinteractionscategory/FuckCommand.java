@@ -152,9 +152,6 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/1130880574412828672/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/1220286272581668864/fuck.gif"
         );
-        setFtaGifs(
-                "https://cdn.discordapp.com/attachments/736281485216317442/736281732835180565/fuck.gif"
-        );
         setMtmGifs(
                 "https://cdn.discordapp.com/attachments/736282657062912080/736282666126540870/yaoifuck.gif",
                 "https://cdn.discordapp.com/attachments/736282657062912080/736282674771001514/yaoifuck.gif",
