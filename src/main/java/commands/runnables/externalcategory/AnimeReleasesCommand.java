@@ -6,7 +6,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.MainLogger;
 import core.utils.EmbedUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
@@ -96,18 +95,12 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
         Collections.reverse(embedList);
         if (!embedList.isEmpty()) {
             slot.sendMessage(getLocale(), true, embedList);
-            if (slot.getGuildId() == 1190310706248167506L) {
-                MainLogger.get().info("### Crunchyroll triggered 1");
-            }
         }
 
         if (first && postBundle.getPosts().isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
             slot.sendMessage(getLocale(), false, eb.build());
-            if (slot.getGuildId() == 1190310706248167506L) {
-                MainLogger.get().info("### Crunchyroll triggered 2");
-            }
         }
 
         if (postBundle.getNewestPost() != null) {

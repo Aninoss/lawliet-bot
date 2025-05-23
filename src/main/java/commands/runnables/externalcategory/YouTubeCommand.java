@@ -20,10 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -85,21 +82,33 @@ public class YouTubeCommand extends Command implements OnAlertListener {
 
         String thresholdString = slot.getArgs().orElse(null);
         List<MessageEmbed> embedList = Collections.emptyList();
+        Instant threshold;
         if (thresholdString != null) {
-            Instant threshold = Instant.parse(thresholdString);
+            threshold = Instant.parse(thresholdString);
             embedList = videos.stream()
                     .filter(article -> article.getPublicationTime().isAfter(threshold))
                     .map(post -> getEmbed(post, false).build())
                     .collect(Collectors.toCollection(ArrayList::new));
             Collections.reverse(embedList);
-        } else if (!videos.isEmpty()) {
-            embedList = List.of(getEmbed(videos.get(0), false).build());
+        } else {
+            threshold = Instant.MIN;
+            if (!videos.isEmpty()) {
+                embedList = List.of(getEmbed(videos.get(0), false).build());
+            }
         }
 
         if (!embedList.isEmpty()) {
             slot.sendMessage(getLocale(), true, embedList);
         }
-        slot.setArgs(videos.isEmpty() ? Instant.MIN.toString() : videos.get(0).getPublicationTime().toString());
+
+        Instant maxPublicationTime = threshold;
+        for (YouTubeVideo video : videos) {
+            if (video.getPublicationTime().isAfter(maxPublicationTime)) {
+                maxPublicationTime = video.getPublicationTime();
+            }
+        }
+
+        slot.setArgs(maxPublicationTime.toString());
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
