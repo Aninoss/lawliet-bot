@@ -17,6 +17,8 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -60,6 +62,15 @@ public final class StringUtil {
         }
 
         return true;
+    }
+
+    public static boolean stringIsInstant(String string) {
+        try {
+            Instant.parse(string);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
     }
 
     public static long filterLongFromString(String string) {

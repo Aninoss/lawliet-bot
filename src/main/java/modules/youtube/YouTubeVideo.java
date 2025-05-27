@@ -25,6 +25,10 @@ public class YouTubeVideo {
         this.likes = likes;
     }
 
+    public String getId() {
+        return link.split("\\?v=")[1];
+    }
+
     public String getCreator() {
         return creator;
     }

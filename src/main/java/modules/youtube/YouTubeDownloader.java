@@ -13,14 +13,13 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class YouTubeDownloader {
 
     private static final String[] CHANNEL_FINDER_KEYS = new String[]{"data-channel-external-id=\"", "\"externalId\":\""};
 
-    public static List<YouTubeVideo> retrieveVideos(String handle) throws ExecutionException, InterruptedException, IOException {
+    public static ArrayList<YouTubeVideo> retrieveVideos(String handle) throws ExecutionException, InterruptedException, IOException {
         if (!handle.startsWith("@")) {
             handle = "@" + handle;
         }

@@ -15,6 +15,7 @@ import modules.youtube.YouTubeVideo;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -67,7 +68,7 @@ public class YouTubeCommand extends Command implements OnAlertListener {
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
 
-        List<YouTubeVideo> videos = YouTubeDownloader.retrieveVideos(slot.getCommandKey());
+        ArrayList<YouTubeVideo> videos = YouTubeDownloader.retrieveVideos(slot.getCommandKey());
         if (videos == null) {
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, slot.getCommandKey());
@@ -79,36 +80,31 @@ public class YouTubeCommand extends Command implements OnAlertListener {
                 return AlertResponse.CONTINUE_AND_SAVE;
             }
         }
+        Collections.reverse(videos);
 
-        String thresholdString = slot.getArgs().orElse(null);
-        List<MessageEmbed> embedList = Collections.emptyList();
-        Instant threshold;
-        if (thresholdString != null) {
-            threshold = Instant.parse(thresholdString);
-            embedList = videos.stream()
-                    .filter(article -> article.getPublicationTime().isAfter(threshold))
-                    .map(post -> getEmbed(post, false).build())
-                    .collect(Collectors.toCollection(ArrayList::new));
-            Collections.reverse(embedList);
-        } else {
-            threshold = Instant.MIN;
-            if (!videos.isEmpty()) {
-                embedList = List.of(getEmbed(videos.get(0), false).build());
-            }
+        ArrayList<String> idList = slot.getArgs().isPresent() ? new ArrayList<>(List.of(slot.getArgs().get().split(","))) : new ArrayList<>();
+        if (idList.size() == 1 && StringUtil.stringIsInstant(idList.get(0))) {
+            List<String> newIdList = videos.stream().map(YouTubeVideo::getId).collect(Collectors.toList());
+            slot.setArgs(StringUtils.join(newIdList, ","));
+            return AlertResponse.CONTINUE_AND_SAVE;
         }
 
+        List<MessageEmbed> embedList = videos.stream()
+                .filter(video -> !idList.contains(video.getId()))
+                .peek(video -> idList.add(video.getId()))
+                .map(post -> getEmbed(post, false).build())
+                .collect(Collectors.toList());
+        if (slot.getArgs().isEmpty()) {
+            embedList = List.of(embedList.get(embedList.size() - 1));
+        }
         if (!embedList.isEmpty()) {
             slot.sendMessage(getLocale(), true, embedList);
         }
 
-        Instant maxPublicationTime = threshold;
-        for (YouTubeVideo video : videos) {
-            if (video.getPublicationTime().isAfter(maxPublicationTime)) {
-                maxPublicationTime = video.getPublicationTime();
-            }
+        while (idList.size() > 250) {
+            idList.remove(0);
         }
-
-        slot.setArgs(maxPublicationTime.toString());
+        slot.setArgs(StringUtils.join(idList, ","));
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
