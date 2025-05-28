@@ -63,6 +63,7 @@ public class FisheryMemberData implements MemberAsset {
     public final String FIELD_DIAMONDS = "diamonds";
     public final String FIELD_POWERUP = "powerup";
     public final String FIELD_COUPONS = "coupons";
+    public final String FIELD_WEEKLY_OPENED_TREASURE_CHESTS = "weekly_opened_treasure_chests";
 
     FisheryMemberData(FisheryGuildData fisheryGuildData, long memberId) {
         this.fisheryGuildData = fisheryGuildData;
@@ -190,6 +191,11 @@ public class FisheryMemberData implements MemberAsset {
                 : 0;
     }
 
+    public int getWeeklyOpenedTreasureChests() {
+        cleanDailyValues();
+        return RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_WEEKLY_OPENED_TREASURE_CHESTS));
+    }
+
     public void decreaseCoupons() {
         RedisManager.update(jedis -> {
             Pipeline pipeline = jedis.pipelined();
@@ -204,6 +210,15 @@ public class FisheryMemberData implements MemberAsset {
             Pipeline pipeline = jedis.pipelined();
             FisheryUserManager.setUserActiveOnGuild(pipeline, this);
             pipeline.hset(KEY_ACCOUNT, FIELD_COUPONS, String.valueOf(coupons));
+            pipeline.sync();
+        });
+    }
+
+    public void increaseWeeklyOpenedTreasureChests() {
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hincrBy(KEY_ACCOUNT, FIELD_WEEKLY_OPENED_TREASURE_CHESTS, 1);
             pipeline.sync();
         });
     }
@@ -372,6 +387,9 @@ public class FisheryMemberData implements MemberAsset {
                 pipeline.hdel(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED);
                 pipeline.hdel(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED_MAX);
                 pipeline.hdel(KEY_ACCOUNT, FIELD_VOICE_MINUTES);
+                if (dailyValuesUpdated == null || TimeUtil.getCurrentWeekOfYear() != TimeUtil.getWeekOfYear(dailyValuesUpdated)) {
+                    pipeline.hdel(KEY_ACCOUNT, FIELD_WEEKLY_OPENED_TREASURE_CHESTS);
+                }
                 pipeline.sync();
             });
         }

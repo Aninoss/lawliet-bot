@@ -398,6 +398,34 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         return container
     }
 
+    private fun generateWeeklyTreasureChestLimitField(): DashboardComponent {
+        val container = VerticalContainer()
+
+        val limitNumberField = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_chestlimit"), 1, FisheryCommand.MAX_WEEKLY_TREASURE_CHEST_LIMIT.toLong()) {
+            if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                return@DashboardNumberField ActionResult()
+                    .withRedraw()
+            }
+
+            guildEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.FISHERY_WEEKLY_TREASURE_CHEST_LIMIT, atomicMember, fisheryEntity.weeklyTreasureChestUserLimit, it.data)
+            fisheryEntity.weeklyTreasureChestUserLimit = it.data.toInt()
+            guildEntity.commitTransaction()
+            ActionResult()
+        }
+        limitNumberField.value = fisheryEntity.weeklyTreasureChestUserLimit.toLong()
+        limitNumberField.isEnabled = isPremium
+
+        container.add(limitNumberField, DashboardText(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_chestlimit_sub"), DashboardText.Style.HINT))
+        if (!isPremium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
+        }
+
+        return container
+    }
+
     private fun generateVoiceLimitField(): DashboardComponent {
         val container = VerticalContainer()
         container.isCard = true
@@ -603,14 +631,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
         workIntervalField.value = fisheryEntity.workIntervalMinutesEffectively
         workIntervalField.isEnabled = isPremium
-        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_workinterval")), workIntervalField)
-
-        if (!isPremium) {
-            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
-            text.style = DashboardText.Style.ERROR
-            container.add(text)
-        }
-
+        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fishery_dashboard_workinterval")), workIntervalField, generateWeeklyTreasureChestLimitField())
         return container
     }
 

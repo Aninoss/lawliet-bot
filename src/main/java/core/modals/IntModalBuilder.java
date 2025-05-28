@@ -46,5 +46,4 @@ public class IntModalBuilder extends AbstractModalBuilder<Integer, IntModalBuild
         return String.valueOf(value);
     }
 
-
 }

@@ -1,5 +1,6 @@
 package mysql.hibernate.entity.guild
 
+import commands.runnables.fisherysettingscategory.FisheryCommand
 import core.atomicassets.AtomicGuildChannel
 import core.atomicassets.AtomicGuildMessageChannel
 import core.cache.ServerPatreonBoostCache
@@ -94,6 +95,16 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
         }
     val workIntervalMinutesEffectively: Long
         get() = if (ServerPatreonBoostCache.get(guildId)) workIntervalMinutes else 240L
+
+    @Column(name = "$FISHERY.weeklyTreasureChestUserLimit")
+    private var _weeklyTreasureChestUserLimit: Int? = null
+    var weeklyTreasureChestUserLimit: Int
+        get() = _weeklyTreasureChestUserLimit ?: FisheryCommand.MAX_WEEKLY_TREASURE_CHEST_LIMIT
+        set(value) {
+            _weeklyTreasureChestUserLimit = value
+        }
+    val weeklyTreasureChestUserLimitEffectively: Int
+        get() = if (ServerPatreonBoostCache.get(guildId)) weeklyTreasureChestUserLimit else FisheryCommand.MAX_WEEKLY_TREASURE_CHEST_LIMIT
 
     @ElementCollection
     var excludedChannelIds: MutableList<Long> = mutableListOf()

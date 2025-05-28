@@ -15,6 +15,7 @@ import core.*;
 import core.atomicassets.AtomicGuildChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.modals.DurationModalBuilder;
+import core.modals.IntModalBuilder;
 import core.modals.ModalMediator;
 import core.utils.*;
 import modules.fishery.Fishery;
@@ -58,6 +59,7 @@ import java.util.*;
 public class FisheryCommand extends NavigationAbstract implements OnStaticButtonListener, OnStaticEntitySelectMenuListener {
 
     public static final int MAX_EXCLUDED_CHANNELS = 25;
+    public static final int MAX_WEEKLY_TREASURE_CHEST_LIMIT = 999;
 
     public static final String BUTTON_ID_TREASURE = "open";
     public static final String BUTTON_ID_POWERUP = "use";
@@ -238,11 +240,26 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 return false;
             }
             case 7 -> {
+                if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                    return true;
+                }
+
+                Modal modal = new IntModalBuilder(this, getString("dashboard_chestlimit"))
+                        .setMinMax(1, MAX_WEEKLY_TREASURE_CHEST_LIMIT)
+                        .setLogEvent(BotLogEntity.Event.FISHERY_WEEKLY_TREASURE_CHEST_LIMIT)
+                        .setGetter(() -> getGuildEntity().getFishery().getWeeklyTreasureChestUserLimitEffectively())
+                        .setSetter(value -> getGuildEntity().getFishery().setWeeklyTreasureChestUserLimit(value))
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+            }
+            case 8 -> {
                 setState(STATE_SET_EXCLUDED_CHANNELS);
                 stopLock = true;
                 return true;
             }
-            case 8 -> {
+            case 9 -> {
                 if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
                     fishery.beginTransaction();
                     BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.ACTIVE);
@@ -259,7 +276,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 stopLock = true;
                 return true;
             }
-            case 9 -> {
+            case 10 -> {
                 if (fishery.getFisheryStatus() == FisheryStatus.ACTIVE) {
                     if (stopLock) {
                         stopLock = false;
@@ -300,6 +317,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .addField(getString("state0_mcards_title", StringUtil.getEmojiForBoolean(channel, fishery.getGraphicallyGeneratedAccountCardsEffectively()).getFormatted(), Emojis.COMMAND_ICON_PREMIUM.getFormatted()), "-# " + getString("state0_mcards_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
                 .addField(getString("state0_mprobs", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), generateProbabilitiesTextValue(fishery) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
                 .addField(getString("state0_mworkinterval", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(fishery.getWorkIntervalMinutesEffectively())), true)
+                .addField(getString("state0_mchestlimit", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), StringUtil.numToString(fishery.getWeeklyTreasureChestUserLimitEffectively()), true)
                 .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
     }
 
@@ -373,8 +391,24 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     }
 
     private void processTreasureChest(ButtonInteractionEvent event) {
+        FisheryMemberData memberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong())
+                .getMemberData(event.getMember().getIdLong());
+
+        int weeklyOpenedTreasureChests = memberData.getWeeklyOpenedTreasureChests();
+        int weeklyTreasureChestUserLimit = getGuildEntity().getFishery().getWeeklyTreasureChestUserLimitEffectively();
+        if (weeklyOpenedTreasureChests >= weeklyTreasureChestUserLimit) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "wrong_args"))
+                    .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_limitreached", StringUtil.numToString(weeklyOpenedTreasureChests), StringUtil.numToString(weeklyTreasureChestUserLimit)));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong())
                 .remove(event.getMessage().getIdLong());
+        memberData.increaseWeeklyOpenedTreasureChests();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
@@ -384,13 +418,11 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setComponents()
                 .queue();
 
-        schedule(Duration.ofSeconds(3), () -> processTreasureChestReveal(event));
+        schedule(Duration.ofSeconds(3), () -> processTreasureChestReveal(event, memberData));
     }
 
-    private void processTreasureChestReveal(ButtonInteractionEvent event) {
+    private void processTreasureChestReveal(ButtonInteractionEvent event, FisheryMemberData memberData) {
         InteractionHook hook = event.getHook();
-        FisheryMemberData memberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong())
-                .getMemberData(event.getMember().getIdLong());
 
         Random r = new Random();
         String[] winLose = new String[]{"win", "lose"};

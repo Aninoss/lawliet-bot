@@ -183,6 +183,10 @@ public final class TimeUtil {
         return LocalDate.now().get(WeekFields.of(Locale.UK).weekOfYear());
     }
 
+    public static int getWeekOfYear(LocalDate localDate) {
+        return localDate.get(WeekFields.of(Locale.UK).weekOfYear());
+    }
+
     public static int getCurrentYear() {
         LocalDate localDate = LocalDate.now();
         return localDate.getYear();

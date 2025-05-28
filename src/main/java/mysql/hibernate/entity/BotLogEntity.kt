@@ -74,6 +74,7 @@ class BotLogEntity(
         FISHERY_TREASURE_CHEST_PROBABILITY(ValuesRelationship.OLD_AND_NEW, ValueType.DOUBLE, FisheryCommand::class.java, "fishery_probabilities_treasure"),
         FISHERY_POWER_UP_PROBABILITY(ValuesRelationship.OLD_AND_NEW, ValueType.DOUBLE, FisheryCommand::class.java, "fishery_probabilities_powerups"),
         FISHERY_WORK_INTERVAL(ValuesRelationship.OLD_AND_NEW, ValueType.DURATION, FisheryCommand::class.java, "fishery_dashboard_workinterval"),
+        FISHERY_WEEKLY_TREASURE_CHEST_LIMIT(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER, FisheryCommand::class.java, "fishery_dashboard_chestlimit"),
         FISHERY_EXCLUDED_CHANNELS(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL, FisheryCommand::class.java, "fishery_state0_mchannels"),
         FISHERY_VOICE_HOURS_LIMIT(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER, VCTimeCommand::class.java),
         FISHERY_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, FisheryRolesCommand::class.java, "fisheryroles_state0_mroles"),
