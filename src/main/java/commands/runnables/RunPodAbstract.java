@@ -58,14 +58,16 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     private final String additionalPrompt;
     private final String additionalNegativePrompt;
+    private final boolean allowNsfw;
     private String prompt;
     private String negativePrompt;
     private List<? extends File> previousImageFiles = null;
 
-    public RunPodAbstract(Locale locale, String prefix, String additionalPrompt, String additionalNegativePrompt) {
+    public RunPodAbstract(Locale locale, String prefix, String additionalPrompt, String additionalNegativePrompt, boolean allowNsfw) {
         super(locale, prefix);
         this.additionalPrompt = additionalPrompt;
         this.additionalNegativePrompt = additionalNegativePrompt;
+        this.allowNsfw = allowNsfw;
     }
 
     public abstract List<String> getFilters(long guildId);
@@ -495,7 +497,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                         }
                     });
                     predictionResult.get().setOutputs(newOutputs.stream().map(LocalFile::cdnGetUrl).collect(Collectors.toList()));
-                    if (Program.productionMode()) {
+                    if (!allowNsfw && Program.productionMode()) {
                         predictionResult.get().setOutputs(processNsfwImages(predictionResult.get().getOutputs()));
                     }
                     Txt2ImgLogger.log(prompt, negativePrompt, member, model.name(), predictionResult.get().getOutputs());
