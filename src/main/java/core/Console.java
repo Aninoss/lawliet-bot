@@ -58,6 +58,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("cached_members", Console::onCachedMembers);
         tasks.put("fishery_guilds_by_user", Console::onFisheryGuildsByUser);
         tasks.put("fishery_users_by_guild", Console::onFisheryUsersByGuild);
         tasks.put("auto_stocks", Console::onAutoStocks);
@@ -117,6 +118,16 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onCachedMembers(String[] args) {
+        long guildId = Long.parseLong(args[1]);
+        Guild guild = ShardManager.getLocalGuildById(guildId).orElse(null);
+        if (guild == null) {
+            return;
+        }
+
+        MainLogger.get().info("Cached members of guild {}: {} / {}", guild.getName(), guild.getMembers().size(), guild.getMemberCount());
     }
 
     private static void onFisheryGuildsByUser(String[] args) {

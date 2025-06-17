@@ -48,7 +48,7 @@ public class DiscordConnector {
             .setMemberCachePolicy(MemberCacheController.getInstance())
             .setChunkingFilter(ChunkingFilterController.getInstance())
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGE_TYPING, GatewayIntent.MESSAGE_CONTENT)
-            .enableCache(CacheFlag.ACTIVITY)
+            .enableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(new CustomInterceptor()).build())
             .addEventListeners(new DiscordEventAdapter());
