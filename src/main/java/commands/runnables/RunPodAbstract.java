@@ -326,6 +326,9 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
         for (int i = 0; i < StableDiffusionModel.values().length; i++) {
             StableDiffusionModel model = StableDiffusionModel.values()[i];
+            if (!model.getClasses().contains(getClass())) {
+                continue;
+            }
             menuBuilder.addOption(
                     TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_model_style_" + model.name()),
                     String.valueOf(i),
