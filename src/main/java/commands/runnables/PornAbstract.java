@@ -47,7 +47,6 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -357,15 +356,15 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                     alertsCache.invalidate(cacheKey);
                 }
             }
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof IllegalTagException) {
+        } catch (Throwable e) {
+            if (e instanceof IllegalTagException) {
                 EmbedBuilder eb = illegalTagsEmbed();
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 slot.sendMessage(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             }
-            if (e.getCause() instanceof TooManyTagsException) {
-                EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e.getCause()).getMaxTags());
+            if (e instanceof TooManyTagsException) {
+                EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e).getMaxTags());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 slot.sendMessage(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
