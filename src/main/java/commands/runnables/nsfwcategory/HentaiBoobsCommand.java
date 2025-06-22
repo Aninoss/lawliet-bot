@@ -1,10 +1,11 @@
 package commands.runnables.nsfwcategory;
 
+import commands.listeners.CommandProperties;
+import commands.runnables.DanbooruAbstract;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import commands.listeners.CommandProperties;
-import commands.runnables.DanbooruAbstract;
 
 @CommandProperties(
         trigger = "hboobs",
@@ -24,7 +25,7 @@ public class HentaiBoobsCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "breasts solo -sex";
+        return "1girl breasts solo nipples -sex";
     }
 
     @Override
