@@ -16,6 +16,7 @@ import modules.mandaupdates.MangaUpdatesSeries;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -138,9 +139,9 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
                         }
                 );
 
-        if (releases.size() > maxSlots) {
-            recentReleases += getString("viewmore", series.getReleasesUrl());
-        }
+        String viewMore = releases.size() > maxSlots ? getString("viewmore", series.getReleasesUrl()) : "";
+        recentReleases = StringUtil.shortenStringLine(recentReleases, MessageEmbed.VALUE_MAX_LENGTH - viewMore.length());
+        recentReleases += viewMore;
 
         return EmbedFactory.getEmbedDefault(this)
                 .setTitle(series.getTitle(), series.getUrl())
