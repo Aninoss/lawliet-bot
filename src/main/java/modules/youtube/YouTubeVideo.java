@@ -26,7 +26,13 @@ public class YouTubeVideo {
     }
 
     public String getId() {
-        return link.split("\\?v=")[1];
+        if (link.contains("?v=")) {
+            return link.split("\\?v=")[1];
+        } else if (link.contains("/shorts/")) {
+            return link.split("/shorts/")[1];
+        } else {
+            throw new RuntimeException("No id found for YouTube url " + link);
+        }
     }
 
     public String getCreator() {

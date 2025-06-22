@@ -1,13 +1,11 @@
 package commands.runnables.fisherycategory;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
+import constants.AssetIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.cache.PatreonCache;
@@ -25,6 +23,12 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "exch",
@@ -35,6 +39,8 @@ import org.jetbrains.annotations.NotNull;
         aliases = { "exchangerate", "er", "exchr", "exchange", "exchf", "exchforecast", "exchangerateforecast", "erforecast", "exchrforecast", "exchangeforecast" }
 )
 public class ExchangeRateCommand extends Command implements OnButtonListener, OnAlertListener {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ExchangeRateCommand.class);
 
     private String textInclude = null;
 
@@ -101,6 +107,9 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
         slot.sendMessage(getLocale(), true, generateEmbed(true).build());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
 
+        if (slot.getGuildId() == 651518860012290070L || slot.getGuildId() == AssetIds.ANICORD_SERVER_ID) { //TODO
+            LOGGER.info("Exchange rate alert triggered. Next request: {}", slot.getNextRequest().toString());
+        }
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
