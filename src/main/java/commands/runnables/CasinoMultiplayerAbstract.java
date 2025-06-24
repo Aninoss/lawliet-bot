@@ -302,6 +302,14 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             if (fisheryGuildData != null) {
                 FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(atomicMember.getIdLong());
                 fisheryMemberData.addCoinsHidden(-coinsInput);
+
+                boolean shieldProtected = false;
+                if (fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD)) {
+                    fisheryMemberData.deletePowerUp(FisheryPowerUp.SHIELD);
+                    shieldProtected = true;
+                    atomicMember.get().ifPresent(shieldProtectedMembers::add);
+                }
+
                 if (winners.contains(player)) {
                     fisheryMemberData.addCoinsRaw(price - coinsInput);
                     atomicMember.get().ifPresent(winnersMembers::add);
@@ -311,10 +319,8 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                     }
                 } else {
                     long coinsLost = coinsInput;
-                    if (fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD)) {
-                        fisheryMemberData.deletePowerUp(FisheryPowerUp.SHIELD);
+                    if (shieldProtected) {
                         coinsLost = 0;
-                        atomicMember.get().ifPresent(shieldProtectedMembers::add);
                     } else {
                         fisheryMemberData.addCoinsRaw(-coinsInput);
                     }
@@ -333,6 +339,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection", mentionedMembers.isMultiple(), mentionedMembers.getMentionText()))
                     .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
+            EmbedUtil.addLog(eb, TextManager.getString(getLocale(), Category.CASINO, "casino_protection_log"));
             setAdditionalEmbeds(eb.build());
         }
 

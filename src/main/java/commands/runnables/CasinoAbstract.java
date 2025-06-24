@@ -10,6 +10,7 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.Mention;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.casinologs.CasinoLogCache;
@@ -153,6 +154,18 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         status = Status.DRAW;
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.CASINO, "casino_draw"));
 
+        if (coinsInput > 0) {
+            FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(getGuildId().get()).getMemberData(getMemberId().get());
+            if (fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD)) {
+                casinoLogEntry.addEvent("Shield Protection");
+                fisheryMemberData.deletePowerUp(FisheryPowerUp.SHIELD);
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection_log"))
+                        .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
+                setAdditionalEmbeds(eb.build());
+            }
+        }
+
         if (trackingActive) {
             DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()))
                     .add(getTrigger(), false, 0);
@@ -181,6 +194,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 eb = EmbedFactory.getEmbedDefault()
                         .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection", mentionedMembers.isMultiple(), mentionedMembers.getMentionText()))
                         .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
+                EmbedUtil.addLog(eb, TextManager.getString(getLocale(), Category.CASINO, "casino_protection_log"));
             } else {
                 eb = fisheryMemberData.changeValuesEmbed(member, 0, -coinsInput, getGuildEntity());
             }
@@ -230,7 +244,15 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         long valueWon = (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR);
         EmbedBuilder eb = FisheryUserManager.getGuildData(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
                 .changeValuesEmbed(member, 0, valueWon, getGuildEntity());
+
         if (coinsInput > 0) {
+            FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(getGuildId().get()).getMemberData(getMemberId().get());
+            if (fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD)) {
+                casinoLogEntry.addEvent("Shield Protection");
+                fisheryMemberData.deletePowerUp(FisheryPowerUp.SHIELD);
+                eb.setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
+                EmbedUtil.addLog(eb, TextManager.getString(getLocale(), Category.CASINO, "casino_protection_log"));
+            }
             setAdditionalEmbeds(eb.build());
         }
 
