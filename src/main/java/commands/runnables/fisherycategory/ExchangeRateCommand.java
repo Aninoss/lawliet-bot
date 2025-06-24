@@ -5,7 +5,6 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
-import constants.AssetIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.cache.PatreonCache;
@@ -27,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 
@@ -104,12 +104,13 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
+        if (slot.getNextRequest().isAfter(Instant.now().plus(10, ChronoUnit.SECONDS))) {
+            LOGGER.warn("Invalid exchange rate alert detected for server {} planned for {}", slot.getGuildId(), slot.getNextRequest().toString());
+            return AlertResponse.CONTINUE;
+        }
+
         slot.sendMessage(getLocale(), true, generateEmbed(true).build());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
-
-        if (slot.getGuildId() == 651518860012290070L || slot.getGuildId() == AssetIds.ANICORD_SERVER_ID) { //TODO
-            LOGGER.info("Exchange rate alert triggered. Next request: {}", slot.getNextRequest().toString());
-        }
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
