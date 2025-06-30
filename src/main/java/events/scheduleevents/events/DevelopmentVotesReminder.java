@@ -7,6 +7,7 @@ import core.cache.PatreonCache;
 import core.utils.JDAUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.ScheduleEventDaily;
+import events.sync.SendEvent;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.DiscordSubscriptionEntity;
@@ -27,7 +28,7 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        if (Calendar.getInstance().get(Calendar.MONTH) == Calendar.JANUARY) {
+        if (!SendEvent.sendEmpty("DEV_VOTES_PRESENT").thenApply(jsonObject -> jsonObject.getBoolean("present")).get()) {
             return;
         }
 
