@@ -14,32 +14,33 @@ object DashboardManager {
 
     @JvmStatic
     val categoryCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofHours(4))
-            .build<Long, DashboardCategory>()
+        .expireAfterAccess(Duration.ofHours(4))
+        .build<Long, DashboardCategory>()
 
     init {
         pageClasses = listOf(
-                GeneralCategory::class,
-                CommandManagementCategory::class,
-                FisheryCategory::class,
-                AlertsCategory::class,
-                NSFWFilterCategory::class,
-                ModerationCategory::class,
-                InviteTrackingCategory::class,
-                GiveawayCategory::class,
-                ReactionRolesCategory::class,
-                AutoRolesCategory::class,
-                StickyRolesCategory::class,
-                WelcomeCategory::class,
-                TicketCategory::class,
-                SuggestionsCategory::class,
-                AutoChannelCategory::class,
-                MemberCountDisplaysCategory::class,
-                CustomCommandsCategory::class,
-                CommandChannelShortcutsCategory::class,
-                CustomRolePlayCategory::class,
-                BirthdayCategory::class,
-                BotLogsCategory::class
+            GeneralCategory::class,
+            CommandManagementCategory::class,
+            FisheryCategory::class,
+            AlertsCategory::class,
+            NSFWFilterCategory::class,
+            ModerationCategory::class,
+            InviteTrackingCategory::class,
+            GiveawayCategory::class,
+            ReactionRolesCategory::class,
+            AutoRolesCategory::class,
+            StickyRolesCategory::class,
+            WelcomeCategory::class,
+            TicketCategory::class,
+            SuggestionsCategory::class,
+            AutoChannelCategory::class,
+            MemberCountDisplaysCategory::class,
+            CustomCommandsCategory::class,
+            CommandChannelShortcutsCategory::class,
+            CustomRolePlayCategory::class,
+            BirthdayCategory::class,
+            ApiCategory::class,
+            BotLogsCategory::class
         )
     }
 
@@ -51,7 +52,7 @@ object DashboardManager {
     @JvmStatic
     fun retrieveCategory(categoryId: String, guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity): DashboardCategory {
         return pageClasses.map { it.primaryConstructor!!.call(guildId, userId, locale, guildEntity) }
-                .filter { it.properties.id == categoryId }[0]
+            .filter { it.properties.id == categoryId }[0]
     }
 
 }

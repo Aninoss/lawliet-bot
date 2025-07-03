@@ -96,6 +96,7 @@ public class CommandContainer {
         commandList.add(CommandChannelShortcutsCommand.class);
         commandList.add(RolePlayBlockCommand.class);
         commandList.add(CustomRolePlayCommand.class);
+        commandList.add(ApiCommand.class);
 
         //UTILITY
         commandList.add(VoteCommand.class);

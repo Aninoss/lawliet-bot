@@ -61,6 +61,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
 
     var latestPresentDate: LocalDate? = LocalDate.now()
 
+    var apiToken: String? = null
+    val apiTokenEffectively: String?
+        get() = if (ServerPatreonBoostCache.get(guildId.toLong())) apiToken else null
+
     @Embedded
     @Column(name = FISHERY)
     val fishery = FisheryEntity()

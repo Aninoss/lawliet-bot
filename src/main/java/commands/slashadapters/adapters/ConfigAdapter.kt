@@ -39,7 +39,7 @@ import java.util.*
             MemberCountDisplayCommand::class, TriggerDeleteCommand::class, GiveawayCommand::class, TicketCommand::class, ModSettingsCommand::class,
             InviteFilterCommand::class, WordFilterCommand::class, FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class,
             InviteTrackingCommand::class, CustomConfigCommand::class, CommandChannelShortcutsCommand::class, ReminderManageCommand::class,
-            RolePlayBlockCommand::class, CustomRolePlayCommand::class, BirthdayConfigCommand::class
+            RolePlayBlockCommand::class, CustomRolePlayCommand::class, BirthdayConfigCommand::class, ApiCommand::class,
         ]
 )
 class ConfigAdapter : SlashAdapter() {

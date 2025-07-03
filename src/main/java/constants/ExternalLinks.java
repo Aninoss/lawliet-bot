@@ -17,5 +17,6 @@ public interface ExternalLinks {
     String DEVELOPMENT_VOTES_URL = "https://lawlietbot.xyz/developmentvotes";
     String BAN_APPEAL_URL = "https://lawlietbot.xyz/banappeal/";
     String BETA_SERVER_INVITE = "https://discord.gg/TUudEzHdXu";
+    String API_DEFINITION_URL = "https://lawlietbot.xyz/api/swagger-ui/index.html";
 
 }

@@ -85,6 +85,10 @@ public class FisheryMemberData implements MemberAsset {
         return memberId;
     }
 
+    public boolean exists() {
+        return RedisManager.get(jedis -> jedis.exists(KEY_ACCOUNT));
+    }
+
     public List<Role> getRoles(FisheryEntity fishery) {
         List<Role> allRoles = fishery.getRoles();
 
