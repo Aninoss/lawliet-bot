@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import core.ShardManager;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public abstract class ApiEvent implements SyncServerFunction {
 
@@ -40,6 +43,15 @@ public abstract class ApiEvent implements SyncServerFunction {
         try {
             String str = mapper.writeValueAsString(object);
             return new JSONObject(str);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected JSONArray writeListAsJson(List<?> list) {
+        try {
+            String str = mapper.writeValueAsString(list);
+            return new JSONArray(str);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
