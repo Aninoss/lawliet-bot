@@ -2,40 +2,40 @@ package events.sync.apidata.v1;
 
 public class FisheryUserUpdate {
 
-    private long fish;
-    private long coins;
-    private long dailyStreak;
-    private FisheryGearLevels gearLevels;
+    private Long fish;
+    private Long coins;
+    private Long dailyStreak;
+    private FisheryGearLevelsUpdate gearLevels;
 
-    public long getFish() {
+    public Long getFish() {
         return fish;
     }
 
-    public void setFish(long fish) {
+    public void setFish(Long fish) {
         this.fish = fish;
     }
 
-    public long getCoins() {
+    public Long getCoins() {
         return coins;
     }
 
-    public void setCoins(long coins) {
+    public void setCoins(Long coins) {
         this.coins = coins;
     }
 
-    public long getDailyStreak() {
+    public Long getDailyStreak() {
         return dailyStreak;
     }
 
-    public void setDailyStreak(long dailyStreak) {
+    public void setDailyStreak(Long dailyStreak) {
         this.dailyStreak = dailyStreak;
     }
 
-    public FisheryGearLevels getGearLevels() {
+    public FisheryGearLevelsUpdate getGearLevels() {
         return gearLevels;
     }
 
-    public void setGearLevels(FisheryGearLevels gearLevels) {
+    public void setGearLevels(FisheryGearLevelsUpdate gearLevels) {
         this.gearLevels = gearLevels;
     }
 

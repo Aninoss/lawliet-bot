@@ -57,4 +57,12 @@ public abstract class ApiEvent implements SyncServerFunction {
         }
     }
 
+    protected <T> T readObjectFromJson(JSONObject jsonObject, Class<T> tClass) {
+        try {
+            return mapper.readValue(jsonObject.toString(), tClass);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

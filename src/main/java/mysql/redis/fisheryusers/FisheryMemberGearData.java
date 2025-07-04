@@ -38,7 +38,7 @@ public class FisheryMemberGearData implements MemberAsset {
         return RedisManager.getInteger(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR));
     }
 
-    void setLevel(int level) {
+    public void setLevel(int level) {
         int newLevel = Math.min(level, Settings.FISHERY_GEAR_MAX);
         RedisManager.update(jedis -> {
             Pipeline pipeline = jedis.pipelined();
@@ -48,7 +48,7 @@ public class FisheryMemberGearData implements MemberAsset {
         });
     }
 
-    void levelUp() {
+    public void levelUp() {
         setLevel(getLevel() + 1);
     }
 
