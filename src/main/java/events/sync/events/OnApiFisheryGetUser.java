@@ -6,22 +6,16 @@ import events.sync.apidata.v1.FisheryUser;
 import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
+import net.dv8tion.jda.api.entities.Guild;
 import org.json.JSONObject;
 
 @SyncServerEvent(event = "API_FISHERY_GET_USER")
 public class OnApiFisheryGetUser extends FisheryApiEvent {
 
     @Override
-    public JSONObject apply(JSONObject requestJson) {
-        long guildId = requestJson.getLong("guild_id");
+    public JSONObject apply(JSONObject requestJson, JSONObject responseJSON, Guild guild) {
         long userId = requestJson.getLong("user_id");
-
-        JSONObject responseJSON = new JSONObject();
-        if (authIsInvalid(requestJson, responseJSON)) {
-            return responseJSON;
-        }
-
-        FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guildId);
+        FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guild.getIdLong());
         FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(userId);
         if (!fisheryMemberData.exists()) {
             return responseJSON;

@@ -7,6 +7,7 @@ import mysql.redis.RedisManager;
 import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
+import net.dv8tion.jda.api.entities.Guild;
 import org.glassfish.jersey.internal.util.Producer;
 import org.json.JSONObject;
 import redis.clients.jedis.Pipeline;
@@ -20,18 +21,12 @@ import java.util.stream.Collectors;
 public class OnApiFisheryTop extends FisheryApiEvent {
 
     @Override
-    public JSONObject apply(JSONObject requestJson) {
-        long guildId = requestJson.getLong("guild_id");
+    public JSONObject apply(JSONObject requestJson, JSONObject responseJSON, Guild guild) {
         int page = requestJson.getInt("page");
         int size = Math.max(1, Math.min(100, requestJson.getInt("size")));
         String sort = requestJson.getString("sort");
 
-        JSONObject responseJSON = new JSONObject();
-        if (authIsInvalid(requestJson, responseJSON)) {
-            return responseJSON;
-        }
-
-        FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guildId);
+        FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guild.getIdLong());
         ArrayList<FisheryUser> fisheryUsers = getFisheryUsers(fisheryGuildData);
         List<FisheryUser> pagedFisheryUsers = fisheryUsers.stream()
                 .sorted(getComparator(sort))

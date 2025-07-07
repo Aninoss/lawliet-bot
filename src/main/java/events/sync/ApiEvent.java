@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import core.ShardManager;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import net.dv8tion.jda.api.entities.Guild;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,16 +20,27 @@ public abstract class ApiEvent implements SyncServerFunction {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    protected boolean authIsInvalid(JSONObject requestJson, JSONObject responseJson) {
+    abstract protected JSONObject apply(JSONObject requestJson, JSONObject responseJSON, Guild guild);
+
+    @Override
+    public JSONObject apply(JSONObject requestJson) {
+        JSONObject responseJSON = new JSONObject();
+        Guild guild = ShardManager.getLocalGuildById(requestJson.getLong("guild_id")).orElse(null);
+        if (authIsInvalid(requestJson, responseJSON, guild)) {
+            return responseJSON;
+        }
+        return apply(requestJson, responseJSON, guild);
+    }
+
+    private boolean authIsInvalid(JSONObject requestJson, JSONObject responseJson, Guild guild) {
         responseJson.put("auth", false);
-        long guildId = requestJson.getLong("guild_id");
-        if (ShardManager.getLocalGuildById(guildId).isEmpty()) {
+        if (guild == null) {
             return true;
         }
 
         String providedToken = requestJson.has("token") ? requestJson.getString("token") : null;
         String actualToken;
-        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId, ApiEvent.class)) {
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong(), ApiEvent.class)) {
             actualToken = guildEntity.getApiTokenEffectively();
         }
         if (providedToken == null || !providedToken.equals(actualToken)) {
