@@ -56,7 +56,7 @@ public class InvitesCommand extends MemberAccountAbstract {
             setFound();
         }
 
-        InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(event.getGuild(), memberId);
+        InviteMetrics inviteMetrics = InviteTracking.generateInviteMetricsForInviterUser(event.getGuild(), memberId);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle(null)
                 .setDescription(getString("template_desc",

@@ -13,6 +13,7 @@ import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardText
 import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -54,6 +55,7 @@ class ApiCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: Guil
         val generateTokenButton = DashboardButton(getString(Category.CONFIGURATION, "api_default_button_generatetoken")) {
             guildEntity.beginTransaction()
             guildEntity.apiToken = RandomUtil.generateRandomString(30)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.API_TOKEN_NEW, atomicMember)
             guildEntity.commitTransaction()
             showToken = true
             ActionResult()
@@ -69,6 +71,7 @@ class ApiCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: Guil
         val removeTokenButton = DashboardButton(getString(Category.CONFIGURATION, "api_default_button_removetoken")) {
             guildEntity.beginTransaction()
             guildEntity.apiToken = null
+            BotLogEntity.log(entityManager, BotLogEntity.Event.API_TOKEN_REMOVE, atomicMember)
             guildEntity.commitTransaction()
             showToken = false
             ActionResult()

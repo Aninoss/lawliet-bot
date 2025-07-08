@@ -7,6 +7,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.utils.RandomUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -59,6 +60,7 @@ public class ApiCommand extends NavigationAbstract {
 
                 guildEntity.beginTransaction();
                 guildEntity.setApiToken(RandomUtil.generateRandomString(30));
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.API_TOKEN_NEW, event.getMember());
                 guildEntity.commitTransaction();
                 setLog(LogStatus.SUCCESS, getString("default_log_newtoken"));
                 showToken = true;
@@ -75,6 +77,7 @@ public class ApiCommand extends NavigationAbstract {
                 GuildEntity guildEntity = getGuildEntity();
                 guildEntity.beginTransaction();
                 guildEntity.setApiToken(null);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.API_TOKEN_REMOVE, event.getMember());
                 guildEntity.commitTransaction();
                 setLog(LogStatus.SUCCESS, getString("default_log_removetoken"));
                 showToken = false;

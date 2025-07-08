@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import events.sync.apidata.v1.FisheryGearLevels;
 import events.sync.apidata.v1.FisheryUser;
 import modules.fishery.FisheryGear;
+import modules.fishery.FisheryStatus;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.redis.RedisManager;
 import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;
+import net.dv8tion.jda.api.entities.Guild;
 import org.glassfish.jersey.internal.util.Producer;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
@@ -18,6 +21,11 @@ public abstract class FisheryApiEvent extends ApiEvent {
 
     public FisheryApiEvent() {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    @Override
+    protected boolean functionIsEnabled(Guild guild, GuildEntity guildEntity) {
+        return guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE;
     }
 
     protected FisheryUser mapToApiUser(FisheryGuildData fisheryGuildData, FisheryMemberData fisheryMemberData) {

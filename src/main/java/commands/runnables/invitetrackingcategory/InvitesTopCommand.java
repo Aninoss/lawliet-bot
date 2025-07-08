@@ -65,7 +65,7 @@ public class InvitesTopCommand extends ListAbstract {
                     long userId = slot.getInviterUserId();
                     if (!memberIds.contains(userId) && (userId == 0 || member.getGuild().getMemberById(userId) != null)) {
                         memberIds.add(userId);
-                        inviteMetricsSlots.add(InviteTracking.generateInviteMetrics(member.getGuild(), userId));
+                        inviteMetricsSlots.add(InviteTracking.generateInviteMetricsForInviterUser(member.getGuild(), userId));
                     }
                 });
 

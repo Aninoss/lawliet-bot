@@ -19,8 +19,8 @@ public class OnApiFisheryResetUser extends FisheryApiEvent {
         if (!fisheryMemberData.exists()) {
             return responseJSON;
         }
-        fisheryMemberData.remove();
 
+        fisheryMemberData.remove();
         responseJSON.put("found", true);
         return responseJSON;
     }

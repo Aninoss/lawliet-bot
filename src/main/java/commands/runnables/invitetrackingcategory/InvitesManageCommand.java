@@ -183,7 +183,7 @@ public class InvitesManageCommand extends NavigationAbstract {
 
     @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawMain(Member member) {
-        InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(member.getGuild(), atomicMember.getIdLong());
+        InviteMetrics inviteMetrics = InviteTracking.generateInviteMetricsForInviterUser(member.getGuild(), atomicMember.getIdLong());
         String inviteMetricsString = TextManager.getString(getLocale(), Category.INVITE_TRACKING, "invites_template_desc",
                 StringUtil.numToString(inviteMetrics.getTotalInvites()),
                 StringUtil.numToString(inviteMetrics.getOnServer()),

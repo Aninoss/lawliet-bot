@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.ShardManager;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.entities.Guild;
@@ -22,33 +24,41 @@ public abstract class ApiEvent implements SyncServerFunction {
 
     abstract protected JSONObject apply(JSONObject requestJson, JSONObject responseJSON, Guild guild);
 
+    abstract protected boolean functionIsEnabled(Guild guild, GuildEntity guildEntity);
+
     @Override
     public JSONObject apply(JSONObject requestJson) {
         JSONObject responseJSON = new JSONObject();
-        Guild guild = ShardManager.getLocalGuildById(requestJson.getLong("guild_id")).orElse(null);
-        if (authIsInvalid(requestJson, responseJSON, guild)) {
+        responseJSON.put("auth", false);
+        responseJSON.put("enabled", false);
+
+        long guildId = requestJson.getLong("guild_id");
+        Guild guild = ShardManager.getLocalGuildById(guildId).orElse(null);
+        if (guild == null) {
             return responseJSON;
         }
-        return apply(requestJson, responseJSON, guild);
+
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong(), ApiEvent.class)) {
+            if (authIsValid(requestJson, guildEntity)) {
+                responseJSON.put("auth", true);
+            } else {
+                return responseJSON;
+            }
+            if (functionIsEnabled(guild, guildEntity)) {
+                responseJSON.put("enabled", true);
+            } else {
+                return responseJSON;
+            }
+
+            FeatureLogger.inc(PremiumFeature.REST_API, guildId);
+            return apply(requestJson, responseJSON, guild);
+        }
     }
 
-    private boolean authIsInvalid(JSONObject requestJson, JSONObject responseJson, Guild guild) {
-        responseJson.put("auth", false);
-        if (guild == null) {
-            return true;
-        }
-
+    private boolean authIsValid(JSONObject requestJson, GuildEntity guildEntity) {
         String providedToken = requestJson.has("token") ? requestJson.getString("token") : null;
-        String actualToken;
-        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong(), ApiEvent.class)) {
-            actualToken = guildEntity.getApiTokenEffectively();
-        }
-        if (providedToken == null || !providedToken.equals(actualToken)) {
-            return true;
-        }
-
-        responseJson.put("auth", true);
-        return false;
+        String actualToken = guildEntity.getApiTokenEffectively();
+        return providedToken != null && providedToken.equals(actualToken);
     }
 
     protected JSONObject writeObjectAsJson(Object object) {

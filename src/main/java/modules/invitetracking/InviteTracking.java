@@ -21,31 +21,32 @@ import java.util.stream.Collectors;
 
 public class InviteTracking {
 
-    public static InviteMetrics generateInviteMetrics(Guild guild, long inviterUserId) {
-        int invites = 0;
-        int onServer = 0;
-        int retained = 0;
-        int active = 0;
+    public static InviteMetrics generateInviteMetricsForInviterUser(Guild guild, long inviterUserId) {
+        return generateInviteMetricsMap(guild).getOrDefault(inviterUserId, new InviteMetrics(guild.getIdLong(), inviterUserId));
+    }
 
-        HashSet<Long> serverMemberIds = MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
+    public static HashMap<Long, InviteMetrics> generateInviteMetricsMap(Guild guild) {
+        HashMap<Long, InviteMetrics> inviteMetricsMap = new HashMap<>();
+        CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
+        HashSet<Long> serverMemberIds = MemberCacheController.getInstance().loadMembers(guild, inviteTrackingSlots.keySet()).join().stream()
                 .map(ISnowflake::getIdLong)
                 .collect(Collectors.toCollection(HashSet::new));
-        for (InviteTrackingSlot inviteTrackingSlot : DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots().values()) {
-            if (inviteTrackingSlot.getInviterUserId() == inviterUserId) {
-                invites++;
-                if (serverMemberIds.contains(inviteTrackingSlot.getMemberId())) {
-                    onServer++;
-                    if (inviteTrackingSlot.isRetained()) {
-                        retained++;
-                        if (inviteTrackingSlot.isActive()) {
-                            active++;
-                        }
+
+        for (InviteTrackingSlot inviteTrackingSlot : inviteTrackingSlots.values()) {
+            InviteMetrics inviteMetrics = inviteMetricsMap.computeIfAbsent(inviteTrackingSlot.getInviterUserId(), k -> new InviteMetrics(guild.getIdLong(), inviteTrackingSlot.getInviterUserId()));
+            inviteMetrics.incrTotalInvites();
+            if (serverMemberIds.contains(inviteTrackingSlot.getMemberId())) {
+                inviteMetrics.incrOnServer();
+                if (inviteTrackingSlot.isRetained()) {
+                    inviteMetrics.incrRetained();
+                    if (inviteTrackingSlot.isActive()) {
+                        inviteMetrics.incrActive();
                     }
                 }
             }
         }
 
-        return new InviteMetrics(guild.getIdLong(), inviterUserId, invites, onServer, retained, active);
+        return inviteMetricsMap;
     }
 
     public static void memberActivity(Member member) {

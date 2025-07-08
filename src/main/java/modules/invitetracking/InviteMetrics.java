@@ -6,18 +6,14 @@ public class InviteMetrics implements MemberAsset {
 
     private final long guildId;
     private final long memberId;
-    private final int totalInvites;
-    private final int onServer;
-    private final int retained;
-    private final int active;
+    private int totalInvites = 0;
+    private int onServer = 0;
+    private int retained = 0;
+    private int active = 0;
 
-    public InviteMetrics(long guildId, long memberId, int totalInvites, int onServer, int retained, int active) {
+    public InviteMetrics(long guildId, long memberId) {
         this.guildId = guildId;
         this.memberId = memberId;
-        this.totalInvites = totalInvites;
-        this.onServer = onServer;
-        this.retained = retained;
-        this.active = active;
     }
 
     @Override
@@ -34,16 +30,32 @@ public class InviteMetrics implements MemberAsset {
         return totalInvites;
     }
 
+    public void incrTotalInvites() {
+        this.totalInvites++;
+    }
+
     public int getOnServer() {
         return onServer;
+    }
+
+    public void incrOnServer() {
+        this.onServer++;
     }
 
     public int getRetained() {
         return retained;
     }
 
+    public void incrRetained() {
+        this.retained++;
+    }
+
     public int getActive() {
         return active;
+    }
+
+    public void incrActive() {
+        this.active++;
     }
 
 }

@@ -1,8 +1,9 @@
 package mysql.modules.invitetracking;
 
-import java.time.LocalDate;
 import core.assets.MemberAsset;
 import mysql.DataWithGuild;
+
+import java.time.LocalDate;
 
 public class InviteTrackingSlot extends DataWithGuild implements MemberAsset {
 
