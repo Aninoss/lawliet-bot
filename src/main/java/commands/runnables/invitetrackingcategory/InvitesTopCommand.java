@@ -12,13 +12,11 @@ import javafx.util.Pair;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
 import mysql.modules.invitetracking.DBInviteTracking;
-import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -58,18 +56,8 @@ public class InvitesTopCommand extends ListAbstract {
 
     @Override
     protected int configure(Member member, int orderBy) throws Throwable {
-        inviteMetricsSlots = new ArrayList<>();
-        HashSet<Long> memberIds = new HashSet<>();
-        ArrayList<InviteTrackingSlot> slots = new ArrayList<>(DBInviteTracking.getInstance().retrieve(member.getGuild().getIdLong()).getInviteTrackingSlots().values());
-        slots.forEach(slot -> {
-                    long userId = slot.getInviterUserId();
-                    if (!memberIds.contains(userId) && (userId == 0 || member.getGuild().getMemberById(userId) != null)) {
-                        memberIds.add(userId);
-                        inviteMetricsSlots.add(InviteTracking.generateInviteMetricsForInviterUser(member.getGuild(), userId));
-                    }
-                });
-
         OrderBy orderByEnum = OrderBy.values()[orderBy];
+        inviteMetricsSlots = new ArrayList<>(InviteTracking.generateInviteMetricsMap(member.getGuild()).values());
         inviteMetricsSlots.sort((i0, i1) -> Integer.compare(getInviteValue(i1, orderByEnum), getInviteValue(i0, orderByEnum)));
         return inviteMetricsSlots.size();
     }
