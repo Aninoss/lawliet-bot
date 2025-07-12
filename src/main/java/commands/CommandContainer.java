@@ -56,7 +56,6 @@ public class CommandContainer {
         commandList.add(RollCommand.class);
         commandList.add(FortuneCommand.class);
         commandList.add(KiraCommand.class);
-        commandList.add(TriggerCommand.class);
         commandList.add(RainbowCommand.class);
         commandList.add(ShipCommand.class);
         commandList.add(QuoteCommand.class);
