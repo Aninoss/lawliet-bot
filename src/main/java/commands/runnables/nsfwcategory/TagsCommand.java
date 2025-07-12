@@ -6,6 +6,7 @@ import commands.listeners.CommandProperties;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.utils.InternetUtil;
 import modules.porn.BooruTagCache;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -48,6 +49,9 @@ public class TagsCommand extends Command {
         }
         if (!sb.isEmpty()) {
             eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), sb.toString(), true);
+        }
+        if (InternetUtil.uriIsImage(args, true)) {
+            eb.setImage(args);
         }
         drawMessage(eb).exceptionally(ExceptionLogger.get());
         return true;
