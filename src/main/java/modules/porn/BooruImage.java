@@ -13,6 +13,7 @@ public class BooruImage {
     private Instant instant;
     private boolean video;
     private List<String> tags;
+    private List<String> imageTags;
 
     public long getId() {
         return id;
@@ -84,6 +85,19 @@ public class BooruImage {
 
     public BooruImage setTags(List<String> tags) {
         this.tags = tags;
+        return this;
+    }
+
+    public boolean isVideo() {
+        return video;
+    }
+
+    public List<String> getImageTags() {
+        return imageTags;
+    }
+
+    public BooruImage setImageTags(List<String> imageTags) {
+        this.imageTags = imageTags;
         return this;
     }
 

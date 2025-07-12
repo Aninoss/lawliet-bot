@@ -56,7 +56,12 @@ public class BooruImageDownloader {
 
                     try {
                         ObjectReader reader = mapper.readerForListOf(BooruImage.class);
-                        return reader.readValue(content);
+                        List<BooruImage> booruImages = reader.readValue(content);
+                        booruImages.forEach(booruImage -> {
+                            BooruTagCache.addTags(booruImage.getImageUrl(), booruImage.getImageTags());
+                            BooruTagCache.addTags(booruImage.getPageUrl(), booruImage.getImageTags());
+                        });
+                        return booruImages;
                     } catch (JsonProcessingException e) {
                         MainLogger.get().error("Booru image parsing error", e);
                         return Collections.emptyList();

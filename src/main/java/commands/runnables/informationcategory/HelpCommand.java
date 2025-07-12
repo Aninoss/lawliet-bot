@@ -6,8 +6,6 @@ import commands.listeners.OnAlertListener;
 import commands.runnables.*;
 import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
 import commands.runnables.interactionscategory.RolePlayGenderCommand;
-import commands.runnables.nsfwcategory.PersonalNSFWFilterCommand;
-import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
@@ -526,8 +524,7 @@ public class HelpCommand extends NavigationAbstract {
         eb.setDescription(getString("nsfw"));
 
         StringBuilder withSearchKey = new StringBuilder();
-        StringBuilder ai = new StringBuilder();
-        StringBuilder config = new StringBuilder();
+        StringBuilder other = new StringBuilder();
         StringBuilder withoutSearchKeyHentai = new StringBuilder();
         StringBuilder withoutSearchKeyRealLife = new StringBuilder();
 
@@ -541,27 +538,31 @@ public class HelpCommand extends NavigationAbstract {
 
                 String extras = generateCommandIcons(channel, command, false, false, true);
                 if (command instanceof PornSearchAbstract) {
-                    withSearchKey.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title)).append("\n");
+                    if (!withSearchKey.isEmpty()) {
+                        withSearchKey.append("\n");
+                    }
+                    withSearchKey.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title));
                 } else if (command instanceof PornPredefinedAbstract) {
                     if (command instanceof RealbooruAbstract) {
-                        withoutSearchKeyRealLife.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
+                        if (!withoutSearchKeyRealLife.isEmpty()) {
+                            withoutSearchKeyRealLife.append("\n");
+                        }
+                        withoutSearchKeyRealLife.append(getString("nsfw_slot", command.getTrigger(), extras, title));
                     } else {
-                        withoutSearchKeyHentai.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
+                        if (!withoutSearchKeyHentai.isEmpty()) {
+                            withoutSearchKeyHentai.append("\n");
+                        }
+                        withoutSearchKeyHentai.append(getString("nsfw_slot", command.getTrigger(), extras, title));
                     }
-                } else if (command instanceof Txt2HentaiCommand) {
-                    ai.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title)).append("\n");
-                } else if (command instanceof PersonalNSFWFilterCommand) {
-                    config.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title)).append("\n");
+                } else {
+                    if (!other.isEmpty()) {
+                        other.append("\n");
+                    }
+                    other.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title));
                 }
             }
         }
 
-        if (!config.isEmpty()) {
-            eb.addField(getString("nsfw_config"), config.toString(), false);
-        }
-        if (!ai.isEmpty()) {
-            eb.addField(getString("nsfw_ai"), ai.toString(), false);
-        }
         if (!withSearchKey.isEmpty()) {
             eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), false);
         }
@@ -570,6 +571,9 @@ public class HelpCommand extends NavigationAbstract {
         }
         if (!withoutSearchKeyRealLife.isEmpty()) {
             EmbedUtil.addFieldSplit(eb, getString("nsfw_searchkey_off_rl"), withoutSearchKeyRealLife.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
+        }
+        if (!other.isEmpty()) {
+            eb.addField(getString("nsfw_other"), other.toString(), false);
         }
 
         addIconDescriptions(channel, eb, false, false, false, true);
