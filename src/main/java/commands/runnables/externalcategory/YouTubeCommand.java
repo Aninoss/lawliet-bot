@@ -80,6 +80,9 @@ public class YouTubeCommand extends Command implements OnAlertListener {
                 return AlertResponse.CONTINUE_AND_SAVE;
             }
         }
+        if (videos.isEmpty()) {
+            return AlertResponse.CONTINUE_AND_SAVE;
+        }
         Collections.reverse(videos);
 
         ArrayList<String> idList = slot.getArgs().isPresent() ? new ArrayList<>(List.of(slot.getArgs().get().split(","))) : new ArrayList<>();
