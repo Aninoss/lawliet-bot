@@ -242,14 +242,18 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         }
 
         long valueWon = (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR);
-        EmbedBuilder eb = FisheryUserManager.getGuildData(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
-                .changeValuesEmbed(member, 0, valueWon, getGuildEntity());
-
         if (coinsInput > 0) {
             FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(getGuildId().get()).getMemberData(getMemberId().get());
-            if (fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD)) {
+            boolean hasShield = fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD);
+            if (hasShield) {
                 casinoLogEntry.addEvent("Shield Protection");
                 fisheryMemberData.deletePowerUp(FisheryPowerUp.SHIELD);
+            }
+
+            EmbedBuilder eb = FisheryUserManager.getGuildData(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
+                    .changeValuesEmbed(member, 0, valueWon, getGuildEntity());
+
+            if (hasShield) {
                 eb.setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
                 EmbedUtil.addLog(eb, TextManager.getString(getLocale(), Category.CASINO, "casino_protection_log"));
             }
