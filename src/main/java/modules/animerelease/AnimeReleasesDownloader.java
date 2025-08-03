@@ -28,7 +28,7 @@ public class AnimeReleasesDownloader {
                 .map(String::trim)
                 .map(f -> f.replaceAll(RegexPatterns.HTTP_DOMAIN.pattern(), ""))
                 .collect(Collectors.toList());
-        String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
+        String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss";
 
         HttpResponse httpResponse = HttpCache.get(downloadUrl, Duration.ofMinutes(15)).get();
         String postString = httpResponse.getBody();
