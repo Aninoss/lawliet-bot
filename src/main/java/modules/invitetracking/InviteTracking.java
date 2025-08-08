@@ -91,6 +91,7 @@ public class InviteTracking {
                                     if (tempInvite == null) {
                                         tempInvite = invite;
                                     } else {
+                                        MainLogger.get().error("Ambiguous invite (guild id: {}, invite 1: {}, invite 2: {})", member.getGuild().getId(), tempInvite.code, invite.code);
                                         tempInvite = null;
                                         ambiguousInvite = true;
                                         break;
@@ -106,6 +107,7 @@ public class InviteTracking {
                                         if (tempInvite == null) {
                                             tempInvite = new TempInvite(guildInvite.getCode(), guildInvite.getUses() + 1, guildInvite.getMemberId(), guildInvite.getMaxAge());
                                         } else {
+                                            MainLogger.get().error("Ambiguous invite (missing invite code) (guild id: {}, invite 1: {}, invite 2: {})", member.getGuild().getId(), tempInvite.code, guildInvite.getCode());
                                             tempInvite = null;
                                             break;
                                         }
@@ -138,7 +140,6 @@ public class InviteTracking {
 
     public static CompletableFuture<Void> synchronizeGuildInvites(Guild guild, Locale locale) {
         CompletableFuture<Void> future = new CompletableFuture<>();
-
         if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
             collectInvites(guild)
                     .thenAccept(guildInvites -> {
@@ -207,14 +208,16 @@ public class InviteTracking {
 
         guild.retrieveInvites().queue(invites -> {
             for (Invite invite : invites) {
-                if (invite.getInviter() != null) {
-                    inviteList.add(new TempInvite(
-                            invite.getCode(),
-                            invite.getUses(),
-                            invite.getInviter().getIdLong(),
-                            calculateMaxAgeOfInvite(invite)
-                    ));
+                if (invite.getInviter() == null) {
+                    MainLogger.get().error("Inviter user is null (guild id: {}, invite: {})", guild.getId(), invite.getCode());
+                    continue;
                 }
+                inviteList.add(new TempInvite(
+                        invite.getCode(),
+                        invite.getUses(),
+                        invite.getInviter().getIdLong(),
+                        calculateMaxAgeOfInvite(invite)
+                ));
             }
             completed[1] = true;
             if (completed[0]) {
