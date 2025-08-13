@@ -245,7 +245,7 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         }
         List<String> validGifs = new ArrayList<>(gifSet);
 
-        if (validGifs.size() >= 3 || ignoreThreshold) {
+        if (!validGifs.isEmpty() && (validGifs.size() >= 3 || ignoreThreshold)) {
             gifUrl = validGifs.get(RandomPicker.pick(getTrigger() + "_" + selfGender.getId() + otherGender.getId(), guildId, validGifs.size()).get());
             return true;
         }
