@@ -23,6 +23,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -30,6 +32,8 @@ import java.util.Set;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(GuildMemberJoinInviteTracking.class);
 
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) throws Throwable {
@@ -40,7 +44,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
             InviteTracking.registerMemberJoin(event.getMember(), locale)
                     .thenAccept(invite -> sendLog(inviteTrackingData, locale, event.getMember(), invite))
                     .exceptionally(e -> {
-                        //ignore
+                        LOGGER.error("Invite tracking exception (guildId: {})", event.getGuild().getIdLong(), e);
                         sendLog(inviteTrackingData, locale, event.getMember(), null);
                         return null;
                     });
