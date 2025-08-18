@@ -1,8 +1,8 @@
 package core.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class CollectionUtil {
 
@@ -30,6 +30,14 @@ public class CollectionUtil {
         T[] result = Arrays.copyOf(array1, array1.length + array2.length);
         System.arraycopy(array2, 0, result, array1.length, array2.length);
         return result;
+    }
+
+    public static <T> Collection<List<T>> chunkCollection(Collection<T> collection, int chunkSize) {
+        final AtomicInteger counter = new AtomicInteger();
+        return collection.stream()
+                .collect(Collectors.groupingBy(it ->
+                        counter.getAndIncrement() / chunkSize))
+                .values();
     }
 
 }

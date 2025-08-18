@@ -3,6 +3,7 @@ package core;
 import constants.AssetIds;
 import core.cache.PatreonCache;
 import core.cache.UserWithWorkFisheryDmReminderCache;
+import core.utils.CollectionUtil;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
@@ -70,16 +71,17 @@ public class MemberCacheController implements MemberCachePolicy {
         if (guild.isLoaded() || missingMemberIds.isEmpty()) {
             future.complete(presentMembers);
         } else {
-            guild.retrieveMembersByIds(missingMemberIds)
-                    .setTimeout(Duration.ofSeconds(20))
-                    .onError(future::completeExceptionally)
-                    .onSuccess(members -> {
-                        members.forEach(member -> missingMemberIds.remove(member.getIdLong()));
-                        missingMemberIdCacheSet.addAll(missingMemberIds);
-
-                        presentMembers.addAll(members);
-                        future.complete(presentMembers);
-                    });
+            return future.completeAsync(() -> {
+                for (List<Long> chunkedMemberIds : CollectionUtil.chunkCollection(missingMemberIds, 100)) {
+                    List<Member> members = guild.retrieveMembersByIds(chunkedMemberIds)
+                            .setTimeout(Duration.ofSeconds(20))
+                            .get();
+                    members.forEach(member -> missingMemberIds.remove(member.getIdLong()));
+                    presentMembers.addAll(members);
+                }
+                missingMemberIdCacheSet.addAll(missingMemberIds);
+                return presentMembers;
+            });
         }
         return future;
     }
