@@ -3,7 +3,7 @@ package events.discordevents.guildmessageupdate;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageUpdateAbstract;
-import modules.LinkFilter;
+import modules.moderation.LinkFilter;
 import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 

@@ -184,6 +184,7 @@ public class DiscordConnector {
         TempBanScheduler.start();
         ServerMuteScheduler.start();
         JailScheduler.start();
+        ChannelLockScheduler.start();
         ShardManager.start();
         FeatureLogger.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");

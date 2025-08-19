@@ -52,7 +52,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         GuildMessageChannel channel = null;
-        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, channel, args);
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, channel, args, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS);
         if (response != null) {
             args = response.getArgs();
             channel = response.getChannel();

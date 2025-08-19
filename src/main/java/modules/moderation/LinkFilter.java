@@ -1,4 +1,4 @@
-package modules;
+package modules.moderation;
 
 import constants.AssetIds;
 import core.utils.BotPermissionUtil;

@@ -1,4 +1,4 @@
-package modules;
+package modules.moderation;
 
 import commands.Category;
 import commands.Command;

@@ -8,7 +8,7 @@ import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.Jail;
-import modules.Mod;
+import modules.moderation.Mod;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.jails.DBJails;

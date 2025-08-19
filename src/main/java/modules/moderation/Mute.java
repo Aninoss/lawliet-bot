@@ -1,4 +1,4 @@
-package modules;
+package modules.moderation;
 
 import core.CustomObservableMap;
 import core.MemberCacheController;

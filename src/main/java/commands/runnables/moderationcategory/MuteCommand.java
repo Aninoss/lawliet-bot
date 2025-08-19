@@ -9,7 +9,7 @@ import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import modules.Mute;
+import modules.moderation.Mute;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;

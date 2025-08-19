@@ -14,7 +14,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import modules.Mod;
+import modules.moderation.Mod;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;

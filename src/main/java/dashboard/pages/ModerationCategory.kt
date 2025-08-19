@@ -21,7 +21,11 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.automod.WordFilter
 import mysql.hibernate.entity.BotLogEntity
-import mysql.hibernate.entity.guild.*
+import mysql.hibernate.entity.guild.AutoModEntity
+import mysql.hibernate.entity.guild.GuildEntity
+import mysql.hibernate.entity.guild.ModerationEntity
+import mysql.hibernate.entity.guild.WordFilterEntity
+import mysql.hibernate.entity.guild.InviteFilterEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*

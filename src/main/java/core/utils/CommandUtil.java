@@ -15,9 +15,6 @@ import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -38,19 +35,15 @@ public class CommandUtil {
             }
         }
 
-        HashSet<Permission> permissionSet = new HashSet<>(List.of(Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS));
-        permissionSet.addAll(Arrays.asList(permissions));
-        Permission[] finalPermissions = permissionSet.toArray(Permission[]::new);
-
         if (channel != null) {
             EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionsMissingEmbed(
                     command.getLocale(),
                     channel,
                     event.getMember(),
                     new Permission[0],
-                    finalPermissions,
+                    permissions,
                     new Permission[0],
-                    finalPermissions
+                    permissions
             );
             if (missingPermissionsEmbed != null) {
                 command.drawMessageNew(missingPermissionsEmbed)

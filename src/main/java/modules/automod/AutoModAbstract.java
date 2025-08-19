@@ -8,7 +8,7 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
-import modules.Mod;
+import modules.moderation.Mod;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;

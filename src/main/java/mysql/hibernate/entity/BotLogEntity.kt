@@ -227,7 +227,9 @@ class BotLogEntity(
         BIRTHDAY_CONFIG_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, BirthdayConfigCommand::class.java, "birthdayconfig_home_channel"),
         BIRTHDAY_CONFIG_ROLE(ValuesRelationship.OLD_AND_NEW, ValueType.ROLE, BirthdayConfigCommand::class.java, "birthdayconfig_home_role"),
         API_TOKEN_NEW,
-        API_TOKEN_REMOVE
+        API_TOKEN_REMOVE,
+        CHANNEL_LOCK(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
+        CHANNEL_UNLOCK(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL)
     }
 
 

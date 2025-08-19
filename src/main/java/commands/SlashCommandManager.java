@@ -8,7 +8,7 @@ import core.MainLogger;
 import core.Program;
 import core.ShardManager;
 import core.SlashAssociations;
-import modules.ModUserInteractionManager;
+import modules.moderation.ModUserInteractionManager;
 import modules.translate.TranslateMessageInteractionManager;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;

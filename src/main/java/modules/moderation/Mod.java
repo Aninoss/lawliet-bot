@@ -1,4 +1,4 @@
-package modules;
+package modules.moderation;
 
 import commands.Category;
 import commands.Command;
@@ -13,6 +13,7 @@ import core.utils.FutureUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
+import modules.Jail;
 import modules.schedulers.TempBanScheduler;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.guild.ModerationEntity;

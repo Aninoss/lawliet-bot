@@ -7,7 +7,7 @@ import commands.runnables.moderationcategory.MuteCommand;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
-import modules.Mod;
+import modules.moderation.Mod;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.servermute.DBServerMute;
