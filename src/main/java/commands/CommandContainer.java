@@ -125,6 +125,7 @@ public class CommandContainer {
         commandList.add(WordFilterCommand.class);
         commandList.add(ClearCommand.class);
         commandList.add(FullClearCommand.class);
+        commandList.add(LockCommand.class);
 
         //INFORMATION
         commandList.add(HelpCommand.class);

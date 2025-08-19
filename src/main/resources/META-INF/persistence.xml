@@ -20,6 +20,7 @@
         <class>mysql.hibernate.entity.DiscordSubscriptionEntity</class>
         <class>mysql.hibernate.entity.SmashOrPassCharacterEntity</class>
         <class>mysql.hibernate.entity.user.RolePlayGender</class>
+        <class>mysql.hibernate.entity.guild.ChannelLockEntity</class>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
             <property name="hibernate.ogm.datastore.database" value="Lawliet" />

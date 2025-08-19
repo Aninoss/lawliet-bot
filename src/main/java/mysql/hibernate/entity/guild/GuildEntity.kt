@@ -134,6 +134,11 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     @ElementCollection
     val whitelistedChannelIds = mutableListOf<Long>()
 
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    var channelLocks: MutableMap<Long, ChannelLockEntity> = mutableMapOf()
+
+
     constructor() : this("0")
 
     override fun getGuildId(): Long {
