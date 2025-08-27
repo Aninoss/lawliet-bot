@@ -1,17 +1,23 @@
 package modules.moderation;
 
+import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
 import commands.runnables.moderationcategory.LockCommand;
 import commands.runnables.moderationcategory.UnlockCommand;
+import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.ShardManager;
+import core.TextManager;
 import core.utils.CommandUtil;
 import modules.schedulers.ChannelLockScheduler;
 import mysql.hibernate.entity.guild.ChannelLockEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.managers.channel.attribute.IPermissionContainerManager;
 
@@ -23,7 +29,16 @@ public class ChannelLock {
     public static GuildMessageChannel getChannel(Command command, CommandEvent event, String args) {
         CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(command, event, event.getMessageChannel(), args, Permission.MESSAGE_SEND, Permission.MANAGE_PERMISSIONS);
         if (response != null) {
-            return response.getChannel();
+            GuildMessageChannel channel = response.getChannel();
+            if (channel instanceof TextChannel) {
+                return channel;
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(command)
+                        .setDescription(TextManager.getString(command.getLocale(), Category.MODERATION, "lock_error_wrongchanneltype"));
+                command.drawMessageNew(eb)
+                        .exceptionally(ExceptionLogger.get());
+                return null;
+            }
         } else {
             return null;
         }
