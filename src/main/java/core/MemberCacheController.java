@@ -74,7 +74,7 @@ public class MemberCacheController implements MemberCachePolicy {
             return future.completeAsync(() -> {
                 for (List<Long> chunkedMemberIds : CollectionUtil.chunkCollection(missingMemberIds, 100)) {
                     List<Member> members = guild.retrieveMembersByIds(chunkedMemberIds)
-                            .setTimeout(Duration.ofSeconds(20))
+                            .setTimeout(Duration.ofSeconds(60))
                             .get();
                     members.forEach(member -> missingMemberIds.remove(member.getIdLong()));
                     presentMembers.addAll(members);
@@ -97,7 +97,7 @@ public class MemberCacheController implements MemberCachePolicy {
             future.complete(guild.getMembers());
         } else {
             guild.loadMembers()
-                    .setTimeout(Duration.ofSeconds(20))
+                    .setTimeout(Duration.ofSeconds(60))
                     .onError(future::completeExceptionally)
                     .onSuccess(future::complete);
         }
