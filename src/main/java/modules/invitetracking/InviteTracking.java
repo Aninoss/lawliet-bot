@@ -22,15 +22,17 @@ import java.util.stream.Collectors;
 public class InviteTracking {
 
     public static InviteMetrics generateInviteMetricsForInviterUser(Guild guild, long inviterUserId) {
-        return generateInviteMetricsMap(guild).getOrDefault(inviterUserId, new InviteMetrics(guild.getIdLong(), inviterUserId));
+        return generateInviteMetricsMap(guild, inviterUserId).getOrDefault(inviterUserId, new InviteMetrics(guild.getIdLong(), inviterUserId));
     }
 
     public static HashMap<Long, InviteMetrics> generateInviteMetricsMap(Guild guild) {
+        return generateInviteMetricsMap(guild, null);
+    }
+
+    public static HashMap<Long, InviteMetrics> generateInviteMetricsMap(Guild guild, Long inviterUserId) {
         HashMap<Long, InviteMetrics> inviteMetricsMap = new HashMap<>();
         CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
-        HashSet<Long> serverMemberIds = MemberCacheController.getInstance().loadMembers(guild, inviteTrackingSlots.keySet()).join().stream()
-                .map(ISnowflake::getIdLong)
-                .collect(Collectors.toCollection(HashSet::new));
+        Set<Long> serverMemberIds = retrieveRelevantMemberIds(guild, inviterUserId, inviteTrackingSlots);
 
         for (InviteTrackingSlot inviteTrackingSlot : inviteTrackingSlots.values()) {
             InviteMetrics inviteMetrics = inviteMetricsMap.computeIfAbsent(inviteTrackingSlot.getInviterUserId(), k -> new InviteMetrics(guild.getIdLong(), inviteTrackingSlot.getInviterUserId()));
@@ -154,6 +156,23 @@ public class InviteTracking {
             return invite.getTimeCreated().toInstant().plusSeconds(invite.getMaxAge());
         } else {
             return null;
+        }
+    }
+
+    private static Set<Long> retrieveRelevantMemberIds(Guild guild, Long inviterUserId, CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots) {
+        List<Long> userIds = inviteTrackingSlots.values().stream()
+                .filter(slot -> inviterUserId == null || slot.getInviterUserId() == inviterUserId)
+                .map(InviteTrackingSlot::getMemberId)
+                .collect(Collectors.toList());
+
+        if (userIds.size() <= 200) {
+            return MemberCacheController.getInstance().loadMembers(guild, userIds).join().stream()
+                    .map(ISnowflake::getIdLong)
+                    .collect(Collectors.toCollection(HashSet::new));
+        } else {
+            return MemberCacheController.getInstance().loadMembersFull(guild, false).join().stream()
+                    .map(ISnowflake::getIdLong)
+                    .collect(Collectors.toCollection(HashSet::new));
         }
     }
 
