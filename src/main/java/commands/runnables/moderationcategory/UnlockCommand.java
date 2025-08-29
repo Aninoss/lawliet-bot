@@ -17,7 +17,8 @@ import java.util.Locale;
 
 @CommandProperties(
         trigger = "unlock",
-        botGuildPermissions = {Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.VOICE_CONNECT},
+        botGuildPermissions = {Permission.MANAGE_PERMISSIONS},
+        userGuildPermissions = {Permission.MANAGE_PERMISSIONS},
         emoji = "🔒",
         executableWithoutArgs = true
 )
