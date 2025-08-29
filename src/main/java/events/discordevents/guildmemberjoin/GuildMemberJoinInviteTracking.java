@@ -12,7 +12,6 @@ import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.InviteTrackingData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -38,9 +37,8 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) throws Throwable {
         InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
-        if (inviteTrackingData.isActive()) {
-            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-            Locale locale = guildEntity.getLocale();
+        Locale locale = entityManager.findGuildEntity(event.getGuild().getIdLong()).getLocale();
+        if (inviteTrackingData.isActive() && PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, event.getGuild(), Permission.MANAGE_SERVER)) {
             InviteTracking.registerMemberJoin(event.getMember(), locale)
                     .thenAccept(invite -> sendLog(inviteTrackingData, locale, event.getMember(), invite))
                     .exceptionally(e -> {
