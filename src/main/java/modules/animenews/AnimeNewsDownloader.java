@@ -1,6 +1,7 @@
 package modules.animenews;
 
 import constants.Language;
+import core.LocalFile;
 import core.MainLogger;
 import core.internet.HttpCache;
 import core.internet.HttpResponse;
@@ -11,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,18 +77,25 @@ public class AnimeNewsDownloader {
     }
 
     private static AnimeNewsArticle extractPostEn(JSONObject jsonPost) {
-        String thumbnailUrl = null;
-        try {
-            thumbnailUrl = InternetUtil.retrieveThumbnailPreview(jsonPost.getString("link")).get();
-        } catch (InterruptedException | ExecutionException e) {
-            //Ignore
+        String link = jsonPost.getString("link");
+        String[] linkArray = link.split("/");
+        LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/animenews_%s.jpg", linkArray[linkArray.length - 1]));
+
+        if (!tempFile.exists()) {
+            try {
+                tempFile.createNewFile();
+                String thumbnailUrl = InternetUtil.retrieveThumbnailPreview(jsonPost.getString("link")).get();
+                InternetUtil.downloadFile(thumbnailUrl, tempFile);
+            } catch (InterruptedException | ExecutionException | IOException e) {
+                MainLogger.get().error("Anime news thumbnail download error", e);
+            }
         }
 
         return new AnimeNewsArticle(
                 StringUtil.shortenString(StringUtil.unescapeHtml(jsonPost.getString("title")), 256),
                 StringUtil.unescapeHtml(jsonPost.getString("description")),
-                thumbnailUrl,
-                jsonPost.getString("link"),
+                tempFile.cdnGetUrl(),
+                link,
                 TimeUtil.parseDateStringRSS(jsonPost.getString("pubDate"))
         );
     }
