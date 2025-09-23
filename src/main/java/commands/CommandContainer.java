@@ -170,6 +170,7 @@ public class CommandContainer {
         commandList.add(GiveCommand.class);
         commandList.add(SurveyCommand.class);
         commandList.add(StocksCommand.class);
+        commandList.add(BankCommand.class);
 
         //CASINO
         commandList.add(CasinoStatsCommand.class);

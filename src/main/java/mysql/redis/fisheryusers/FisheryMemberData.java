@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import org.apache.commons.lang3.StringUtils;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
@@ -33,10 +34,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class FisheryMemberData implements MemberAsset {
 
@@ -64,6 +66,7 @@ public class FisheryMemberData implements MemberAsset {
     public final String FIELD_POWERUP = "powerup";
     public final String FIELD_COUPONS = "coupons";
     public final String FIELD_WEEKLY_OPENED_TREASURE_CHESTS = "weekly_opened_treasure_chests";
+    public final String FIELD_BANK_DEPOSITS = "bank_deposits";
 
     FisheryMemberData(FisheryGuildData fisheryGuildData, long memberId) {
         this.fisheryGuildData = fisheryGuildData;
@@ -925,6 +928,37 @@ public class FisheryMemberData implements MemberAsset {
             Pipeline pipeline = jedis.pipelined();
             FisheryUserManager.setUserActiveOnGuild(pipeline, this);
             pipeline.hdel(KEY_ACCOUNT, FIELD_UPVOTE_STACK);
+            pipeline.sync();
+        });
+    }
+
+    public List<FisheryMemberBankDeposit> getBankDeposits() {
+        return RedisManager.get(jedis -> {
+            String str = jedis.hget(KEY_ACCOUNT, FIELD_BANK_DEPOSITS);
+            if (str == null) {
+                return Collections.emptyList();
+            }
+            return Arrays.stream(str.split(","))
+                    .map(FisheryMemberBankDeposit::new)
+                    .collect(Collectors.toList());
+        });
+    }
+
+    public void addBankDeposit(long coins, Instant until) {
+        ArrayList<FisheryMemberBankDeposit> deposits = new ArrayList<>(getBankDeposits());
+        deposits.add(new FisheryMemberBankDeposit(coins, until));
+        setBankDeposits(deposits);
+    }
+
+    public void setBankDeposits(List<FisheryMemberBankDeposit> deposits) {
+        List<String> depositStringList = deposits.stream()
+                .map(FisheryMemberBankDeposit::toString)
+                .collect(Collectors.toList());
+
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, this);
+            pipeline.hset(KEY_ACCOUNT, FIELD_BANK_DEPOSITS, StringUtils.join(depositStringList, ","));
             pipeline.sync();
         });
     }
