@@ -13,7 +13,7 @@ public class FisheryMemberBankDeposit {
     }
 
     public FisheryMemberBankDeposit(String input) {
-        String[] values = input.split(":");
+        String[] values = input.split("_");
         this.coins = Long.parseLong(values[0]);
         this.until = Instant.parse(values[1]);
     }
@@ -28,7 +28,7 @@ public class FisheryMemberBankDeposit {
 
     @Override
     public String toString() {
-        return coins + ":" + until.toString();
+        return coins + "_" + until.toString();
     }
 
 }
