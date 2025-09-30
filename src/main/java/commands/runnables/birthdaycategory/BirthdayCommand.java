@@ -12,12 +12,12 @@ import core.utils.StringUtil;
 import mysql.hibernate.entity.guild.BirthdayEntity;
 import mysql.hibernate.entity.guild.BirthdayUserEntryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
@@ -71,14 +71,14 @@ public class BirthdayCommand extends NavigationAbstract {
                 }
 
                 String dayId = "day";
-                TextInput textDay = TextInput.create(dayId, getString("home_date_day"), TextInputStyle.SHORT)
+                TextInput textDay = TextInput.create(dayId, TextInputStyle.SHORT)
                         .setValue(userEntry != null && userEntry.getDay() != null ? StringUtil.numToString(userEntry.getDay()) : null)
                         .setRequiredRange(0, 2)
                         .setRequired(false)
                         .build();
 
                 String monthId = "month";
-                TextInput textMonth = TextInput.create(monthId, getString("home_date_month"), TextInputStyle.SHORT)
+                TextInput textMonth = TextInput.create(monthId, TextInputStyle.SHORT)
                         .setValue(userEntry != null && userEntry.getMonth() != null ? StringUtil.numToString(userEntry.getMonth()) : null)
                         .setRequiredRange(0, 2)
                         .setRequired(false)
@@ -132,7 +132,10 @@ public class BirthdayCommand extends NavigationAbstract {
 
                             setLog(LogStatus.SUCCESS, getString("log_setdate"));
                             return null;
-                        }).addComponents(ActionRow.of(textDay), ActionRow.of(textMonth))
+                        }).addComponents(
+                                Label.of(getString("home_date_day"), textDay),
+                                Label.of(getString("home_date_month"), textMonth)
+                        )
                         .build();
 
                 event.replyModal(modal).queue();

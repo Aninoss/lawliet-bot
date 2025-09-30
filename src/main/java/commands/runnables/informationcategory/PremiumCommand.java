@@ -57,7 +57,7 @@ public class PremiumCommand extends Command {
         sb.append(getString("andmanymore"));
 
         eb.addField(getString("slot_title"), sb.toString(), false);
-        setComponents(EmbedFactory.getPatreonBlockButtons(getLocale()));
+        setComponents(EmbedFactory.getPatreonBlockButton(getLocale()));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }

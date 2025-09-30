@@ -19,17 +19,18 @@ import modules.txt2img.*;
 import mysql.hibernate.entity.user.Txt2ImgEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -129,14 +130,14 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             }
             case 0 -> {
                 String promptId = "prompt";
-                TextInput textInputPrompt = TextInput.create(promptId, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_textprompt_title"), TextInputStyle.PARAGRAPH)
+                TextInput textInputPrompt = TextInput.create(promptId, TextInputStyle.PARAGRAPH)
                         .setValue(prompt)
                         .setMinLength(1)
                         .setMaxLength(PROMPT_MAX_LENGTH)
                         .build();
 
                 String negativePromptId = "negative_prompt";
-                TextInput textInputNegativePrompt = TextInput.create(negativePromptId, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_negativeprompt_title"), TextInputStyle.PARAGRAPH)
+                TextInput textInputNegativePrompt = TextInput.create(negativePromptId, TextInputStyle.PARAGRAPH)
                         .setValue(negativePrompt.isBlank() ? null : negativePrompt)
                         .setMinLength(0)
                         .setMaxLength(PROMPT_MAX_LENGTH)
@@ -155,7 +156,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                             negativePrompt = e.getValue(negativePromptId) != null ? e.getValue(negativePromptId).getAsString() : "";
                             setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_default_promptupdate"));
                             return null;
-                        }).addComponents(ActionRow.of(textInputPrompt), ActionRow.of(textInputNegativePrompt))
+                        }).addComponents(
+                                Label.of(TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_textprompt_title"), textInputPrompt),
+                                Label.of(TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_negativeprompt_title"), textInputNegativePrompt)
+                        )
                         .build();
 
                 event.replyModal(modal).queue();

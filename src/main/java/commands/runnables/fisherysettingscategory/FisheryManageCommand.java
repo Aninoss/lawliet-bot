@@ -23,14 +23,15 @@ import mysql.hibernate.entity.BotLogEntity;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
+import net.dv8tion.jda.api.modals.Modal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -159,7 +160,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 return true;
             } else if (i == 0) {
                 String id = "text";
-                TextInput textInput = TextInput.create(id, getString("textfield"), TextInputStyle.SHORT)
+                TextInput textInput = TextInput.create(id, TextInputStyle.SHORT)
                         .setRequiredRange(1, 50)
                         .setPlaceholder("+0")
                         .build();
@@ -180,7 +181,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                             setState(DEFAULT_STATE);
                             return null;
                         })
-                        .addActionRow(textInput)
+                        .addComponents(Label.of(getString("textfield"), textInput))
                         .build();
 
                 event.replyModal(modal).queue();

@@ -21,9 +21,9 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Retention;
@@ -281,7 +281,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             List<ActionRow> tempActionRows = getActionRows();
             if (tempActionRows != null &&
                     !tempActionRows.isEmpty() &&
-                    tempActionRows.get(tempActionRows.size() - 1).getActionComponents().stream().anyMatch(component -> BUTTON_ID_BACK.equals(component.getId()))
+                    tempActionRows.get(tempActionRows.size() - 1).getActionComponents().stream().anyMatch(component -> BUTTON_ID_BACK.equals(component.getCustomId()))
             ) {
                 actionRows = tempActionRows.subList(0, tempActionRows.size() - 1);
             } else {

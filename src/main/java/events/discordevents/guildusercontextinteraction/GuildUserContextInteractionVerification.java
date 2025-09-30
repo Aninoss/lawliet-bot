@@ -7,14 +7,15 @@ import core.modals.ModalMediator;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUserContextInteractionAbstract;
 import mysql.hibernate.EntityManagerWrapper;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 
 @DiscordEvent
 public class GuildUserContextInteractionVerification extends GuildUserContextInteractionAbstract {
@@ -43,7 +44,7 @@ public class GuildUserContextInteractionVerification extends GuildUserContextInt
             return true;
         }
 
-        TextInput textInput = TextInput.create("text", "ACHTUNG", TextInputStyle.PARAGRAPH)
+        TextInput textInput = TextInput.create("text", TextInputStyle.PARAGRAPH)
                 .setValue("Schalte andere Mitglieder nur frei, wenn du sie persönlich kennst. Sollte diese Person negativ auffallen, kannst du für die Folgen mitverantwortlich gemacht werden.")
                 .build();
 
@@ -60,7 +61,7 @@ public class GuildUserContextInteractionVerification extends GuildUserContextInt
                             .setEphemeral(true)
                             .queue();
                 })
-                .addActionRow(textInput)
+                .addComponents(Label.of("ACHTUNG", textInput))
                 .build();
         event.replyModal(modal).queue();
 

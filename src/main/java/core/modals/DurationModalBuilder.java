@@ -6,7 +6,7 @@ import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import org.glassfish.jersey.internal.util.Producer;
 
 import java.time.Duration;

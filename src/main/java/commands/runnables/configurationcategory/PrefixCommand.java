@@ -12,11 +12,12 @@ import core.utils.StringUtil;
 import modules.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -58,7 +59,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        TextInput textInput = TextInput.create("text", getString("new"), TextInputStyle.SHORT)
+        TextInput textInput = TextInput.create("text", TextInputStyle.SHORT)
                 .setValue(getGuildEntity().getPrefix())
                 .setMinLength(1)
                 .setMaxLength(MAX_LENGTH)
@@ -74,7 +75,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
                     Prefix.changePrefix(e.getMember(), getLocale(), newPrefix, getGuildEntity());
                     return EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(newPrefix)));
                 })
-                .addActionRow(textInput)
+                .addComponents(Label.of(getString("new"), textInput))
                 .build();
         event.replyModal(modal).queue();
         return false;

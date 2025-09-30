@@ -14,13 +14,14 @@ import core.utils.StringUtil;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,7 +91,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
             }
 
             Integer currentThreshold = DBAutoSell.getInstance().retrieve().getThreshold(event.getMember().getIdLong());
-            TextInput textInput = TextInput.create("threshold", getString("modal_textinput"), TextInputStyle.SHORT)
+            TextInput textInput = TextInput.create("threshold", TextInputStyle.SHORT)
                     .setValue(currentThreshold != null ? String.valueOf(currentThreshold) : null)
                     .setMinLength(1)
                     .setMaxLength(3)
@@ -115,7 +116,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
                         }
                         return null;
                     })
-                    .addActionRow(textInput)
+                    .addComponents(Label.of(getString("modal_textinput"), textInput))
                     .build();
             event.replyModal(modal).queue();
             return false;
@@ -170,7 +171,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
     }
 
     private EmbedBuilder generateErrorEmbed() {
-        setComponents(EmbedFactory.getPatreonBlockButtons(getLocale()));
+        setComponents(EmbedFactory.getPatreonBlockButton(getLocale()));
         return EmbedFactory.getEmbedDefault(this, getString("error"))
                 .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_title"))
                 .setColor(Settings.PREMIUM_COLOR);

@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 
 public abstract class InteractionResponse {

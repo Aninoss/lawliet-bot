@@ -22,15 +22,16 @@ import modules.translate.DeepL;
 import mysql.hibernate.entity.user.UserEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class TranslateCommand extends NavigationAbstract {
             }
             case 3 -> {
                 String id = "text";
-                TextInput textInput = TextInput.create(id, getString("default_reply_label"), TextInputStyle.PARAGRAPH)
+                TextInput textInput = TextInput.create(id, TextInputStyle.PARAGRAPH)
                         .setPlaceholder(getString("default_reply_placeholder"))
                         .setMaxLength(MessageEmbed.VALUE_MAX_LENGTH)
                         .build();
@@ -165,7 +166,7 @@ public class TranslateCommand extends NavigationAbstract {
                             setLog(LogStatus.SUCCESS, getString("default_reply_success"));
                             return null;
                         })
-                        .addActionRow(textInput)
+                        .addComponents(Label.of(getString("default_reply_label"), textInput))
                         .build();
 
                 event.replyModal(modal).queue();

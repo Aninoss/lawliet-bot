@@ -23,8 +23,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
@@ -207,9 +207,9 @@ public class CommandManager {
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"))
                     .setDescription(desc);
             eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), waitTime, false);
-            sendError(event, guildEntity, eb, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
+            sendError(event, guildEntity, eb, false, EmbedFactory.getPatreonBlockButton(command.getLocale()));
         } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
-            sendErrorNoEmbed(event, guildEntity, desc + "\n\n" + waitTime, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
+            sendErrorNoEmbed(event, guildEntity, desc + "\n\n" + waitTime, false, EmbedFactory.getPatreonBlockButton(command.getLocale()));
         }
 
         return false;
@@ -224,9 +224,9 @@ public class CommandManager {
         }
 
         if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
-            sendError(event, guildEntity, EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
+            sendError(event, guildEntity, EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false, EmbedFactory.getPatreonBlockButton(command.getLocale()));
         } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
-            sendErrorNoEmbed(event, guildEntity, TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
+            sendErrorNoEmbed(event, guildEntity, TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false, EmbedFactory.getPatreonBlockButton(command.getLocale()));
         }
 
         return false;

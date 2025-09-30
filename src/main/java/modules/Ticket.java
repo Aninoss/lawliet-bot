@@ -27,14 +27,14 @@ import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.managers.channel.middleman.StandardGuildChannelManager;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
@@ -85,7 +85,7 @@ public class Ticket {
 
         channel.sendMessageEmbeds(eb.build())
                 .addFiles(createMessageFile != null ? List.of(FileUpload.fromData(createMessageFile)) : Collections.emptyList())
-                .setActionRow(createActionRow(guildEntity.getLocale(), createMessageCategories))
+                .setComponents(ActionRow.of(createActionRow(guildEntity.getLocale(), createMessageCategories)))
                 .queue(message -> {
                     DBStaticReactionMessages.getInstance()
                             .retrieve(message.getGuild().getIdLong())
@@ -114,7 +114,7 @@ public class Ticket {
         }
     }
 
-    private static ActionComponent createActionRow(Locale locale, List<String> createMessageCategories) {
+    private static ActionRowChildComponent createActionRow(Locale locale, List<String> createMessageCategories) {
         if (createMessageCategories.isEmpty()) {
             return Button.of(ButtonStyle.PRIMARY, TicketCommand.COMPONENT_ID_CREATE, TextManager.getString(locale, Category.CONFIGURATION, "ticket_button_create"));
         } else {

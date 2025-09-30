@@ -3,6 +3,8 @@ package modules.translate;
 import commands.Category;
 import constants.Language;
 import core.TextManager;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
@@ -14,7 +16,9 @@ public class TranslateMessageInteractionManager {
 
     public static List<CommandData> generateMessageCommands() {
         CommandData commandData = Commands.message(TextManager.getString(Language.EN.getLocale(), Category.AI_TOYS, "translate_interaction"));
-        commandData.setGuildOnly(true);
+
+        commandData.setIntegrationTypes(IntegrationType.GUILD_INSTALL);
+        commandData.setContexts(InteractionContextType.GUILD);
         Arrays.stream(Language.values())
                 .filter(language -> language != Language.EN)
                 .forEach(language -> {

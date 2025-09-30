@@ -13,7 +13,7 @@ import mysql.hibernate.EntityManagerWrapper
 import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.interactions.components.buttons.Button
+import net.dv8tion.jda.api.components.buttons.Button
 import javax.persistence.Embeddable
 import javax.persistence.EnumType
 import javax.persistence.Enumerated

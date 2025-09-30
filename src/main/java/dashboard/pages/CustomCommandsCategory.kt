@@ -94,7 +94,7 @@ class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         textFieldsContainer.allowWrap = true
 
         val triggerTextField = DashboardTextField(getString(Category.CONFIGURATION, "customconfig_add_trigger"), 1, CustomConfigCommand.MAX_COMMAND_TRIGGER_LENGTH) {
-            val newTrigger = it.data.replace("[^a-zA-Z0-9-_]".toRegex(), "").toLowerCase()
+            val newTrigger = it.data.replace("[^a-zA-Z0-9-_]".toRegex(), "").lowercase()
             if (newTrigger.isEmpty()) {
                 return@DashboardTextField ActionResult()
                         .withRedraw()

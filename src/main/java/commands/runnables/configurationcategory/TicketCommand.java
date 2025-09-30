@@ -28,6 +28,10 @@ import mysql.hibernate.entity.guild.TicketChannelEntity;
 import mysql.hibernate.entity.guild.TicketsEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
@@ -39,11 +43,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -537,14 +537,14 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     private void createTicket(GenericComponentInteractionCreateEvent event, TicketsEntity ticketsEntity, StandardGuildMessageChannel channel, String selectedCategory) {
         if (ticketsEntity.getEnforceModal()) {
-            TextInput message = TextInput.create("message", getString("modal_message"), TextInputStyle.PARAGRAPH)
+            TextInput message = TextInput.create("message", TextInputStyle.PARAGRAPH)
                     .setPlaceholder(getString("modal_message_placeholder"))
                     .setMinLength(30)
                     .setMaxLength(1000)
                     .build();
 
             Modal modal = ModalMediator.createModal(event.getUser().getIdLong(), getString("button_create"), (e, guildEntity) -> extractModal(e, guildEntity, selectedCategory))
-                    .addComponents(ActionRow.of(message))
+                    .addComponents(Label.of(getString("modal_message"), message))
                     .build();
 
             event.replyModal(modal).queue();

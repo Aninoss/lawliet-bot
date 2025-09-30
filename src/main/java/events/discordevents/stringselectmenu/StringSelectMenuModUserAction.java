@@ -18,15 +18,16 @@ import modules.moderation.ModUserInteractionManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.ModalTopLevelComponent;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -70,44 +71,44 @@ public class StringSelectMenuModUserAction extends StringSelectMenuAbstract impl
             }
         }
 
-        TextInput reasonTextInput = TextInput.create(ModUserInteractionManager.REASON_ID, TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "warn_reason").replace(":", ""), TextInputStyle.PARAGRAPH)
+        TextInput reasonTextInput = TextInput.create(ModUserInteractionManager.REASON_ID, TextInputStyle.PARAGRAPH)
                 .setRequired(false)
                 .setMinLength(0)
                 .setMaxLength(WarnCommand.REASON_MAX)
                 .build();
 
-        ArrayList<ActionRow> actionRowList = new ArrayList<>();
-        actionRowList.add(ActionRow.of(reasonTextInput));
+        ArrayList<Label> labelList = new ArrayList<>();
+        labelList.add(Label.of(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "warn_reason").replace(":", ""), reasonTextInput));
 
         if (modCommand.hasDuration()) {
-            TextInput durationTextInput = TextInput.create(ModUserInteractionManager.DURATION_ID, TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "moderation_duration"), TextInputStyle.SHORT)
+            TextInput durationTextInput = TextInput.create(ModUserInteractionManager.DURATION_ID, TextInputStyle.SHORT)
                     .setRequired(false)
                     .setMinLength(0)
                     .setMaxLength(20)
                     .build();
-            actionRowList.add(ActionRow.of(durationTextInput));
+            labelList.add(Label.of(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "moderation_duration"), durationTextInput));
         }
 
         if (modCommand instanceof WarnRemoveCommand) {
-            TextInput amountTextInput = TextInput.create(ModUserInteractionManager.AMOUNT_ID, TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "warnremove_amount"), TextInputStyle.SHORT)
+            TextInput amountTextInput = TextInput.create(ModUserInteractionManager.AMOUNT_ID, TextInputStyle.SHORT)
                     .setValue("1")
                     .setMinLength(1)
                     .setMaxLength(3)
                     .build();
-            actionRowList.add(ActionRow.of(amountTextInput));
+            labelList.add(Label.of(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "warnremove_amount"), amountTextInput));
         }
 
         if (event.isAcknowledged()) {
             replyError(event, guildEntity.getLocale(), TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "user_interaction_error_timeout"));
         } else {
-            Modal modal = generateModal(guildEntity.getLocale(), modCommand, event.getMember().getIdLong(), targetUserId, actionRowList);
+            Modal modal = generateModal(guildEntity.getLocale(), modCommand, event.getMember().getIdLong(), targetUserId, labelList);
             event.replyModal(modal).queue();
         }
         return false;
     }
 
     @NotNull
-    private static Modal generateModal(Locale locale, WarnCommand modCommand, long memberId, long targetUserId, ArrayList<ActionRow> actionRowList) {
+    private static Modal generateModal(Locale locale, WarnCommand modCommand, long memberId, long targetUserId, ArrayList<? extends ModalTopLevelComponent> components) {
         return ModalMediator.createModal(memberId, TextManager.getString(locale, Category.MODERATION, "user_interaction"), (event, guildEntity) -> {
                     try {
                         EmbedBuilder modalErrorEmbed = ModUserInteractionManager.checkAccess(guildEntity, event.getMember(), event.getGuildChannel(), modCommand, targetUserId);
@@ -172,7 +173,7 @@ public class StringSelectMenuModUserAction extends StringSelectMenuAbstract impl
                         throw new RuntimeException(throwable);
                     }
                 })
-                .addComponents(actionRowList)
+                .addComponents(components)
                 .build();
     }
 

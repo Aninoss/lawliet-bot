@@ -12,7 +12,7 @@ import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 
 import java.time.Duration;
 import java.util.ArrayList;

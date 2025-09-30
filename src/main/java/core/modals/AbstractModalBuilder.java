@@ -8,11 +8,12 @@ import core.utils.ExceptionUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.BotLogEntity;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import net.dv8tion.jda.api.modals.Modal;
 import org.glassfish.jersey.internal.util.Producer;
 
 import java.util.function.Consumer;
@@ -82,7 +83,7 @@ public abstract class AbstractModalBuilder<T, U extends AbstractModalBuilder<T, 
         T value = getter.call();
         String stringValue = value != null ? valueToString(value) : null;
 
-        TextInput message = TextInput.create(ID, StringUtil.shortenString(getTextInputLabel(propertyName), TextInput.MAX_LABEL_LENGTH), textInputStyle)
+        TextInput message = TextInput.create(ID, textInputStyle)
                 .setValue(stringValue != null && stringValue.isEmpty() ? null : stringValue)
                 .setRequiredRange(minLength, maxLength)
                 .setRequired(minLength > 0)
@@ -101,7 +102,7 @@ public abstract class AbstractModalBuilder<T, U extends AbstractModalBuilder<T, 
             }
         });
 
-        return builder.addActionRow(message)
+        return builder.addComponents(Label.of(StringUtil.shortenString(getTextInputLabel(propertyName), Label.LABEL_MAX_LENGTH), message))
                 .build();
     }
 

@@ -3,7 +3,7 @@ package commands.stateprocessor;
 import commands.runnables.NavigationAbstract;
 import core.utils.JDAUtil;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
 import org.glassfish.jersey.internal.util.Producer;
 
 import java.util.Collection;

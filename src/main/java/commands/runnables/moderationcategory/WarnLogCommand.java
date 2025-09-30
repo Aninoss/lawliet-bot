@@ -15,16 +15,16 @@ import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningSlot;
 import mysql.modules.warning.ServerWarningsData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -106,7 +106,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
             case BUTTON_ID_GOTO -> {
                 String textId = "page";
                 String textLabel = TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto_label", String.valueOf(getPageSize()));
-                TextInput message = TextInput.create(textId, textLabel, TextInputStyle.SHORT)
+                TextInput message = TextInput.create(textId, TextInputStyle.SHORT)
                         .setPlaceholder(String.valueOf(page + 1))
                         .setMinLength(1)
                         .setMaxLength(4)
@@ -119,7 +119,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
                                 page = Math.min(getPageSize() - 1, Math.max(0, Integer.parseInt(pageString) - 1));
                             }
                             return null;
-                        }).addComponents(ActionRow.of(message))
+                        }).addComponents(Label.of(textLabel, message))
                         .build();
 
                 event.replyModal(modal).queue();

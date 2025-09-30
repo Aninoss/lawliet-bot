@@ -13,6 +13,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
@@ -33,7 +35,8 @@ public class ModUserInteractionManager {
 
     public static List<CommandData> generateUserCommands() {
         CommandData commandData = Commands.user(TextManager.getString(Language.EN.getLocale(), Category.MODERATION, "user_interaction"));
-        commandData.setGuildOnly(true);
+        commandData.setIntegrationTypes(IntegrationType.GUILD_INSTALL);
+        commandData.setContexts(InteractionContextType.GUILD);
         Arrays.stream(Language.values())
                 .filter(language -> language != Language.EN)
                 .forEach(language -> {

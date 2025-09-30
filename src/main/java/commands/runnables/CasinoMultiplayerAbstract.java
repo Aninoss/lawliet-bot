@@ -26,14 +26,14 @@ import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -394,7 +394,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         }
     }
 
-    public Collection<? extends LayoutComponent> generatePlayerActionRows(int player) {
+    public Collection<? extends MessageTopLevelComponent> generatePlayerActionRows(int player) {
         return Collections.emptyList();
     }
 

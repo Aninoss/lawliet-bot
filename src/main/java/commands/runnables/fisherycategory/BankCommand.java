@@ -17,11 +17,12 @@ import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.Duration;
@@ -64,7 +65,7 @@ public class BankCommand extends NavigationAbstract implements FisheryInterface 
             }
             case 0 -> {
                 String id = "text";
-                TextInput textInput = TextInput.create(id, getString("main_add_deposit_label"), TextInputStyle.SHORT)
+                TextInput textInput = TextInput.create(id, TextInputStyle.SHORT)
                         .setRequiredRange(1, 50)
                         .build();
 
@@ -81,7 +82,7 @@ public class BankCommand extends NavigationAbstract implements FisheryInterface 
                             setState(STATE_CONFIRM);
                             return null;
                         })
-                        .addActionRow(textInput)
+                        .addComponents(Label.of(getString("main_add_deposit_label"), textInput))
                         .build();
 
                 event.replyModal(modal).queue();

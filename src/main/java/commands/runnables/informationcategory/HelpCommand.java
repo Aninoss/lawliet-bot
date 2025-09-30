@@ -22,6 +22,7 @@ import core.utils.StringUtil;
 import mysql.hibernate.entity.CustomRolePlayEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -30,14 +31,14 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -77,7 +78,7 @@ public class HelpCommand extends NavigationAbstract {
     @Override
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
         if (event.getComponentId().equals(BUTTON_ID_BROWSE)) {
-            TextInput textInput = TextInput.create("text", getString("trigger"), TextInputStyle.SHORT)
+            TextInput textInput = TextInput.create("text", TextInputStyle.SHORT)
                     .setMinLength(1)
                     .setMaxLength(50)
                     .build();
@@ -97,7 +98,7 @@ public class HelpCommand extends NavigationAbstract {
                         }
                         return null;
                     })
-                    .addActionRow(textInput)
+                    .addComponents(Label.of(getString("trigger"), textInput))
                     .build();
 
             event.replyModal(modal).queue();

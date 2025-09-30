@@ -47,7 +47,8 @@ public class InviteFilter extends AutoModAbstract {
                 member.getGuild().getSelfMember().canInteract(member)
         ) {
             message.getGuild()
-                    .kick(member, TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
+                    .kick(member)
+                    .reason(TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
         }

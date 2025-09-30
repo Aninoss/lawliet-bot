@@ -5,7 +5,7 @@ import core.TextManager;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
 
 import java.util.Collections;
 import java.util.List;

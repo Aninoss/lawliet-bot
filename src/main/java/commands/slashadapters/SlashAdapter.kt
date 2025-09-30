@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.DiscordLocale
+import net.dv8tion.jda.api.interactions.IntegrationType
+import net.dv8tion.jda.api.interactions.InteractionContextType
 import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -17,7 +19,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
-import okhttp3.internal.toImmutableList
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmName
@@ -121,7 +122,7 @@ abstract class SlashAdapter {
         list += commandAssociationCategories()
             .map { it.id }
 
-        return list.toImmutableList()
+        return list
     }
 
     fun nsfw(): Boolean {
@@ -143,7 +144,8 @@ abstract class SlashAdapter {
     fun generateCommandData(): SlashCommandData {
         val commandData = Commands.slash(name(), description())
         commandData.setDescriptionLocalizations(descriptionLocalizations())
-        commandData.isGuildOnly = true
+        commandData.setIntegrationTypes(IntegrationType.GUILD_INSTALL)
+        commandData.setContexts(InteractionContextType.GUILD)
         commandData.defaultPermissions = DefaultMemberPermissions.enabledFor(requiredPermissions())
         commandData.isNSFW = nsfw()
         return addOptions(commandData)

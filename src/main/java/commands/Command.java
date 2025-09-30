@@ -22,15 +22,15 @@ import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.SelectMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -124,7 +124,7 @@ public abstract class Command implements OnTriggerListener {
         setComponents(List.of(menus));
     }
 
-    public void setComponents(List<? extends ItemComponent> components) {
+    public void setComponents(List<? extends ActionRowChildComponent> components) {
         this.actionRows = ActionRows.of(components);
     }
 
@@ -262,7 +262,7 @@ public abstract class Command implements OnTriggerListener {
         HashSet<String> usedIds = new HashSet<>();
         for (ActionRow actionRow : actionRows) {
             for (ActionComponent component : actionRow.getActionComponents()) {
-                String id = component.getId();
+                String id = component.getCustomId();
                 if (id != null) {
                     if (usedIds.contains(id)) {
                         future.completeExceptionally(new Exception("Duplicate custom id \"" + id + "\""));

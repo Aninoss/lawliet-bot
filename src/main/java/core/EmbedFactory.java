@@ -5,9 +5,9 @@ import constants.ExternalLinks;
 import constants.Settings;
 import core.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -99,10 +99,8 @@ public class EmbedFactory {
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_description", prefix));
     }
 
-    public static Button[] getPatreonBlockButtons(Locale locale) {
-        return new Button[] {
-                Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_unlock"))
-        };
+    public static Button getPatreonBlockButton(Locale locale) {
+        return Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_unlock"));
     }
 
     public static EmbedBuilder getPatreonBlockEmbed(Locale locale) {

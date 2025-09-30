@@ -9,8 +9,8 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(

@@ -1,13 +1,14 @@
 package core.slashmessageaction;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReference;
 import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -106,7 +107,7 @@ public class SlashHookSendMessageAction implements MessageCreateAction {
 
     @NotNull
     @Override
-    public MessageCreateAction addComponents(@NotNull Collection<? extends LayoutComponent> components) {
+    public MessageCreateAction addComponents(@NotNull Collection<? extends MessageTopLevelComponent> components) {
         webhookMessageAction = webhookMessageAction.addComponents(components);
         return this;
     }
@@ -132,8 +133,13 @@ public class SlashHookSendMessageAction implements MessageCreateAction {
 
     @NotNull
     @Override
-    public List<LayoutComponent> getComponents() {
+    public List<MessageTopLevelComponentUnion> getComponents() {
         return webhookMessageAction.getComponents();
+    }
+
+    @Override
+    public boolean isUsingComponentsV2() {
+        return false;
     }
 
     @NotNull
@@ -220,8 +226,15 @@ public class SlashHookSendMessageAction implements MessageCreateAction {
 
     @NotNull
     @Override
-    public MessageCreateAction setComponents(@NotNull Collection<? extends LayoutComponent> components) {
+    public MessageCreateAction setComponents(@NotNull Collection<? extends MessageTopLevelComponent> components) {
         webhookMessageAction = webhookMessageAction.setComponents(components);
+        return this;
+    }
+
+    @NotNull
+    @Override
+    public MessageCreateAction useComponentsV2(boolean use) {
+        webhookMessageAction.useComponentsV2(use);
         return this;
     }
 

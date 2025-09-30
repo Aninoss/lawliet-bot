@@ -1,11 +1,9 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id 'application'
     id 'java'
     id 'org.openjfx.javafxplugin' version '0.0.9'
     id 'com.google.cloud.tools.jib' version '2.7.1'
-    id 'org.jetbrains.kotlin.jvm' version '1.9.0'
+    id 'org.jetbrains.kotlin.jvm' version '2.2.0'
 }
 
 ext {
@@ -19,7 +17,6 @@ targetCompatibility = 15
 
 repositories {
     mavenCentral()
-    jcenter()
     maven { url 'https://jitpack.io' }
     maven {
         name 'm2-dv8tion'
@@ -28,7 +25,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.6.1'
+    implementation 'net.dv8tion:JDA:6.0.0-rc.5'
     implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'org.hibernate.ogm:hibernate-ogm-mongodb:5.4.1.Final'
     implementation 'org.jboss.jbossts:jbossjta:4.16.6.Final'
@@ -73,16 +70,6 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.23.1'
 }
 
-application {
-    mainClassName = javaMainClass
-}
-
-compileJava.options.encoding = 'UTF-8'
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
 jib {
     from {
         image = 'adoptopenjdk:15.0.2_7-jdk-openj9-0.24.0'
@@ -92,13 +79,5 @@ jib {
 jar {
     manifest {
         attributes 'Main-Class': javaMainClass
-    }
-}
-
-allprojects {
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            freeCompilerArgs = ['-Xjvm-default=all']
-        }
     }
 }

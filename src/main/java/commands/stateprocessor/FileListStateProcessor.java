@@ -12,14 +12,14 @@ import core.utils.RandomUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +111,7 @@ public class FileListStateProcessor extends AbstractStateProcessor<List<LocalFil
                 int attachmentsSize = get().size();
                 String textId = "page";
                 String textLabel = TextManager.getString(getCommand().getLocale(), TextManager.COMMANDS, "stateprocessor_filelist_goto_label", String.valueOf(attachmentsSize));
-                TextInput message = TextInput.create(textId, textLabel, TextInputStyle.SHORT)
+                TextInput message = TextInput.create(textId, TextInputStyle.SHORT)
                         .setPlaceholder(String.valueOf(currentImage + 1))
                         .setMinLength(1)
                         .setMaxLength(2)
@@ -124,7 +124,7 @@ public class FileListStateProcessor extends AbstractStateProcessor<List<LocalFil
                                 currentImage = Math.min(attachmentsSize - 1, Math.max(0, Integer.parseInt(pageString) - 1));
                             }
                             return null;
-                        }).addComponents(ActionRow.of(message))
+                        }).addComponents(Label.of(textLabel, message))
                         .build();
 
                 event.replyModal(modal).queue();

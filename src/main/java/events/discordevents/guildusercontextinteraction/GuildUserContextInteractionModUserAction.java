@@ -13,9 +13,10 @@ import modules.moderation.ModUserInteractionManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -37,7 +38,7 @@ public class GuildUserContextInteractionModUserAction extends GuildUserContextIn
                 .setDescription(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "user_interaction_desc", StringUtil.escapeMarkdown(event.getTarget().getName())));
 
         event.replyEmbeds(eb.build())
-                .addActionRow(generateSelectMenu(guildEntity.getLocale(), event.getTarget().getIdLong()))
+                .setComponents(ActionRow.of(generateSelectMenu(guildEntity.getLocale(), event.getTarget().getIdLong())))
                 .setEphemeral(true)
                 .queue();
 

@@ -10,6 +10,7 @@ import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
 import events.sync.SendEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -43,7 +44,9 @@ public class SendPremiumCodeNotifications implements ExceptionRunnable {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(desc);
             JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
-                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()).addActionRow(EmbedFactory.getPatreonBlockButtons(Language.EN.getLocale())))
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build())
+                            .addComponents(ActionRow.of(EmbedFactory.getPatreonBlockButton(Language.EN.getLocale())))
+                    )
                     .queue();
         }
 

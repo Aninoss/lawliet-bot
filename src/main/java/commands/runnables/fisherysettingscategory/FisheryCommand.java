@@ -30,16 +30,17 @@ import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -161,14 +162,14 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 }
 
                 String treasureChestsId = "treasure_chests";
-                TextInput textTreasureChests = TextInput.create(treasureChestsId, getString("probabilities_treasure"), TextInputStyle.SHORT)
+                TextInput textTreasureChests = TextInput.create(treasureChestsId, TextInputStyle.SHORT)
                         .setValue(StringUtil.doubleToString(fishery.getTreasureChestProbabilityInPercentEffectively(), 2, getLocale()))
                         .setMinLength(1)
                         .setMaxLength(5)
                         .build();
 
                 String powerUpsId = "power_ups";
-                TextInput textPowerUps = TextInput.create(powerUpsId, getString("probabilities_powerups"), TextInputStyle.SHORT)
+                TextInput textPowerUps = TextInput.create(powerUpsId, TextInputStyle.SHORT)
                         .setValue(StringUtil.doubleToString(fishery.getPowerUpProbabilityInPercentEffectively(), 2, getLocale()))
                         .setMinLength(1)
                         .setMaxLength(5)
@@ -219,7 +220,10 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
                             setLog(LogStatus.SUCCESS, getString("probabilitiesset"));
                             return null;
-                        }).addComponents(ActionRow.of(textTreasureChests), ActionRow.of(textPowerUps))
+                        }).addComponents(
+                                Label.of(getString("probabilities_treasure"), textTreasureChests),
+                                Label.of(getString("probabilities_powerups"), textPowerUps)
+                        )
                         .build();
 
                 event.replyModal(modal).queue();
@@ -323,9 +327,9 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public void onStaticButton(ButtonInteractionEvent event, String secondaryId) {
-        if (event.getComponent().getId().equals(BUTTON_ID_TREASURE)) {
+        if (event.getComponent().getCustomId().equals(BUTTON_ID_TREASURE)) {
             processTreasureChest(event);
-        } else if (event.getComponent().getId().equals(BUTTON_ID_POWERUP)) {
+        } else if (event.getComponent().getCustomId().equals(BUTTON_ID_POWERUP)) {
             if (event.getUser().getId().equals(secondaryId)) {
                 processPowerUp(event);
             } else {
@@ -341,7 +345,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public void onStaticEntitySelectMenu(EntitySelectInteractionEvent event, String secondaryId) {
-        if (!event.getComponent().getId().equals(ENTITY_SELECT_MENU_ID_COLLABORATION)) {
+        if (!event.getComponent().getCustomId().equals(ENTITY_SELECT_MENU_ID_COLLABORATION)) {
             return;
         }
 
@@ -510,7 +514,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     .setPlaceholder(getString("powerup_collab_memberselect"))
                     .build();
             hook.editOriginalEmbeds(eb.build())
-                    .setActionRow(memberSelectMenu)
+                    .setComponents(ActionRow.of(memberSelectMenu))
                     .submit()
                     .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
             registerStaticReactionMessage(event.getMessage(), event.getUser().getId());

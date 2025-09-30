@@ -8,8 +8,8 @@ import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import org.json.JSONObject;
 
 @SyncServerEvent(event = "FR_NOTIFICATION")

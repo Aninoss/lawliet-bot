@@ -29,7 +29,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -739,7 +739,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
         ModerationEntity moderationEntity = getGuildEntity().getModeration();
         DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessageIdLong());
 
-        switch (event.getButton().getId()) {
+        switch (event.getButton().getCustomId()) {
             case BUTTON_ID_UNBAN -> {
                 event.getGuild().unban(UserSnowflake.fromId(bannedUserId))
                         .reason(getString("banappeals"))

@@ -69,7 +69,8 @@ public class NewKickCommand extends WarnCommand {
 
     @Override
     protected void process(Guild guild, User target, String reason) {
-        guild.kick(target, reason)
+        guild.kick(target)
+                .reason(reason)
                 .submit()
                 .exceptionally(e -> {
                     guild.kick(target).queue();

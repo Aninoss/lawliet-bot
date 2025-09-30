@@ -40,7 +40,7 @@ public class AutoClaimCommand extends CommandOnOffSwitchAbstract {
 
     @Override
     protected EmbedBuilder generateErrorEmbed() {
-        setComponents(EmbedFactory.getPatreonBlockButtons(getLocale()));
+        setComponents(EmbedFactory.getPatreonBlockButton(getLocale()));
         return EmbedFactory.getEmbedDefault(this, getString("error"))
                 .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_title"))
                 .setColor(Settings.PREMIUM_COLOR);

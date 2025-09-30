@@ -13,13 +13,14 @@ import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -82,7 +83,7 @@ public class VCTimeCommand extends Command implements OnButtonListener {
             case BUTTON_ID_SET_LIMIT -> {
                 String ID = "text";
                 int currentLimit = getGuildEntity().getFishery().getVoiceHoursLimitEffectively();
-                TextInput textInput = TextInput.create(ID, getString("hoursperday"), TextInputStyle.SHORT)
+                TextInput textInput = TextInput.create(ID, TextInputStyle.SHORT)
                         .setRequiredRange(1, 2)
                         .setValue(currentLimit < 24 ? String.valueOf(currentLimit) : null)
                         .build();
@@ -110,7 +111,7 @@ public class VCTimeCommand extends Command implements OnButtonListener {
                             completed = true;
                             return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(value), StringUtil.numToString(value)));
                         })
-                        .addActionRow(textInput)
+                        .addComponents(Label.of(getString("hoursperday"), textInput))
                         .build();
 
                 event.replyModal(modal).queue();

@@ -5,10 +5,11 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import events.sync.SendEvent;
 import mysql.hibernate.EntityManagerWrapper;
+import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
+import net.dv8tion.jda.api.modals.Modal;
 
 @DiscordEvent
 public class ButtonClickFeatureRequests extends ButtonClickAbstract {
@@ -22,7 +23,7 @@ public class ButtonClickFeatureRequests extends ButtonClickAbstract {
                 SendEvent.sendFeatureRequestAction(id, true, "").join();
                 event.getChannel().deleteMessageById(event.getMessageId()).queue();
             } else {
-                TextInput textInput = TextInput.create("text", "Reason", TextInputStyle.PARAGRAPH)
+                TextInput textInput = TextInput.create("text", TextInputStyle.PARAGRAPH)
                         .build();
 
                 Modal modal = ModalMediator.createModal(event.getMember().getIdLong(), "Deny Feature Request", (e, em) -> {
@@ -30,7 +31,7 @@ public class ButtonClickFeatureRequests extends ButtonClickAbstract {
                             event.getMessage().delete().queue();
                             e.deferEdit().queue();
                         })
-                        .addActionRow(textInput)
+                        .addComponents(Label.of("Reason", textInput))
                         .build();
 
                 event.replyModal(modal).queue();

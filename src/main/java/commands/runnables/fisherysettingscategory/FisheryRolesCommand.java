@@ -20,13 +20,13 @@ import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -103,14 +103,14 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
             case 3:
                 String minId = "min";
-                TextInput textMin = TextInput.create(minId, getString("firstprice"), TextInputStyle.SHORT)
+                TextInput textMin = TextInput.create(minId, TextInputStyle.SHORT)
                         .setValue(StringUtil.numToString(fishery.getRolePriceMin()))
                         .setMinLength(1)
                         .setMaxLength(21)
                         .build();
 
                 String maxId = "max";
-                TextInput textMax = TextInput.create(maxId, getString("lastprice"), TextInputStyle.SHORT)
+                TextInput textMax = TextInput.create(maxId, TextInputStyle.SHORT)
                         .setValue(StringUtil.numToString(fishery.getRolePriceMax()))
                         .setMinLength(1)
                         .setMaxLength(21)
@@ -146,7 +146,10 @@ public class FisheryRolesCommand extends NavigationAbstract {
                             setLog(LogStatus.SUCCESS, getString("pricesset"));
                             return null;
                         })
-                        .addComponents(ActionRow.of(textMin), ActionRow.of(textMax))
+                        .addComponents(
+                                Label.of(getString("firstprice"), textMin),
+                                Label.of(getString("lastprice"), textMax)
+                        )
                         .build();
 
                 event.replyModal(modal).queue();

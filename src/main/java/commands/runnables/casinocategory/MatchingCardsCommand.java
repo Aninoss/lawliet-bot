@@ -10,14 +10,14 @@ import core.atomicassets.AtomicMember;
 import jakarta.validation.constraints.NotNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -126,7 +126,7 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
     }
 
     @Override
-    public Collection<? extends LayoutComponent> generatePlayerActionRows(int player) {
+    public Collection<? extends MessageTopLevelComponent> generatePlayerActionRows(int player) {
         ArrayList<ActionRow> actionRows = new ArrayList<>();
         StringSelectMenu.Builder selectMenuBuilder = StringSelectMenu.create("play_card")
                 .setPlaceholder(getString("selectmenu"))

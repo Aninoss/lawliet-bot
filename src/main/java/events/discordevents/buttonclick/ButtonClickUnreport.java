@@ -1,15 +1,16 @@
 package events.discordevents.buttonclick;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import core.components.ActionRows;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import events.sync.SendEvent;
 import mysql.hibernate.EntityManagerWrapper;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @DiscordEvent
 public class ButtonClickUnreport extends ButtonClickAbstract {
@@ -22,18 +23,17 @@ public class ButtonClickUnreport extends ButtonClickAbstract {
                 SendEvent.sendUnreport(event.getMessage().getContentRaw().split("\n")[0]).join();
                 event.getMessage().delete().queue();
             } else if (event.getComponentId().equals("lock")) {
-                List<ActionComponent> components = event.getMessage().getActionRows().get(0).getActionComponents();
-                List<ActionComponent> newComponents = components.stream()
+                List<ActionRowChildComponent> newComponents = event.getMessage().getComponents().stream()
                         .map(c -> {
-                            if (c.getId() != null && c.getId().equals("allow")) {
-                                Button previousButton = (Button) c;
-                                Button newButton = Button.of(previousButton.getStyle(), previousButton.getId(), previousButton.getLabel());
-                                if (!previousButton.isDisabled()) {
+                            Button button = (Button) c;
+                            if (button.getCustomId() != null && button.getCustomId().equals("allow")) {
+                                Button newButton = Button.of(button.getStyle(), button.getCustomId(), button.getLabel());
+                                if (!button.isDisabled()) {
                                     newButton = newButton.asDisabled();
                                 }
                                 return newButton;
                             } else {
-                                return c;
+                                return (Button) c;
                             }
                         }).collect(Collectors.toList());
                 event.getMessage().editMessageComponents(ActionRows.of(newComponents)).queue();

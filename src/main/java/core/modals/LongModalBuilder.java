@@ -6,7 +6,7 @@ import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 
 public class LongModalBuilder extends AbstractModalBuilder<Long, LongModalBuilder> {
 
