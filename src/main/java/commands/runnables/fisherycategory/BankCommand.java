@@ -38,7 +38,7 @@ import java.util.Set;
         emoji = "🏦",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        releaseDate = { 2025, 10, 7 }
+        releaseDate = { 2025, 10, 9 }
 )
 public class BankCommand extends NavigationAbstract implements FisheryInterface {
 
