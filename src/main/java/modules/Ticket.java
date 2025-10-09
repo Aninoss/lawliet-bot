@@ -461,6 +461,7 @@ public class Ticket {
         }
 
         if (ticketChannelEntity.getMemberId() != member.getIdLong() &&
+                PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel.getGuild(), Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND) &&
                 PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND) &&
                 PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS)
         ) {
@@ -494,7 +495,7 @@ public class Ticket {
                     .collect(Collectors.toList());
 
             GuildMessageChannel announcementChannel = guild.getChannelById(GuildMessageChannel.class, ticketChannelEntity.getLogChannelId());
-            if (announcementChannel != null) {
+            if (announcementChannel != null && PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, announcementChannel, Permission.VIEW_CHANNEL)) {
                 String title = Command.getCommandProperties(TicketCommand.class).emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
                 String desc = TextManager.getString(
                         locale,
