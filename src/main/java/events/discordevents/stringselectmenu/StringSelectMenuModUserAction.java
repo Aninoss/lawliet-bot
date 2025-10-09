@@ -130,7 +130,7 @@ public class StringSelectMenuModUserAction extends StringSelectMenuAbstract impl
                         int amount = 0;
 
                         for (ModalMapping value : event.getValues()) {
-                            switch (value.getId()) {
+                            switch (value.getCustomId()) {
                                 case ModUserInteractionManager.REASON_ID -> reason = value.getAsString();
                                 case ModUserInteractionManager.DURATION_ID -> {
                                     String v = value.getAsString();
