@@ -935,7 +935,7 @@ public class FisheryMemberData implements MemberAsset {
     public List<FisheryMemberBankDeposit> getBankDeposits() {
         return RedisManager.get(jedis -> {
             String str = jedis.hget(KEY_ACCOUNT, FIELD_BANK_DEPOSITS);
-            if (str == null) {
+            if (str == null || str.isEmpty()) {
                 return Collections.emptyList();
             }
             return Arrays.stream(str.split(","))
