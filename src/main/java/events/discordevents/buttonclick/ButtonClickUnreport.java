@@ -5,6 +5,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import events.sync.SendEvent;
 import mysql.hibernate.EntityManagerWrapper;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -23,9 +24,10 @@ public class ButtonClickUnreport extends ButtonClickAbstract {
                 SendEvent.sendUnreport(event.getMessage().getContentRaw().split("\n")[0]).join();
                 event.getMessage().delete().queue();
             } else if (event.getComponentId().equals("lock")) {
-                List<ActionRowChildComponent> newComponents = event.getMessage().getComponents().stream()
-                        .map(c -> {
-                            Button button = (Button) c;
+                ActionRow actionRow = event.getMessage().getComponents().get(0).asActionRow();
+                List<ActionRowChildComponent> newComponents = actionRow.getComponents().stream()
+                        .map(component -> {
+                            Button button = component.asButton();
                             if (button.getCustomId() != null && button.getCustomId().equals("allow")) {
                                 Button newButton = Button.of(button.getStyle(), button.getCustomId(), button.getLabel());
                                 if (!button.isDisabled()) {
@@ -33,7 +35,7 @@ public class ButtonClickUnreport extends ButtonClickAbstract {
                                 }
                                 return newButton;
                             } else {
-                                return (Button) c;
+                                return button;
                             }
                         }).collect(Collectors.toList());
                 event.getMessage().editMessageComponents(ActionRows.of(newComponents)).queue();
