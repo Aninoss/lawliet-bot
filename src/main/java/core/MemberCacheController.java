@@ -111,7 +111,7 @@ public class MemberCacheController implements MemberCachePolicy {
             guild.loadMembers()
                     .setTimeout(Duration.ofSeconds(10))
                     .onError(e -> {
-                        MainLogger.get().error("Loading all guild members failed", e);
+                        MainLogger.get().error("Loading all guild members failed for {} ({} members)", guild.getIdLong(), guild.getMemberCount(), e);
                         future.complete(guild.getMembers());
                     })
                     .onSuccess(future::complete);
