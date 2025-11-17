@@ -61,6 +61,7 @@ public class CommandContainer {
         commandList.add(QuoteCommand.class);
         commandList.add(SayCommand.class);
         commandList.add(TopicCommand.class);
+        commandList.add(NSFWTopicCommand.class);
         commandList.add(SmashOrPassCommand.class);
 
         //AI TOYS

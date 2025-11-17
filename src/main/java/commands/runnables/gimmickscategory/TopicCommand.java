@@ -38,7 +38,7 @@ public class TopicCommand extends Command implements OnAlertListener {
         return true;
     }
 
-    private EmbedBuilder getEmbed(GuildMessageChannel channel) throws IOException, ExecutionException, InterruptedException {
+    protected EmbedBuilder getEmbed(GuildMessageChannel channel) throws IOException, ExecutionException, InterruptedException {
         List<String> topicList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "topics_" + getLocale().getDisplayName() + ".txt"));
         int n = RandomPicker.pick(getTrigger(), channel.getGuild().getIdLong(), topicList.size()).get();
         String topic = topicList.get(n);
