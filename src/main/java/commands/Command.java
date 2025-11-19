@@ -22,15 +22,16 @@ import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.components.ActionComponent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -193,7 +194,22 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public CompletableFuture<Message> drawMessageNew(String content) {
-        return drawMessage(content, true);
+        return drawMessage(content, null, true);
+    }
+
+    public CompletableFuture<Message> drawMessageNew(MessageComponentTree componentTree) {
+        return drawMessage(null, componentTree, true);
+    }
+
+    //TODO: remove this method after migration to components v2
+    public CompletableFuture<Message> drawMessageUniversal(Object obj) {
+        if (obj instanceof EmbedBuilder){
+            return drawMessage((EmbedBuilder) obj);
+        } else if (obj instanceof MessageComponentTree) {
+            return drawMessage((MessageComponentTree) obj);
+        } else {
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Invalid argument passed to drawMessage"));
+        }
     }
 
     public CompletableFuture<Message> drawMessage(EmbedBuilder eb) {
@@ -201,7 +217,11 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public CompletableFuture<Message> drawMessage(String content) {
-        return drawMessage(content, false);
+        return drawMessage(content, null, false);
+    }
+
+    public CompletableFuture<Message> drawMessage(MessageComponentTree componentTree) {
+        return drawMessage(null, componentTree, false);
     }
 
     private CompletableFuture<Message> drawMessage(EmbedBuilder eb, boolean newMessage) {
@@ -209,7 +229,7 @@ public abstract class Command implements OnTriggerListener {
         if (channel != null) {
             if (BotPermissionUtil.canWriteEmbed(channel) || (useInteractionResponse && interactionResponse != null && interactionResponse.isValid())) {
                 EmbedUtil.addLog(eb, logStatus, log);
-                return drawMessage(channel, null, eb, newMessage);
+                return drawMessage(channel, null, eb, null, newMessage);
             } else {
                 return CompletableFuture.failedFuture(new PermissionException("Missing permissions"));
             }
@@ -218,13 +238,19 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    private CompletableFuture<Message> drawMessage(String content, boolean newMessage) {
+    private CompletableFuture<Message> drawMessage(String content, MessageComponentTree componentTree, boolean newMessage) {
         return getGuildMessageChannel()
-                .map(channel -> drawMessage(channel, content, null, newMessage))
+                .map(channel -> drawMessage(channel, content, null, componentTree, newMessage))
                 .orElse(CompletableFuture.failedFuture(new NoSuchElementException("No such channel")));
     }
 
-    private synchronized CompletableFuture<Message> drawMessage(GuildMessageChannel channel, String content, EmbedBuilder eb, boolean newMessage) {
+    private synchronized CompletableFuture<Message> drawMessage(
+            GuildMessageChannel channel,
+            String content,
+            EmbedBuilder eb,
+            MessageComponentTree componentTree,
+            boolean newMessage
+    ) {
         List<MessageEmbed> additionalEmbeds = this.additionalEmbeds;
         List<ActionRow> actionRows = this.actionRows;
         Map<String, InputStream> fileAttachmentMap = this.fileAttachmentMap;
@@ -275,43 +301,60 @@ public abstract class Command implements OnTriggerListener {
 
         RestAction<Message> action;
         if (drawMessage == null || newMessage) {
-            action = drawMessageProcessNew(channel, content, embeds, actionRows, fileAttachmentMap, allowedMentions, false);
+            action = drawMessageProcessNew(channel, content, embeds, actionRows, componentTree, fileAttachmentMap, allowedMentions, false);
         } else {
-            action = drawMessageProcessEdit(channel, content, embeds, actionRows, allowedMentions);
+            action = drawMessageProcessEdit(channel, content, embeds, actionRows, componentTree, allowedMentions);
         }
-        processAction(channel, content, embeds, actionRows, fileAttachmentMap, allowedMentions, newMessage, action,
+        processAction(channel, content, embeds, actionRows, componentTree, fileAttachmentMap, allowedMentions, newMessage, action,
                 future, true);
         return future;
     }
 
-    private RestAction<Message> drawMessageProcessNew(GuildMessageChannel channel, String content, ArrayList<MessageEmbed> embeds,
-                                                      List<ActionRow> actionRows, Map<String, InputStream> fileAttachmentMap,
-                                                      Collection<Message.MentionType> allowedMentions, boolean forceTextMessage
+    private RestAction<Message> drawMessageProcessNew(
+            GuildMessageChannel channel,
+            String content,
+            ArrayList<MessageEmbed> embeds,
+            List<ActionRow> actionRows,
+            MessageComponentTree componentTree,
+            Map<String, InputStream> fileAttachmentMap,
+            Collection<Message.MentionType> allowedMentions, boolean forceTextMessage
     ) {
         MessageCreateAction messageAction;
         if (commandEvent.isMessageReceivedEvent() || forceTextMessage) {
             if (commandEvent.isMessageReceivedEvent()) {
                 Message message = commandEvent.getMessageReceivedEvent().getMessage();
-                if (content != null) {
+                if (componentTree != null) {
+                    messageAction = JDAUtil.replyMessageComponents(message, getGuildEntity(), componentTree);
+                } else if (content != null) {
                     messageAction = JDAUtil.replyMessage(message, getGuildEntity(), content)
-                            .setEmbeds(embeds);
+                            .setEmbeds(embeds)
+                            .setComponents(actionRows);
                 } else {
-                    messageAction = JDAUtil.replyMessageEmbeds(message, getGuildEntity(), embeds);
+                    messageAction = JDAUtil.replyMessageEmbeds(message, getGuildEntity(), embeds)
+                            .setComponents(actionRows);
                 }
             } else {
-                if (content != null) {
+                if (componentTree != null) {
+                    messageAction = commandEvent.getMessageChannel().sendMessageComponents(componentTree);
+                } else if (content != null) {
                     messageAction = commandEvent.getMessageChannel().sendMessage(content)
-                            .setEmbeds(embeds);
+                            .setEmbeds(embeds)
+                            .setComponents(actionRows);
                 } else {
-                    messageAction = commandEvent.getMessageChannel().sendMessageEmbeds(embeds);
+                    messageAction = commandEvent.getMessageChannel().sendMessageEmbeds(embeds)
+                            .setComponents(actionRows);
                 }
             }
         } else {
-            if (content != null) {
+            if (componentTree != null) {
+                messageAction = commandEvent.replyMessageComponents(getGuildEntity(), ephemeralMessages, componentTree);
+            } else if (content != null) {
                 messageAction = commandEvent.replyMessage(getGuildEntity(), ephemeralMessages, content)
-                        .setEmbeds(embeds);
+                        .setEmbeds(embeds)
+                        .setComponents(actionRows);
             } else {
-                messageAction = commandEvent.replyMessageEmbeds(getGuildEntity(), ephemeralMessages, embeds);
+                messageAction = commandEvent.replyMessageEmbeds(getGuildEntity(), ephemeralMessages, embeds)
+                        .setComponents(actionRows);
             }
         }
 
@@ -322,17 +365,28 @@ public abstract class Command implements OnTriggerListener {
                 }
             }
         }
-        messageAction = messageAction.setAllowedMentions(allowedMentions);
-        return messageAction.setComponents(actionRows);
+        return messageAction.setAllowedMentions(allowedMentions);
     }
 
-    private RestAction<Message> drawMessageProcessEdit(GuildMessageChannel channel, String content, ArrayList<MessageEmbed> embeds,
-                                                       List<ActionRow> actionRows, Collection<Message.MentionType> allowedMentions
+    private RestAction<Message> drawMessageProcessEdit(
+            GuildMessageChannel channel,
+            String content,
+            ArrayList<MessageEmbed> embeds,
+            List<ActionRow> actionRows,
+            MessageComponentTree componentTree,
+            Collection<Message.MentionType> allowedMentions
     ) {
         if (useInteractionResponse && interactionResponse != null && interactionResponse.isValid()) {
-            return interactionResponse.editMessageEmbeds(embeds, actionRows);
+            if (componentTree != null) {
+                return interactionResponse.editMessageComponents(componentTree);
+            } else {
+                return interactionResponse.editMessageEmbeds(embeds, actionRows);
+            }
         } else {
-            if (content != null) {
+            if (componentTree != null) {
+                return channel.editMessageComponentsById(drawMessage.getIdLong(), componentTree)
+                        .setAllowedMentions(allowedMentions);
+            } else if (content != null) {
                 return channel.editMessageById(drawMessage.getIdLong(), content)
                         .setEmbeds(embeds)
                         .setComponents(actionRows)
@@ -345,10 +399,18 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    private void processAction(GuildMessageChannel channel, String content, ArrayList<MessageEmbed> embeds, List<ActionRow> actionRows,
-                               Map<String, InputStream> fileAttachmentMap, Collection<Message.MentionType> allowedMentions,
-                               boolean newMessage, RestAction<Message> action, CompletableFuture<Message> future,
-                               boolean handleUnknownInteractionExceptions
+    private void processAction(
+            GuildMessageChannel channel,
+            String content,
+            ArrayList<MessageEmbed> embeds,
+            List<ActionRow> actionRows,
+            MessageComponentTree componentTree,
+            Map<String, InputStream> fileAttachmentMap,
+            Collection<Message.MentionType> allowedMentions,
+            boolean newMessage,
+            RestAction<Message> action,
+            CompletableFuture<Message> future,
+            boolean handleUnknownInteractionExceptions
     ) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         action.queue(message -> {
@@ -366,13 +428,13 @@ public abstract class Command implements OnTriggerListener {
 
                     RestAction<Message> newAction;
                     if (this.drawMessage == null || newMessage) {
-                        newAction = drawMessageProcessNew(channel, content, embeds, actionRows, fileAttachmentMap, allowedMentions, true);
+                        newAction = drawMessageProcessNew(channel, content, embeds, actionRows, componentTree, fileAttachmentMap, allowedMentions, true);
                     } else {
                         this.interactionResponse = null;
-                        newAction = drawMessageProcessEdit(channel, content, embeds, actionRows, allowedMentions);
+                        newAction = drawMessageProcessEdit(channel, content, embeds, actionRows, componentTree, allowedMentions);
                     }
 
-                    processAction(channel, content, embeds, actionRows, fileAttachmentMap, allowedMentions, newMessage,
+                    processAction(channel, content, embeds, actionRows, componentTree, fileAttachmentMap, allowedMentions, newMessage,
                             newAction, future, false);
                     return;
                 } catch (Throwable newException) {

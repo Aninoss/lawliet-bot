@@ -54,9 +54,9 @@ interface OnMessageInputListener : Drawable {
         CommandContainer.registerListener(OnMessageInputListener::class.java, commandListenerMeta)
         try {
             if (draw && command.drawMessageId.isEmpty) {
-                val eb = draw(member)
-                if (eb != null) {
-                    command.drawMessage(eb)
+                val response = draw(member)
+                if (response != null) {
+                    command.drawMessageUniversal(response)
                         .exceptionally(ExceptionLogger.get())
                 }
             }
@@ -81,9 +81,9 @@ interface OnMessageInputListener : Drawable {
                         event.message.delete().queue()
                     }
                 }
-                val eb = draw(event.member!!)
-                if (eb != null) {
-                    (this as Command).drawMessage(eb).exceptionally(ExceptionLogger.get())
+                val response = draw(event.member!!)
+                if (response != null) {
+                    (this as Command).drawMessageUniversal(response).exceptionally(ExceptionLogger.get())
                 }
             }
             return messageInputResponse

@@ -1,12 +1,14 @@
 package core.interactionresponse;
 
-import java.util.Collection;
-import java.util.List;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
+
+import java.util.Collection;
+import java.util.List;
 
 public class SlashCommandResponse extends InteractionResponse {
 
@@ -26,6 +28,17 @@ public class SlashCommandResponse extends InteractionResponse {
     public RestAction<Message> replyEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows, boolean ephemeral) {
         return interactionHook.sendMessageEmbeds(embeds)
                 .setComponents(actionRows)
+                .setEphemeral(ephemeral);
+    }
+
+    @Override
+    public RestAction<Message> editMessageComponents(MessageComponentTree componentTree) {
+        return interactionHook.editOriginalComponents(componentTree);
+    }
+
+    @Override
+    public RestAction<Message> replyComponents(MessageComponentTree componentTree, boolean ephemeral) {
+        return interactionHook.sendMessageComponents(componentTree)
                 .setEphemeral(ephemeral);
     }
 

@@ -232,11 +232,11 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public EmbedBuilder draw(Member member) {
+    public Object draw(Member member) {
         return null;
     }
 
-    public EmbedBuilder draw(Member member, int state) throws Throwable {
+    public Object draw(Member member, int state) throws Throwable {
         if (stateProcessorMap.containsKey(state)) {
             return stateProcessorMap.get(state).draw(member);
         }
@@ -245,7 +245,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == state) {
                 try {
-                    return ((EmbedBuilder) method.invoke(this, member));
+                    return method.invoke(this, member);
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     MainLogger.get().error("Navigation draw exception", e);
                 }
@@ -260,9 +260,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     public CompletableFuture<Long> processDraw(Member member, boolean loadComponents) {
         Locale locale = getLocale();
-        EmbedBuilder eb;
+        Object response;
         try {
-            eb = draw(member, state);
+            response = draw(member, state);
         } catch (Throwable throwable) {
             return CompletableFuture.failedFuture(throwable);
         }
@@ -296,8 +296,8 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 displayActionRowList.add(actionRows.get(i));
             }
 
-            if (actionRows.size() > MAX_ROWS_PER_PAGE) {
-                EmbedUtil.setFooter(eb, this, TextManager.getString(locale, TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
+            if (response instanceof EmbedBuilder && actionRows.size() > MAX_ROWS_PER_PAGE) {
+                EmbedUtil.setFooter((EmbedBuilder) response, this, TextManager.getString(locale, TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
                 newComponents = true;
                 controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_PREV, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")));
                 controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next")));
@@ -319,7 +319,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         }
 
-        return drawMessage(eb)
+        return drawMessageUniversal(response)
                 .thenApply(message -> {
                     setActionRows();
                     return message.getIdLong();

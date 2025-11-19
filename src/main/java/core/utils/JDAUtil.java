@@ -1,5 +1,6 @@
 package core.utils;
 
+import com.google.common.collect.Lists;
 import core.MemberCacheController;
 import core.ShardManager;
 import core.atomicassets.MentionableAtomicAsset;
@@ -8,6 +9,7 @@ import mysql.modules.userprivatechannels.DBUserPrivateChannels;
 import mysql.modules.userprivatechannels.PrivateChannelData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -30,7 +32,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.CheckReturnValue;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class JDAUtil {
@@ -162,14 +167,18 @@ public class JDAUtil {
         return messageAction;
     }
 
+    public static MessageCreateAction replyMessageEmbeds(Message originalMessage, GuildEntity guildEntity, MessageEmbed embed, MessageEmbed... other) {
+        return replyMessageEmbeds(originalMessage, guildEntity, Lists.asList(embed, other));
+    }
+
     public static MessageCreateAction replyMessageEmbeds(Message originalMessage, GuildEntity guildEntity, Collection<MessageEmbed> embeds) {
         MessageCreateAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embeds);
         messageAction = messageActionSetMessageReference(messageAction, guildEntity, originalMessage);
         return messageAction;
     }
 
-    public static MessageCreateAction replyMessageEmbeds(Message originalMessage, GuildEntity guildEntity, MessageEmbed embed, MessageEmbed... other) {
-        MessageCreateAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embed, other);
+    public static MessageCreateAction replyMessageComponents(Message originalMessage, GuildEntity guildEntity, MessageComponentTree componentTree) {
+        MessageCreateAction messageAction = originalMessage.getChannel().sendMessageComponents(componentTree);
         messageAction = messageActionSetMessageReference(messageAction, guildEntity, originalMessage);
         return messageAction;
     }

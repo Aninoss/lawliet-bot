@@ -7,7 +7,6 @@ import commands.listeners.Drawable;
 import commands.runnables.NavigationAbstract;
 import core.ExceptionLogger;
 import core.utils.ExceptionUtil;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
 
@@ -25,13 +24,13 @@ public class ModalMediator {
         return Modal.create("modal", title);
     }
 
-    public static Modal.Builder createDrawableCommandModal(Command command, String title, Function<ModalInteractionEvent, EmbedBuilder> consumer) {
+    public static Modal.Builder createDrawableCommandModal(Command command, String title, Function<ModalInteractionEvent, Object> consumer) {
         return createModal(command.getMemberId().get(), title, (e, guildEntity) -> {
             e.deferEdit().queue();
             command.setGuildEntity(guildEntity);
 
             try {
-                EmbedBuilder eb = consumer.apply(e);
+                Object response = consumer.apply(e);
 
                 if (command instanceof NavigationAbstract) {
                     NavigationAbstract navigationAbstractCommand = (NavigationAbstract) command;
@@ -39,11 +38,11 @@ public class ModalMediator {
                     return;
                 }
 
-                if (eb == null && command instanceof Drawable) {
+                if (response == null && command instanceof Drawable) {
                     Drawable drawableCommand = (Drawable) command;
-                    eb = drawableCommand.draw(e.getMember());
+                    response = drawableCommand.draw(e.getMember());
                 }
-                command.drawMessage(eb).exceptionally(ExceptionLogger.get());
+                command.drawMessageUniversal(response).exceptionally(ExceptionLogger.get());
             } catch (Throwable throwable) {
                 ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
             }

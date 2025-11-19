@@ -1,12 +1,14 @@
 package core.interactionresponse;
 
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.requests.RestAction;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
-import net.dv8tion.jda.api.requests.RestAction;
 
 public abstract class InteractionResponse {
 
@@ -21,6 +23,10 @@ public abstract class InteractionResponse {
     }
 
     public abstract RestAction<Message> replyEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows, boolean ephemeral);
+
+    public abstract RestAction<Message> editMessageComponents(MessageComponentTree componentTree);
+
+    public abstract RestAction<Message> replyComponents(MessageComponentTree componentTree, boolean ephemeral);
 
     public abstract boolean isValid();
 

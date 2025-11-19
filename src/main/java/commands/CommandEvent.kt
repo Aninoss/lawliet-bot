@@ -1,10 +1,12 @@
 package commands
 
+import com.google.common.collect.Lists
 import core.schedule.MainScheduler
 import core.slashmessageaction.SlashAckSendMessageAction
 import core.slashmessageaction.SlashHookSendMessageAction
 import core.utils.JDAUtil
 import mysql.hibernate.entity.guild.GuildEntity
+import net.dv8tion.jda.api.components.tree.MessageComponentTree
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -74,9 +76,8 @@ class CommandEvent : GenericChannelEvent {
         }
     }
 
-    fun replyMessageEmbeds(guildEntity: GuildEntity, ephemeral: Boolean = false, embed: MessageEmbed, vararg embeds: MessageEmbed): MessageCreateAction {
-        val fullEmbeds = arrayOf(embed).plus(embeds);
-        return replyMessageEmbeds(guildEntity, ephemeral, fullEmbeds.toList())
+    fun replyMessageEmbeds(guildEntity: GuildEntity, ephemeral: Boolean = false, embed: MessageEmbed, vararg other: MessageEmbed): MessageCreateAction {
+        return replyMessageEmbeds(guildEntity, ephemeral, Lists.asList(embed, other))
     }
 
     fun replyMessageEmbeds(guildEntity: GuildEntity, ephemeral: Boolean = false, embeds: Collection<MessageEmbed>): MessageCreateAction {
@@ -87,6 +88,18 @@ class CommandEvent : GenericChannelEvent {
                 return SlashHookSendMessageAction(genericCommandInteractionEvent.hook.sendMessageEmbeds(embeds).setEphemeral(ephemeral))
             } else {
                 return SlashAckSendMessageAction(genericCommandInteractionEvent.replyEmbeds(embeds).setEphemeral(ephemeral))
+            }
+        }
+    }
+
+    fun replyMessageComponents(guildEntity: GuildEntity, ephemeral: Boolean = false, componentTree: MessageComponentTree): MessageCreateAction {
+        if (isMessageReceivedEvent()) {
+            return JDAUtil.replyMessageComponents(messageReceivedEvent!!.message, guildEntity, componentTree)
+        } else {
+            if (genericCommandInteractionEvent!!.isAcknowledged) {
+                return SlashHookSendMessageAction(genericCommandInteractionEvent.hook.sendMessageComponents(componentTree).setEphemeral(ephemeral))
+            } else {
+                return SlashAckSendMessageAction(genericCommandInteractionEvent.replyComponents(componentTree).setEphemeral(ephemeral))
             }
         }
     }

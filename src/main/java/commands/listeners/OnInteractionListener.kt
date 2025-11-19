@@ -89,11 +89,11 @@ interface OnInteractionListener : Drawable {
         if (draw) {
             try {
                 if (command.drawMessageId.isEmpty) {
-                    val eb = draw(member)
-                    if (eb != null) {
-                        return command.drawMessage(eb)
-                                .thenApply { it.idLong }
-                                .exceptionally(ExceptionLogger.get())
+                    val response = draw(member)
+                    if (response != null) {
+                        return command.drawMessageUniversal(response)
+                            .thenApply { it.idLong }
+                            .exceptionally(ExceptionLogger.get())
                     }
                 } else {
                     return CompletableFuture.completedFuture(command.drawMessageId.get())
@@ -119,10 +119,10 @@ interface OnInteractionListener : Drawable {
             }
             if (task.apply(event)) {
                 CommandContainer.refreshListeners(command)
-                val eb = draw(event.member)
-                if (eb != null) {
-                    (this as Command).drawMessage(eb)
-                            .exceptionally(ExceptionLogger.get())
+                val response = draw(event.member)
+                if (response != null) {
+                    (this as Command).drawMessageUniversal(response)
+                        .exceptionally(ExceptionLogger.get())
                 }
             }
         } catch (e: Throwable) {

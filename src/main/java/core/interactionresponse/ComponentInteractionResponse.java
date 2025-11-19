@@ -1,9 +1,10 @@
 package core.interactionresponse;
 
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.Collection;
@@ -40,6 +41,29 @@ public class ComponentInteractionResponse extends InteractionResponse {
         } else {
             return event.getHook().sendMessageEmbeds(embeds)
                     .setComponents(actionRows)
+                    .setEphemeral(ephemeral);
+        }
+    }
+
+    @Override
+    public RestAction<Message> editMessageComponents(MessageComponentTree componentTree) {
+        if (!event.isAcknowledged()) {
+            Message message = event.getMessage();
+            return event.editComponents(componentTree)
+                    .map(h -> message);
+        } else {
+            return event.getHook().editOriginalComponents(componentTree);
+        }
+    }
+
+    @Override
+    public RestAction<Message> replyComponents(MessageComponentTree componentTree, boolean ephemeral) {
+        if (!event.isAcknowledged()) {
+            return event.replyComponents(componentTree)
+                    .setEphemeral(ephemeral)
+                    .map(interactionHook -> interactionHook.getCallbackResponse().getMessage());
+        } else {
+            return event.getHook().sendMessageComponents(componentTree)
                     .setEphemeral(ephemeral);
         }
     }
