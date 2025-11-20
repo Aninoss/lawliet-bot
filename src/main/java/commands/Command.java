@@ -324,7 +324,8 @@ public abstract class Command implements OnTriggerListener {
             if (commandEvent.isMessageReceivedEvent()) {
                 Message message = commandEvent.getMessageReceivedEvent().getMessage();
                 if (componentTree != null) {
-                    messageAction = JDAUtil.replyMessageComponents(message, getGuildEntity(), componentTree);
+                    messageAction = JDAUtil.replyMessageComponents(message, getGuildEntity(), componentTree)
+                            .useComponentsV2(true);
                 } else if (content != null) {
                     messageAction = JDAUtil.replyMessage(message, getGuildEntity(), content)
                             .setEmbeds(embeds)
@@ -335,7 +336,8 @@ public abstract class Command implements OnTriggerListener {
                 }
             } else {
                 if (componentTree != null) {
-                    messageAction = commandEvent.getMessageChannel().sendMessageComponents(componentTree);
+                    messageAction = commandEvent.getMessageChannel().sendMessageComponents(componentTree)
+                            .useComponentsV2(true);
                 } else if (content != null) {
                     messageAction = commandEvent.getMessageChannel().sendMessage(content)
                             .setEmbeds(embeds)
@@ -347,7 +349,8 @@ public abstract class Command implements OnTriggerListener {
             }
         } else {
             if (componentTree != null) {
-                messageAction = commandEvent.replyMessageComponents(getGuildEntity(), ephemeralMessages, componentTree);
+                messageAction = commandEvent.replyMessageComponents(getGuildEntity(), ephemeralMessages, componentTree)
+                        .useComponentsV2(true);
             } else if (content != null) {
                 messageAction = commandEvent.replyMessage(getGuildEntity(), ephemeralMessages, content)
                         .setEmbeds(embeds)

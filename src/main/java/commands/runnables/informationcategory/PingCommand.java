@@ -3,11 +3,11 @@ package commands.runnables.informationcategory;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.utils.ComponentsUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -31,13 +31,14 @@ public class PingCommand extends Command {
         long millisGateway = event.getJDA().getGatewayPing();
         long millisRest = event.getJDA().getRestPing().complete();
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
+        TextDisplay content = TextDisplay.of(getString(
                 "pong",
                 StringUtil.numToString(millisInternal),
                 StringUtil.numToString(millisGateway),
                 StringUtil.numToString(millisRest)
         ));
-        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+        drawMessageNew(ComponentsUtil.createCommandComponentTree(this, content))
+                .exceptionally(ExceptionLogger.get());
 
         return true;
     }

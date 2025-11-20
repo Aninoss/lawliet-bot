@@ -60,10 +60,12 @@ public class ComponentInteractionResponse extends InteractionResponse {
     public RestAction<Message> replyComponents(MessageComponentTree componentTree, boolean ephemeral) {
         if (!event.isAcknowledged()) {
             return event.replyComponents(componentTree)
+                    .useComponentsV2(true)
                     .setEphemeral(ephemeral)
                     .map(interactionHook -> interactionHook.getCallbackResponse().getMessage());
         } else {
             return event.getHook().sendMessageComponents(componentTree)
+                    .useComponentsV2(true)
                     .setEphemeral(ephemeral);
         }
     }

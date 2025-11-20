@@ -39,6 +39,7 @@ public class SlashCommandResponse extends InteractionResponse {
     @Override
     public RestAction<Message> replyComponents(MessageComponentTree componentTree, boolean ephemeral) {
         return interactionHook.sendMessageComponents(componentTree)
+                .useComponentsV2(true)
                 .setEphemeral(ephemeral);
     }
 

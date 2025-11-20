@@ -97,9 +97,9 @@ class CommandEvent : GenericChannelEvent {
             return JDAUtil.replyMessageComponents(messageReceivedEvent!!.message, guildEntity, componentTree)
         } else {
             if (genericCommandInteractionEvent!!.isAcknowledged) {
-                return SlashHookSendMessageAction(genericCommandInteractionEvent.hook.sendMessageComponents(componentTree).setEphemeral(ephemeral))
+                return SlashHookSendMessageAction(genericCommandInteractionEvent.hook.sendMessageComponents(componentTree).useComponentsV2(true).setEphemeral(ephemeral))
             } else {
-                return SlashAckSendMessageAction(genericCommandInteractionEvent.replyComponents(componentTree).setEphemeral(ephemeral))
+                return SlashAckSendMessageAction(genericCommandInteractionEvent.replyComponents(componentTree).useComponentsV2(true).setEphemeral(ephemeral))
             }
         }
     }

@@ -178,7 +178,8 @@ public class JDAUtil {
     }
 
     public static MessageCreateAction replyMessageComponents(Message originalMessage, GuildEntity guildEntity, MessageComponentTree componentTree) {
-        MessageCreateAction messageAction = originalMessage.getChannel().sendMessageComponents(componentTree);
+        MessageCreateAction messageAction = originalMessage.getChannel().sendMessageComponents(componentTree)
+                .useComponentsV2(true);
         messageAction = messageActionSetMessageReference(messageAction, guildEntity, originalMessage);
         return messageAction;
     }
