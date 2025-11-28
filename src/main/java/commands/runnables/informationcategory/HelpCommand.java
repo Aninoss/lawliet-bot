@@ -447,8 +447,10 @@ public class HelpCommand extends NavigationAbstract {
                 }
             }
         }
-        for (int j = 0; j < predefinedBooruCommandsFields.size(); j++) {
-            eb.addField(j == 0 ? getString("nsfw_premium") : Emojis.ZERO_WIDTH_SPACE.getFormatted(), predefinedBooruCommandsFields.get(j).toString(), false);
+        if (JDAUtil.channelIsNsfw(channel)) {
+            for (int j = 0; j < predefinedBooruCommandsFields.size(); j++) {
+                eb.addField(j == 0 ? getString("nsfw_premium") : Emojis.ZERO_WIDTH_SPACE.getFormatted(), predefinedBooruCommandsFields.get(j).toString(), false);
+            }
         }
 
         eb.setDescription(getString("premium", ExternalLinks.PREMIUM_WEBSITE) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
@@ -466,7 +468,8 @@ public class HelpCommand extends NavigationAbstract {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) &&
-                    CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())
+                    CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get()) &&
+                    (!command.getCommandProperties().nsfw() || JDAUtil.channelIsNsfw(channel))
             ) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getCommandProperties().emoji())
