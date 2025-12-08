@@ -4,6 +4,7 @@ import commands.runnables.configurationcategory.WelcomeCommand;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.utils.FileUtil;
 import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -85,7 +86,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                     .flatMap(messageChannel -> {
                                 String newContent = StringUtil.addWrittenByServerStaffDisclaimer(content, locale, event.getGuild(), Message.MAX_CONTENT_LENGTH);
                                 MessageCreateAction messageCreateAction = messageChannel.sendMessage(newContent);
-                                if (imageFile != null) {
+                                if (imageFile != null && FileUtil.checkFileSizeConstraint(imageFile)) {
                                     messageCreateAction.addFiles(FileUpload.fromData(imageFile));
                                 }
                                 return messageCreateAction;
@@ -141,7 +142,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                 }
                 case IMAGE -> {
                     File imageFile = join.retrieveRandomImageFile();
-                    if (imageFile != null) {
+                    if (imageFile != null && FileUtil.checkFileSizeConstraint(imageFile)) {
                         messageCreateAction.addFiles(FileUpload.fromData(imageFile));
                     }
                 }

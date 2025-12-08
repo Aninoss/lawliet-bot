@@ -47,4 +47,8 @@ public class FileUtil {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
+    public static boolean checkFileSizeConstraint(File file) {
+        return file.length() < 10485760L; // 10 MiB (10 * 1024²)
+    }
+
 }
