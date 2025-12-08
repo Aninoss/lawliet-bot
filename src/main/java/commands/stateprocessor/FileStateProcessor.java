@@ -4,6 +4,7 @@ import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.TextManager;
+import core.utils.FileUtil;
 import core.utils.InternetUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -29,7 +30,14 @@ public class FileStateProcessor extends AbstractStateProcessor<String, Message.A
             return MessageInputResponse.FAILED;
         }
 
-        set(event.getMessage().getAttachments().get(0));
+        Message.Attachment attachment = event.getMessage().getAttachments().get(0);
+        if (attachment.getSize() > FileUtil.FILE_SIZE_LIMIT) {
+            NavigationAbstract command = getCommand();
+            command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "file_too_large"));
+            return MessageInputResponse.FAILED;
+        }
+
+        set(attachment);
         return MessageInputResponse.SUCCESS;
     }
 
