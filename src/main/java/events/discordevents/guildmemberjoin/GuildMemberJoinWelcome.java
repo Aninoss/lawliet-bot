@@ -86,7 +86,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                     .flatMap(messageChannel -> {
                                 String newContent = StringUtil.addWrittenByServerStaffDisclaimer(content, locale, event.getGuild(), Message.MAX_CONTENT_LENGTH);
                                 MessageCreateAction messageCreateAction = messageChannel.sendMessage(newContent);
-                                if (imageFile != null && FileUtil.checkFileSizeConstraint(imageFile)) {
+                                if (imageFile != null && imageFile.length() <= FileUtil.FILE_SIZE_LIMIT) {
                                     messageCreateAction.addFiles(FileUpload.fromData(imageFile));
                                 }
                                 return messageCreateAction;
@@ -142,7 +142,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                 }
                 case IMAGE -> {
                     File imageFile = join.retrieveRandomImageFile();
-                    if (imageFile != null && FileUtil.checkFileSizeConstraint(imageFile)) {
+                    if (imageFile != null && imageFile.length() <= FileUtil.FILE_SIZE_LIMIT) {
                         messageCreateAction.addFiles(FileUpload.fromData(imageFile));
                     }
                 }

@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 
 public class FileUtil {
 
+    public static long FILE_SIZE_LIMIT = 10485760L; // 10 MiB (10 * 1024²)
+
     public static void downloadImageAttachment(Message.Attachment messageAttachment, LocalFile localFile) {
         deleteLocalFile(localFile);
         try {
@@ -45,10 +47,6 @@ public class FileUtil {
     public static String fileToBase64(File file) throws IOException {
         byte[] bytes = Files.toByteArray(file);
         return Base64.getEncoder().encodeToString(bytes);
-    }
-
-    public static boolean checkFileSizeConstraint(File file) {
-        return file.length() < 10485760L; // 10 MiB (10 * 1024²)
     }
 
 }

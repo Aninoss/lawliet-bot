@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.modals.Modal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class FileListStateProcessor extends AbstractStateProcessor<List<LocalFile>, List<LocalFile>, FileListStateProcessor> {
@@ -71,9 +72,17 @@ public class FileListStateProcessor extends AbstractStateProcessor<List<LocalFil
             return MessageInputResponse.FAILED;
         }
 
+        AtomicBoolean containsOversizedFile = new AtomicBoolean(false);
         List<LocalFile> newAttachments = event.getMessage().getAttachments().stream()
                 .filter(attachment -> InternetUtil.uriIsImage(attachment.getUrl(), allowGifs))
                 .limit(maxFiles - previousEntries.size())
+                .filter(attachment -> {
+                    if (attachment.getSize() > FileUtil.FILE_SIZE_LIMIT) {
+                        containsOversizedFile.set(true);
+                        return false;
+                    }
+                    return true;
+                })
                 .map(attachment -> {
                     LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format(dir + "/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
                     FileUtil.downloadImageAttachment(attachment, tempFile);
@@ -83,7 +92,8 @@ public class FileListStateProcessor extends AbstractStateProcessor<List<LocalFil
 
         if (newAttachments.isEmpty()) {
             NavigationAbstract command = getCommand();
-            command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, allowGifs ? "imagenotfound" : "imagenotfound_nogifs"));
+            String reason = containsOversizedFile.get() ? "file_too_large" : (allowGifs ? "imagenotfound" : "imagenotfound_nogifs");
+            command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, reason));
             return MessageInputResponse.FAILED;
         }
 
