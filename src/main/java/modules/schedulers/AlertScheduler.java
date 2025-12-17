@@ -72,7 +72,7 @@ public class AlertScheduler {
                     }
                 });
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(250);
                 } catch (InterruptedException e) {
                     MainLogger.get().error("Interrupted", e);
                 }

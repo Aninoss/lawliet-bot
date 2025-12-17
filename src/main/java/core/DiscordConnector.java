@@ -17,14 +17,15 @@ import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.JDAInfo;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.RestConfig;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
-import net.dv8tion.jda.internal.utils.IOUtil;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -50,7 +51,9 @@ public class DiscordConnector {
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGE_TYPING, GatewayIntent.MESSAGE_CONTENT)
             .enableCache(CacheFlag.ACTIVITY, CacheFlag.VOICE_STATE)
             .disableCache(CacheFlag.ROLE_TAGS)
-            .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(new CustomInterceptor()).build())
+            .setRequestTimeoutRetry(false)
+            .setRestConfig(new RestConfig()
+                    .setBaseUrl(System.getenv("NIRN_PROXY_URL") + "/api/v" + JDAInfo.DISCORD_REST_VERSION + "/"))
             .addEventListeners(new DiscordEventAdapter());
 
     static {

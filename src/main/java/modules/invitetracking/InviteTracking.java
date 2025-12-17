@@ -109,10 +109,16 @@ public class InviteTracking {
                                             tempInvite = new TempInvite(guildInvite.getCode(), guildInvite.getUses() + 1, guildInvite.getMemberId(), guildInvite.getMaxAge());
                                         } else {
                                             tempInvite = null;
+                                            ambiguousInvite = true;
                                             break;
                                         }
                                     }
                                 }
+                            }
+
+                            /* if no regular invite changed, the vanity invite was probably used */
+                            if (tempInvite == null && !ambiguousInvite && guild.getVanityCode() != null) {
+                                tempInvite = new TempInvite(guild.getVanityCode(), -1, 0L, null);
                             }
 
                             if (tempInvite != null) {
@@ -123,7 +129,7 @@ public class InviteTracking {
                                 }
                                 future.complete(tempInvite);
                             } else {
-                                future.completeExceptionally(new NoSuchElementException("No inviter found"));
+                                future.completeExceptionally(new NoSuchElementException("No inviter found (ambiguous: " + ambiguousInvite + ")"));
                             }
                             synchronizeGuildInvites(guild.getIdLong(), databaseInvites, guildInvites);
                         }).exceptionally(ExceptionLogger.get());
@@ -202,25 +208,6 @@ public class InviteTracking {
     private static CompletableFuture<List<TempInvite>> collectInvites(Guild guild) {
         CompletableFuture<List<TempInvite>> future = new CompletableFuture<>();
         ArrayList<TempInvite> inviteList = new ArrayList<>();
-        boolean[] completed = new boolean[2];
-
-        if (guild.getVanityCode() != null) {
-            guild.retrieveVanityInvite().queue(vanityInvite -> {
-                TempInvite tempInvite = new TempInvite(
-                        vanityInvite.getCode(),
-                        vanityInvite.getUses(),
-                        0L,
-                        null
-                );
-                inviteList.add(tempInvite);
-                completed[0] = true;
-                if (completed[1]) {
-                    future.complete(inviteList);
-                }
-            }, future::completeExceptionally);
-        } else {
-            completed[0] = true;
-        }
 
         guild.retrieveInvites().queue(invites -> {
             for (Invite invite : invites) {
@@ -234,12 +221,8 @@ public class InviteTracking {
                         calculateMaxAgeOfInvite(invite)
                 ));
             }
-            completed[1] = true;
-            if (completed[0]) {
-                future.complete(inviteList);
-            }
+            future.complete(inviteList);
         }, future::completeExceptionally);
-
         return future;
     }
 
