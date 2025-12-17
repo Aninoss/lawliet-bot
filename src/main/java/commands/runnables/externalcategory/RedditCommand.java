@@ -56,7 +56,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             args = forceSubreddit;
         }
 
-        if (args.isEmpty()) {
+        if (args.isEmpty() || args.equalsIgnoreCase("r/")) {
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
                     .exceptionally(ExceptionLogger.get());
             return false;
