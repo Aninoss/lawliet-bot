@@ -79,6 +79,9 @@ public class GearCommand extends FisheryMemberAccountInterface {
 
         StringBuilder gearString = new StringBuilder();
         for (FisheryMemberGearData slot : fisheryMemberData.getGearMap().values()) {
+            if (slot.getGear() == FisheryGear.PRESTIGE && slot.getLevel() == 0) {
+                continue;
+            }
             gearString.append(getString(
                     "gear_slot",
                     slot.getGear().getEmoji(),

@@ -1,5 +1,6 @@
 package modules.fishery;
 
+import constants.Settings;
 import core.utils.EmojiUtil;
 
 public enum FisheryGear {
@@ -10,28 +11,39 @@ public enum FisheryGear {
     TREASURE("🔍", 20000, 80000),
     ROLE("🏷", 50000, 0),
     SURVEY("🗳️", 19000, 60000),
-    WORK("💼", 25000, 4000);
+    WORK("💼", 25000, 4000),
+    PRESTIGE("⬆️", Settings.FISHERY_MAX, 0, false);
 
     private final String emoji;
-    private final int startPrice;
+    private final long startPrice;
     private final int effect;
+    private final boolean dynamicPrice;
 
-    FisheryGear(String emoji, int startPrice, int effect) {
+    FisheryGear(String emoji, long startPrice, int effect) {
+        this(emoji, startPrice, effect, true);
+    }
+
+    FisheryGear(String emoji, long startPrice, int effect, boolean dynamicPrice) {
         this.emoji = emoji;
         this.startPrice = startPrice;
         this.effect = effect;
+        this.dynamicPrice = dynamicPrice;
     }
 
     public String getEmoji() {
         return EmojiUtil.getEmojiFromOverride(emoji, name());
     }
 
-    public int getStartPrice() {
+    public long getStartPrice() {
         return startPrice;
     }
 
     public int getEffect() {
         return effect;
+    }
+
+    public boolean hasDynamicPrice() {
+        return dynamicPrice;
     }
 
     public static FisheryGear parse(String str) {
@@ -43,6 +55,7 @@ public enum FisheryGear {
             case "role", "roles", "buyablerole", "buyableroles", "fisheryrole", "fisheryroles" -> FisheryGear.ROLE;
             case "survey", "surveys" -> FisheryGear.SURVEY;
             case "work", "working", "salary" -> FisheryGear.WORK;
+            case "prestige" -> FisheryGear.PRESTIGE;
             default -> null;
         };
     }
