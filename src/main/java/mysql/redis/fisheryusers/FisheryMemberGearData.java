@@ -54,7 +54,8 @@ public class FisheryMemberGearData implements MemberAsset {
 
     public long getPrice() {
         if (gear.hasDynamicPrice()) {
-            return NumberUtil.flattenLong(Math.round(Math.pow(getValue(getLevel()), 1.02) * gear.getStartPrice()), 4);
+            int prestigeLevel = fisheryMemberData.getMemberGear(FisheryGear.PRESTIGE).getLevel();
+            return NumberUtil.flattenLong(Math.round(Math.pow(getValue(getLevel()), 1.02) * gear.getStartPrice() * Math.pow(0.75, prestigeLevel)), 4);
         } else {
             return gear.getStartPrice();
         }
