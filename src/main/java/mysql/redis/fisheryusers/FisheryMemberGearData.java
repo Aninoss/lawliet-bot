@@ -53,7 +53,11 @@ public class FisheryMemberGearData implements MemberAsset {
     }
 
     public long getPrice() {
-        return NumberUtil.flattenLong(Math.round(Math.pow(getValue(getLevel()), 1.02) * gear.getStartPrice()), 4);
+        if (gear.hasDynamicPrice()) {
+            return NumberUtil.flattenLong(Math.round(Math.pow(getValue(getLevel()), 1.02) * gear.getStartPrice()), 4);
+        } else {
+            return gear.getStartPrice();
+        }
     }
 
     public long getEffect() {

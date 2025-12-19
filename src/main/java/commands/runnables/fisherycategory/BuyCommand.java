@@ -132,7 +132,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
             price = calculateRolePrice(slot);
         }
 
-        boolean usesCoupon = fisheryMemberData.getCoupons() > 0 && slot.getGear() != FisheryGear.ROLE;
+        boolean usesCoupon = fisheryMemberData.getCoupons() > 0 && slot.getGear() != FisheryGear.ROLE && slot.getGear() != FisheryGear.PRESTIGE;
         if (usesCoupon || fisheryMemberData.getCoins() >= price) {
             upgrade(slot, price, roles, member, usesCoupon);
             setLog(LogStatus.SUCCESS, getString("levelup", getString("product_" + slot.getGear().ordinal() + "_0")));
@@ -152,6 +152,14 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                 fisheryMemberData.deletePowerUp(FisheryPowerUp.SHOP);
             }
         } else {
+            if (slot.getGear() == FisheryGear.PRESTIGE) {
+                int previousPrestigeLevel = fisheryMemberData.getMemberGear(FisheryGear.PRESTIGE).getLevel();
+                int previousRoleLevel = fisheryMemberData.getMemberGear(FisheryGear.ROLE).getLevel();
+                fisheryMemberData.remove();
+                fisheryMemberData.getMemberGear(FisheryGear.PRESTIGE).setLevel(previousPrestigeLevel);
+                fisheryMemberData.getMemberGear(FisheryGear.ROLE).setLevel(previousRoleLevel);
+            }
+
             fisheryMemberData.changeValues(0, -price);
         }
         fisheryMemberData.levelUp(slot.getGear());
@@ -177,6 +185,10 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                 EmbedBuilder catalogEmbed = EmbedFactory.getEmbedDefault(this, getString("beginning") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
                 boolean hasCoupons = fisheryMemberData.getCoupons() > 0;
                 for (FisheryMemberGearData slot : getUpgradableGears()) {
+                    if (slot.getGear() == FisheryGear.PRESTIGE && fisheryMemberData.getCoins() < slot.getPrice()) {
+                        continue;
+                    }
+
                     String productDescription = "???";
                     long price = slot.getPrice();
                     if (slot.getGear() != FisheryGear.ROLE) {
@@ -189,7 +201,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                     String title = getString("product_" + slot.getGear().ordinal() + "_0");
                     options.add(title);
                     catalogEmbed.addField(
-                            getString("product_title", hasCoupons && slot.getGear() != FisheryGear.ROLE, slot.getGear().getEmoji(), title, StringUtil.numToString(slot.getLevel()), StringUtil.numToString(price)),
+                            getString("product_title", hasCoupons && slot.getGear() != FisheryGear.ROLE && slot.getGear() != FisheryGear.PRESTIGE, slot.getGear().getEmoji(), title, StringUtil.numToString(slot.getLevel()), StringUtil.numToString(price)),
                             "> " + productDescription + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
                             false
                     );
