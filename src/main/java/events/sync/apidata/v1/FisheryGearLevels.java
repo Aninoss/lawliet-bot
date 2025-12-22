@@ -9,6 +9,7 @@ public class FisheryGearLevels {
     private int role;
     private int profitFromSurveys;
     private int work;
+    private int prestige;
 
     public int getFishingRod() {
         return fishingRod;
@@ -64,6 +65,14 @@ public class FisheryGearLevels {
 
     public void setWork(int work) {
         this.work = work;
+    }
+
+    public int getPrestige() {
+        return prestige;
+    }
+
+    public void setPrestige(int prestige) {
+        this.prestige = prestige;
     }
 
 }

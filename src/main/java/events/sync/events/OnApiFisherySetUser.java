@@ -56,6 +56,7 @@ public class OnApiFisherySetUser extends FisheryApiEvent {
             }
             setGearLevel(gearUpdate.getProfitFromSurveys(), fisheryMemberData, FisheryGear.SURVEY);
             setGearLevel(gearUpdate.getWork(), fisheryMemberData, FisheryGear.WORK);
+            setGearLevel(gearUpdate.getPrestige(), fisheryMemberData, FisheryGear.PRESTIGE);
         }
     }
 
