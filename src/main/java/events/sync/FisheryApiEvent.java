@@ -48,6 +48,7 @@ public abstract class FisheryApiEvent extends ApiEvent {
         Response<String> gearRoleResp  = pipeline.hget(fisheryMemberData.KEY_ACCOUNT, fisheryMemberData.getMemberGear(FisheryGear.ROLE).FIELD_GEAR);
         Response<String> gearProfitFromSurveysResp  = pipeline.hget(fisheryMemberData.KEY_ACCOUNT, fisheryMemberData.getMemberGear(FisheryGear.SURVEY).FIELD_GEAR);
         Response<String> gearWorkResp  = pipeline.hget(fisheryMemberData.KEY_ACCOUNT, fisheryMemberData.getMemberGear(FisheryGear.WORK).FIELD_GEAR);
+        Response<String> gearPrestigeResp  = pipeline.hget(fisheryMemberData.KEY_ACCOUNT, fisheryMemberData.getMemberGear(FisheryGear.PRESTIGE).FIELD_GEAR);
 
         return () -> {
             FisheryUser fisheryUser = new FisheryUser();
@@ -65,6 +66,7 @@ public abstract class FisheryApiEvent extends ApiEvent {
             fisheryGearLevels.setRole(RedisManager.parseInteger(gearRoleResp.get()));
             fisheryGearLevels.setProfitFromSurveys(RedisManager.parseInteger(gearProfitFromSurveysResp.get()));
             fisheryGearLevels.setWork(RedisManager.parseInteger(gearWorkResp.get()));
+            fisheryGearLevels.setPrestige(RedisManager.parseInteger(gearPrestigeResp.get()));
             fisheryUser.setGearLevels(fisheryGearLevels);
 
             return fisheryUser;
