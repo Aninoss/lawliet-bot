@@ -15,6 +15,12 @@ public interface Emojis {
     CustomEmoji[] SWITCHES = { Emoji.fromCustom("off", 876483971192602645L, false), Emoji.fromCustom("on", 876483971800760330L, false) };
     CustomEmoji[] SWITCHES_DOT = { Emoji.fromCustom("off", 876483971192602645L, false), Emoji.fromCustom("on_dot", 876484556490956910L, false) };
 
+    CustomEmoji MENU_X_RED = Emoji.fromCustom("x_red", 1453005341355671622L, false);
+    CustomEmoji MENU_PLUS_GRAY = Emoji.fromCustom("plus_gray", 1453003718139187230L, false);
+    CustomEmoji MENU_TRASH = Emoji.fromCustom("trash", 1453006025383743679L, false);
+    CustomEmoji MENU_SHORT_ARROW_LEFT = Emoji.fromCustom("short_arrow_left", 1455576428014862468L, false);
+    CustomEmoji MENU_SHORT_ARROW_RIGHT = Emoji.fromCustom("short_arrow_right", 1455576453285679174L, false);
+
     CustomEmoji LOADING = Emoji.fromCustom("loading", 407189379749117981L, true);
     UnicodeEmoji LOADING_UNICODE = Emoji.fromUnicode("⏳");
     UnicodeEmoji ZERO_WIDTH_SPACE = Emoji.fromUnicode("‎");

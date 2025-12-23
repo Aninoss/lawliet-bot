@@ -50,9 +50,11 @@ public class ComponentInteractionResponse extends InteractionResponse {
         if (!event.isAcknowledged()) {
             Message message = event.getMessage();
             return event.editComponents(componentTree)
+                    .useComponentsV2()
                     .map(h -> message);
         } else {
-            return event.getHook().editOriginalComponents(componentTree);
+            return event.getHook().editOriginalComponents(componentTree)
+                    .useComponentsV2();
         }
     }
 

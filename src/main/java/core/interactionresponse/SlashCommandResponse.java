@@ -33,7 +33,8 @@ public class SlashCommandResponse extends InteractionResponse {
 
     @Override
     public RestAction<Message> editMessageComponents(MessageComponentTree componentTree) {
-        return interactionHook.editOriginalComponents(componentTree);
+        return interactionHook.editOriginalComponents(componentTree)
+                .useComponentsV2();
     }
 
     @Override

@@ -37,7 +37,7 @@ public class ComponentsUtil {
 
     public static MessageComponentTree createCommandComponentTree(Command command, Collection<? extends ContainerChildComponent> components, Separator.Spacing spacing) {
         ArrayList<ContainerChildComponent> innerComponents = new ArrayList<>();
-        innerComponents.add(TextDisplay.of(command.getCommandProperties().emoji() + " " + command.getCommandLanguage().getTitle()));
+        innerComponents.add(TextDisplay.of("### " + command.getCommandProperties().emoji() + " " + command.getCommandLanguage().getTitle()));
         command.getUsername().ifPresent(username ->
                 innerComponents.add(TextDisplay.of("-# @" + StringUtil.escapeMarkdown(username)))
         );
