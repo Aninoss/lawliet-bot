@@ -7,7 +7,7 @@ import constants.Emojis;
 import core.MainLogger;
 import core.utils.ComponentsUtil;
 import core.utils.StringUtil;
-import net.dv8tion.jda.api.components.Component;
+import net.dv8tion.jda.api.components.attribute.ICustomId;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
@@ -28,22 +28,23 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Consumer;
 
 public abstract class ComponentMenuAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnStringSelectMenuListener, OnEntitySelectMenuListener, ActionComponentGenerator {
 
     public static final String STATE_ROOT = "root";
-    public static final int MESSAGE_INPUT_UNIQUE_ID = 0;
+    public static final String MESSAGE_INPUT_UNIQUE_ID = "message_input";
+
+    private final HashMap<String, Object> actionMap = new HashMap<>();
+    private final Map<String, StateData> stateDataMap = new HashMap<>();
 
     private String state = STATE_ROOT;
-    private final HashMap<Integer, Consumer<?>> actionMap = new HashMap<>();
-    private final Map<String, StateData> stateDataMap = new HashMap<>();
+    private String description = null;
 
     public ComponentMenuAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
-    protected void registerNavigationListener(Member member, StateData... stateDataArray) {
+    protected void registerListeners(Member member, StateData... stateDataArray) {
         registerButtonListener(member, false);
         registerStringSelectMenuListener(member, false);
         registerEntitySelectMenuListener(member, false);
@@ -55,32 +56,28 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        Consumer<?> consumer = actionMap.get(event.getUniqueId());
-        if (consumer instanceof ButtonConsumer) {
-            ((ButtonConsumer) consumer).accept(event);
-            actionMap.clear();
+        Object action = actionMap.get(event.getCustomId());
+        if (action instanceof ButtonAction) {
+            return ((ButtonAction) action).apply(event);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onEntitySelectMenu(@NotNull EntitySelectInteractionEvent event) {
+        Object action = actionMap.get(event.getCustomId());
+        if (action instanceof EntitySelectMenuAction) {
+            ((EntitySelectMenuAction) action).accept(event);
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean onEntitySelectMenu(@NotNull EntitySelectInteractionEvent event) throws Throwable {
-        Consumer<?> consumer = actionMap.get(event.getUniqueId());
-        if (consumer instanceof EntitySelectMenuConsumer) {
-            ((EntitySelectMenuConsumer) consumer).accept(event);
-            actionMap.clear();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
-        Consumer<?> consumer = actionMap.get(event.getUniqueId());
-        if (consumer instanceof StringSelectMenuConsumer) {
-            ((StringSelectMenuConsumer) consumer).accept(event);
-            actionMap.clear();
+    public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) {
+        Object action = actionMap.get(event.getCustomId());
+        if (action instanceof StringSelectMenuAction) {
+            ((StringSelectMenuAction) action).accept(event);
             return true;
         }
         return false;
@@ -88,11 +85,10 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
 
     @Override
     @Nullable
-    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) throws Throwable {
-        Consumer<?> consumer = actionMap.get(MESSAGE_INPUT_UNIQUE_ID);
-        if (consumer instanceof StringConsumer) {
-            ((StringConsumer) consumer).accept(input);
-            actionMap.clear();
+    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) {
+        Object action = actionMap.get(MESSAGE_INPUT_UNIQUE_ID);
+        if (action instanceof StringAction) {
+            ((StringAction) action).accept(input);
             return MessageInputResponse.SUCCESS;
         }
         return null;
@@ -104,7 +100,8 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() != null && c.state().equals(state)) {
                 try {
-                    @SuppressWarnings("unchecked")
+                    actionMap.clear();
+                    description = null;
                     List<ContainerChildComponent> components = (List<ContainerChildComponent>) method.invoke(this, member);
                     return createCommandComponentTree(components);
                 } catch (InvocationTargetException | IllegalAccessException e) {
@@ -120,11 +117,15 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
         this.state = state;
     }
 
-    public void addAction(Component component, Consumer<?> consumer) {
-        actionMap.put(component.getUniqueId(), consumer);
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void addMessageInputAction(StringConsumer consumer) {
+    public void addAction(ICustomId component, Object consumer) {
+        actionMap.put(component.getCustomId(), consumer);
+    }
+
+    public void addMessageInputAction(StringAction consumer) {
         actionMap.put(MESSAGE_INPUT_UNIQUE_ID, consumer);
     }
 
@@ -153,8 +154,13 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
 
     private MessageComponentTree createCommandComponentTree(Collection<? extends ContainerChildComponent> components) {
         ArrayList<TextDisplay> textDisplays = new ArrayList<>();
-        textDisplays.add(TextDisplay.of(getCommandProperties().emoji() + " " + getCommandLanguage().getTitle()));
-        if (stateDataMap.containsKey(state)) {
+        textDisplays.add(TextDisplay.of("### " + getCommandProperties().emoji() + " " + getCommandLanguage().getTitle()));
+        getUsername().ifPresent(username ->
+                textDisplays.add(TextDisplay.of("-# @" + StringUtil.escapeMarkdown(username)))
+        );
+        if (description != null) {
+            textDisplays.add(TextDisplay.of(description));
+        } else if (stateDataMap.containsKey(state)) {
             StringBuilder sb = new StringBuilder();
             String navigationState = state;
             while (stateDataMap.containsKey(navigationState)) {
@@ -167,16 +173,19 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
             }
             textDisplays.add(TextDisplay.of("-# " + sb));
         }
-        getUsername().ifPresent(username ->
-                textDisplays.add(TextDisplay.of("-# @" + StringUtil.escapeMarkdown(username)))
-        );
 
         Button headerButton;
         if (stateDataMap.containsKey(state)) {
             String previousState = stateDataMap.get(state).previousState;
-            headerButton = buttonSecondary(Emojis.X, e -> setState(previousState));
+            headerButton = buttonSecondary(Emojis.MENU_X_RED, e -> {
+                setState(previousState);
+                return true;
+            });
         } else {
-            headerButton = buttonSecondary(Emojis.X, e -> deregisterListenersWithComponentMessage());
+            headerButton = buttonSecondary(Emojis.MENU_X_RED, e -> {
+                deregisterListenersWithComponentMessage();
+                return false;
+            });
         }
 
         ArrayList<ContainerChildComponent> containerChildComponents = new ArrayList<>();

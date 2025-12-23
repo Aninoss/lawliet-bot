@@ -203,7 +203,7 @@ public abstract class Command implements OnTriggerListener {
 
     //TODO: remove this method after migration to components v2
     public CompletableFuture<Message> drawMessageUniversal(Object obj) {
-        if (obj instanceof EmbedBuilder){
+        if (obj instanceof EmbedBuilder) {
             return drawMessage((EmbedBuilder) obj);
         } else if (obj instanceof MessageComponentTree) {
             return drawMessage((MessageComponentTree) obj);
@@ -388,7 +388,8 @@ public abstract class Command implements OnTriggerListener {
         } else {
             if (componentTree != null) {
                 return channel.editMessageComponentsById(drawMessage.getIdLong(), componentTree)
-                        .setAllowedMentions(allowedMentions);
+                        .setAllowedMentions(allowedMentions)
+                        .useComponentsV2(true);
             } else if (content != null) {
                 return channel.editMessageById(drawMessage.getIdLong(), content)
                         .setEmbeds(embeds)
