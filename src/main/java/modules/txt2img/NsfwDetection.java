@@ -34,7 +34,7 @@ public class NsfwDetection {
             JSONObject confidenceJson = labelConfidencesJson.getJSONObject(i);
             String labelId = confidenceJson.getString("labelId");
             double confidence = confidenceJson.getDouble("confidence");
-            if (NSFW_LABEL_IDS.contains(labelId) && confidence >= 0.1) {
+            if (NSFW_LABEL_IDS.contains(labelId) && confidence >= 0.5) {
                 MainLogger.get().info("NSFW image {} generated ({}%)", url, confidence * 100.0);
                 return true;
             }
