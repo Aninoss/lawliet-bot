@@ -60,7 +60,7 @@ public class GuildEntityProcessors implements ExceptionRunnable {
         lastBirthdayQuarter = birthdayQuarter;
         HashMap<Long, HashSet<Guild>> reminderGuildMap = new HashMap<>();
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(GuildEntityProcessors.class)) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(GuildEntityProcessors.class, 2)) {
             for (Guild guild : ShardManager.getLocalGuilds()) {
                 GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
                 if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {

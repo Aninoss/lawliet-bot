@@ -26,13 +26,13 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     private int uses = 1;
     private EntityManagerWrapper other = null;
 
-    public EntityManagerWrapper(EntityManager entityManager, Class<?> callingClass) {
+    public EntityManagerWrapper(EntityManager entityManager, Class<?> callingClass, int timeoutMinutes) {
         this.entityManager = entityManager;
-        this.asyncTimer = new AsyncTimer(Duration.ofMinutes(1));
+        this.asyncTimer = new AsyncTimer(Duration.ofMinutes(timeoutMinutes));
         this.asyncTimer.setTimeOutListener(thread -> {
             ArrayList<String> newParameters = new ArrayList<>(List.of(callingClass.getSimpleName()));
             newParameters.addAll(parameters);
-            MainLogger.get().warn("EntityManager is still open after 1 minute! {}", newParameters, ExceptionUtil.generateForStack(thread));
+            MainLogger.get().warn("EntityManager is still open after {} minute/s! {}", timeoutMinutes, newParameters, ExceptionUtil.generateForStack(thread));
         });
     }
 

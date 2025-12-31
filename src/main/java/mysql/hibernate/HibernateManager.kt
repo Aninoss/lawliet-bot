@@ -24,8 +24,9 @@ object HibernateManager {
     }
 
     @JvmStatic
-    fun createEntityManager(callingClass: Class<*>): EntityManagerWrapper {
-        return EntityManagerWrapper(entityManagerFactory.createEntityManager(), callingClass)
+    @JvmOverloads
+    fun createEntityManager(callingClass: Class<*>, timeoutMinutes: Int = 1): EntityManagerWrapper {
+        return EntityManagerWrapper(entityManagerFactory.createEntityManager(), callingClass, timeoutMinutes)
     }
 
     @JvmStatic
