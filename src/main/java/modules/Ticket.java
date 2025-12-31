@@ -132,7 +132,8 @@ public class Ticket {
         for (TicketChannelEntity ticketChannelEntity : ticketsEntity.getTicketChannels().values()) {
             if (ticketChannelEntity.getMemberId() == member.getIdLong()) {
                 Optional<StandardGuildMessageChannel> channelOpt = ShardManager.getLocalGuildById(ticketsEntity.getGuildId())
-                        .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, ticketChannelEntity.getChannelId()));
+                        .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, ticketChannelEntity.getChannelId()))
+                        .filter(channel -> channel.getPermissionOverride(member) != null);
                 if (channelOpt.isPresent()) {
                     return channelOpt;
                 }
