@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.requests.RestConfig;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
+import net.dv8tion.jda.internal.utils.IOUtil;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -54,6 +55,7 @@ public class DiscordConnector {
             .setRequestTimeoutRetry(false)
             .setRestConfig(new RestConfig()
                     .setBaseUrl(System.getenv("NIRN_PROXY_URL") + "/api/v" + JDAInfo.DISCORD_REST_VERSION + "/"))
+            .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(new CustomInterceptor()).build())
             .addEventListeners(new DiscordEventAdapter());
 
     static {
