@@ -7,13 +7,11 @@ import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticButtonListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
-import constants.ExceptionIds;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.ShardManager;
 import core.TextManager;
-import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -23,12 +21,11 @@ import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -241,13 +238,10 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             return AlertResponse.CONTINUE;
         }
 
-        GuildMessageChannel channel = slot.getGuildMessageChannel().get();
-        if (BotPermissionUtil.canReadHistory(channel)) {
-            slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).submit().exceptionally(ExceptionLogger.get(ExceptionIds.MISSING_PERMISSIONS)));
-        }
-
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
-        slot.sendMessage(getLocale(), true, surveyEmbeds.resultEmbed.build()).get();
+        if (slot.getMessageId().isPresent()) {
+            slot.editMessage(getLocale(), true, surveyEmbeds.resultEmbed.build());
+        }
         long messageId = slot.sendMessage(getLocale(), false, surveyEmbeds.newEmbed.build(), surveyEmbeds.actionRows).get();
         registerStaticReactionMessage(slot.getGuildMessageChannel().get(), messageId);
 
