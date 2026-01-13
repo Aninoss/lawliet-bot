@@ -27,7 +27,7 @@ public class YouTubeDownloader {
             return null;
         }
 
-        HttpResponse httpResponse = HttpCache.get("https://www.youtube.com/" + handle, Duration.ofDays(7)).get();
+        HttpResponse httpResponse = HttpCache.get("https://www.youtube.com/" + handle, Duration.ofHours(1)).get();
         if (httpResponse.getCode() / 100 != 2) {
             return null;
         }
