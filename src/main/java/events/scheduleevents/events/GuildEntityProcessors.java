@@ -62,14 +62,18 @@ public class GuildEntityProcessors implements ExceptionRunnable {
 
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager(GuildEntityProcessors.class, 2)) {
             for (Guild guild : ShardManager.getLocalGuilds()) {
-                GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
-                if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {
-                    processVoiceActivity(guild, guildEntity, voiceActivityActions);
-                    processAutoSell(guild, autoSellActions);
-                    processAutoWork(guild, guildEntity, autoWorkActions, reminderGuildMap);
-                }
-                if (checkBirthdays && guildEntity.getBirthday().getActive()) {
-                    processBirthday(guild, guildEntity, birthdayActions);
+                try {
+                    GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
+                    if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {
+                        processVoiceActivity(guild, guildEntity, voiceActivityActions);
+                        processAutoSell(guild, autoSellActions);
+                        processAutoWork(guild, guildEntity, autoWorkActions, reminderGuildMap);
+                    }
+                    if (checkBirthdays && guildEntity.getBirthday().getActive()) {
+                        processBirthday(guild, guildEntity, birthdayActions);
+                    }
+                } catch (Throwable e) {
+                    MainLogger.get().error("Guild entity processor exception for {}", guild.getIdLong(), e);
                 }
                 entityManager.clear();
             }
