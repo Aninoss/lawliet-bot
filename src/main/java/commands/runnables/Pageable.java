@@ -69,7 +69,7 @@ public class Pageable<T> {
                         return true;
                     }),
                     command.buttonSecondary((Math.max(0, page) + 1) + "/" + (Math.max(0, maxPage) + 1), e -> {
-                        Modal modal = command.addIntModal(
+                        Modal modal = command.setIntModal(
                                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "page"),
                                 null,
                                 page + 1,

@@ -239,9 +239,13 @@ public abstract class Command implements OnTriggerListener {
     }
 
     private CompletableFuture<Message> drawMessage(String content, MessageComponentTree componentTree, boolean newMessage) {
-        return getGuildMessageChannel()
-                .map(channel -> drawMessage(channel, content, null, componentTree, newMessage))
-                .orElse(CompletableFuture.failedFuture(new NoSuchElementException("No such channel")));
+        GuildMessageChannel channel = getGuildMessageChannel().orElse(null);
+        if (channel != null) {
+            componentTree = ComponentsUtil.addLog(componentTree, logStatus, log);
+            return drawMessage(channel, content, null, componentTree, newMessage);
+        } else {
+            return CompletableFuture.failedFuture(new NoSuchElementException("Missing text channel"));
+        }
     }
 
     private synchronized CompletableFuture<Message> drawMessage(

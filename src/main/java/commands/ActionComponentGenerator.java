@@ -68,7 +68,7 @@ public interface ActionComponentGenerator {
         return button;
     }
 
-    default Modal addIntModal(String property, Integer value, Integer placeholder, int min, int max, ModalIntAction consumer) {
+    default Modal setIntModal(String property, Integer value, Integer placeholder, int min, int max, ModalIntAction consumer) {
         TextInput textInput = TextInput.create("_", TextInputStyle.SHORT)
                 .setValue(value != null ? String.valueOf(value) : null)
                 .setPlaceholder(placeholder != null ? String.valueOf(placeholder) : null)
@@ -97,7 +97,36 @@ public interface ActionComponentGenerator {
                 .build();
     }
 
-    default Modal addStringListModal(String property, String value, int minLength, int maxLength, int maxEntities, Producer<List<String>> listProducer, Function<String, String> mapper, ModalTextAction consumer) {
+    default Modal setStringModal(String property, String value, String placeholder, int minLength, int maxLength, ModalStringAction consumer) {
+        TextInput textInput = TextInput.create("_", TextInputStyle.SHORT)
+                .setValue(value)
+                .setPlaceholder(placeholder)
+                .setRequiredRange(minLength, maxLength)
+                .setRequired(minLength > 0)
+                .build();
+
+        ComponentMenuAbstract command = (ComponentMenuAbstract) this;
+        return ModalMediator.createModal(command.getMemberId().get(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "set_property", property), (e, guildEntity) -> {
+                    e.deferEdit().queue();
+                    command.setGuildEntity(guildEntity);
+                    try {
+                        ModalMapping newValue = e.getValue("_");
+                        consumer.accept(newValue != null ? newValue.getAsString() : null);
+
+                        Object response = command.draw(e.getMember());
+                        if (response != null) {
+                            command.drawMessageUniversal(response)
+                                    .exceptionally(ExceptionLogger.get());
+                        }
+                    } catch (Throwable throwable) {
+                        ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
+                    }
+                })
+                .addComponents(Label.of(property, textInput))
+                .build();
+    }
+
+    default Modal addStringListModal(String property, String value, int minLength, int maxLength, int maxEntities, Producer<List<String>> listProducer, Function<String, String> mapper, ModalStringAction consumer) {
         TextInput textInput = TextInput.create("_", TextInputStyle.SHORT)
                 .setValue(value != null && value.isEmpty() ? null : value)
                 .setRequiredRange(minLength, maxLength)
@@ -146,7 +175,7 @@ public interface ActionComponentGenerator {
     interface StringSelectMenuAction extends Consumer<StringSelectInteractionEvent> {
     }
 
-    interface ModalTextAction extends Consumer<String> {
+    interface ModalStringAction extends Consumer<String> {
     }
 
     interface ModalIntAction extends Consumer<Integer> {

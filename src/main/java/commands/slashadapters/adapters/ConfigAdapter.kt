@@ -13,6 +13,7 @@ import commands.runnables.invitetrackingcategory.InviteTrackingCommand
 import commands.runnables.moderationcategory.InviteFilterCommand
 import commands.runnables.moderationcategory.ModSettingsCommand
 import commands.runnables.moderationcategory.WordFilterCommand
+import commands.runnables.fisherysettingscategory.FisheryCurrenciesCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
@@ -38,8 +39,8 @@ import java.util.*
             WelcomeCommand::class, AutoRolesCommand::class, StickyRolesCommand::class, AutoChannelCommand::class, AutoQuoteCommand::class,
             MemberCountDisplayCommand::class, TriggerDeleteCommand::class, GiveawayCommand::class, TicketCommand::class, ModSettingsCommand::class,
             InviteFilterCommand::class, WordFilterCommand::class, FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class,
-            InviteTrackingCommand::class, CustomConfigCommand::class, CommandChannelShortcutsCommand::class, ReminderManageCommand::class,
-            RolePlayBlockCommand::class, CustomRolePlayCommand::class, BirthdayConfigCommand::class, ApiCommand::class,
+            FisheryCurrenciesCommand::class, InviteTrackingCommand::class, CustomConfigCommand::class, CommandChannelShortcutsCommand::class,
+            ReminderManageCommand::class, RolePlayBlockCommand::class, CustomRolePlayCommand::class, BirthdayConfigCommand::class, ApiCommand::class,
         ]
 )
 class ConfigAdapter : SlashAdapter() {

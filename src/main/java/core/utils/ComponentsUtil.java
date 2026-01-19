@@ -1,6 +1,9 @@
 package core.utils;
 
 import commands.Command;
+import constants.LogStatus;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
 import net.dv8tion.jda.api.components.separator.Separator;
@@ -27,27 +30,54 @@ public class ComponentsUtil {
         return createCommandComponentTree(command, List.of(component));
     }
 
-    public static MessageComponentTree createCommandComponentTree(Command command, Collection<? extends ContainerChildComponent> components) {
-        return createCommandComponentTree(command, components, Separator.Spacing.SMALL);
-    }
-
-    public static MessageComponentTree createCommandComponentTree(Command command, ContainerChildComponent component, Separator.Spacing spacing) {
-        return createCommandComponentTree(command, List.of(component), spacing);
-    }
-
-    public static MessageComponentTree createCommandComponentTree(Command command, Collection<? extends ContainerChildComponent> components, Separator.Spacing spacing) {
+    public static MessageComponentTree createCommandComponentTree(Command command, Collection<ContainerChildComponent> components) {
         ArrayList<ContainerChildComponent> innerComponents = new ArrayList<>();
         innerComponents.add(TextDisplay.of("### " + command.getCommandProperties().emoji() + " " + command.getCommandLanguage().getTitle()));
         command.getUsername().ifPresent(username ->
                 innerComponents.add(TextDisplay.of("-# @" + StringUtil.escapeMarkdown(username)))
         );
-        innerComponents.add(Separator.createDivider(spacing));
+        innerComponents.add(Separator.createDivider(Separator.Spacing.SMALL));
         innerComponents.addAll(components);
 
         return MessageComponentTree.of(
                 Container.of(innerComponents)
                         .withAccentColor(DEFAULT_CONTAINER_COLOR)
         );
+    }
+
+    public static MessageComponentTree addLog(MessageComponentTree componentTree, LogStatus logStatus, String log) {
+        if (log == null || log.isEmpty()) {
+            return componentTree;
+        }
+
+        String add = "";
+        if (logStatus != null) {
+            add = switch (logStatus) {
+                case FAILURE -> "❌ ";
+                case SUCCESS -> "✅ ";
+                case WIN -> "🎉 ";
+                case LOSE -> "☠️ ";
+                case WARNING -> "⚠️️ ";
+                case TIME -> "⏲️ ";
+            };
+        }
+
+        ArrayList<MessageTopLevelComponent> newComponents = new ArrayList<>();
+        for (MessageTopLevelComponentUnion component : componentTree.getComponents()) {
+            if (component instanceof Container) {
+                ArrayList<ContainerChildComponent> newContainerComponents = new ArrayList<>(((Container) component).getComponents());
+                newContainerComponents.add(Separator.createInvisible(Separator.Spacing.SMALL));
+                newContainerComponents.add(TextDisplay.of("> " + StringUtil.shortenString(add + log, 500)));
+                newComponents.add(
+                        Container.of(newContainerComponents)
+                                .withAccentColor(((Container) component).getAccentColor())
+                );
+            } else {
+                newComponents.add(component);
+            }
+        }
+
+        return MessageComponentTree.of(newComponents);
     }
 
 }

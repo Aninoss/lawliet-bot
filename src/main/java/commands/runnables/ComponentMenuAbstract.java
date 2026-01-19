@@ -4,7 +4,9 @@ import commands.ActionComponentGenerator;
 import commands.Command;
 import commands.listeners.*;
 import constants.Emojis;
+import constants.LogStatus;
 import core.MainLogger;
+import core.TextManager;
 import core.utils.ComponentsUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.components.attribute.ICustomId;
@@ -39,6 +41,8 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
 
     private String state = STATE_ROOT;
     private String description = null;
+    private boolean unsavedChanges = false;
+    private boolean ignoreUnsavedChanges = false;
 
     public ComponentMenuAbstract(Locale locale, String prefix) {
         super(locale, prefix);
@@ -95,7 +99,7 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
     }
 
     @Override
-    public Object draw(Member member) {
+    public MessageComponentTree draw(Member member) {
         for (Method method : getClass().getMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() != null && c.state().equals(state)) {
@@ -103,7 +107,7 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
                     actionMap.clear();
                     description = null;
                     List<ContainerChildComponent> components = (List<ContainerChildComponent>) method.invoke(this, member);
-                    return createCommandComponentTree(components);
+                    return buildCommandComponentTree(components);
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     MainLogger.get().error("Menu draw exception", e);
                 }
@@ -114,11 +118,18 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
     }
 
     public void setState(String state) {
+        this.unsavedChanges = false;
+        this.ignoreUnsavedChanges = false;
         this.state = state;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setUnsavedChanges() {
+        this.unsavedChanges = true;
+        this.ignoreUnsavedChanges = false;
     }
 
     public void addAction(ICustomId component, Object consumer) {
@@ -133,7 +144,7 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
 
         private final String state;
         private final String previousState;
-        private final String title;
+        private String title;
 
         private StateData(String state, String previousState, String title) {
             this.state = state;
@@ -145,6 +156,10 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
             return new StateData(state, previousState, title);
         }
 
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -152,39 +167,57 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
         String state();
     }
 
-    private MessageComponentTree createCommandComponentTree(Collection<? extends ContainerChildComponent> components) {
+    private MessageComponentTree buildCommandComponentTree(Collection<? extends ContainerChildComponent> components) {
         ArrayList<TextDisplay> textDisplays = new ArrayList<>();
-        textDisplays.add(TextDisplay.of("### " + getCommandProperties().emoji() + " " + getCommandLanguage().getTitle()));
-        getUsername().ifPresent(username ->
-                textDisplays.add(TextDisplay.of("-# @" + StringUtil.escapeMarkdown(username)))
-        );
-        if (description != null) {
-            textDisplays.add(TextDisplay.of(description));
-        } else if (stateDataMap.containsKey(state)) {
-            StringBuilder sb = new StringBuilder();
+        textDisplays.add(TextDisplay.of("### " + getCommandProperties().emoji() + " " + getCommandLanguage().getTitle() + (unsavedChanges ? "*" : "")));
+
+        StringBuilder subtitle = new StringBuilder();
+        getUsername().ifPresent(username -> subtitle.append("-# @").append(StringUtil.escapeMarkdown(username)));
+        if (stateDataMap.containsKey(state)) {
+            if (!subtitle.isEmpty()) {
+                subtitle.append("｜");
+            }
+            StringBuilder location = new StringBuilder();
             String navigationState = state;
             while (stateDataMap.containsKey(navigationState)) {
                 StateData stateData = stateDataMap.get(navigationState);
-                if (!sb.isEmpty()) {
-                    sb.insert(0, " » ");
+                if (!location.isEmpty()) {
+                    location.insert(0, " » ");
                 }
-                sb.insert(0, stateData.title);
+                location.insert(0, stateData.title);
                 navigationState = stateData.previousState;
             }
-            textDisplays.add(TextDisplay.of("-# " + sb));
+            subtitle.append(location);
+        }
+        if (!subtitle.isEmpty()) {
+            textDisplays.add(TextDisplay.of(subtitle.toString()));
+        }
+        if (description != null) {
+            textDisplays.add(TextDisplay.of(description));
         }
 
         Button headerButton;
         if (stateDataMap.containsKey(state)) {
             String previousState = stateDataMap.get(state).previousState;
-            headerButton = buttonSecondary(Emojis.MENU_X_RED, e -> {
-                setState(previousState);
+            headerButton = buttonSecondary(Emojis.MENU_BACK, e -> {
+                if (unsavedChanges && !ignoreUnsavedChanges) {
+                    setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "unsaved_changes"));
+                    ignoreUnsavedChanges = true;
+                } else {
+                    setState(previousState);
+                }
                 return true;
             });
         } else {
             headerButton = buttonSecondary(Emojis.MENU_X_RED, e -> {
-                deregisterListenersWithComponentMessage();
-                return false;
+                if (unsavedChanges && !ignoreUnsavedChanges) {
+                    setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "unsaved_changes"));
+                    ignoreUnsavedChanges = true;
+                    return true;
+                } else {
+                    deregisterListenersWithComponentMessage();
+                    return false;
+                }
             });
         }
 
