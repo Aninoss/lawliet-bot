@@ -5,12 +5,14 @@ import core.ExceptionLogger;
 import core.TextManager;
 import core.modals.ModalMediator;
 import core.utils.ExceptionUtil;
+import net.dv8tion.jda.api.components.ModalTopLevelComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -18,6 +20,7 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.modals.Modal;
 import org.glassfish.jersey.internal.util.Producer;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
@@ -76,25 +79,10 @@ public interface ActionComponentGenerator {
                 .setRequired(min > 0)
                 .build();
 
-        ComponentMenuAbstract command = (ComponentMenuAbstract) this;
-        return ModalMediator.createModal(command.getMemberId().get(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "set_property", property), (e, guildEntity) -> {
-                    e.deferEdit().queue();
-                    command.setGuildEntity(guildEntity);
-                    try {
-                        ModalMapping newValue = e.getValue("_");
-                        consumer.accept(newValue != null ? Integer.parseInt(newValue.getAsString()) : 0);
-
-                        Object response = command.draw(e.getMember());
-                        if (response != null) {
-                            command.drawMessageUniversal(response)
-                                    .exceptionally(ExceptionLogger.get());
-                        }
-                    } catch (Throwable throwable) {
-                        ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
-                    }
-                })
-                .addComponents(Label.of(property, textInput))
-                .build();
+        return modal(property, List.of(Label.of(property, textInput)), e -> {
+            ModalMapping newValue = e.getValue("_");
+            consumer.accept(newValue != null ? Integer.parseInt(newValue.getAsString()) : 0);
+        });
     }
 
     default Modal setStringModal(String property, String value, String placeholder, int minLength, int maxLength, ModalStringAction consumer) {
@@ -105,25 +93,10 @@ public interface ActionComponentGenerator {
                 .setRequired(minLength > 0)
                 .build();
 
-        ComponentMenuAbstract command = (ComponentMenuAbstract) this;
-        return ModalMediator.createModal(command.getMemberId().get(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "set_property", property), (e, guildEntity) -> {
-                    e.deferEdit().queue();
-                    command.setGuildEntity(guildEntity);
-                    try {
-                        ModalMapping newValue = e.getValue("_");
-                        consumer.accept(newValue != null ? newValue.getAsString() : null);
-
-                        Object response = command.draw(e.getMember());
-                        if (response != null) {
-                            command.drawMessageUniversal(response)
-                                    .exceptionally(ExceptionLogger.get());
-                        }
-                    } catch (Throwable throwable) {
-                        ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
-                    }
-                })
-                .addComponents(Label.of(property, textInput))
-                .build();
+        return modal(property, List.of(Label.of(property, textInput)), e -> {
+            ModalMapping newValue = e.getValue("_");
+            consumer.accept(newValue != null ? newValue.getAsString() : null);
+        });
     }
 
     default Modal addStringListModal(String property, String value, int minLength, int maxLength, int maxEntities, Producer<List<String>> listProducer, Function<String, String> mapper, ModalStringAction consumer) {
@@ -162,6 +135,26 @@ public interface ActionComponentGenerator {
                 .build();
     }
 
+    default Modal modal(String property, Collection<ModalTopLevelComponent> components, ModalAction consumer) {
+        ComponentMenuAbstract command = (ComponentMenuAbstract) this;
+        return ModalMediator.createModal(command.getMemberId().get(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "set_property", property), (e, guildEntity) -> {
+                    e.deferEdit().queue();
+                    command.setGuildEntity(guildEntity);
+                    try {
+                        consumer.accept(e);
+                        Object response = command.draw(e.getMember());
+                        if (response != null) {
+                            command.drawMessageUniversal(response)
+                                    .exceptionally(ExceptionLogger.get());
+                        }
+                    } catch (Throwable throwable) {
+                        ExceptionUtil.handleCommandException(throwable, command, command.getCommandEvent(), guildEntity);
+                    }
+                })
+                .addComponents(components)
+                .build();
+    }
+
 
     interface ButtonAction extends Function<ButtonInteractionEvent, Boolean> {
     }
@@ -180,5 +173,9 @@ public interface ActionComponentGenerator {
 
     interface ModalIntAction extends Consumer<Integer> {
     }
+
+    interface ModalAction extends Consumer<ModalInteractionEvent> {
+    }
+
 
 }
