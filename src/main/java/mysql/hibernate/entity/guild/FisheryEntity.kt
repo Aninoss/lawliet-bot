@@ -210,6 +210,14 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
         return FisheryCurrencyEntity(emojiFormated, name)
     }
 
+    fun setCurrency(currency: FisheryCurrency, currencyEntity: FisheryCurrencyEntity) {
+        when (currency) {
+            FisheryCurrency.FISH -> fishCurrency = currencyEntity
+            FisheryCurrency.COINS -> coinsCurrency = currencyEntity
+            FisheryCurrency.RECENT_EFFICIENCY -> recentEfficiencyCurrency = currencyEntity
+        }
+    }
+
     override val guildId: Long
         get() = hibernateEntity.guildId
 

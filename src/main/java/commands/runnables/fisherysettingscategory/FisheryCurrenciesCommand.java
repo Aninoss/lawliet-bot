@@ -8,8 +8,9 @@ import constants.LogStatus;
 import core.TextManager;
 import core.utils.MentionUtil;
 import modules.fishery.FisheryCurrency;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.FisheryCurrencyEntity;
-import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.ModalTopLevelComponent;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
@@ -26,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
 
 @CommandProperties(
         trigger = "fisherycurrencies",
@@ -56,43 +56,28 @@ public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
                         Emojis.FISH,
                         getString("root_fish"),
                         FisheryCurrency.FISH,
-                        currencyEntity -> {
-                            GuildEntity guildEntity = getGuildEntity();
-                            guildEntity.beginTransaction();
-                            guildEntity.getFishery().setFishCurrency(currencyEntity);
-                            guildEntity.commitTransaction();
-                        }
+                        BotLogEntity.Event.FISHERY_CURRENCIES_FISH
                 ),
                 createSection(
                         Emojis.COINS,
                         getString("root_coins"),
                         FisheryCurrency.COINS,
-                        currencyEntity -> {
-                            GuildEntity guildEntity = getGuildEntity();
-                            guildEntity.beginTransaction();
-                            guildEntity.getFishery().setCoinsCurrency(currencyEntity);
-                            guildEntity.commitTransaction();
-                        }
+                        BotLogEntity.Event.FISHERY_CURRENCIES_COINS
                 ),
                 createSection(
                         Emojis.GROWTH,
                         getString("root_recent_efficiency"),
                         FisheryCurrency.RECENT_EFFICIENCY,
-                        currencyEntity -> {
-                            GuildEntity guildEntity = getGuildEntity();
-                            guildEntity.beginTransaction();
-                            guildEntity.getFishery().setRecentEfficiencyCurrency(currencyEntity);
-                            guildEntity.commitTransaction();
-                        }
+                        BotLogEntity.Event.FISHERY_CURRENCIES_RECENT_EFFICIENCY
                 )
         );
     }
 
-    private Section createSection(Emoji defaultEmoji, String defaultName, FisheryCurrency currency, Consumer<FisheryCurrencyEntity> setter) {
+    private Section createSection(Emoji defaultEmoji, String defaultName, FisheryCurrency currency, BotLogEntity.Event botLogEvent) {
         FisheryCurrencyEntity currencyEntity = getGuildEntity().getFishery().getCurrencyEffectivelyReadOnly(currency);
         return Section.of(
                 buttonPrimary(Emojis.MENU_EDIT, e -> {
-                    showModal(e, defaultName, currency, currencyEntity, setter);
+                    showModal(e, defaultName, currency, currencyEntity, botLogEvent);
                     return false;
                 }),
                 TextDisplay.of(defaultEmoji.getFormatted() + " " +
@@ -103,7 +88,7 @@ public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
         );
     }
 
-    private void showModal(ButtonInteractionEvent event, String defaultName, FisheryCurrency currency, FisheryCurrencyEntity currencyEntity, Consumer<FisheryCurrencyEntity> setter) {
+    private void showModal(ButtonInteractionEvent event, String defaultName, FisheryCurrency currency, FisheryCurrencyEntity currencyEntity, BotLogEntity.Event botLogEvent) {
         TextInput textInputEmoji = TextInput.create("emoji", TextInputStyle.SHORT)
                 .setValue(currencyEntity.getEmoji().getFormatted())
                 .setRequiredRange(0, 100)
@@ -140,11 +125,24 @@ public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
                         name = null;
                     }
 
+                    FisheryEntity fisheryEntity = getGuildEntity().getFishery();
+                    String previousCurrencyString = createCombinedCurrencyString(fisheryEntity, currency);
+
+                    fisheryEntity.beginTransaction();
                     FisheryCurrencyEntity newCurrencyEntity = new FisheryCurrencyEntity(emojiFormatted, name);
-                    setter.accept(newCurrencyEntity);
+                    fisheryEntity.setCurrency(currency, newCurrencyEntity);
+
+                    String newCurrencyString = createCombinedCurrencyString(fisheryEntity, currency);
+                    BotLogEntity.log(getEntityManager(), botLogEvent, e.getMember(), previousCurrencyString, newCurrencyString);
+                    fisheryEntity.commitTransaction();
                 }
         );
         event.replyModal(modal).queue();
+    }
+
+    private String createCombinedCurrencyString(FisheryEntity fisheryEntity, FisheryCurrency currency) {
+        FisheryCurrencyEntity currencyEntity = fisheryEntity.getCurrencyEffectivelyReadOnly(currency);
+        return currencyEntity.getEmoji().getFormatted() + " " + currencyEntity.getName();
     }
 
 }

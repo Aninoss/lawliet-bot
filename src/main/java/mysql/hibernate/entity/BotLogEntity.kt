@@ -7,6 +7,7 @@ import commands.Command
 import commands.runnables.birthdaycategory.BirthdayConfigCommand
 import commands.runnables.configurationcategory.*
 import commands.runnables.fisherysettingscategory.FisheryCommand
+import commands.runnables.fisherysettingscategory.FisheryCurrenciesCommand
 import commands.runnables.fisherysettingscategory.FisheryManageCommand
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand
 import commands.runnables.fisherysettingscategory.VCTimeCommand
@@ -82,6 +83,9 @@ class BotLogEntity(
         FISHERY_ROLES_PRICE_MIN(ValuesRelationship.OLD_AND_NEW, ValueType.LONG, FisheryRolesCommand::class.java, "fisheryroles_firstprice"),
         FISHERY_ROLES_PRICE_MAX(ValuesRelationship.OLD_AND_NEW, ValueType.LONG, FisheryRolesCommand::class.java, "fisheryroles_lastprice"),
         FISHERY_ROLES_SINGLE_ROLES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, FisheryRolesCommand::class.java, "fisheryroles_state0_msinglerole_raw"),
+        FISHERY_CURRENCIES_FISH(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryCurrenciesCommand::class.java, "fisherycurrencies_root_fish"),
+        FISHERY_CURRENCIES_COINS(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryCurrenciesCommand::class.java, "fisherycurrencies_root_coins"),
+        FISHERY_CURRENCIES_RECENT_EFFICIENCY(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryCurrenciesCommand::class.java, "fisherycurrencies_root_recent_efficiency"),
         FISHERY_MANAGE_FISH(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "fisherymanage_type_fish"),
         FISHERY_MANAGE_COINS(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "fisherymanage_type_coins"),
         FISHERY_MANAGE_DAILY_STREAK(ValuesRelationship.OLD_AND_NEW, ValueType.STRING, FisheryManageCommand::class.java, "fisherymanage_type_dailystreak"),
