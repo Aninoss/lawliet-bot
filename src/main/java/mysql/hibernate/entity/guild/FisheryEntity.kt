@@ -4,7 +4,11 @@ import commands.runnables.fisherysettingscategory.FisheryCommand
 import core.atomicassets.AtomicGuildChannel
 import core.atomicassets.AtomicGuildMessageChannel
 import core.cache.ServerPatreonBoostCache
+import core.featurelogger.FeatureLogger
+import core.featurelogger.PremiumFeature
+import modules.fishery.FisheryCurrency
 import modules.fishery.FisheryStatus
+import mysql.hibernate.entity.FisheryCurrencyEntity
 import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import net.dv8tion.jda.api.entities.Role
@@ -117,13 +121,13 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
         get() {
             val deletedRoleIds = mutableListOf<Long>()
             val roles = getAtomicRoleList(roleIds)
-                    .mapNotNull {
-                        if (it.get().isEmpty) {
-                            deletedRoleIds += it.idLong
-                        }
-                        return@mapNotNull it.get().orElse(null)
+                .mapNotNull {
+                    if (it.get().isEmpty) {
+                        deletedRoleIds += it.idLong
                     }
-                    .sortedWith(Comparator.comparingInt { obj: Role -> obj.position })
+                    return@mapNotNull it.get().orElse(null)
+                }
+                .sortedWith(Comparator.comparingInt { obj: Role -> obj.position })
 
             if (deletedRoleIds.isNotEmpty()) {
                 beginTransaction()
@@ -172,6 +176,39 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     val voiceHoursLimitEffectively: Int
         get() = if (ServerPatreonBoostCache.get(guildId)) voiceHoursLimit else 5
 
+    var fishCurrency: FisheryCurrencyEntity = FisheryCurrencyEntity()
+    var coinsCurrency: FisheryCurrencyEntity = FisheryCurrencyEntity()
+    var recentEfficiencyCurrency: FisheryCurrencyEntity = FisheryCurrencyEntity()
+
+    fun getCurrencyEffectivelyReadOnly(currency: FisheryCurrency): FisheryCurrencyEntity {
+        if (!ServerPatreonBoostCache.get(guildId)) {
+            return FisheryCurrencyEntity(currency.emoji.formatted, currency.getName(hibernateEntity.locale),)
+        }
+
+        val currencyEntity: FisheryCurrencyEntity = when (currency) {
+            FisheryCurrency.FISH -> fishCurrency
+            FisheryCurrency.COINS -> coinsCurrency
+            FisheryCurrency.RECENT_EFFICIENCY -> recentEfficiencyCurrency
+        }
+
+        var emojiFormated: String? = currencyEntity.emojiFormatted
+        val defaultEmoji = currency.emoji.formatted
+        if (emojiFormated != null && emojiFormated != defaultEmoji) {
+            FeatureLogger.inc(PremiumFeature.FISHERY_CURRENCIES, guildId)
+        } else {
+            emojiFormated = defaultEmoji
+        }
+
+        var name: String? = currencyEntity.name
+        val defaultName = currency.getName(hibernateEntity.locale)
+        if (name != null && name != defaultName) {
+            FeatureLogger.inc(PremiumFeature.FISHERY_CURRENCIES, guildId)
+        } else {
+            name = defaultName
+        }
+
+        return FisheryCurrencyEntity(emojiFormated, name)
+    }
 
     override val guildId: Long
         get() = hibernateEntity.guildId
