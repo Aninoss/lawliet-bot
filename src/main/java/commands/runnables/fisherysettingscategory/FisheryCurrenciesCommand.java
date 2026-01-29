@@ -38,6 +38,9 @@ import java.util.Locale;
 )
 public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
 
+    public static final int MAX_EMOJI_LENGTH = 100;
+    public static final int MAX_NAME_LENGTH = 100;
+
     public FisheryCurrenciesCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
@@ -91,13 +94,13 @@ public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
     private void showModal(ButtonInteractionEvent event, String defaultName, FisheryCurrency currency, FisheryCurrencyEntity currencyEntity, BotLogEntity.Event botLogEvent) {
         TextInput textInputEmoji = TextInput.create("emoji", TextInputStyle.SHORT)
                 .setValue(currencyEntity.getEmoji().getFormatted())
-                .setRequiredRange(0, 100)
+                .setRequiredRange(0, MAX_EMOJI_LENGTH)
                 .setRequired(false)
                 .build();
 
         TextInput textInputName = TextInput.create("label", TextInputStyle.SHORT)
                 .setValue(currencyEntity.getName())
-                .setRequiredRange(0, 100)
+                .setRequiredRange(0, MAX_NAME_LENGTH)
                 .setRequired(false)
                 .build();
 
@@ -140,8 +143,12 @@ public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
         event.replyModal(modal).queue();
     }
 
-    private String createCombinedCurrencyString(FisheryEntity fisheryEntity, FisheryCurrency currency) {
+    public static String createCombinedCurrencyString(FisheryEntity fisheryEntity, FisheryCurrency currency) {
         FisheryCurrencyEntity currencyEntity = fisheryEntity.getCurrencyEffectivelyReadOnly(currency);
+        return createCombinedCurrencyString(currencyEntity);
+    }
+
+    public static String createCombinedCurrencyString(FisheryCurrencyEntity currencyEntity) {
         return currencyEntity.getEmoji().getFormatted() + " " + currencyEntity.getName();
     }
 

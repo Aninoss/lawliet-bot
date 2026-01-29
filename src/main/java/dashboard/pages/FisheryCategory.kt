@@ -2,10 +2,8 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
-import commands.runnables.fisherysettingscategory.FisheryCommand
-import commands.runnables.fisherysettingscategory.FisheryManageCommand
-import commands.runnables.fisherysettingscategory.FisheryRolesCommand
-import commands.runnables.fisherysettingscategory.VCTimeCommand
+import commands.runnables.fisherysettingscategory.*
+import commands.runnables.fisherysettingscategory.FisheryCurrenciesCommand.createCombinedCurrencyString
 import constants.Emojis
 import constants.Settings
 import core.CustomObservableList
@@ -21,10 +19,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
-import dashboard.components.DashboardChannelComboBox
-import dashboard.components.DashboardMultiChannelsComboBox
-import dashboard.components.DashboardMultiMembersComboBox
-import dashboard.components.DashboardMultiRolesComboBox
+import dashboard.components.*
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
@@ -32,6 +27,7 @@ import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.fishery.*
 import mysql.hibernate.entity.BotLogEntity
+import mysql.hibernate.entity.FisheryCurrencyEntity
 import mysql.hibernate.entity.guild.FisheryEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.redis.fisheryusers.FisheryMemberData
@@ -97,6 +93,14 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     DashboardText(getString(Category.FISHERY_SETTINGS, "fisheryroles_exp")),
                     generateFisheryRolesField(),
                     generateFisheryRolesPreviewField()
+            )
+        }
+
+        if (anyCommandsAreAccessible(FisheryCurrenciesCommand::class)) {
+            mainContainer.add(
+                DashboardTitle(Command.getCommandLanguage(FisheryCurrenciesCommand::class.java, locale).title),
+                DashboardText(getString(Category.FISHERY_SETTINGS, "fisherycurrencies_helptext")),
+                generateCurrenciesField()
             )
         }
 
@@ -271,6 +275,90 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         manageRolesComboBox.isEnabled = premium
         container.add(manageRolesComboBox)
         return container
+    }
+
+    private fun generateCurrenciesField(): DashboardComponent {
+        val container = VerticalContainer(
+            DashboardText(getString(Category.FISHERY_SETTINGS, "fisherycurrencies_root_fish")),
+            generateCurrencyContainer(
+                FisheryCurrency.FISH,
+                BotLogEntity.Event.FISHERY_CURRENCIES_FISH
+            ),
+            DashboardText(getString(Category.FISHERY_SETTINGS, "fisherycurrencies_root_coins")),
+            generateCurrencyContainer(
+                FisheryCurrency.COINS,
+                BotLogEntity.Event.FISHERY_CURRENCIES_COINS
+            ),
+            DashboardText(getString(Category.FISHERY_SETTINGS, "fisherycurrencies_root_recent_efficiency")),
+            generateCurrencyContainer(
+                FisheryCurrency.RECENT_EFFICIENCY,
+                BotLogEntity.Event.FISHERY_CURRENCIES_RECENT_EFFICIENCY
+            )
+        )
+        container.isCard = true
+
+        if (!isPremium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
+        }
+        return container
+    }
+
+    fun generateCurrencyContainer(currency: FisheryCurrency, botLogEvent: BotLogEntity.Event): HorizontalContainer {
+        val currencyEntity: FisheryCurrencyEntity = fisheryEntity.getCurrencyEffectivelyReadOnly(currency)
+        val emojiComboBox = DashboardEmojiComboBox(
+            getString(Category.FISHERY_SETTINGS, "fisherycurrencies_root_modal_emoji"),
+            currencyEntity.emojiFormatted,
+            true
+        ) {
+            val previousCurrencyEntity = fisheryEntity.getCurrencyEffectivelyReadOnly(currency)
+            val fisheryCurrencyEntity = FisheryCurrencyEntity(it.data, previousCurrencyEntity.name)
+            setCurrency(currency, botLogEvent, fisheryCurrencyEntity)
+            return@DashboardEmojiComboBox ActionResult()
+                .withRedraw()
+        }
+        emojiComboBox.isEnabled = isPremium
+
+        val nameTextField = DashboardTextField(getString(Category.FISHERY_SETTINGS, "fisherycurrencies_root_modal_name"), 1,FisheryCurrenciesCommand.MAX_NAME_LENGTH) {
+            val previousCurrencyEntity = fisheryEntity.getCurrencyEffectivelyReadOnly(currency)
+            val fisheryCurrencyEntity = FisheryCurrencyEntity(previousCurrencyEntity.emojiFormatted, it.data)
+            setCurrency(currency, botLogEvent, fisheryCurrencyEntity)
+            return@DashboardTextField ActionResult()
+                .withRedraw()
+        }
+        nameTextField.isEnabled = isPremium
+        nameTextField.value = currencyEntity.name
+
+        val resetButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fisherycurrencies_reset")) {
+            val fisheryCurrencyEntity = FisheryCurrencyEntity(null, null)
+            setCurrency(currency, botLogEvent, fisheryCurrencyEntity)
+            return@DashboardButton ActionResult()
+                .withRedraw()
+        }
+        resetButton.style = DashboardButton.Style.DANGER
+        resetButton.isEnabled = isPremium
+
+        val container = HorizontalContainer(
+            emojiComboBox,
+            nameTextField,
+            resetButton
+        )
+        container.alignment = HorizontalContainer.Alignment.BOTTOM
+        container.allowWrap = true
+        container.putCssProperty("margin-top", "0.25em")
+        return container
+    }
+
+    private fun setCurrency(currency: FisheryCurrency, botLogEvent: BotLogEntity.Event, fisheryCurrencyEntity: FisheryCurrencyEntity) {
+        val previousCurrencyString = createCombinedCurrencyString(fisheryEntity, currency)
+
+        guildEntity.beginTransaction()
+        fisheryEntity.setCurrency(currency, fisheryCurrencyEntity)
+
+        val newCurrencyString = createCombinedCurrencyString(fisheryEntity, currency)
+        BotLogEntity.log(entityManager, botLogEvent, atomicMember, previousCurrencyString, newCurrencyString)
+        guildEntity.commitTransaction()
     }
 
     private fun generateFisheryRolesPreviewField(): DashboardComponent {
