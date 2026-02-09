@@ -1,6 +1,8 @@
 package core.utils;
 
 import constants.Emojis;
+import core.LocalFile;
+import core.MainLogger;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -9,10 +11,16 @@ import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class EmojiUtil {
 
@@ -57,6 +65,42 @@ public class EmojiUtil {
 
     public static String getEmojiFromOverride(String def, String id) {
         return Objects.requireNonNullElse(getEmojiFromOverrideOrNull(id), def);
+    }
+
+    public static BufferedImage toImage(Emoji emoji) {
+        try {
+            if (emoji instanceof UnicodeEmoji) {
+                String assetId = toTwemojiAssetId(emoji.getFormatted());
+                LocalFile localFile = new LocalFile(LocalFile.Directory.EMOJI_CACHE, assetId + ".png");
+                if (!localFile.exists()) {
+                    BufferedImage bufferedImage = ImageIO.read(new URL("https://twemoji.maxcdn.com/v/latest/72x72/" + assetId + ".png"));
+                    if (bufferedImage != null) {
+                        ImageIO.write(bufferedImage, "png", localFile);
+                    } else {
+                        BufferedImage img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+                        ImageIO.write(img, "png", localFile);
+                    }
+                }
+                return ImageIO.read(localFile);
+            } else if (emoji instanceof CustomEmoji) {
+                LocalFile localFile = new LocalFile(LocalFile.Directory.EMOJI_CACHE, ((CustomEmoji) emoji).getId() + ".png");
+                if (!localFile.exists()) {
+                    ((CustomEmoji) emoji).getImage().downloadToFile(localFile, 32).get();
+                }
+                return ImageIO.read(localFile);
+            }
+        } catch (IOException | ExecutionException | InterruptedException e) {
+            MainLogger.get().error("Emoji cache error", e);
+            return null;
+        }
+        return null;
+    }
+
+    private static String toTwemojiAssetId(String emoji) {
+        return emoji.codePoints()
+                .mapToObj(Integer::toHexString)
+                .collect(Collectors.joining("-"))
+                .toLowerCase();
     }
 
     private static String getEmojiFromOverrideOrNull(String id) {

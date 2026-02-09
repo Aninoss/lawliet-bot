@@ -121,7 +121,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
         int roleLvl = fisheryMemberData.getMemberGear(FisheryGear.ROLE).getLevel();
         boolean powerUpBonus = fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.LOUPE);
 
-        eb.setImage(Fishery.generateGearCardUrl(getLocale(), fisheryMemberData, powerUpBonus, roles, roleLvl, getGuildEntity().getFishery()));
+        eb.setImage(Fishery.generateGearCardUrl(getGuildEntity(), fisheryMemberData, powerUpBonus, roles, roleLvl, getGuildEntity().getFishery()));
         return eb;
     }
 

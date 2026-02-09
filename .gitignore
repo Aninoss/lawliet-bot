@@ -136,3 +136,4 @@ src/main/jib/temp
 src/main/jib/data/welcome_backgrounds/*
 !src/main/jib/data/welcome_backgrounds/placeholder.png
 src/main/jib/data/cdn/temp
+src/main/jib/data/emoji_cache

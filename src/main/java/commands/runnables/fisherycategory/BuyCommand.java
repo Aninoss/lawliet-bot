@@ -254,7 +254,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     private EmbedBuilder getGearEmbedCard(FisheryMemberData fisheryMemberData, boolean powerUpBonus, List<Role> roles, int roleLvl, FisheryEntity fishery, String statusCurrencies) throws IOException {
         return EmbedFactory.getEmbedDefault(this, statusCurrencies)
                 .setTitle(getString("status_title"))
-                .setImage(Fishery.generateGearCardUrl(getLocale(), fisheryMemberData, powerUpBonus, roles, roleLvl, fishery));
+                .setImage(Fishery.generateGearCardUrl(getGuildEntity(), fisheryMemberData, powerUpBonus, roles, roleLvl, fishery));
     }
 
     private List<FisheryMemberGearData> getUpgradableGears() {

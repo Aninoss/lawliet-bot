@@ -181,10 +181,10 @@ public class Fishery {
         }
     }
 
-    public static String generateGearCardUrl(Locale locale, FisheryMemberData fisheryMemberData, boolean powerUpBonus, List<Role> roles, int roleLvl, FisheryEntity fishery) throws IOException {
+    public static String generateGearCardUrl(GuildEntity guildEntity, FisheryMemberData fisheryMemberData, boolean powerUpBonus, List<Role> roles, int roleLvl, FisheryEntity fishery) throws IOException {
         String roleName = !roles.isEmpty() && roleLvl > 0 && roleLvl <= roles.size()
                 ? "@" + roles.get(roleLvl - 1).getName()
-                : TextManager.getString(locale, Category.FISHERY, "fisherycat_gear_norole");
+                : TextManager.getString(guildEntity.getLocale(), Category.FISHERY, "fisherycat_gear_norole");
         long coinGiftLimit = fishery.getCoinGiftLimit() ? fisheryMemberData.getCoinsGiveReceivedMax() : 0;
 
         ArrayList<FisheryMemberGearData> gearList = new ArrayList<>(fisheryMemberData.getGearMap().values());
@@ -197,7 +197,11 @@ public class Fishery {
         }
 
         FeatureLogger.inc(PremiumFeature.FISHERY_ACCOUNT_CARDS, fishery.getGuildId());
-        InputStream inputStream = FisheryGraphics.createGearCard(locale, levels, values, roleName, coinGiftLimit, powerUpBonus);
+
+        FisheryEntity fisheryEntity = guildEntity.getFishery();
+        Emoji fishEmoji = fisheryEntity.getCurrencyEffectivelyReadOnly(FisheryCurrency.FISH).getEmoji();
+        Emoji coinsEmoji = fisheryEntity.getCurrencyEffectivelyReadOnly(FisheryCurrency.COINS).getEmoji();
+        InputStream inputStream = FisheryGraphics.createGearCard(guildEntity.getLocale(), levels, values, roleName, coinGiftLimit, powerUpBonus, fishEmoji, coinsEmoji);
         return InternetUtil.getUrlFromInputStream(inputStream, "png");
     }
 

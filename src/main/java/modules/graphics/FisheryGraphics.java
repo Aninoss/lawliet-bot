@@ -4,9 +4,11 @@ import commands.Category;
 import core.AttributedStringGenerator;
 import core.LocalFile;
 import core.TextManager;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryPowerUp;
 import mysql.hibernate.entity.guild.GuildEntity;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -26,8 +28,8 @@ public class FisheryGraphics {
     private static final int TEXT_FONT_SMALL = 25;
     private static final int TEXT_FONT_EXTRA_SMALL = 20;
 
-    public static InputStream createAccountCard(GuildEntity guildEntity, long[] values, long[] valueChanges,
-                                                long rank, long totalRank, long rankChange,
+    public static InputStream createAccountCard(GuildEntity guildEntity, Emoji[] emojis, long[] values,
+                                                long[] valueChanges, long rank, long totalRank, long rankChange,
                                                 List<FisheryPowerUp> activePowerUps, String subtext
     ) throws IOException {
         BufferedImage backgroundImage = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES, subtext != null ? "fishery_account_large.png" : "fishery_account.png"));
@@ -35,7 +37,7 @@ public class FisheryGraphics {
         Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
 
         g2d.drawImage(backgroundImage, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
-        drawAccountTexts(g2d, guildEntity, values, valueChanges, rank, totalRank, rankChange, subtext);
+        drawAccountTexts(g2d, guildEntity, emojis, values, valueChanges, rank, totalRank, rankChange, subtext);
 
         for (int i = 0; i < activePowerUps.size(); i++) {
             drawPowerUp(g2d, activePowerUps.get(i), i);
@@ -48,7 +50,7 @@ public class FisheryGraphics {
         }
     }
 
-    private static void drawAccountTexts(Graphics2D g2d, GuildEntity guildEntity, long[] values, long[] valueChanges,
+    private static void drawAccountTexts(Graphics2D g2d, GuildEntity guildEntity, Emoji[] emojis, long[] values, long[] valueChanges,
                                          long rank, long totalRank, long rankChange, String subtext
     ) {
         FontRenderContext frc = new FontRenderContext(null, true, true);
@@ -63,7 +65,7 @@ public class FisheryGraphics {
         String[] labels = TextManager.getString(guildEntity, guildEntity.getLocale(), Category.FISHERY.getId(), "fisherycat_valuelabels", -1).split("\n");
         for (int i = 0; i < labels.length; i++) {
             String label = labels[i];
-            drawAccountSlot(g2d, frc, fontSmall, label, values[i], valueChanges[i], i, valueChanges[i] >= 0 ? Color.GREEN : Color.RED);
+            drawAccountSlot(g2d, frc, fontSmall, label, emojis[i], values[i], valueChanges[i], i, valueChanges[i] >= 0 ? Color.GREEN : Color.RED);
         }
 
         String rankChangeString = rankChange != 0 ? (" (" + (rankChange >= 0 ? "+" : "") + StringUtil.numToString(rankChange) + ")") : null;
@@ -77,9 +79,11 @@ public class FisheryGraphics {
         }
     }
 
-    private static void drawAccountSlot(Graphics2D g2d, FontRenderContext frc, AttributedStringGenerator fontSmall, String label,
-                                        long value, long valueChange, int i, Color valueChangeColor
+    private static void drawAccountSlot(Graphics2D g2d, FontRenderContext frc, AttributedStringGenerator fontSmall,
+                                        String label, Emoji emoji, long value, long valueChange, int i,
+                                        Color valueChangeColor
     ) {
+        drawEmoji(g2d, emoji, 66, 131 + 58 * i, 32, 32);
         drawStringScaledToBounds(g2d, frc, fontSmall, label, 110, 147 + 58 * i + getTextHeight(frc, fontSmall) / 2, 200, false);
 
         String valueString = StringUtil.numToString(value);
@@ -127,17 +131,17 @@ public class FisheryGraphics {
     }
 
     private static void drawPowerUp(Graphics2D g2d, FisheryPowerUp powerUp, int i) throws IOException {
-        BufferedImage image = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES, String.format("powerup/%s.png", powerUp.name().toLowerCase())));
-        g2d.drawImage(image, 650 - 64 - (64 + 8) * i, 374,null);
+        BufferedImage image = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES, java.lang.String.format("powerup/%s.png", powerUp.name().toLowerCase())));
+        g2d.drawImage(image, 650 - 64 - (64 + 8) * i, 374, null);
     }
 
-    public static InputStream createGearCard(Locale locale, long[] levels, long[] values, String roleName, long coinGiftLimit, boolean powerUpBonus) throws IOException {
+    public static InputStream createGearCard(Locale locale, long[] levels, long[] values, String roleName, long coinGiftLimit, boolean powerUpBonus, Emoji fishEmoji, Emoji coinsEmoji) throws IOException {
         BufferedImage backgroundImage = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES, levels[7] > 0 ? "fishery_gear_card_prestige.png" : "fishery_gear_card.png"));
         BufferedImage drawImage = new BufferedImage(backgroundImage.getWidth(), backgroundImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
 
         g2d.drawImage(backgroundImage, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
-        drawGearTexts(g2d, locale, levels, values, roleName, coinGiftLimit, powerUpBonus);
+        drawGearTexts(g2d, locale, levels, values, roleName, coinGiftLimit, powerUpBonus, fishEmoji, coinsEmoji);
 
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(drawImage, "png", os);
@@ -146,7 +150,7 @@ public class FisheryGraphics {
         }
     }
 
-    private static void drawGearTexts(Graphics2D g2d, Locale locale, long[] levels, long[] values, String roleName, long coinGiftLimit, boolean powerUpBonus) throws IOException {
+    private static void drawGearTexts(Graphics2D g2d, Locale locale, long[] levels, long[] values, String roleName, long coinGiftLimit, boolean powerUpBonus, Emoji fishEmoji, Emoji coinsEmoji) {
         FontRenderContext frc = new FontRenderContext(null, true, true);
         g2d.setColor(Color.WHITE);
 
@@ -156,6 +160,7 @@ public class FisheryGraphics {
 
         g2d.drawString(fontLarge.getIterator(TextManager.getString(locale, Category.FISHERY, "fisherycat_fisherygear")), 50, 50 + getTextHeight(frc, fontLarge));
 
+        Emoji[] emojis = new Emoji[] {fishEmoji, fishEmoji, fishEmoji, coinsEmoji, null, coinsEmoji, coinsEmoji, null};
         String[] labels = TextManager.getString(locale, Category.FISHERY, "fisherycat_gearvaluelabels").split("\n");
         for (int i = 0; i < labels.length; i++) {
             if (i == 7 && levels[7] == 0) {
@@ -171,7 +176,7 @@ public class FisheryGraphics {
                 valueString = " ";
             }
 
-            drawGearSlot(g2d, locale, frc, fontSmall, fontExtraSmall, label, i, StringUtil.numToString(levels[i]), valueString);
+            drawGearSlot(g2d, locale, frc, fontSmall, fontExtraSmall, emojis[i], label, i, StringUtil.numToString(levels[i]), valueString);
         }
 
         String coinGiftLabel = TextManager.getString(locale, Category.FISHERY, "fisherycat_gear_giftlimit");
@@ -180,13 +185,12 @@ public class FisheryGraphics {
         g2d.setColor(Color.WHITE);
         int labelWidth = (int) fontExtraSmall.getStringBounds(coinGiftLabel, frc).getWidth();
 
-        BufferedImage coinImage = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES,"coin.png"));
-        g2d.drawImage(coinImage, 65 + labelWidth, 521, null);
+        drawEmoji(g2d, coinsEmoji, 65 + labelWidth, 521, 28, 28);
         drawStringScaledToBounds(g2d, frc, fontExtraSmall, coinGiftLimit != 0 ? StringUtil.numToString(coinGiftLimit) : "∞", 98 + labelWidth, 526 + getTextHeight(frc, fontExtraSmall), 716 - (98 + labelWidth), false);
     }
 
     private static void drawGearSlot(Graphics2D g2d, Locale locale, FontRenderContext frc, AttributedStringGenerator fontSmall,
-                                     AttributedStringGenerator fontExtraSmall, String label, int i,
+                                     AttributedStringGenerator fontExtraSmall, Emoji emoji, String label, int i,
                                      String level, String value) {
         int xAdd = (i / 4) * 338;
         int yAdd = (i % 4) * 98;
@@ -206,6 +210,8 @@ public class FisheryGraphics {
             valueWidth += 10 + fontExtraSmall.getStringBounds(TextManager.getString(locale, Category.FISHERY, "fisherycat_gearsubtitle_" + i), frc).getWidth();
         }
         double valueScaleX = Math.min(1.0, (249.0 + (i == 4 ? 33.0 : 0.0)) / valueWidth);
+
+        drawEmoji(g2d, emoji, 96 + xAdd, 175 + yAdd, 28, 28);
 
         double valueNumberWidth = drawStringScaled(g2d, frc, fontExtraSmall, value, 129 + xAdd - (i == 4 ? 33 : 0), 181 + yAdd + getTextHeight(frc, fontExtraSmall), valueScaleX, false);
         if (i != 4 && i != 7) {
@@ -241,6 +247,17 @@ public class FisheryGraphics {
         transform.scale(1.0, 1.0);
         g2d.setTransform(transform);
         return width;
+    }
+
+    private static void drawEmoji(Graphics2D g2d, Emoji emoji, int x, int y, int width, int height) {
+        if (emoji == null) {
+            return;
+        }
+
+        BufferedImage emojiImage = EmojiUtil.toImage(emoji);
+        if (emojiImage != null) {
+            g2d.drawImage(emojiImage, x, y, width, height, null);
+        }
     }
 
 }

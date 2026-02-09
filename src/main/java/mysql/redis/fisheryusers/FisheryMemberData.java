@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.apache.commons.lang3.StringUtils;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
@@ -851,8 +852,16 @@ public class FisheryMemberData implements MemberAsset {
                 }
             }
 
+            FisheryEntity fisheryEntity = guildEntity.getFishery();
+            Emoji[] emojis = new Emoji[] {
+                    fisheryEntity.getCurrencyEffectivelyReadOnly(FisheryCurrency.RECENT_EFFICIENCY).getEmoji(),
+                    fisheryEntity.getCurrencyEffectivelyReadOnly(FisheryCurrency.FISH).getEmoji(),
+                    fisheryEntity.getCurrencyEffectivelyReadOnly(FisheryCurrency.COINS).getEmoji(),
+                    Emojis.DAILY_STREAK
+            };
+
             FeatureLogger.inc(PremiumFeature.FISHERY_ACCOUNT_CARDS, getGuildId());
-            InputStream inputStream = FisheryGraphics.createAccountCard(guildEntity, values, valueChanges,
+            InputStream inputStream = FisheryGraphics.createAccountCard(guildEntity, emojis, values, valueChanges,
                     rank, member.getGuild().getMemberCount(), rank - rankPrevious, getActivePowerUps(), subtext);
             eb.setImage(InternetUtil.getUrlFromInputStream(inputStream, "png"));
         } catch (IOException e) {
