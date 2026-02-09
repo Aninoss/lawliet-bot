@@ -71,7 +71,7 @@ public class EmojiUtil {
         try {
             if (emoji instanceof UnicodeEmoji) {
                 String assetId = toTwemojiAssetId(emoji.getFormatted());
-                LocalFile localFile = new LocalFile(LocalFile.Directory.EMOJI_CACHE, assetId + ".png");
+                LocalFile localFile = new LocalFile(LocalFile.Directory.CDN, "emoji_cache/" + assetId + ".png");
                 if (!localFile.exists()) {
                     BufferedImage bufferedImage = ImageIO.read(new URL("https://twemoji.maxcdn.com/v/latest/72x72/" + assetId + ".png"));
                     if (bufferedImage != null) {
@@ -83,7 +83,7 @@ public class EmojiUtil {
                 }
                 return ImageIO.read(localFile);
             } else if (emoji instanceof CustomEmoji) {
-                LocalFile localFile = new LocalFile(LocalFile.Directory.EMOJI_CACHE, ((CustomEmoji) emoji).getId() + ".png");
+                LocalFile localFile = new LocalFile(LocalFile.Directory.CDN, "emoji_cache/" + ((CustomEmoji) emoji).getId() + ".png");
                 if (!localFile.exists()) {
                     ((CustomEmoji) emoji).getImage().downloadToFile(localFile, 32).get();
                 }

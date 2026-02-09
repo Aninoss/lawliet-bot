@@ -40,8 +40,7 @@ public class LocalFile extends File {
         EMOJIS("/data/emojis"),
         RESOURCES("/data/resources"),
         TEMP("temp"),
-        DISCORD_BACKUP("/data/discord_backup"),
-        EMOJI_CACHE("/data/emoji_cache");
+        DISCORD_BACKUP("/data/discord_backup");
 
         private final String path;
 
