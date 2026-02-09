@@ -55,13 +55,13 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
             registerButtonListener(event.getMember());
         } else {
             textInclude = getString("forecast_patreon");
-            drawMessage(generateEmbed(false)).exceptionally(ExceptionLogger.get());
+            drawMessage(generateEmbed()).exceptionally(ExceptionLogger.get());
         }
         return true;
     }
 
-    private EmbedBuilder generateEmbed(boolean alert) {
-        StringBuilder sb = new StringBuilder(getString(alert ? "template_alert" : "template", StringUtil.numToString(ExchangeRate.get(0)), Fishery.getChangeEmoji()));
+    private EmbedBuilder generateEmbed() {
+        StringBuilder sb = new StringBuilder(getString("template", StringUtil.numToString(ExchangeRate.get(0)), Fishery.getChangeEmoji()));
         if (textInclude != null) {
             sb.append("\n")
                     .append(textInclude);
@@ -97,7 +97,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
 
     @Override
     public EmbedBuilder draw(Member member) {
-        EmbedBuilder eb = generateEmbed(false);
+        EmbedBuilder eb = generateEmbed();
         EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         return eb;
     }
@@ -109,7 +109,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
             return AlertResponse.CONTINUE;
         }
 
-        slot.sendMessage(getLocale(), true, generateEmbed(true).build());
+        slot.sendMessage(getLocale(), true, generateEmbed().build());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
         return AlertResponse.CONTINUE_AND_SAVE;
     }

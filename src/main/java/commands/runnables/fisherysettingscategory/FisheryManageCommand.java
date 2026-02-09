@@ -14,23 +14,24 @@ import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.modals.ModalMediator;
-import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
+import modules.fishery.FisheryCurrency;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryManage;
 import modules.fishery.FisheryMemberGroup;
 import mysql.hibernate.entity.BotLogEntity;
+import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.components.textinput.TextInput;
-import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.modals.Modal;
 
 import java.util.ArrayList;
@@ -260,9 +261,10 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     }
 
     private String emojiOfProperty(int i) {
+        FisheryEntity fisheryEntity = getGuildEntity().getFishery();
         return switch (i) {
-            case 0 -> EmojiUtil.getEmojiFromOverride(Emojis.FISH, "FISH").getFormatted();
-            case 1 -> Emojis.COINS.getFormatted();
+            case 0 -> fisheryEntity.getCurrencyEffectivelyReadOnly(FisheryCurrency.FISH).getEmoji().getFormatted();
+            case 1 -> fisheryEntity.getCurrencyEffectivelyReadOnly(FisheryCurrency.COINS).getEmoji().getFormatted();
             case 2 -> Emojis.DAILY_STREAK.getFormatted();
             default -> FisheryGear.values()[i - 3].getEmoji();
         };

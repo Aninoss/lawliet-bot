@@ -175,13 +175,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             properties += getString(Category.FISHERY, "buy_product_${i}_0")
         }
         val values = properties.mapIndexed { i, name ->
-            val emoji = when (i) {
-                0 -> EmojiUtil.getEmojiFromOverride(Emojis.FISH, "FISH").formatted
-                1 -> Emojis.COINS_UNICODE.formatted
-                2 -> Emojis.DAILY_STREAK.formatted
-                else -> FisheryGear.values()[i - 3].emoji
-            }
-            DiscordEntity(i.toString(), "$emoji $name")
+            DiscordEntity(i.toString(), name)
         }
         val propertyComboBox = DashboardComboBox(getString(Category.FISHERY_SETTINGS, "fisherymanage_property"), values, false, 1) {
             managePropertyIndex = it.data.toInt()

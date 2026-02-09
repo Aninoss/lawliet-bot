@@ -210,8 +210,9 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                 int roleLvl = fisheryMemberData.getMemberGear(FisheryGear.ROLE).getLevel();
                 boolean powerUpBonus = fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.LOUPE);
                 int coupons = fisheryMemberData.getCoupons();
-                String statusCurrencies = TextManager.getString(getLocale(), Category.FISHERY,
+                String statusCurrencies = TextManager.getString(getGuildEntity(), getLocale(), Category.FISHERY.getId(),
                         coupons > 0 ? "gear_desc_ext" : "gear_desc",
+                        -1,
                         StringUtil.numToString(fisheryMemberData.getFish()),
                         StringUtil.numToString(fisheryMemberData.getCoins()),
                         StringUtil.numToString(coupons)

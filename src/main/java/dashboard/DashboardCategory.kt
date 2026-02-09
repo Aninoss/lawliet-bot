@@ -117,37 +117,37 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
     }
 
     fun getString(category: String, key: String, vararg args: String): String {
-        var text = TextManager.getString(locale, category, key, *args)
+        var text = TextManager.getString(guildEntity, locale, category, key, -1, *args)
         text = text.replace("{PREFIX}", prefix)
         return text
     }
 
     fun getString(category: String, key: String, option: Int, vararg args: String): String {
-        var text = TextManager.getString(locale, category, key, option, *args)
+        var text = TextManager.getString(guildEntity, locale, category, key, option, *args)
         text = text.replace("{PREFIX}", prefix)
         return text
     }
 
     fun getString(category: String, key: String, secondOption: Boolean, vararg args: String): String {
-        var text = TextManager.getString(locale, category, key, secondOption, *args)
+        var text = TextManager.getString(guildEntity, locale, category, key, if (secondOption) 1 else 0, *args)
         text = text.replace("{PREFIX}", prefix)
         return text
     }
 
     fun getString(category: Category, key: String, vararg args: String): String {
-        var text = TextManager.getString(locale, category, key, *args)
+        var text = TextManager.getString(guildEntity, locale, category.id, key, -1, *args)
         text = text.replace("{PREFIX}", prefix)
         return text
     }
 
     fun getString(category: Category, key: String, option: Int, vararg args: String): String {
-        var text = TextManager.getString(locale, category, key, option, *args)
+        var text = TextManager.getString(guildEntity, locale, category.id, key, option, *args)
         text = text.replace("{PREFIX}", prefix)
         return text
     }
 
     fun getString(category: Category, key: String, secondOption: Boolean, vararg args: String): String {
-        var text = TextManager.getString(locale, category, key, secondOption, *args)
+        var text = TextManager.getString(guildEntity, locale, category.id, key, if (secondOption) 1 else 0, *args)
         text = text.replace("{PREFIX}", prefix)
         return text
     }

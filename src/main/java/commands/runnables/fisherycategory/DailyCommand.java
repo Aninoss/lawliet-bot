@@ -16,19 +16,20 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.fishery.FisheryGear;
-import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,15 +67,7 @@ public class DailyCommand extends Command implements FisheryInterface {
                 bonusDonation = Math.round((fish + bonusCombo) * 0.5);
             }
 
-            StringBuilder sb = new StringBuilder(getString("point_default", StringUtil.numToString(fish)));
-            if (bonusCombo > 0) {
-                sb.append("\n").append(getString("point_combo", StringUtil.numToString(bonusCombo)));
-            }
-            if (bonusDonation > 0) {
-                sb.append("\n").append(getString("point_donation", StringUtil.numToString(bonusDonation)));
-            }
-
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("codeblock", sb.toString()));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("codeblock", getValueContent(fish, bonusCombo, bonusDonation)));
             eb.addField(getString("didyouknow_title"), getString("didyouknow_desc"), false);
             if (breakStreak) EmbedUtil.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
@@ -99,6 +92,33 @@ public class DailyCommand extends Command implements FisheryInterface {
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
+    }
+
+    private String getValueContent(long fish, long bonusCombo, long bonusDonation) {
+        ArrayList<String> valueContentLines = new ArrayList<>();
+        ArrayList<Long> values = new ArrayList<>();
+
+        valueContentLines.add(getString("point_default"));
+        values.add(fish);
+        if (bonusCombo > 0) {
+            valueContentLines.add(getString("point_combo"));
+            values.add(bonusCombo);
+        }
+        if (bonusDonation > 0) {
+            valueContentLines.add(getString("point_donation"));
+            values.add(bonusDonation);
+        }
+        int maxLength = valueContentLines.stream().mapToInt(String::length).max().getAsInt();
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Math.min(values.size(), valueContentLines.size()); i++) {
+            String line = valueContentLines.get(i);
+            if (!sb.isEmpty()) {
+                sb.append("\n");
+            }
+            sb.append(line + " ".repeat(2 + maxLength - line.length()) + getString("point_add", StringUtil.numToString(values.get(i))));
+        }
+        return sb.toString();
     }
 
 }

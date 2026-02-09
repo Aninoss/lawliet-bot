@@ -75,7 +75,7 @@ class BotLogsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .append(TimeFormat.DATE_TIME_SHORT.atInstant(botLog.timeUpdate!!).toString())
         }
 
-        val desc = BotLogs.getMessage(locale, botLog, false)
+        val desc = BotLogs.getMessage(guildEntity, botLog, false)
         val header = DashboardText("$timeString｜$desc")
         return ExpandableContainer(VerticalContainer(header), generateBotLogValuesFields(botLog))
     }

@@ -68,7 +68,7 @@ public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
                         BotLogEntity.Event.FISHERY_CURRENCIES_COINS
                 ),
                 createSection(
-                        Emojis.GROWTH,
+                        Emojis.RECENT_EFFICIENCY,
                         getString("root_recent_efficiency"),
                         FisheryCurrency.RECENT_EFFICIENCY,
                         BotLogEntity.Event.FISHERY_CURRENCIES_RECENT_EFFICIENCY

@@ -34,8 +34,8 @@ public class FAQCommand extends ListAbstract {
     protected int configure(Member member, int orderBy) throws Throwable {
         slots = new ArrayList<>();
         for (int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
-            String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i)).replace("{PREFIX}", getPrefix());
-            String answer = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.answer", i)).replace("{PREFIX}", getPrefix());
+            String question = TextManager.getString(getGuildEntity(), getLocale(), TextManager.FAQ, String.format("faq.%d.question", i), -1).replace("{PREFIX}", getPrefix());
+            String answer = TextManager.getString(getGuildEntity(), getLocale(), TextManager.FAQ, String.format("faq.%d.answer", i), -1).replace("{PREFIX}", getPrefix());
             slots.add(new Pair<>(question, answer));
         }
         return slots.size();

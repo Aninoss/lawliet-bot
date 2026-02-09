@@ -7,9 +7,12 @@ import commands.Category;
 import constants.Emojis;
 import constants.Language;
 import constants.RegexPatterns;
-import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
+import modules.fishery.FisheryCurrency;
+import mysql.hibernate.entity.FisheryCurrencyEntity;
+import mysql.hibernate.entity.guild.FisheryEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,11 +45,7 @@ public class TextManager {
     }
 
     public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) {
-        if (!secondOption) {
-            return getString(locale, category, key, 0, args);
-        } else {
-            return getString(locale, category, key, 1, args);
-        }
+        return getString(locale, category, key, secondOption ? 1 : 0, args);
     }
 
     public static String getString(Locale locale, Category category, String key, String... args) {
@@ -62,6 +61,10 @@ public class TextManager {
     }
 
     public static String getString(Locale locale, String category, String key, int option, String... args) {
+        return getString(null, locale, category, key, option, args);
+    }
+
+    public static String getString(GuildEntity guildEntity, Locale locale, String category, String key, int option, String... args) {
         ResourceBundle texts;
         try {
             texts = bundles.get(new Pair<>(category, new Locale(locale.toString().toLowerCase())));
@@ -69,45 +72,72 @@ public class TextManager {
             throw new RuntimeException(e);
         }
 
-        if (texts.containsKey(key)) {
-            try {
-                String text = texts.getString(key);
-
-                String textOverrides = System.getenv("TEXT_OVERRIDES");
-                if (textOverrides != null) {
-                    for (String entry : textOverrides.split(",")) {
-                        String[] parts = entry.split(":");
-                        text = text.replaceAll("\\b" + Pattern.quote(parts[0]) + "\\b", parts[1]);
-                    }
-                }
-
-                String textOverride = System.getenv("TEXT_OVERRIDE_" + key.toUpperCase());
-                if (textOverride != null) {
-                    text = textOverride;
-                }
-
-                String[] placeholders = extractGroups(RegexPatterns.TEXT_PLACEHOLDER, text);
-                text = processMultiOptions(text, option);
-                text = processReferences(text, placeholders, category, locale);
-                text = processParams(text, args);
-                text = processEmojis(text, placeholders);
-                text = text.replace("{BOT}", System.getenv("BOT_NAME"));
-
-                return text;
-            } catch (Throwable e) {
-                MainLogger.get().error("Text error for key {} in {} with locale {}", key, category, locale, e);
-            }
-        } else {
+        if (!texts.containsKey(key)) {
             MainLogger.get().error("Key {} not found in {} with locale {}", key, category, locale);
+            return "???";
         }
 
-        return "???";
+        try {
+            String text = texts.getString(key);
+
+            String textOverrides = System.getenv("TEXT_OVERRIDES");
+            if (textOverrides != null) {
+                for (String entry : textOverrides.split(",")) {
+                    String[] parts = entry.split(":");
+                    text = text.replaceAll("\\b" + Pattern.quote(parts[0]) + "\\b", parts[1]);
+                }
+            }
+
+            String textOverride = System.getenv("TEXT_OVERRIDE_" + key.toUpperCase());
+            if (textOverride != null) {
+                text = textOverride;
+            }
+
+            String[] placeholders = extractGroups(RegexPatterns.TEXT_PLACEHOLDER, text);
+            text = processMultiOptions(text, option);
+            text = processReferences(text, placeholders, category, guildEntity, locale);
+            text = processParams(text, args);
+            text = processEmojis(text, placeholders);
+            text = processFisheryEmojis(guildEntity, locale, text);
+            text = text.replace("{BOT}", System.getenv("BOT_NAME"));
+
+            return text;
+        } catch (Throwable e) {
+            MainLogger.get().error("Text error for key {} in {} with locale {}", key, category, locale, e);
+            return "???";
+        }
+    }
+
+    private static String processFisheryEmojis(GuildEntity guildEntity, Locale locale, String text) {
+        if (guildEntity != null) {
+            FisheryEntity fisheryEntity = guildEntity.getFishery();
+            for (FisheryCurrency currency : FisheryCurrency.values()) {
+                if (!text.contains("{" + currency.name() + "}") && !text.contains("{" + currency.name() + "_EMOJI}")) {
+                    continue;
+                }
+                FisheryCurrencyEntity currencyEntity = fisheryEntity.getCurrencyEffectivelyReadOnly(currency);
+                text = text.replace("{" + currency.name() + "}", currencyEntity.getName())
+                        .replace("{" + currency.name() + "_EMOJI}", currencyEntity.getEmojiFormatted());
+            }
+        } else {
+            for (FisheryCurrency currency : FisheryCurrency.values()) {
+                if (!text.contains("{" + currency.name() + "}") && !text.contains("{" + currency.name() + "_EMOJI}")) {
+                    continue;
+                }
+                if (!Program.productionMode()) {
+                    MainLogger.get().error("Text contains default emojis and names: {}", text);
+                }
+                text = text.replace("{" + currency.name() + "}", currency.getName(locale))
+                        .replace("{" + currency.name() + "_EMOJI}", currency.getEmoji().getFormatted());
+            }
+        }
+        return text;
     }
 
     private static String[] extractGroups(Pattern pattern, String text) {
         ArrayList<String> placeholderList = new ArrayList<>();
         Matcher m = pattern.matcher(text);
-        while(m.find()) {
+        while (m.find()) {
             placeholderList.add(m.group("inner"));
         }
         return placeholderList.toArray(new String[0]);
@@ -115,9 +145,6 @@ public class TextManager {
 
     private static String processEmojis(String text, String[] placeholders) {
         List<Pair<String, String>> emojiPairs = List.of(
-                new Pair<>("CURRENCY", EmojiUtil.getEmojiFromOverride(Emojis.FISH, "FISH").getFormatted()),
-                new Pair<>("COINS", Emojis.COINS.getFormatted()),
-                new Pair<>("GROWTH", EmojiUtil.getEmojiFromOverride(Emojis.GROWTH, "GROWTH").getFormatted()),
                 new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK.getFormatted()),
                 new Pair<>("COUPONS", Emojis.COUPONS.getFormatted())
         );
@@ -153,14 +180,14 @@ public class TextManager {
         return text.replace("\\[", "[").replace("\\]", "]");
     }
 
-    private static String processReferences(String text, String[] placeholders, String category, Locale locale) {
+    private static String processReferences(String text, String[] placeholders, String category, GuildEntity guildEntity, Locale locale) {
         for (String placeholder : placeholders) {
             if (placeholder.contains(".")) {
                 String[] parts = placeholder.split("\\.");
                 if (parts[0].equals("this")) {
                     parts[0] = category;
                 }
-                String newValue = getString(locale, parts[0], parts[1]);
+                String newValue = getString(guildEntity, locale, parts[0], parts[1], -1);
                 text = text.replace("{" + placeholder + "}", newValue);
             }
         }

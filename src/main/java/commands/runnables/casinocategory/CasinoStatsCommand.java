@@ -5,23 +5,23 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnStringSelectMenuListener;
 import commands.runnables.CasinoAbstract;
-import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
+import modules.fishery.FisheryCurrency;
 import mysql.modules.casinostats.CasinoStatsData;
 import mysql.modules.casinostats.DBCasinoStats;
 import mysql.modules.casinotracking.DBCasinoTracking;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.selections.SelectMenu;
 import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,7 +127,7 @@ public class CasinoStatsCommand extends Command implements OnButtonListener, OnS
                     StringUtil.numToString(statsData.getGamesWon(selectedGame)),
                     StringUtil.numToString(statsData.getGamesLost(selectedGame)),
                     StringUtil.numToString(statsData.getWinRatePercent(selectedGame)),
-                    Emojis.COINS.getFormatted(),
+                    getGuildEntity().getFishery().getCurrencyEffectivelyReadOnly(FisheryCurrency.COINS).getEmoji().getFormatted(),
                     StringUtil.numToString(statsData.getCoinsWon(selectedGame)),
                     StringUtil.numToString(statsData.getCoinsLost(selectedGame)),
                     StringUtil.numToString(statsData.getAverageCoinsPerGame(selectedGame))

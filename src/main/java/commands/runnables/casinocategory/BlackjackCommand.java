@@ -187,7 +187,6 @@ public class BlackjackCommand extends CasinoAbstract {
         }
 
         String key = turnForPlayer ? "tutorial" : "data";
-
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString(key, playerName, StringUtil.numToString(coinsInput)), false);
         return eb;
     }

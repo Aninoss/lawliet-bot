@@ -12,6 +12,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
 import mysql.hibernate.entity.BotLogEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.entities.User;
 
 import java.time.Duration;
@@ -21,18 +22,18 @@ import java.util.Locale;
 
 public class BotLogs {
 
-    public static String getMessage(Locale locale, BotLogEntity botLog, boolean markdown) {
+    public static String getMessage(GuildEntity guildEntity, BotLogEntity botLog, boolean markdown) {
         List<User> targetedUserList = botLog.getTargetedUserList();
-        String memberString = (markdown ? "**" : "") + new AtomicMember(botLog.getGuildId(), botLog.getMemberId()).getUsername(locale) + (markdown ? "**" : "");
-        String targetedUserString = MentionUtil.getMentionedStringOfUsernames(locale, targetedUserList, markdown).getMentionText();
+        String memberString = (markdown ? "**" : "") + new AtomicMember(botLog.getGuildId(), botLog.getMemberId()).getUsername(guildEntity.getLocale()) + (markdown ? "**" : "");
+        String targetedUserString = MentionUtil.getMentionedStringOfUsernames(guildEntity.getLocale(), targetedUserList, markdown).getMentionText();
 
         String message;
         if (botLog.getEvent().getCommandClass() == null) {
-            message = TextManager.getString(locale, TextManager.LOGS, "event_" + botLog.getEvent().name(), memberString, targetedUserString);
+            message = TextManager.getString(guildEntity.getLocale(), TextManager.LOGS, "event_" + botLog.getEvent().name(), memberString, targetedUserString);
         } else {
-            String commandTitle = Command.getCommandLanguage(botLog.getEvent().getCommandClass(), locale).getTitle();
+            String commandTitle = Command.getCommandLanguage(botLog.getEvent().getCommandClass(), guildEntity.getLocale()).getTitle();
             if (botLog.getEvent().getValueNameTextKey() == null) {
-                message = TextManager.getString(locale, TextManager.LOGS, targetedUserList.isEmpty() ? "event_command" : "event_command_membertomember", memberString, commandTitle, targetedUserString);
+                message = TextManager.getString(guildEntity.getLocale(), TextManager.LOGS, targetedUserList.isEmpty() ? "event_command" : "event_command_membertomember", memberString, commandTitle, targetedUserString);
             } else {
                 Category category;
                 if (botLog.getEvent().getValueNameTextCategory() == null) {
@@ -40,8 +41,8 @@ public class BotLogs {
                 } else {
                     category = botLog.getEvent().getValueNameTextCategory();
                 }
-                String valueName = TextManager.getString(locale, category, botLog.getEvent().getValueNameTextKey());
-                message = TextManager.getString(locale, TextManager.LOGS, targetedUserList.isEmpty() ? "event_command_value" : "event_command_value_membertomember", memberString, valueName, commandTitle, targetedUserString);
+                String valueName = TextManager.getString(guildEntity, guildEntity.getLocale(), category.getId(), botLog.getEvent().getValueNameTextKey(), -1);
+                message = TextManager.getString(guildEntity.getLocale(), TextManager.LOGS, targetedUserList.isEmpty() ? "event_command_value" : "event_command_value_membertomember", memberString, valueName, commandTitle, targetedUserString);
             }
         }
 

@@ -214,7 +214,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_log", StringUtil.escapeMarkdownInField(event.getMember().getEffectiveName())));
             return true;
         } else {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_notenough"));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getGuildEntity(), getLocale(), Category.CASINO.getId(), "casino_multiplayer_join_notenough", -1));
             getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
             return false;
         }
@@ -337,7 +337,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         if (!shieldProtectedMembers.isEmpty()) {
             Mention mentionedMembers = MentionUtil.getMentionedStringOfMembers(getLocale(), shieldProtectedMembers);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection", mentionedMembers.isMultiple(), mentionedMembers.getMentionText()))
+                    .setDescription(TextManager.getString(getGuildEntity(), getLocale(), Category.CASINO.getId(), "casino_protection", mentionedMembers.isMultiple() ? 1 : 0, mentionedMembers.getMentionText()))
                     .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
             EmbedUtil.addLog(eb, TextManager.getString(getLocale(), Category.CASINO, "casino_protection_log"));
             setAdditionalEmbeds(eb.build());
@@ -345,8 +345,8 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
 
         Mention mention = MentionUtil.getMentionedStringOfMembers(getLocale(), winnersMembers);
         String key = price != 1 ? "casino_multiplayer_win" : "casino_multiplayer_win_singlecoin";
-        String text = TextManager.getString(getLocale(), Category.CASINO, key,
-                mention.isMultiple(),
+        String text = TextManager.getString(getGuildEntity(), getLocale(), Category.CASINO.getId(), key,
+                mention.isMultiple() ? 1 : 0,
                 mention.getMentionText().replace("**", ""),
                 StringUtil.numToString(price)
         );
@@ -359,7 +359,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         if (status == Status.WAITING_FOR_PLAYERS) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .addField(TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_players", StringUtil.numToString(playersMin)), generatePlayersList(), false)
-                    .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_template", "", StringUtil.numToString(coinsInput)), false);
+                    .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), TextManager.getString(getGuildEntity(), getLocale(), Category.CASINO.getId(), "casino_multiplayer_template", -1, "", StringUtil.numToString(coinsInput)), false);
 
             Button startButton = Button.of(ButtonStyle.SUCCESS, BUTTON_ID_START, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_start"), Emoji.fromUnicode(EMOJI_HOST));
             if (playerList.size() < playersMin) {

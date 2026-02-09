@@ -89,7 +89,7 @@ public class BotLogsCommand extends ListAbstract {
                     .append(TimeFormat.DATE_TIME_SHORT.atInstant(botLog.getTimeUpdate()));
         }
 
-        String message = BotLogs.getMessage(getLocale(), botLog, true);
+        String message = BotLogs.getMessage(getGuildEntity(), botLog, true);
         return new Pair<>(Emojis.ZERO_WIDTH_SPACE.getFormatted() + "\n" + title.toString(), getString("slot", message));
     }
 

@@ -192,7 +192,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 coinsLost = 0;
                 Mention mentionedMembers = MentionUtil.getMentionedStringOfMembers(getLocale(), List.of(member));
                 eb = EmbedFactory.getEmbedDefault()
-                        .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection", mentionedMembers.isMultiple(), mentionedMembers.getMentionText()))
+                        .setDescription(TextManager.getString(getGuildEntity(), getLocale(), Category.CASINO.getId(), "casino_protection", mentionedMembers.isMultiple() ? 1 : 0, mentionedMembers.getMentionText()))
                         .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
                 EmbedUtil.addLog(eb, TextManager.getString(getLocale(), Category.CASINO, "casino_protection_log"));
             } else {

@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class TopAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        val properties = arrayOf("recent_fish_gains", "fish", "coins", "daily_streak")
+        val properties = arrayOf("recent_efficiency", "fish", "coins", "daily_streak")
         val optionData = generateOptionData(OptionType.STRING, "sort_by", "top_sortby", false)
         properties.forEachIndexed() { i, property ->
             var choice: Command.Choice? = null

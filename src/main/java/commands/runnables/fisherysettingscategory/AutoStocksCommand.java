@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
-import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
@@ -12,6 +11,7 @@ import core.TextManager;
 import core.cache.PatreonCache;
 import core.modals.LongModalBuilder;
 import core.utils.StringUtil;
+import modules.fishery.FisheryCurrency;
 import modules.fishery.Stock;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.user.AutoStockActivityEntity;
@@ -20,11 +20,11 @@ import mysql.hibernate.entity.user.UserEntity;
 import mysql.redis.RedisManager;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
@@ -242,10 +242,11 @@ public class AutoStocksCommand extends NavigationAbstract {
         }
         setComponents(options, Set.of(3), Set.of(4));
 
+        Emoji coinEmoji = getGuildEntity().getFishery().getCurrencyEffectivelyReadOnly(FisheryCurrency.COINS).getEmoji();
         return EmbedFactory.getEmbedDefault(this, getString("config_desc", action == Action.SELL), getString("config_title", action == Action.SELL))
                 .addField(getString("config_header_stock"), currentStock.getName(), true)
-                .addField(getString("config_header_threshold", action == Action.SELL), Emojis.COINS.getFormatted() + " " + StringUtil.numToString(currentOrder.getOrderThreshold()), true)
-                .addField(getString("config_header_reactivation_threshold"), currentOrder.getReactivationThreshold() != null ? (Emojis.COINS.getFormatted() + " " + StringUtil.numToString(currentOrder.getReactivationThreshold())) : TextManager.getString(getLocale(), TextManager.GENERAL, "notset"), true)
+                .addField(getString("config_header_threshold", action == Action.SELL), coinEmoji.getFormatted() + " " + StringUtil.numToString(currentOrder.getOrderThreshold()), true)
+                .addField(getString("config_header_reactivation_threshold"), currentOrder.getReactivationThreshold() != null ? (coinEmoji.getFormatted() + " " + StringUtil.numToString(currentOrder.getReactivationThreshold())) : TextManager.getString(getLocale(), TextManager.GENERAL, "notset"), true)
                 .addField(getString("config_header_shares"), StringUtil.numToString(currentOrder.getShares()), true);
     }
 

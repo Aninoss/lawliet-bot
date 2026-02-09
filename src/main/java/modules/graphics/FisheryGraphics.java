@@ -6,6 +6,7 @@ import core.LocalFile;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.fishery.FisheryPowerUp;
+import mysql.hibernate.entity.guild.GuildEntity;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -25,7 +26,7 @@ public class FisheryGraphics {
     private static final int TEXT_FONT_SMALL = 25;
     private static final int TEXT_FONT_EXTRA_SMALL = 20;
 
-    public static InputStream createAccountCard(Locale locale, long[] values, long[] valueChanges,
+    public static InputStream createAccountCard(GuildEntity guildEntity, long[] values, long[] valueChanges,
                                                 long rank, long totalRank, long rankChange,
                                                 List<FisheryPowerUp> activePowerUps, String subtext
     ) throws IOException {
@@ -34,7 +35,7 @@ public class FisheryGraphics {
         Graphics2D g2d = GraphicsUtil.createGraphics(drawImage);
 
         g2d.drawImage(backgroundImage, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
-        drawAccountTexts(g2d, locale, values, valueChanges, rank, totalRank, rankChange, subtext);
+        drawAccountTexts(g2d, guildEntity, values, valueChanges, rank, totalRank, rankChange, subtext);
 
         for (int i = 0; i < activePowerUps.size(); i++) {
             drawPowerUp(g2d, activePowerUps.get(i), i);
@@ -47,7 +48,7 @@ public class FisheryGraphics {
         }
     }
 
-    private static void drawAccountTexts(Graphics2D g2d, Locale locale, long[] values, long[] valueChanges,
+    private static void drawAccountTexts(Graphics2D g2d, GuildEntity guildEntity, long[] values, long[] valueChanges,
                                          long rank, long totalRank, long rankChange, String subtext
     ) {
         FontRenderContext frc = new FontRenderContext(null, true, true);
@@ -57,16 +58,16 @@ public class FisheryGraphics {
         AttributedStringGenerator fontSmall = new AttributedStringGenerator(TEXT_FONT_SMALL);
         AttributedStringGenerator fontExtraSmall = new AttributedStringGenerator(TEXT_FONT_EXTRA_SMALL);
 
-        g2d.drawString(fontLarge.getIterator(TextManager.getString(locale, Category.FISHERY, "fisherycat_fisheryaccount")), 50, 50 + getTextHeight(frc, fontLarge));
+        g2d.drawString(fontLarge.getIterator(TextManager.getString(guildEntity.getLocale(), Category.FISHERY, "fisherycat_fisheryaccount")), 50, 50 + getTextHeight(frc, fontLarge));
 
-        String[] labels = TextManager.getString(locale, Category.FISHERY, "fisherycat_valuelabels").split("\n");
+        String[] labels = TextManager.getString(guildEntity, guildEntity.getLocale(), Category.FISHERY.getId(), "fisherycat_valuelabels", -1).split("\n");
         for (int i = 0; i < labels.length; i++) {
             String label = labels[i];
             drawAccountSlot(g2d, frc, fontSmall, label, values[i], valueChanges[i], i, valueChanges[i] >= 0 ? Color.GREEN : Color.RED);
         }
 
         String rankChangeString = rankChange != 0 ? (" (" + (rankChange >= 0 ? "+" : "") + StringUtil.numToString(rankChange) + ")") : null;
-        drawRank(g2d, frc, fontSmall, fontLarge, TextManager.getString(locale, Category.FISHERY, "fisherycat_serverrank"),
+        drawRank(g2d, frc, fontSmall, fontLarge, TextManager.getString(guildEntity.getLocale(), Category.FISHERY, "fisherycat_serverrank"),
                 "#" + StringUtil.numToString(rank), "/ " + StringUtil.numToString(totalRank), rankChangeString, rankChange <= 0 ? Color.GREEN : Color.RED);
 
         if (subtext != null) {

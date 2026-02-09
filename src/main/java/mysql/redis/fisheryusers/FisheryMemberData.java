@@ -508,9 +508,9 @@ public class FisheryMemberData implements MemberAsset {
                 String prefix = guildEntity.getPrefix();
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
-                        .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("{PREFIX}", prefix))
-                        .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("{PREFIX}", prefix));
+                        .setTitle(TextManager.getString(guildEntity, locale, TextManager.GENERAL, "hundret_joule_collected_title", -1))
+                        .setDescription(TextManager.getString(guildEntity, locale, TextManager.GENERAL, "hundret_joule_collected_description", -1).replace("{PREFIX}", prefix))
+                        .setFooter(TextManager.getString(guildEntity, locale, TextManager.GENERAL, "hundret_joule_collected_footer", -1).replace("{PREFIX}", prefix));
                 EmbedUtil.setMemberAuthor(eb, member);
 
                 message.getGuildChannel().sendMessage(member.getAsMention())
@@ -774,7 +774,7 @@ public class FisheryMemberData implements MemberAsset {
             activePowerUpsStringBuilder.append(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_none"));
         }
 
-        eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, guildEntity.getFishery().getPowerUps() ? "rankingprogress_desription_powerups" : "rankingprogress_desription",
+        eb.setDescription(TextManager.getString(guildEntity, locale, TextManager.GENERAL, guildEntity.getFishery().getPowerUps() ? "rankingprogress_desription_powerups" : "rankingprogress_desription", -1,
                 getEmbedSlot(locale, fishIncome, fishIncomePrevious, false),
                 getEmbedSlot(locale, getFish(), fishPrevious, false),
                 getEmbedSlot(locale, getCoins(), coinsPrevious, false),
@@ -852,7 +852,7 @@ public class FisheryMemberData implements MemberAsset {
             }
 
             FeatureLogger.inc(PremiumFeature.FISHERY_ACCOUNT_CARDS, getGuildId());
-            InputStream inputStream = FisheryGraphics.createAccountCard(locale, values, valueChanges,
+            InputStream inputStream = FisheryGraphics.createAccountCard(guildEntity, values, valueChanges,
                     rank, member.getGuild().getMemberCount(), rank - rankPrevious, getActivePowerUps(), subtext);
             eb.setImage(InternetUtil.getUrlFromInputStream(inputStream, "png"));
         } catch (IOException e) {

@@ -33,8 +33,7 @@ public interface Emojis {
 
     UnicodeEmoji FISH = Emoji.fromUnicode("🐟");
     CustomEmoji COINS = Emoji.fromCustom("coin", 512684910620835841L, true);
-    UnicodeEmoji COINS_UNICODE = Emoji.fromUnicode("🪙");
-    UnicodeEmoji GROWTH = Emoji.fromUnicode("⚡");
+    UnicodeEmoji RECENT_EFFICIENCY = Emoji.fromUnicode("⚡");
     UnicodeEmoji DAILY_STREAK = Emoji.fromUnicode("🔥");
     UnicodeEmoji COUPONS = Emoji.fromUnicode("🎟️");
 

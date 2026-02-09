@@ -12,7 +12,7 @@ public enum FisheryCurrency {
 
     FISH(Emojis.FISH, locale -> TextManager.getString(locale, Category.FISHERY_SETTINGS, "fisherycurrencies_root_fish")),
     COINS(Emojis.COINS, locale -> TextManager.getString(locale, Category.FISHERY_SETTINGS, "fisherycurrencies_root_coins")),
-    RECENT_EFFICIENCY(Emojis.GROWTH, locale -> TextManager.getString(locale, Category.FISHERY_SETTINGS, "fisherycurrencies_root_recent_efficiency"));
+    RECENT_EFFICIENCY(Emojis.RECENT_EFFICIENCY, locale -> TextManager.getString(locale, Category.FISHERY_SETTINGS, "fisherycurrencies_root_recent_efficiency"));
 
     private final Emoji emoji;
     private final Function<Locale, String> nameFunction;

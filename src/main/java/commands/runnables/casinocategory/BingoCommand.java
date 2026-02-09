@@ -164,7 +164,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
             }
             sb.append("\n");
         }
-        sb.append(TextManager.getString(getLocale(), Category.CASINO, "casino_coinsInput", "", StringUtil.numToString(getCoinsInput())));
+        sb.append(TextManager.getString(getGuildEntity(), getLocale(), Category.CASINO.getId(), "casino_coinsInput", -1, "", StringUtil.numToString(getCoinsInput())));
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, sb.toString());
         ArrayList<Button> buttons = new ArrayList<>();
