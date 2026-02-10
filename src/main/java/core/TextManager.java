@@ -124,9 +124,6 @@ public class TextManager {
                 if (!text.contains("{" + currency.name() + "}") && !text.contains("{" + currency.name() + "_EMOJI}")) {
                     continue;
                 }
-                if (!Program.productionMode()) {
-                    MainLogger.get().error("Text contains default emojis and names: {}", text);
-                }
                 text = text.replace("{" + currency.name() + "}", currency.getName(locale))
                         .replace("{" + currency.name() + "_EMOJI}", currency.getEmoji().getFormatted());
             }
