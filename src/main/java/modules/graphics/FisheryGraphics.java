@@ -69,7 +69,7 @@ public class FisheryGraphics {
         }
 
         String rankChangeString = rankChange != 0 ? (" (" + (rankChange >= 0 ? "+" : "") + StringUtil.numToString(rankChange) + ")") : null;
-        drawRank(g2d, frc, fontSmall, fontLarge, TextManager.getString(guildEntity.getLocale(), Category.FISHERY, "fisherycat_serverrank"),
+        drawRank(g2d, frc, fontSmall, fontLarge, TextManager.getString(guildEntity, guildEntity.getLocale(), Category.FISHERY.getId(), "fisherycat_serverrank", -1),
                 "#" + StringUtil.numToString(rank), "/ " + StringUtil.numToString(totalRank), rankChangeString, rankChange <= 0 ? Color.GREEN : Color.RED);
 
         if (subtext != null) {
