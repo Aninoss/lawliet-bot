@@ -15,6 +15,7 @@ import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import modules.fishery.FisheryCurrency;
 import modules.fishery.FisheryGear;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
@@ -24,6 +25,8 @@ import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.Instant;
@@ -116,7 +119,17 @@ public class DailyCommand extends Command implements FisheryInterface {
             if (!sb.isEmpty()) {
                 sb.append("\n");
             }
-            sb.append(line + " ".repeat(2 + maxLength - line.length()) + getString("point_add", StringUtil.numToString(values.get(i))));
+            sb.append(line)
+                    .append(" ".repeat(1 + maxLength - line.length()));
+
+            Emoji fishEmoji = getGuildEntity().getFishery().getCurrencyEffectivelyReadOnly(FisheryCurrency.FISH).getEmoji();
+            if (fishEmoji instanceof UnicodeEmoji) {
+                sb.append(fishEmoji.getFormatted())
+                        .append(" ");
+            }
+
+            sb.append("+")
+                    .append(StringUtil.numToString(values.get(i)));
         }
         return sb.toString();
     }
