@@ -7,6 +7,7 @@ import constants.Emojis;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.utils.InternetUtil;
+import core.utils.StringUtil;
 import modules.porn.BooruTagCache;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -37,18 +38,23 @@ public class TagsCommand extends Command {
             return false;
         }
 
+        int remainingCharacters = 4000;
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         StringBuilder sb = new StringBuilder();
         for (String tag : tags) {
             String line = "- " + tag + "\n";
             if (sb.length() + line.length() > MessageEmbed.VALUE_MAX_LENGTH) {
-                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), sb.toString(), true);
+                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), StringUtil.shortenStringLine(sb.toString(), remainingCharacters), true);
+                remainingCharacters -= Emojis.ZERO_WIDTH_SPACE.getFormatted().length() + sb.length();
+                if (remainingCharacters < 10) {
+                    break;
+                }
                 sb = new StringBuilder();
             }
             sb.append(line);
         }
-        if (!sb.isEmpty()) {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), sb.toString(), true);
+        if (!sb.isEmpty() && remainingCharacters >= 10) {
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), StringUtil.shortenStringLine(sb.toString(), remainingCharacters), true);
         }
         if (InternetUtil.uriIsImage(args, true)) {
             eb.setImage(args);
