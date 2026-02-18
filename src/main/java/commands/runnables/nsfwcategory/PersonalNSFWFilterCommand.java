@@ -28,7 +28,7 @@ public class PersonalNSFWFilterCommand extends ComponentMenuAbstract {
     public static final int MAX_FILTERS = 250;
     public final static int MAX_LENGTH = 50;
 
-    private final Pageable<String> pageable = new Pageable<>(this, 10, () -> getUserEntityReadOnly().getPersonalNSFWFilter());
+    private final Pageable<String> pageable = new Pageable<>(this, 8, () -> getUserEntityReadOnly().getPersonalNSFWFilter());
 
     public PersonalNSFWFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
