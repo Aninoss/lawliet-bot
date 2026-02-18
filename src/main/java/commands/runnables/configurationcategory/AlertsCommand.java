@@ -388,6 +388,9 @@ public class AlertsCommand extends NavigationAbstract {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, StringUtil.stepPoints(1, 5) + "\n\n" + getString("state1_description"), getString("state1_title"));
 
         for (Category category : Category.independentValues()) {
+            if (category.isHidden()) {
+                continue;
+            }
             StringBuilder sb = new StringBuilder();
             trackerCommands.stream()
                     .filter(command -> command.getCategory().equals(category))

@@ -126,7 +126,9 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         val container = VerticalContainer()
         container.isCard = true
 
-        val commandCategoryValues = Category.independentValues().map { DiscordEntity(it.id, getString(TextManager.COMMANDS, it.id)) }
+        val commandCategoryValues = Category.independentValues()
+            .filter { !it.isHidden }
+            .map { DiscordEntity(it.id, getString(TextManager.COMMANDS, it.id)) }
         container.add(generateBlacklistComboBox(getString(Category.CONFIGURATION, "cman_state0_mcategories"), commandCategoryValues))
 
         val commandValues = CommandContainer.getFullCommandList()

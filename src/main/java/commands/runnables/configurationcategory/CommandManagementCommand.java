@@ -167,7 +167,7 @@ public class CommandManagementCommand extends NavigationAbstract {
             }
         }
         for (Category category : Category.independentValues()) {
-            if (disabledCommandsAndCategories.contains(category.getId()) && !event.getValues().contains(category.getId())) {
+            if (disabledCommandsAndCategories.contains(category.getId()) && !event.getValues().contains(category.getId()) && !category.isHidden()) {
                 disabledCommandsAndCategories.remove(category.getId());
                 BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), null, category.getId());
             }
@@ -199,6 +199,9 @@ public class CommandManagementCommand extends NavigationAbstract {
         StringSelectMenu.Builder selectionMenuBuilder = StringSelectMenu.create("categories");
         selectionMenuBuilder = selectionMenuBuilder.setRequiredRange(0, Category.independentValues().length);
         for (Category category : Category.independentValues()) {
+            if (category.isHidden()) {
+                continue;
+            }
             selectionMenuBuilder = selectionMenuBuilder.addOption(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()), category.getId());
         }
         selectionMenuBuilder = selectionMenuBuilder.setDefaultValues(categoryIdList);

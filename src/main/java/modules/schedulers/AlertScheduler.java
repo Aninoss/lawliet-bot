@@ -102,7 +102,7 @@ public class AlertScheduler {
     }
 
     private static void processAlert(GuildEntity guildEntity, TrackerData slot) throws Throwable {
-        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), guildEntity.getLocale(), guildEntity.getPrefix());
+        Optional<Command> commandOpt = CommandManager.createAlertCommandByTrigger(slot.getCommandTrigger(), guildEntity.getLocale(), guildEntity.getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid alert for command: {}", slot.getCommandTrigger());
             slot.delete();

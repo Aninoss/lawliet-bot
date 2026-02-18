@@ -1,18 +1,19 @@
 package events.sync.events;
 
-import java.util.HashMap;
-import java.util.Locale;
+import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnAlertListener;
-import commands.Category;
 import core.TextManager;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import events.sync.SyncLocaleUtil;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Locale;
 
 @SyncServerEvent(event = "COMMAND_LIST")
 public class OnCommandList implements SyncServerFunction {
@@ -25,6 +26,9 @@ public class OnCommandList implements SyncServerFunction {
 
         //Add every command category
         for (Category category : Category.values()) {
+            if (category.isHidden()) {
+                continue;
+            }
             JSONObject categoryJSON = new JSONObject();
             categoryJSON.put("id", category.getId());
             categoryJSON.put("name", SyncLocaleUtil.getLanguagePack(TextManager.COMMANDS, category.getId()));

@@ -22,6 +22,9 @@ class HelpAdapter : SlashAdapter() {
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         var optionCategory = generateOptionData(OptionType.STRING, "category", "help_category", false)
         for (category in Category.values()) {
+            if (category.isHidden) {
+                continue
+            }
             optionCategory = optionCategory
                 .addChoices(generateChoice(TextManager.COMMANDS, category.id, category.id))
         }

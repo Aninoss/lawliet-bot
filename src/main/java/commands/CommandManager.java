@@ -463,7 +463,17 @@ public class CommandManager {
 
     public static Optional<Command> createCommandByTrigger(String trigger, Locale locale, String prefix) {
         Class<? extends Command> clazz = CommandContainer.getCommandMap().get(trigger);
-        if (clazz == null) return Optional.empty();
+        if (clazz == null) {
+            return Optional.empty();
+        }
+        return Optional.of(createCommandByClass(clazz, locale, prefix));
+    }
+
+    public static Optional<Command> createAlertCommandByTrigger(String trigger, Locale locale, String prefix) {
+        Class<? extends Command> clazz = CommandContainer.getAlertsCommandMap().get(trigger);
+        if (clazz == null) {
+            return Optional.empty();
+        }
         return Optional.of(createCommandByClass(clazz, locale, prefix));
     }
 

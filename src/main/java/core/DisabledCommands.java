@@ -18,6 +18,7 @@ public class DisabledCommands {
         return guildEntity.getDisabledCommandsAndCategories().stream()
                 .map(Category::fromId)
                 .filter(Objects::nonNull)
+                .filter(category -> !category.isHidden())
                 .collect(Collectors.toSet());
     }
 

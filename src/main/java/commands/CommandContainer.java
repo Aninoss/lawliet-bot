@@ -40,6 +40,7 @@ import java.util.*;
 public class CommandContainer {
 
     private static final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
+    private static final HashMap<String, Class<? extends Command>> alertCommandMap = new HashMap<>();
     private static final HashMap<Category, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
     private static final ArrayList<Class<? extends OnStaticReactionAddListener>> staticReactionAddCommands = new ArrayList<>();
     private static final ArrayList<Class<? extends OnStaticReactionRemoveListener>> staticReactionRemoveCommands = new ArrayList<>();
@@ -372,9 +373,9 @@ public class CommandContainer {
                 continue;
             }
 
-            addCommand(command.getTrigger(), command);
+            addCommand(command.getTrigger(), command, !command.getCategory().isHidden());
             for (String str : command.getCommandProperties().aliases()) {
-                addCommand(str, command);
+                addCommand(str, command, !command.getCategory().isHidden());
             }
 
             if (command instanceof OnStaticReactionAddListener) {
@@ -383,7 +384,7 @@ public class CommandContainer {
             if (command instanceof OnStaticReactionRemoveListener) {
                 staticReactionRemoveCommands.add(((OnStaticReactionRemoveListener) command).getClass());
             }
-            if (command.canRunOnGuild(0L, 0L)) {
+            if (command.canRunOnGuild(0L, 0L) && !command.getCategory().isHidden()) {
                 if (command instanceof OnAlertListener) {
                     trackerCommands.add(((OnAlertListener) command).getClass());
                 }
@@ -397,17 +398,25 @@ public class CommandContainer {
         commands.add(command.getClass());
     }
 
-    private static void addCommand(String trigger, Command command) {
-        if (commandMap.containsKey(trigger)) {
+    private static void addCommand(String trigger, Command command, boolean runnable) {
+        if (commandMap.containsKey(trigger) || alertCommandMap.containsKey(trigger)) {
             MainLogger.get().error("Duplicate key for \"" + command.getTrigger() + "\"");
         } else {
-            commandMap.put(trigger, command.getClass());
+            if (command instanceof OnAlertListener) {
+                alertCommandMap.put(trigger, command.getClass());
+            }
+            if (runnable) {
+                commandMap.put(trigger, command.getClass());
+            }
         }
     }
 
-
     public static HashMap<String, Class<? extends Command>> getCommandMap() {
         return commandMap;
+    }
+
+    public static HashMap<String, Class<? extends Command>> getAlertsCommandMap() {
+        return alertCommandMap;
     }
 
     public static ArrayList<Class<? extends OnStaticReactionAddListener>> getStaticReactionAddCommands() {

@@ -245,6 +245,9 @@ public class HelpCommand extends NavigationAbstract {
             boolean halfMatchFound = false;
             Category category = null;
             for (Category value : Category.values()) {
+                if (value.isHidden()) {
+                    continue;
+                }
                 if ((value.getId().equalsIgnoreCase(arg) || TextManager.getString(getLocale(), TextManager.COMMANDS, value.getId()).equalsIgnoreCase(arg))) {
                     category = value;
                     break;
@@ -398,6 +401,9 @@ public class HelpCommand extends NavigationAbstract {
 
         int i = 0;
         for (Category category : Category.independentValues()) {
+            if (category.isHidden()) {
+                continue;
+            }
             for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                 String commandTrigger = command.getTrigger();
@@ -647,7 +653,8 @@ public class HelpCommand extends NavigationAbstract {
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
             if (CommandManager.commandCategoryIsEnabledEffectively(getGuildEntity(), category, member, channel) &&
-                    (!category.isNSFW() || JDAUtil.channelIsNsfw(channel))
+                    (!category.isNSFW() || JDAUtil.channelIsNsfw(channel)) &&
+                    !category.isHidden()
             ) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
                 String value = "cat:" + category.getId();
