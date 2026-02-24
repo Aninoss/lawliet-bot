@@ -41,7 +41,7 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         container.isCard = true
 
         val nsfwKeywords = DBNSFWFilters.getInstance().retrieve(guild.idLong).keywords
-        val label = getString(Category.CONFIGURATION, "nsfwfilter_state0_mkeywords")
+        val label = getString(Category.CONFIGURATION, "nsfwfilter_dashboard_filterlist")
         val comboBox = DashboardComboBox(label, emptyList(), true, NSFWFilterCommand.MAX_FILTERS) {
             if (it.type == "add") {
                 entityManager.transaction.begin()
