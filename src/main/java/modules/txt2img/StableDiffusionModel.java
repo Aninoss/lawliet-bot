@@ -13,7 +13,7 @@ public enum StableDiffusionModel {
             "gevo8ndzux6u9i",
             12000,
             false,
-            Set.of(Txt2HentaiCommand.class),
+            Set.of(),
             "extremely detailed, masterpiece, best quality, amazing quality, photorealistic, ",
             "bad face quality, undetailed face, blurry, bad anatomy, bad fingers, bad hands, bad quality, worst quality, worst detail, (digital art, cgi, 3d, render, drawing, graphics, anime, cartoon), ",
             params -> new JSONObject()
