@@ -100,4 +100,18 @@ public class FisheryMemberStatsData implements MemberAsset {
         });
     }
 
+    public void reset() {
+        RedisManager.update(jedis -> {
+            Pipeline pipeline = jedis.pipelined();
+            FisheryUserManager.setUserActiveOnGuild(pipeline, fisheryMemberData);
+            pipeline.hdel(fisheryMemberData.KEY_ACCOUNT, FIELD_TREASURE_CHESTS_OPENED);
+            pipeline.hdel(fisheryMemberData.KEY_ACCOUNT, FIELD_TREASURE_CHESTS_SUCCESSFUL);
+            pipeline.hdel(fisheryMemberData.KEY_ACCOUNT, FIELD_TREASURE_CHESTS_TOTAL_COINS_RECEIVED);
+            for (FisheryPowerUp powerUp : FisheryPowerUp.values()) {
+                pipeline.hdel(fisheryMemberData.KEY_ACCOUNT, FIELD_POWER_UPS_RECEIVED + powerUp.name().toLowerCase());
+            }
+            pipeline.sync();
+        });
+    }
+
 }

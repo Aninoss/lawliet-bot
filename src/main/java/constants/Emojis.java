@@ -24,6 +24,7 @@ public interface Emojis {
     CustomEmoji MENU_BACK = Emoji.fromCustom("back", 1461687082308079714L, false);
     CustomEmoji MENU_EDIT = Emoji.fromCustom("edit", 1461689492271272121L, false);
     CustomEmoji MENU_EDIT_GRAY = Emoji.fromCustom("edit_gray", 1461692189082910810L, false);
+    CustomEmoji MENU_RESET = Emoji.fromCustom("reset", 1494707309639762072L, false);
 
     CustomEmoji LOADING = Emoji.fromCustom("loading", 407189379749117981L, true);
     UnicodeEmoji LOADING_UNICODE = Emoji.fromUnicode("⏳");

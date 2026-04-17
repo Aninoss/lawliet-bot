@@ -46,12 +46,22 @@ public interface ActionComponentGenerator {
         return button(ButtonStyle.SECONDARY, label, buttonConsumer);
     }
 
+    default Button buttonSecondary(String label, Emoji emoji, ButtonAction buttonConsumer) {
+        return button(ButtonStyle.SECONDARY, label, buttonConsumer)
+                .withEmoji(emoji);
+    }
+
     default Button buttonSecondary(Emoji emoji, ButtonAction buttonConsumer) {
         return button(ButtonStyle.SECONDARY, emoji, buttonConsumer);
     }
 
     default Button buttonDanger(String label, ButtonAction buttonConsumer) {
         return button(ButtonStyle.DANGER, label, buttonConsumer);
+    }
+
+    default Button buttonDanger(String label, Emoji emoji, ButtonAction buttonConsumer) {
+        return button(ButtonStyle.DANGER, label, buttonConsumer)
+                .withEmoji(emoji);
     }
 
     default Button buttonDanger(Emoji emoji, ButtonAction buttonConsumer) {
