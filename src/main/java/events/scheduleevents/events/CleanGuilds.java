@@ -10,6 +10,7 @@ import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.modules.casinostats.DBCasinoStats;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -71,6 +72,7 @@ public class CleanGuilds implements ExceptionRunnable {
                 if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.STOPPED) {
                     FisheryUserManager.deleteGuildData(guildEntity.getGuildId());
                 }
+                DBCasinoStats.getInstance().removeGuild(guildEntity.getGuildId());
 
                 entityManager.getTransaction().begin();
                 entityManager.remove(guildEntity);

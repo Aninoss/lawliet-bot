@@ -193,6 +193,10 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
+    public FisheryMemberStatsData getStats() {
+        return new FisheryMemberStatsData(this);
+    }
+
     public int getCoupons() {
         return getActivePowerUps().contains(FisheryPowerUp.SHOP)
                 ? Math.max(0, RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_COUPONS)))

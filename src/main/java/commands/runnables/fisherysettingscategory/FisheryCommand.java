@@ -413,6 +413,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong())
                 .remove(event.getMessage().getIdLong());
         memberData.increaseWeeklyOpenedTreasureChests();
+        memberData.getStats().incrTreasureChestsOpened();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
@@ -450,6 +451,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
         GuildMessageChannel channel = event.getGuildChannel();
         if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
+            memberData.getStats().incrTreasureChestsTotalCoinsReceived(won);
             event.getMessage().editMessageEmbeds(eb.build(), memberData.changeValuesEmbed(event.getMember(), 0, won, getGuildEntity()).build()).submit()
                     .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
         } else {
@@ -492,6 +494,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         possiblePowerUps.removeAll(memberData.getActivePowerUps());
         FisheryPowerUp powerUp = possiblePowerUps.get(r.nextInt(possiblePowerUps.size()));
         Instant expiration = Instant.now().plus(powerUp.getValidDuration());
+        memberData.getStats().incrPowerUpReceived(powerUp);
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_POWERUP + " " + getString("powerup", powerUp.ordinal()))

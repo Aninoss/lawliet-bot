@@ -1,11 +1,12 @@
 package mysql.modules.casinostats;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 import mysql.DBDataLoad;
 import mysql.DBMapCache;
 import mysql.MySQLManager;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class DBCasinoStats extends DBMapCache<DBCasinoStats.Key, CasinoStatsData> {
 
@@ -58,6 +59,17 @@ public class DBCasinoStats extends DBMapCache<DBCasinoStats.Key, CasinoStatsData
             preparedStatement.setLong(2, userId);
         });
         getCache().put(new Key(guildId, userId), new CasinoStatsData(Collections.emptyList()));
+    }
+
+    public void removeGuild(long guildId) {
+        MySQLManager.asyncUpdate("DELETE FROM CasinoStats WHERE serverId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, guildId);
+        });
+        for (Key key : getCache().asMap().keySet()) {
+            if (key.guildId == guildId) {
+                getCache().put(key, new CasinoStatsData(Collections.emptyList()));
+            }
+        }
     }
 
 
