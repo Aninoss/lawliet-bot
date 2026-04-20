@@ -98,7 +98,7 @@ public enum StableDiffusionModel {
             "uer5tf6bt0fe35",
             12000,
             false,
-            Set.of(Txt2HentaiCommand.class),
+            Set.of(),
             "masterpiece, best quality, amazing quality, very aesthetic, high resolution, ultra-detailed, absurdres, scenery, photo, realistic, furry, anthro, BREAK, depth of field, detailed fluffy fur, photorealistic details, ",
             "smooth skin, human, multiple tails, 2d, art, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst quality, bad quality:1.2), bad anatomy, sketch, jpeg artifacts, signature, watermark, username, simple background, conjoined, bad ai-generated, ",
             params -> new JSONObject()
