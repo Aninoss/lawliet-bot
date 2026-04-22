@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "kiss",
         emoji = "\uD83D\uDC8B",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "yaoikiss", "yurikiss" }
+        aliases = { "yaoikiss", "yurikiss" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class KissCommand extends RolePlayAbstract {
 

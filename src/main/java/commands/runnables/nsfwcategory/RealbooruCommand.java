@@ -4,6 +4,8 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.PornSearchAbstract;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_SEARCH;
+
 @CommandProperties(
         trigger = "realb",
         executableWithoutArgs = true,
@@ -11,7 +13,8 @@ import commands.runnables.PornSearchAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "rbooru", "realbooru", "rlbooru" }
+        aliases = { "rbooru", "realbooru", "rlbooru" },
+        subCategory = NSFW_SUBCATEGORY_SEARCH
 )
 public class RealbooruCommand extends PornSearchAbstract {
 

@@ -6,6 +6,8 @@ import java.util.Set;
 import commands.listeners.CommandProperties;
 import commands.runnables.RealbooruAbstract;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
+
 @CommandProperties(
         trigger = "femboy",
         executableWithoutArgs = true,
@@ -14,7 +16,8 @@ import commands.runnables.RealbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "rlfemboy", "reallifefemboy" }
+        aliases = { "rlfemboy", "reallifefemboy" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
 public class FemboyCommand extends RealbooruAbstract {
 

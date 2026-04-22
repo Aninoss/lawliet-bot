@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "bite",
         emoji = "\uD83E\uDE78",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class BiteCommand extends RolePlayAbstract {
 

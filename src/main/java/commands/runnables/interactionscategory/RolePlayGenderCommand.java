@@ -18,11 +18,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_GENERAL;
+
 @CommandProperties(
         trigger = "rpgender",
         emoji = "♂️",
         executableWithoutArgs = true,
-        aliases = { "roleplaygender" }
+        aliases = { "roleplaygender" },
+        subCategory = RP_SUBCATEGORY_GENERAL
 )
 public class RolePlayGenderCommand extends Command implements OnStringSelectMenuListener {
 

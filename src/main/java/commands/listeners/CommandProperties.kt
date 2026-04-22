@@ -24,5 +24,6 @@ annotation class CommandProperties(
     val onlyPublicVersion: Boolean = false,
     val usesExtEmotes: Boolean = false,
     val requiresFullMemberCache: Boolean = false,
-    val obsolete: Boolean = false
+    val obsolete: Boolean = false,
+    val subCategory: String = ""
 )

@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "no",
         emoji = "\uD83D\uDC4E",
         executableWithoutArgs = true,
-        aliases = { "nope", "thumbsdown", "thumpsdown" }
+        aliases = { "nope", "thumbsdown", "thumpsdown" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class NoCommand extends RolePlayAbstract {
 

@@ -29,7 +29,8 @@ import java.util.Locale;
         trigger = "fisherystats",
         emoji = "📈",
         executableWithoutArgs = true,
-        usesExtEmotes = true
+        usesExtEmotes = true,
+        requiresEmbeds = false
 )
 public class FisheryStatsCommand extends ComponentMenuAbstract {
 
@@ -45,7 +46,7 @@ public class FisheryStatsCommand extends ComponentMenuAbstract {
         return true;
     }
 
-    @Draw(state = STATE_ROOT)
+    @Draw(state = STATE_ROOT_ID)
     public List<ContainerChildComponent> drawRoot(Member member) {
         setDescription(getString("description"));
         ArrayList<ContainerChildComponent> components = new ArrayList<>();

@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "cuddle",
         emoji = "\uD83D\uDC50",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "snuggle", "yaoicuddle", "yuricuddle" }
+        aliases = { "snuggle", "yaoicuddle", "yuricuddle" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class CuddleCommand extends RolePlayAbstract {
 

@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "marry",
         emoji = "\uD83D\uDC8D",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class MarryCommand extends RolePlayAbstract {
 

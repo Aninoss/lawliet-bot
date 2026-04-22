@@ -6,6 +6,8 @@ import java.util.Set;
 import commands.listeners.CommandProperties;
 import commands.runnables.DanbooruAbstract;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_HENTAI;
+
 @CommandProperties(
         trigger = "hblowjob",
         executableWithoutArgs = true,
@@ -14,7 +16,8 @@ import commands.runnables.DanbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "hentaiblowjob" }
+        aliases = { "hentaiblowjob" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_HENTAI
 )
 public class HentaiBlowjobCommand extends DanbooruAbstract {
 

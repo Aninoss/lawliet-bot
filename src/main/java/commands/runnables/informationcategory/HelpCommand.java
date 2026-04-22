@@ -3,66 +3,74 @@ package commands.runnables.informationcategory;
 import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import commands.runnables.*;
+import commands.runnables.ComponentMenuAbstract;
+import commands.runnables.Pageable;
 import commands.runnables.interactionscategory.CustomRolePlaySfwCommand;
-import commands.runnables.interactionscategory.RolePlayGenderCommand;
 import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.ListGen;
+import core.ExceptionLogger;
 import core.Program;
 import core.TextManager;
-import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.CustomRolePlayEntity;
-import net.dv8tion.jda.api.EmbedBuilder;
+import mysql.modules.commandusages.DBCommandUsages;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.components.label.Label;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.container.ContainerChildComponent;
+import net.dv8tion.jda.api.components.mediagallery.MediaGallery;
+import net.dv8tion.jda.api.components.mediagallery.MediaGalleryItem;
+import net.dv8tion.jda.api.components.section.Section;
 import net.dv8tion.jda.api.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.components.textinput.TextInput;
-import net.dv8tion.jda.api.components.textinput.TextInputStyle;
-import net.dv8tion.jda.api.modals.Modal;
+import net.dv8tion.jda.api.components.separator.Separator;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "help",
         emoji = "❕",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = {"commands"}
+        aliases = {"commands"},
+        requiresEmbeds = false
 )
-public class HelpCommand extends NavigationAbstract {
+public class HelpCommand extends ComponentMenuAbstract {
 
-    public static final String BUTTON_ID_BROWSE = "browse";
+    public static final String NSFW_SUBCATEGORY_GENERAL = "nsfw_0_general";
+    public static final String NSFW_SUBCATEGORY_SEARCH = "nsfw_1_search";
+    public static final String NSFW_SUBCATEGORY_TEMPLATES_HENTAI = "nsfw_2_templates_hentai";
+    public static final String NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE = "nsfw_3_templates_real_life";
+    public static final String RP_SUBCATEGORY_GENERAL = "rp_0_general";
+    public static final String RP_SUBCATEGORY_CUSTOM = "rp_1_custom";
+    public static final String RP_SUBCATEGORY_INTERACTIVE = "rp_2_interactive";
+    public static final String RP_SUBCATEGORY_NON_INTERACTIVE = "rp_3_non_interactive";
 
-    private static final int STATE_NOT_DEFAULT = 1;
+    private static final String STATE_CATEGORY_ID = "category",
+            STATE_COMMAND_ID = "command";
+    private static final StateData STATE_CATEGORY = StateData.of(STATE_CATEGORY_ID, STATE_ROOT_ID, ""),
+            STATE_COMMAND = StateData.of(STATE_COMMAND_ID, STATE_CATEGORY_ID, "");
 
-    private final HashMap<Integer, String> buttonMap = new HashMap<>();
-    private String searchTerm;
     private Category currentCategory = null;
+    private Command currentCommand = null;
+    private Pageable<CommandEntry> categoryPageable = null;
+    private final HashMap<Category, List<CommandEntry>> commandEntries = new HashMap<>();
+    private final HashSet<CommandIcon> includedIcons = new HashSet<>();
 
     public HelpCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -70,87 +78,15 @@ public class HelpCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        searchTerm = args;
-        registerNavigationListener(event.getMember());
-        return true;
-    }
-
-    @Override
-    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
-        if (event.getComponentId().equals(BUTTON_ID_BROWSE)) {
-            TextInput textInput = TextInput.create("text", TextInputStyle.SHORT)
-                    .setMinLength(1)
-                    .setMaxLength(50)
-                    .build();
-
-            Modal modal = ModalMediator.createDrawableCommandModal(this, getString("command_button"), e -> {
-                        String input = e.getValues().get(0).getAsString().toLowerCase();
-                        String prefix = getGuildEntity().getPrefix();
-                        if (input.startsWith(prefix.toLowerCase())) {
-                            input = input.substring(prefix.length());
-                        }
-
-                        String finalInput = input;
-                        if (buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(finalInput))) {
-                            searchTerm = input;
-                        } else {
-                            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                        }
-                        return null;
-                    })
-                    .addComponents(Label.of(getString("trigger"), textInput))
-                    .build();
-
-            event.replyModal(modal).queue();
-            return false;
-        }
-
-        String key = buttonMap.get(i);
-        if (key != null) {
-            searchTerm = key;
-
-            if (searchTerm.equals("quit")) {
-                deregisterListenersWithComponentMessage();
+        if (!args.isEmpty()) {
+            Boolean matchesCommand = checkCommands(event, args);
+            if (matchesCommand == null) {
+                return false;
+            } else if (!matchesCommand && checkCategories(event, args) == null) {
                 return false;
             }
-
-            if (searchTerm.startsWith("exec:")) {
-                String className = searchTerm.split(":")[1];
-                Command command = CommandManager.createCommandByClassName(className, getLocale(), getPrefix());
-
-                CommandManager.manage(getCommandEvent(), command, "", getGuildEntity(), Instant.now(), false);
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
-        searchTerm = event.getValues().get(0);
-        return true;
-    }
-
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
-        String arg = searchTerm.trim();
-        if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length() - 1);
-
-        GuildMessageChannel channel = getGuildMessageChannel().get();
-        setActionRows();
-
-        setState(STATE_NOT_DEFAULT);
-        EmbedBuilder eb;
-        if ((eb = checkCommand(member, channel, arg)) == null) {
-            if ((eb = checkCategory(member, channel, arg)) == null) {
-                setState(DEFAULT_STATE);
-                eb = checkMainPage(member, channel);
-                if (!arg.isEmpty()) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
-                }
+            if (currentCategory == null) {
+                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             }
         }
 
@@ -159,527 +95,335 @@ public class HelpCommand extends NavigationAbstract {
             setLog(LogStatus.FAILURE, error);
             removeAttachment("error");
         }
-        return eb;
-    }
 
-    private EmbedBuilder checkCommand(Member member, GuildMessageChannel channel, String arg) {
-        boolean noArgs = false;
-        if (hasAttachment("noargs")) {
-            removeAttachment("noargs");
-            noArgs = true;
+        for (Category category : Category.getEntries()) {
+            if (category.isNSFW() && !JDAUtil.channelIsNsfw(event.getMessageChannel())) {
+                continue;
+            }
+
+            Collection<Class<? extends Command>> commandClasses;
+            if (category == Category.PATREON_ONLY) {
+                commandClasses = CommandContainer.getFullCommandList().stream()
+                        .filter(clazz -> Command.getCommandProperties(clazz).patreonRequired())
+                        .collect(Collectors.toList());
+            } else {
+                commandClasses = Objects.requireNonNullElse(CommandContainer.getCommandCategoryMap().get(category), Collections.emptyList());
+            }
+
+            ArrayList<CommandEntry> newCommandEntries = new ArrayList<>();
+            for (Class<? extends Command> clazz : commandClasses) {
+                Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+                String commandTrigger = command.getTrigger();
+                if (!commandTrigger.equals(getTrigger()) &&
+                        CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, event.getMember(), event.getMessageChannel()) &&
+                        (!command.getCommandProperties().nsfw() || JDAUtil.channelIsNsfw(event.getMessageChannel())) &&
+                        BotPermissionUtil.getMissingPermissions(event.getMember(), command.getAdjustedUserGuildPermissions()).isEmpty() &&
+                        BotPermissionUtil.getMissingPermissions(event.getMessageChannel(), event.getMember(), command.getAdjustedUserChannelPermissions()).isEmpty()
+                ) {
+                    CommandLanguage commandLanguage = command.getCommandLanguage();
+                    CommandProperties commandProperties = command.getCommandProperties();
+                    CommandEntry entry = new CommandEntry(
+                            command.getReleaseDate().orElse(LocalDate.MIN).isAfter(LocalDate.now()),
+                            commandProperties.trigger(),
+                            commandProperties.emoji(),
+                            getCommandIcons(command),
+                            commandLanguage.getDescShort(),
+                            commandProperties.subCategory(),
+                            command
+                    );
+                    newCommandEntries.add(entry);
+                }
+            }
+
+            CustomRolePlayCategory customRolePlayCategory = CustomRolePlayCategory.fromCommandCategory(category);
+            if (customRolePlayCategory != null &&
+                    CommandManager.commandIsEnabledEffectively(getGuildEntity(), customRolePlayCategory.getTemplateCommandClass(), event.getMember(), event.getMessageChannel())
+            ) {
+                for (Map.Entry<String, CustomRolePlayEntity> keyValueEntry : getGuildEntity().getCustomRolePlayCommandsEffectively().entrySet()) {
+                    CustomRolePlayEntity customRolePlay = keyValueEntry.getValue();
+                    if (customRolePlay.getNsfw() != customRolePlayCategory.getNsfw()) {
+                        continue;
+                    }
+                    CommandEntry entry = new CommandEntry(
+                            false,
+                            keyValueEntry.getKey(),
+                            customRolePlay.getEmojiFormatted(),
+                            customRolePlay.getNsfw() ? List.of(CommandIcon.NSFW, CommandIcon.PATREON) : List.of(CommandIcon.PATREON),
+                            null,
+                            RP_SUBCATEGORY_CUSTOM,
+                            null
+                    );
+                    newCommandEntries.add(entry);
+                }
+            }
+
+            if (!newCommandEntries.isEmpty()) {
+                newCommandEntries.sort((a, b) -> {
+                    int subCategoryCompare = a.subCategory.compareTo(b.subCategory);
+                    if (subCategoryCompare != 0) {
+                        return subCategoryCompare;
+                    } else {
+                        if (a.subCategory.equals(RP_SUBCATEGORY_CUSTOM)) {
+                            return a.trigger.compareTo(b.trigger);
+                        } else {
+                            return Long.compare(
+                                    DBCommandUsages.getInstance().retrieve(b.trigger).getValue(),
+                                    DBCommandUsages.getInstance().retrieve(a.trigger).getValue()
+                            );
+                        }
+                    }
+                });
+                commandEntries.put(category, newCommandEntries);
+            }
         }
 
+        registerListeners(event.getMember(), STATE_CATEGORY, STATE_COMMAND);
+        return true;
+    }
+
+    @Draw(state = STATE_ROOT_ID)
+    public List<ContainerChildComponent> drawRoot(Member member) {
+        currentCategory = null;
+        currentCommand = null;
+        ArrayList<ContainerChildComponent> components = new ArrayList<>();
+
+        String image = Program.publicInstance()
+                ? "https://cdn.discordapp.com/attachments/692894361314131969/1496464852015644732/help_banner.png"
+                : "https://cdn.discordapp.com/attachments/692894361314131969/1496465106702303365/help_banner_custom.png";
+        MediaGalleryItem mediaGalleryItem = MediaGalleryItem.fromUrl(image);
+        components.add(MediaGallery.of(mediaGalleryItem));
+
+        components.add(Separator.createInvisible(Separator.Spacing.SMALL));
+        components.add(TextDisplay.of(getString("root_disclaimer", ExternalLinks.COMMANDS_WEBSITE)));
+        components.add(ActionRow.of(
+                Button.of(ButtonStyle.LINK, ExternalLinks.DASHBOARD_WEBSITE, getString("root_button_dashboard")),
+                Button.of(ButtonStyle.LINK, ExternalLinks.SERVER_INVITE_URL, getString("root_button_server")),
+                Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("root_button_add")),
+                Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE, getString("root_button_premium")),
+                Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("root_button_upvote"))
+        ));
+
+        components.addAll(generateCategoriesSelectMenu());
+        return components;
+    }
+
+    @Draw(state = STATE_CATEGORY_ID)
+    public List<ContainerChildComponent> drawCategory(Member member) {
+        STATE_CATEGORY.setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, currentCategory.getId()));
+        currentCommand = null;
+        includedIcons.clear();
+        ArrayList<ContainerChildComponent> components = new ArrayList<>();
+
+        GuildMessageChannel channel = getGuildMessageChannel().get();
+        AtomicReference<String> previousSubCommand = new AtomicReference<>(null);
+        components.addAll(categoryPageable.getComponents(entry -> {
+            includedIcons.addAll(entry.icons);
+
+            String text = getString(entry.beta ? "category_command_beta" : "category_command",
+                    entry.emoji,
+                    entry.trigger,
+                    commandIconsToString(channel, entry.icons)
+            );
+            if (entry.descriptionShort != null) {
+                text += "\n> " + entry.descriptionShort;
+            }
+
+            ArrayList<ContainerChildComponent> entryComponents = new ArrayList<>();
+            String commandSubCategory = entry.subCategory;
+            if (!commandSubCategory.equals(previousSubCommand.get()) && !commandSubCategory.isEmpty()) {
+                String prefix = previousSubCommand.get() != null ? (Emojis.ZERO_WIDTH_SPACE.getFormatted() + "\n") : "";
+                TextDisplay textDisplay = TextDisplay.of( prefix + "-# " + getString("category_subcategory_" + commandSubCategory).toUpperCase());
+                entryComponents.add(textDisplay);
+            }
+            previousSubCommand.set(commandSubCategory);
+
+            if (entry.command != null) {
+                Button browseButton = buttonSecondary(Emojis.MENU_SHORT_ARROW_RIGHT, event -> {
+                    currentCommand = entry.command;
+                    setState(STATE_COMMAND_ID);
+                    return true;
+                });
+                entryComponents.add(Section.of(browseButton, TextDisplay.of(text)));
+            } else {
+                entryComponents.add(TextDisplay.of(text));
+            }
+
+            return entryComponents;
+        }));
+
+        StringBuilder sb = new StringBuilder();
+        for (CommandIcon commandIcon : CommandIcon.values()) {
+            if (!includedIcons.contains(commandIcon)) {
+                continue;
+            }
+            sb.append(getString("category_icon_" + commandIcon.name(), commandIcon.get(channel), ExternalLinks.PREMIUM_WEBSITE)).append("\n");
+        }
+        if (!sb.isEmpty()) {
+            components.add(TextDisplay.of(Emojis.ZERO_WIDTH_SPACE.getFormatted() + "\n" + sb));
+        }
+
+        components.addAll(generateCategoriesSelectMenu());
+        return components;
+    }
+
+    @Draw(state = STATE_COMMAND_ID)
+    public List<ContainerChildComponent> drawCommand(Member member) {
+        STATE_CATEGORY.setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, currentCategory.getId()));
+        STATE_COMMAND.setTitle(currentCommand.getCommandLanguage().getTitle());
+        ArrayList<ContainerChildComponent> components = new ArrayList<>();
+
+        components.add(TextDisplay.of(currentCommand.getCommandLanguage().getDescLong()));
+        components.add(Separator.createInvisible(Separator.Spacing.SMALL));
+
+        StringBuilder usage = new StringBuilder();
+        usage.append(getString("command_usage")).append("\n");
+        for (String line : TextManager.getString(getLocale(), currentCommand.getCategory(), currentCommand.getTrigger() + "_usage").split("\n")) {
+            usage.append("- ").append(getPrefix()).append(currentCommand.getTrigger()).append(" ").append(line).append("\n");
+        }
+        components.add(TextDisplay.of(usage.toString()));
+
+        StringBuilder examples = new StringBuilder();
+        examples.append(getString("command_examples")).append("\n");
+        for (String line : TextManager.getString(getLocale(), currentCommand.getCategory(), currentCommand.getTrigger() + "_examples").split("\n")) {
+            line = StringUtil.solveVariablesOfCommandText(line, getGuildMessageChannel().get(), member, getPrefix());
+            examples.append("- ").append(getPrefix()).append(currentCommand.getTrigger()).append(" ").append(line).append("\n");
+        }
+        components.add(TextDisplay.of(examples.toString()));
+
+        Arrays.stream(currentCommand.getUserPermissions())
+                .map(permission -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, permission.name()))
+                .reduce((a, b) -> a + ", " + b)
+                .ifPresent(permissions -> components.add(TextDisplay.of(getString("command_user_permissions", CommandIcon.LOCKED.get(getGuildMessageChannel().get()), permissions))));
+
+        if (currentCommand.getCommandProperties().executableWithoutArgs()) {
+            Button button = buttonPrimary(getString("command_run"), event -> {
+                Command command = CommandManager.createCommandByClass(currentCommand.getClass(), getLocale(), getPrefix());
+                CommandManager.manage(getCommandEvent(), command, "", getGuildEntity(), Instant.now(), false);
+                return false;
+            });
+            components.add(Separator.createInvisible(Separator.Spacing.LARGE));
+            components.add(ActionRow.of(button));
+        }
+
+        return components;
+    }
+
+    private Boolean checkCommands(@NotNull CommandEvent event, @NotNull String args) {
         for (Class<? extends Command> clazz : CommandContainer.getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
 
-            if ((commandTrigger.equalsIgnoreCase(arg) || Arrays.stream(command.getCommandProperties().aliases()).anyMatch(arg::equalsIgnoreCase)) &&
+            if ((commandTrigger.equalsIgnoreCase(args) || Arrays.stream(command.getCommandProperties().aliases()).anyMatch(args::equalsIgnoreCase)) &&
                     !commandTrigger.equals(getTrigger())
             ) {
-                if (currentCategory == null) {
-                    currentCategory = command.getCategory();
+                if (command.getCommandProperties().nsfw() && !JDAUtil.channelIsNsfw(event.getMessageChannel())) {
+                    drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
+                    return null;
                 }
 
-                buttonMap.clear();
-                if (command.getCommandProperties().nsfw() && !JDAUtil.channelIsNsfw(channel)) {
-                    buttonMap.put(-1, "");
-                    return EmbedFactory.getNSFWBlockEmbed(this);
+                currentCategory = command.getCategory();
+                currentCommand = command;
+                loadPageable();
+                setState(STATE_COMMAND_ID);
+                if (hasAttachment("noargs")) {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
                 }
-                buttonMap.put(-1, "cat:" + currentCategory.getId());
-
-                StringBuilder usage = new StringBuilder();
-                for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_usage").split("\n")) {
-                    usage.append("- ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
-                }
-
-                StringBuilder examples = new StringBuilder();
-                int exampleNumber = 0;
-                for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_examples").split("\n")) {
-                    line = StringUtil.solveVariablesOfCommandText(line, getGuildMessageChannel().get(), member, getPrefix());
-                    examples.append("- ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
-                    exampleNumber++;
-                }
-
-                String addNotExecutable = "";
-                if (command.getCommandProperties().executableWithoutArgs()) {
-                    setComponents(getString("command_execute").split("\n"));
-                    buttonMap.put(0, "exec:" + command.getClass().getName());
-                }
-
-                String permissionsList = new ListGen<Permission>().getList(
-                        List.of(command.getUserPermissions()),
-                        getLocale(),
-                        ListGen.SLOT_TYPE_BULLET,
-                        permission -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, permission.name())
-                );
-
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(
-                                TextManager.getString(getLocale(), TextManager.COMMANDS, currentCategory.getId()) + " » " +
-                                        command.getCommandProperties().emoji() + " " + TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title")
-                        )
-                        .setDescription(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_helptext") + addNotExecutable)
-                        .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("command_usage") + "\n" + usage, true)
-                        .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("command_example", exampleNumber > 1) + "\n" + examples, true);
-                EmbedUtil.setFooter(eb, this, getString("command_args"));
-
-                if (command.getUserPermissions().length > 0) {
-                    eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("command_userpermissions") + "\n" + permissionsList, false);
-                }
-                if (noArgs) {
-                    EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
-                }
-
-                return eb;
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
-    private EmbedBuilder checkCategory(Member member, GuildMessageChannel channel, String arg) {
-        if (arg.startsWith("cat:")) {
-            arg = arg.substring(4);
-        }
-
-        if (!arg.isEmpty()) {
-            boolean halfMatchFound = false;
-            Category category = null;
-            for (Category value : Category.values()) {
-                if (value.isHidden()) {
-                    continue;
-                }
-                if ((value.getId().equalsIgnoreCase(arg) || TextManager.getString(getLocale(), TextManager.COMMANDS, value.getId()).equalsIgnoreCase(arg))) {
-                    category = value;
-                    break;
-                } else if ((value.getId().toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, value.getId()).toLowerCase().contains(arg.toLowerCase())) &&
-                        !halfMatchFound
-                ) {
-                    category = value;
-                    halfMatchFound = true;
-                }
-            }
-
-            if (category != null) {
-                currentCategory = category;
-                buttonMap.clear();
-                buttonMap.put(-1, "");
-
-                if (category.isNSFW() && !JDAUtil.channelIsNsfw(channel)) {
-                    return EmbedFactory.getNSFWBlockEmbed(this);
-                }
-
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()));
-                EmbedUtil.setFooter(eb, this, getString("navigation"));
-
-                switch (category) {
-                    case CONFIGURATION -> categoryConfiguration(member, channel, eb);
-                    case INTERACTIONS -> categoryRolePlay(member, eb);
-                    case NSFW_INTERACTIONS -> categoryNSFWRolePlay(member, eb);
-                    case NSFW -> categoryNSFW(member, channel, eb);
-                    case PATREON_ONLY -> categoryPatreon(member, channel, eb);
-                    default -> categoryDefault(member, channel, eb, category);
-                }
-
-                setActionRows(
-                        ActionRow.of(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_BROWSE, getString("command_button"))),
-                        ActionRow.of(generateCategoriesSelectMenu(member, channel, category))
-                );
-                return eb;
-            }
-        }
-
-        return null;
-    }
-
-    private void categoryRolePlay(Member member, EmbedBuilder eb) {
-        eb.setDescription(getString("roleplay_interactive_gender"));
-        buttonMap.put(0, Command.getCommandProperties(RolePlayGenderCommand.class).trigger());
-
-        AtomicInteger counter = new AtomicInteger(1);
-        addRolePlayCommandList(member, eb, Category.INTERACTIONS, command -> !command.isInteractive(), counter);
-        eb.addBlankField(false);
-
-        eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
-        addRolePlayCommandList(member, eb, Category.INTERACTIONS, RolePlayAbstract::isInteractive, counter);
-
-        eb.addBlankField(false);
-        eb.addField(getString("roleplay_custom_title"), getString("roleplay_custom_desc"), false);
-        addCustomRolePlayCommandList(member, eb, CustomRolePlaySfwCommand.class, false);
-    }
-
-    private void categoryNSFWRolePlay(Member member, EmbedBuilder eb) {
-        eb.setDescription(getString("roleplay_interactive_gender"));
-        buttonMap.put(0, Command.getCommandProperties(RolePlayGenderCommand.class).trigger());
-
-        AtomicInteger counter = new AtomicInteger(1);
-        eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
-        addRolePlayCommandList(member, eb, Category.NSFW_INTERACTIONS, command -> true, counter);
-
-        eb.addBlankField(false);
-        eb.addField(getString("roleplay_custom_title"), getString("roleplay_custom_desc"), false);
-        addCustomRolePlayCommandList(member, eb, CustomRolePlayNsfwCommand.class, true);
-    }
-
-    private void addRolePlayCommandList(Member member, EmbedBuilder eb, Category category, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter, AtomicInteger counter) {
-        StringBuilder stringBuilder = new StringBuilder();
-        int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
-            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-            if (!(command instanceof RolePlayAbstract)) {
+    private Boolean checkCategories(@NotNull CommandEvent event, @NotNull String args) {
+        args = args.replace("category:", "");
+        for (Category value : Category.getEntries()) {
+            if (value.isHidden()) {
                 continue;
             }
-
-            String commandTrigger = command.getTrigger();
-            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())) {
-                buttonMap.put(counter.getAndIncrement(), command.getTrigger());
-                stringBuilder
-                        .append("- `")
-                        .append(command.getCommandProperties().emoji())
-                        .append("⠀")
-                        .append(getPrefix())
-                        .append(commandTrigger)
-                        .append("`")
-                        .append("\n");
-
-                i++;
-                if (i >= 10) {
-                    if (!stringBuilder.isEmpty()) {
-                        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
-                    }
-                    stringBuilder = new StringBuilder();
-                    i = 0;
-                }
+            if ((value.getId().equalsIgnoreCase(args) || TextManager.getString(getLocale(), TextManager.COMMANDS, value.getId()).equalsIgnoreCase(args))) {
+                currentCategory = value;
+                break;
+            } else if (value.getId().toLowerCase().contains(args.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, value.getId()).toLowerCase().contains(args.toLowerCase())) {
+                currentCategory = value;
             }
         }
-        if (!stringBuilder.isEmpty()) {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
+
+        if (currentCategory != null) {
+            if (currentCategory.isNSFW() && !JDAUtil.channelIsNsfw(event.getMessageChannel())) {
+                drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
+                return null;
+            }
+            loadPageable();
+            setState(STATE_CATEGORY_ID);
+            return true;
         }
+        return false;
     }
 
-    private void addCustomRolePlayCommandList(Member member, EmbedBuilder eb, Class<? extends CustomRolePlaySfwCommand> clazz, boolean nsfw) {
-        StringBuilder stringBuilder = new StringBuilder();
-        int i = 0;
-        for (Map.Entry<String, CustomRolePlayEntity> entry : getGuildEntity().getCustomRolePlayCommandsEffectively().entrySet()) {
-            if (!CommandManager.commandIsEnabledEffectively(getGuildEntity(), clazz, member, getGuildMessageChannel().get()) ||
-                    entry.getValue().getNsfw() != nsfw
-            ) {
-                continue;
-            }
-
-            stringBuilder.append("- `");
-            if (entry.getValue().getEmoji() instanceof UnicodeEmoji) {
-                stringBuilder.append(entry.getValue().getEmojiFormatted())
-                        .append("⠀");
-            }
-            stringBuilder.append(getPrefix())
-                    .append(entry.getKey())
-                    .append("`")
-                    .append("\n");
-
-            i++;
-            if (i >= 10) {
-                if (!stringBuilder.isEmpty()) {
-                    eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
-                }
-                stringBuilder = new StringBuilder();
-                i = 0;
-            }
-        }
-        if (!stringBuilder.isEmpty()) {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
-        }
-    }
-
-    private void categoryPatreon(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
-        boolean includeLocked = false;
-        boolean includeAlerts = false;
-        boolean includeNSFW = false;
-
-        ArrayList<StringBuilder> predefinedBooruCommandsFields = new ArrayList<>();
-        predefinedBooruCommandsFields.add(new StringBuilder());
-
-        int i = 0;
-        for (Category category : Category.independentValues()) {
-            if (category.isHidden()) {
-                continue;
-            }
-            for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
-                Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                String commandTrigger = command.getTrigger();
-                if (command.getCommandProperties().patreonRequired() &&
-                        !commandTrigger.equals(getTrigger()) &&
-                        CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get()) &&
-                        (!command.getCommandProperties().nsfw() || JDAUtil.channelIsNsfw(channel))
-                ) {
-                    StringBuilder title = new StringBuilder();
-                    title.append(command.getCommandProperties().emoji())
-                            .append(" `")
-                            .append(getPrefix())
-                            .append(commandTrigger)
-                            .append("`");
-
-                    if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
-                        title.append(" ").append(getString("beta"));
-                    }
-                    if (command.getCommandProperties().obsolete()) {
-                        title.append(" ").append(getString("obsolete"));
-                    }
-                    title.append(generateCommandIcons(channel, command, true, true, false));
-
-                    if (command.isModCommand()) includeLocked = true;
-                    if (command instanceof OnAlertListener) includeAlerts = true;
-                    if (command.getCommandProperties().nsfw()) includeNSFW = true;
-
-                    buttonMap.put(i, command.getTrigger());
-                    i++;
-
-                    if (command instanceof PornPredefinedAbstract) {
-                        String extras = generateCommandIcons(channel, command, false, true, false);
-                        String booruLine = getString("nsfw_slot", command.getTrigger(), extras, command.getCommandLanguage().getTitle()) + "\n";
-                        StringBuilder lastStringBuilder = predefinedBooruCommandsFields.get(predefinedBooruCommandsFields.size() - 1);
-                        if (lastStringBuilder.length() + booruLine.length() <= MessageEmbed.VALUE_MAX_LENGTH) {
-                            lastStringBuilder.append(booruLine);
-                        } else {
-                            predefinedBooruCommandsFields.add(new StringBuilder(booruLine));
-                        }
-                    } else {
-                        eb.addField(
-                                title.toString(),
-                                TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
-                                true
-                        );
-                    }
-                }
-            }
-        }
-        if (JDAUtil.channelIsNsfw(channel)) {
-            for (int j = 0; j < predefinedBooruCommandsFields.size(); j++) {
-                eb.addField(j == 0 ? getString("nsfw_premium") : Emojis.ZERO_WIDTH_SPACE.getFormatted(), predefinedBooruCommandsFields.get(j).toString(), false);
-            }
-        }
-
-        eb.setDescription(getString("premium", ExternalLinks.PREMIUM_WEBSITE) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
-        addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, false);
-    }
-
-    private void categoryDefault(Member member, GuildMessageChannel channel, EmbedBuilder eb, Category category) {
-        boolean includeLocked = false;
-        boolean includeAlerts = false;
-        boolean includeNSFW = false;
-        boolean includePatreon = false;
-
-        int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
-            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-            String commandTrigger = command.getTrigger();
-            if (!commandTrigger.equals(getTrigger()) &&
-                    CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get()) &&
-                    (!command.getCommandProperties().nsfw() || JDAUtil.channelIsNsfw(channel))
-            ) {
-                StringBuilder title = new StringBuilder();
-                title.append(command.getCommandProperties().emoji())
-                        .append(" `")
-                        .append(getPrefix())
-                        .append(commandTrigger)
-                        .append("`");
-
-                if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
-                    title.append(" ").append(getString("beta"));
-                }
-                if (command.getCommandProperties().obsolete()) {
-                    title.append(" ").append(getString("obsolete"));
-                }
-                title.append(generateCommandIcons(channel, command, true, true, true));
-
-                if (command.isModCommand()) includeLocked = true;
-                if (command instanceof OnAlertListener) includeAlerts = true;
-                if (command.getCommandProperties().nsfw()) includeNSFW = true;
-                if (command.getCommandProperties().patreonRequired()) includePatreon = true;
-
-                buttonMap.put(i, command.getTrigger());
-                i++;
-                eb.addField(
-                        title.toString(),
-                        TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
-                        true
-                );
-            }
-        }
-
-        addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, includePatreon);
-    }
-
-    private void categoryConfiguration(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
-        StringBuilder commands = new StringBuilder();
-
-        int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.CONFIGURATION)) {
-            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-
-            if (CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())) {
-                buttonMap.put(i++, command.getTrigger());
-                String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
-
-                String extras = generateCommandIcons(channel, command, false, false, true);
-                commands.append(getString("configuration_slot", command.getCommandProperties().emoji(), command.getTrigger(), extras, title)).append("\n\n");
-            }
-        }
-
-        EmbedUtil.addFieldSplit(eb, null, commands.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true, "\n\n");
-        addIconDescriptions(channel, eb, true, false, false, true);
-    }
-
-    private void categoryNSFW(Member member, GuildMessageChannel channel, EmbedBuilder eb) {
-        eb.setDescription(getString("nsfw"));
-
-        StringBuilder withSearchKey = new StringBuilder();
-        StringBuilder other = new StringBuilder();
-        StringBuilder withoutSearchKeyHentai = new StringBuilder();
-        StringBuilder withoutSearchKeyRealLife = new StringBuilder();
-
-        int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
-            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-
-            if (CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, member, getGuildMessageChannel().get())) {
-                buttonMap.put(i++, command.getTrigger());
-                String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
-
-                String extras = generateCommandIcons(channel, command, false, false, true);
-                if (command instanceof PornSearchAbstract) {
-                    if (!withSearchKey.isEmpty()) {
-                        withSearchKey.append("\n");
-                    }
-                    withSearchKey.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title));
-                } else if (command instanceof PornPredefinedAbstract) {
-                    if (command instanceof RealbooruAbstract) {
-                        if (!withoutSearchKeyRealLife.isEmpty()) {
-                            withoutSearchKeyRealLife.append("\n");
-                        }
-                        withoutSearchKeyRealLife.append(getString("nsfw_slot", command.getTrigger(), extras, title));
-                    } else {
-                        if (!withoutSearchKeyHentai.isEmpty()) {
-                            withoutSearchKeyHentai.append("\n");
-                        }
-                        withoutSearchKeyHentai.append(getString("nsfw_slot", command.getTrigger(), extras, title));
-                    }
-                } else {
-                    if (!other.isEmpty()) {
-                        other.append("\n");
-                    }
-                    other.append(getString("nsfw_slot_ext", command.getTrigger(), extras, title));
-                }
-            }
-        }
-
-        if (!withSearchKey.isEmpty()) {
-            eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), false);
-        }
-        if (!withoutSearchKeyHentai.isEmpty()) {
-            EmbedUtil.addFieldSplit(eb, getString("nsfw_searchkey_off_hentai"), withoutSearchKeyHentai.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
-        }
-        if (!withoutSearchKeyRealLife.isEmpty()) {
-            EmbedUtil.addFieldSplit(eb, getString("nsfw_searchkey_off_rl"), withoutSearchKeyRealLife.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
-        }
-        if (!other.isEmpty()) {
-            eb.addField(getString("nsfw_other"), other.toString(), false);
-        }
-
-        addIconDescriptions(channel, eb, false, false, false, true);
-    }
-
-    private String generateCommandIcons(GuildMessageChannel channel, Command command, boolean includeAlert, boolean includeNsfw, boolean includePatreon) {
-        StringBuilder sb = new StringBuilder();
-
-        if (command.isModCommand()) sb.append(CommandIcon.LOCKED.get(channel));
-        if (includeAlert && command instanceof OnAlertListener) sb.append(CommandIcon.ALERTS.get(channel));
-        if (includeNsfw && command.getCommandProperties().nsfw()) sb.append(CommandIcon.NSFW.get(channel));
-        if (includePatreon && command.getCommandProperties().patreonRequired()) {
-            sb.append(CommandIcon.PATREON.get(channel));
-        }
-
-        return sb.isEmpty() ? "" : "┊" + sb;
-    }
-
-    private void addIconDescriptions(GuildMessageChannel channel, EmbedBuilder eb, boolean includeLocked, boolean includeAlerts, boolean includeNSFW, boolean includePatreon) {
-        StringBuilder sb = new StringBuilder();
-        if (includeLocked) {
-            sb.append(getString("commandproperties_LOCKED", CommandIcon.LOCKED.get(channel))).append("\n");
-        }
-        if (includeAlerts) {
-            sb.append(getString("commandproperties_ALERTS", CommandIcon.ALERTS.get(channel))).append("\n");
-        }
-        if (includeNSFW) sb.append(getString("commandproperties_NSFW", CommandIcon.NSFW.get(channel))).append("\n");
-        if (includePatreon) {
-            sb.append(getString("commandproperties_PATREON", CommandIcon.PATREON.get(channel), ExternalLinks.PREMIUM_WEBSITE)).append("\n");
-        }
-
-        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), sb.toString(), false);
-    }
-
-    private EmbedBuilder checkMainPage(Member member, GuildMessageChannel channel) {
-        String banner = Program.publicInstance()
-                ? "https://cdn.discordapp.com/attachments/499629904380297226/850825690399899658/help_banner.png"
-                : "https://cdn.discordapp.com/attachments/499629904380297226/1106609492256370779/help_banner_custom.png";
-
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"))
-                .setDescription(getString("sp"))
-                .setImage(banner);
-        EmbedUtil.setFooter(eb, this, getString("navigation"));
-
-        buttonMap.clear();
-        buttonMap.put(-1, "quit");
-
-        if (Program.publicInstance()) {
-            eb.addField(getString("links_title"), getString(
-                    "links_content",
-                    ExternalLinks.LAWLIET_WEBSITE,
-                    ExternalLinks.SERVER_INVITE_URL,
-                    ExternalLinks.BOT_INVITE_URL,
-                    ExternalLinks.UPVOTE_URL,
-                    ExternalLinks.PREMIUM_WEBSITE,
-                    ExternalLinks.FEATURE_REQUESTS_WEBSITE
-            ), true);
-        }
-
-        setComponents(generateCategoriesSelectMenu(member, channel, null));
-        return eb;
-    }
-
-    private SelectMenu generateCategoriesSelectMenu(Member member, GuildMessageChannel channel, Category currentCategory) {
-        StringSelectMenu.Builder builder = StringSelectMenu.create("category")
-                .setPlaceholder(getString("category_placeholder"));
-        for (Category category : Category.values()) {
-            if (CommandManager.commandCategoryIsEnabledEffectively(getGuildEntity(), category, member, channel) &&
-                    (!category.isNSFW() || JDAUtil.channelIsNsfw(channel)) &&
-                    !category.isHidden()
-            ) {
+    private List<ContainerChildComponent> generateCategoriesSelectMenu() {
+        StringSelectMenu.Builder builder = stringSelectMenu(event -> {
+            currentCategory = Category.fromId(event.getValues().get(0));
+            currentCommand = null;
+            loadPageable();
+            setState(STATE_CATEGORY_ID);
+        });
+        builder.setPlaceholder(getString("category_placeholder"));
+        for (Category category : Category.getEntries()) {
+            if (commandEntries.containsKey(category)) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
-                String value = "cat:" + category.getId();
-                builder.addOption(label, value, Emoji.fromUnicode(category.getEmoji()));
+                builder.addOption(label, category.getId(), Emoji.fromUnicode(category.getEmoji()));
                 if (category == currentCategory) {
-                    builder.setDefaultValues(List.of(value));
+                    builder.setDefaultValues(List.of(category.getId()));
                 }
             }
         }
-        return builder.build();
+
+        ActionRow actionRow = ActionRow.of(builder.build());
+        ArrayList<ContainerChildComponent> components = new ArrayList<>();
+        components.add(Separator.createDivider(Separator.Spacing.LARGE));
+        if (getState().equals(STATE_ROOT_ID)) {
+            components.add(TextDisplay.of(getString("root_category_label")));
+        }
+        components.add(actionRow);
+        return components;
+    }
+
+    private void loadPageable() {
+        categoryPageable = new Pageable<>(this, 7, () -> commandEntries.get(currentCategory));
+    }
+
+    private List<CommandIcon> getCommandIcons(Command command) {
+        ArrayList<CommandIcon> icons = new ArrayList<>();
+
+        if (command.isModCommand()) icons.add(CommandIcon.LOCKED);
+        if (command instanceof OnAlertListener) icons.add(CommandIcon.ALERTS);
+        if (command.getCommandProperties().nsfw()) icons.add(CommandIcon.NSFW);
+        if (command.getCommandProperties().patreonRequired()) icons.add(CommandIcon.PATREON);
+
+        return icons;
+    }
+
+    private String commandIconsToString(GuildMessageChannel channel, List<CommandIcon> icons) {
+        StringBuilder sb = new StringBuilder();
+        for (CommandIcon icon : icons) {
+            sb.append(icon.get(channel));
+        }
+        return sb.toString();
     }
 
 
-    private static class CommandIcon {
+    private enum CommandIcon {
 
-        public static final CommandIcon LOCKED = new CommandIcon(Emojis.COMMAND_ICON_LOCKED, "¹");
-        public static final CommandIcon ALERTS = new CommandIcon(Emojis.COMMAND_ICON_ALERTS, "²");
-        public static final CommandIcon NSFW = new CommandIcon(Emojis.COMMAND_ICON_NSFW, "³");
-        public static final CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PREMIUM, "⁴");
+        LOCKED(Emojis.COMMAND_ICON_LOCKED, "¹"),
+        ALERTS(Emojis.COMMAND_ICON_ALERTS, "²"),
+        NSFW(Emojis.COMMAND_ICON_NSFW, "³"),
+        PATREON(Emojis.COMMAND_ICON_PREMIUM, "⁴");
 
         private final CustomEmoji customEmoji;
         private final String unicodeAlternative;
 
-        public CommandIcon(CustomEmoji customEmoji, String unicodeAlternative) {
-            this.customEmoji = customEmoji;
+        CommandIcon(CustomEmoji customEmoji, String unicodeAlternative) {
+           this.customEmoji = customEmoji;
             this.unicodeAlternative = unicodeAlternative;
         }
 
@@ -689,6 +433,59 @@ public class HelpCommand extends NavigationAbstract {
             } else {
                 return unicodeAlternative;
             }
+        }
+
+    }
+
+    private enum CustomRolePlayCategory {
+
+        SFW(CustomRolePlaySfwCommand.class, false),
+        NSFW(CustomRolePlayNsfwCommand.class, true);
+
+        private final Class<? extends CustomRolePlaySfwCommand> templateCommandClass;
+        private final boolean nsfw;
+
+        CustomRolePlayCategory(Class<? extends CustomRolePlaySfwCommand> templateCommandClass, boolean nsfw) {
+            this.templateCommandClass = templateCommandClass;
+            this.nsfw = nsfw;
+        }
+
+        public Class<? extends Command> getTemplateCommandClass() {
+            return templateCommandClass;
+        }
+
+        public boolean getNsfw() {
+            return nsfw;
+        }
+
+        public static CustomRolePlayCategory fromCommandCategory(Category commandCategory) {
+            return switch (commandCategory) {
+                case INTERACTIONS -> SFW;
+                case NSFW_INTERACTIONS -> NSFW;
+                default -> null;
+            };
+        }
+
+    }
+
+    private class CommandEntry {
+
+        private boolean beta;
+        private String trigger;
+        private String emoji;
+        private List<CommandIcon> icons;
+        private String descriptionShort;
+        private String subCategory;
+        private Command command;
+
+        public CommandEntry(boolean beta, String trigger, String emoji, List<CommandIcon> icons, String descriptionShort, String subCategory, Command command) {
+            this.beta = beta;
+            this.trigger = trigger;
+            this.emoji = emoji;
+            this.icons = icons;
+            this.descriptionShort = descriptionShort;
+            this.subCategory = subCategory;
+            this.command = command;
         }
 
     }

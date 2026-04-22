@@ -32,11 +32,17 @@ public class Pageable<T> {
         this.producer = producer;
     }
 
-    public Collection<ContainerChildComponent> getComponents(Function<T, String> mappingFunction, Button... buttons) {
-        return getComponents(mappingFunction, null, buttons);
+    public Collection<ContainerChildComponent> getComponents(Function<T, String> stringMappingFunction, Consumer<T> deleteEntryConsumer, Button... buttons) {
+        return getComponents(entry -> {
+            Button deleteButton = command.buttonSecondary(Emojis.MENU_TRASH, e -> {
+                deleteEntryConsumer.accept(entry);
+                return true;
+            });
+            return List.of(Section.of(deleteButton, TextDisplay.of("> " + stringMappingFunction.apply(entry))));
+        }, buttons);
     }
 
-    public Collection<ContainerChildComponent> getComponents(Function<T, String> mappingFunction, Consumer<T> deleteEntryConsumer, Button... buttons) {
+    public Collection<ContainerChildComponent> getComponents(Function<T, List<ContainerChildComponent>> componentMappingFunction, Button... buttons) {
         ArrayList<ContainerChildComponent> components = new ArrayList<>();
         List<T> entries = producer.call();
         int maxPage = (int) Math.ceil((double) entries.size() / entriesPerPage) - 1;
@@ -44,18 +50,11 @@ public class Pageable<T> {
 
         if (entries.isEmpty()) {
             components.add(TextDisplay.of("> *" + TextManager.getString(command.getLocale(), TextManager.GENERAL, "empty") + "*"));
-        } else if (deleteEntryConsumer != null) {
+        } else {
             entries.stream()
-                    .skip(page * entriesPerPage)
+                    .skip((long) page * entriesPerPage)
                     .limit(entriesPerPage)
-                    .forEach(entry -> {
-                        Button deleteButton = command.buttonSecondary(Emojis.MENU_TRASH, e -> {
-                            deleteEntryConsumer.accept(entry);
-                            return true;
-                        });
-                        Section section = Section.of(deleteButton, TextDisplay.of("> " + mappingFunction.apply(entry)));
-                        components.add(section);
-                    });
+                    .forEach(entry -> components.addAll(componentMappingFunction.apply(entry)));
         }
 
         if (maxPage > 0) {

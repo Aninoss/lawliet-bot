@@ -31,7 +31,8 @@ import java.util.Objects;
         trigger = "customrolemanage",
         botGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDD16",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresEmbeds = false
 )
 public class CustomRoleManageCommand extends ComponentMenuAbstract {
 
@@ -57,7 +58,7 @@ public class CustomRoleManageCommand extends ComponentMenuAbstract {
         return true;
     }
 
-    @Draw(state = STATE_ROOT)
+    @Draw(state = STATE_ROOT_ID)
     public List<ContainerChildComponent> drawRoot(Member member) {
         setDescription(getString("description"));
         ArrayList<ContainerChildComponent> components = new ArrayList<>();

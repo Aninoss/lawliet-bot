@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "spank",
         emoji = "\uD83C\uDF51",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        nsfw = true
+        nsfw = true,
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class SpankCommand extends RolePlayAbstract {
 

@@ -5,13 +5,16 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "strip",
         emoji = "💈",
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
-        aliases = "undress"
+        aliases = "undress",
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class StripCommand extends RolePlayAbstract {
 

@@ -34,7 +34,8 @@ import java.util.Locale;
         emoji = "\uD83D\uDC1F",
         executableWithoutArgs = true,
         patreonRequired = true,
-        aliases = {"currencies"}
+        aliases = {"currencies"},
+        requiresEmbeds = false
 )
 public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
 
@@ -51,7 +52,7 @@ public class FisheryCurrenciesCommand extends ComponentMenuAbstract {
         return true;
     }
 
-    @Draw(state = STATE_ROOT)
+    @Draw(state = STATE_ROOT_ID)
     public List<ContainerChildComponent> drawRoot(Member member) {
         setDescription(getString("root_description"));
         return List.of(

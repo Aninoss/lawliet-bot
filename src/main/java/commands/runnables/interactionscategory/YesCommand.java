@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "yes",
         emoji = "\uD83D\uDC4D",
         executableWithoutArgs = true,
-        aliases = { "thumbsup", "thumpsup" }
+        aliases = { "thumbsup", "thumpsup" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class YesCommand extends RolePlayAbstract {
 

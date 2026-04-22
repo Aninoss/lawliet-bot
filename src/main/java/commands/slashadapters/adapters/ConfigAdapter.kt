@@ -8,12 +8,12 @@ import commands.runnables.configurationcategory.*
 import commands.runnables.fisherysettingscategory.FisheryCommand
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand
 import commands.runnables.fisherysettingscategory.VCTimeCommand
-import commands.runnables.informationcategory.HelpCommand
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand
 import commands.runnables.moderationcategory.InviteFilterCommand
 import commands.runnables.moderationcategory.ModSettingsCommand
 import commands.runnables.moderationcategory.WordFilterCommand
 import commands.runnables.fisherysettingscategory.FisheryCurrenciesCommand
+import commands.runnables.informationcategory.HelpCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta

@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "dance",
         emoji = "\uD83D\uDD7A",
         executableWithoutArgs = true,
-        aliases = { "party" }
+        aliases = { "party" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class DanceCommand extends RolePlayAbstract {
 

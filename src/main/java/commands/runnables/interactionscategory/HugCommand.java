@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "hug",
         emoji = "👐",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "yaoihug", "yurihug" }
+        aliases = { "yaoihug", "yurihug" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class HugCommand extends RolePlayAbstract {
 

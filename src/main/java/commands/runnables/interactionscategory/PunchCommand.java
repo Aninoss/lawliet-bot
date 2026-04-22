@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "punch",
         emoji = "\uD83D\uDC4A",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "hit", "attack" }
+        aliases = { "hit", "attack" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class PunchCommand extends RolePlayAbstract {
 

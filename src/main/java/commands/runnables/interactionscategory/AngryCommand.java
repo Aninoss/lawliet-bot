@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "angry",
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true,
-        aliases = { "rage", "mad" }
+        aliases = { "rage", "mad" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class AngryCommand extends RolePlayAbstract {
 

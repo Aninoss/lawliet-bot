@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "drink",
         emoji = "\uD83C\uDF7A",
         executableWithoutArgs = true,
-        aliases = { "beer", "alcohol", "chug", "drunk", "cheers" }
+        aliases = { "beer", "alcohol", "chug", "drunk", "cheers" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class DrinkCommand extends RolePlayAbstract {
 

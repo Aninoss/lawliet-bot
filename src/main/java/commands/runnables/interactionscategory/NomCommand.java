@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "nom",
         emoji = "\uD83E\uDD62",
         executableWithoutArgs = true,
-        aliases = { "eat", "hunger", "hungry" }
+        aliases = { "eat", "hunger", "hungry" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class NomCommand extends RolePlayAbstract {
 

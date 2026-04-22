@@ -4,6 +4,8 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.PornSearchAbstract;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_HENTAI;
+
 @CommandProperties(
         trigger = "kchan",
         executableWithoutArgs = true,
@@ -11,7 +13,8 @@ import commands.runnables.PornSearchAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "konac", "konachan", "konnac", "konnachan" }
+        aliases = { "konac", "konachan", "konnac", "konnachan" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_HENTAI
 )
 public class KonachanCommand extends PornSearchAbstract {
 

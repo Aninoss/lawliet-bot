@@ -5,10 +5,13 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "run",
         emoji = "\uD83C\uDFC3",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class RunCommand extends RolePlayAbstract {
 

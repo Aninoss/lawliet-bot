@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "smile",
         emoji = "\uD83D\uDE04",
         executableWithoutArgs = true,
-        aliases = { "happy" }
+        aliases = { "happy" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class SmileCommand extends RolePlayAbstract {
 

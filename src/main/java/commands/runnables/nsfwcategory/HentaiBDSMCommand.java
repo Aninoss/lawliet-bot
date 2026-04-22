@@ -6,6 +6,8 @@ import java.util.Set;
 import commands.listeners.CommandProperties;
 import commands.runnables.Rule34HentaiAbstract;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_HENTAI;
+
 @CommandProperties(
         trigger = "hbdsm",
         executableWithoutArgs = true,
@@ -14,7 +16,8 @@ import commands.runnables.Rule34HentaiAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "hentaibdsm" }
+        aliases = { "hentaibdsm" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_HENTAI
 )
 public class HentaiBDSMCommand extends Rule34HentaiAbstract {
 

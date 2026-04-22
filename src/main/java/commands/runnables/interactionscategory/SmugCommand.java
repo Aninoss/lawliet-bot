@@ -5,10 +5,13 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "smug",
         emoji = "\uD83D\uDE0F",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class SmugCommand extends RolePlayAbstract {
 

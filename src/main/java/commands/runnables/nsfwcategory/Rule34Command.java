@@ -5,6 +5,8 @@ import commands.runnables.PornSearchAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_SEARCH;
+
 @CommandProperties(
         trigger = "r34",
         executableWithoutArgs = true,
@@ -12,7 +14,8 @@ import java.util.Locale;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "rule34", "34" }
+        aliases = { "rule34", "34" },
+        subCategory = NSFW_SUBCATEGORY_SEARCH
 )
 public class Rule34Command extends PornSearchAbstract {
 

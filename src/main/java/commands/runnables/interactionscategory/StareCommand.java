@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "stare",
         emoji = "\uD83D\uDC40",
         executableWithoutArgs = true,
-        aliases = { "see" }
+        aliases = { "see" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class StareCommand extends RolePlayAbstract {
 

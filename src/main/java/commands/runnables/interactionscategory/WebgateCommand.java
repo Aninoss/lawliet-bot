@@ -5,11 +5,14 @@ import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
 import constants.AssetIds;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "webgate",
         emoji = "⛩️",
         executableWithoutArgs = true,
-        exclusiveGuilds = { AssetIds.WEBGATE_SERVER_ID }
+        exclusiveGuilds = { AssetIds.WEBGATE_SERVER_ID },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class WebgateCommand extends RolePlayAbstract {
 

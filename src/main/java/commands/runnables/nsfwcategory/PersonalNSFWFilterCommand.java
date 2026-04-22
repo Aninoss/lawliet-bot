@@ -17,11 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_GENERAL;
+
 @CommandProperties(
         trigger = "personalnsfwfilter",
         emoji = "⚙️",
         executableWithoutArgs = true,
-        aliases = {"personalnsfwfilters"}
+        aliases = {"personalnsfwfilters"},
+        subCategory = NSFW_SUBCATEGORY_GENERAL,
+        requiresEmbeds = false
 )
 public class PersonalNSFWFilterCommand extends ComponentMenuAbstract {
 
@@ -40,7 +44,7 @@ public class PersonalNSFWFilterCommand extends ComponentMenuAbstract {
         return true;
     }
 
-    @Draw(state = STATE_ROOT)
+    @Draw(state = STATE_ROOT_ID)
     public List<ContainerChildComponent> drawRoot(Member member) {
         setDescription(getString("root_description"));
 

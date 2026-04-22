@@ -5,13 +5,16 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "footjob",
         emoji = "🦶",
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
-        aliases = { "feetjob", "feet" }
+        aliases = { "feetjob", "feet" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class FootjobCommand extends RolePlayAbstract {
 

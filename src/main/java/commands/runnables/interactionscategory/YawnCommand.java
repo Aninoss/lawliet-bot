@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "yawn",
         emoji = "\uD83E\uDD71",
         executableWithoutArgs = true,
-        aliases = { "wakeup", "tired", "sleepy" }
+        aliases = { "wakeup", "tired", "sleepy" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class YawnCommand extends RolePlayAbstract {
 

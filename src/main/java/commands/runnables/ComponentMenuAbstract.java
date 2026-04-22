@@ -33,13 +33,13 @@ import java.util.*;
 
 public abstract class ComponentMenuAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnStringSelectMenuListener, OnEntitySelectMenuListener, ActionComponentGenerator {
 
-    public static final String STATE_ROOT = "root";
+    public static final String STATE_ROOT_ID = "root";
     public static final String MESSAGE_INPUT_UNIQUE_ID = "message_input";
 
     private final HashMap<String, Object> actionMap = new HashMap<>();
     private final Map<String, StateData> stateDataMap = new HashMap<>();
 
-    private String state = STATE_ROOT;
+    private String state = STATE_ROOT_ID;
     private String description = null;
     private boolean unsavedChanges = false;
     private boolean ignoreUnsavedChanges = false;
@@ -49,13 +49,13 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
     }
 
     protected void registerListeners(Member member, StateData... stateDataArray) {
+        for (StateData stateData : stateDataArray) {
+            stateDataMap.put(stateData.id, stateData);
+        }
         registerButtonListener(member, false);
         registerStringSelectMenuListener(member, false);
         registerEntitySelectMenuListener(member, false);
         registerMessageInputListener(member, true);
-        for (StateData stateData : stateDataArray) {
-            stateDataMap.put(stateData.state, stateData);
-        }
     }
 
     @Override
@@ -123,6 +123,10 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
         this.state = state;
     }
 
+    public String getState() {
+        return state;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -136,24 +140,32 @@ public abstract class ComponentMenuAbstract extends Command implements OnTrigger
         actionMap.put(component.getCustomId(), consumer);
     }
 
+    public void addAction(String customId, Object consumer) {
+        actionMap.put(customId, consumer);
+    }
+
     public void addMessageInputAction(StringAction consumer) {
         actionMap.put(MESSAGE_INPUT_UNIQUE_ID, consumer);
     }
 
     protected static class StateData {
 
-        private final String state;
+        private final String id;
         private final String previousState;
         private String title;
 
-        private StateData(String state, String previousState, String title) {
-            this.state = state;
+        private StateData(String id, String previousState, String title) {
+            this.id = id;
             this.previousState = previousState;
             this.title = title;
         }
 
         public static StateData of(String state, String previousState, String title) {
             return new StateData(state, previousState, title);
+        }
+
+        public String getId() {
+            return id;
         }
 
         public void setTitle(String title) {

@@ -5,10 +5,13 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "sleep",
         emoji = "\uD83D\uDCA4",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class SleepCommand extends RolePlayAbstract {
 

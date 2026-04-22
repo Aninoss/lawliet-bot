@@ -5,6 +5,8 @@ import java.util.Set;
 import commands.listeners.CommandProperties;
 import commands.runnables.Rule34HentaiAbstract;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_HENTAI;
+
 @CommandProperties(
         trigger = "tartagliansfw",
         executableWithoutArgs = true,
@@ -13,7 +15,8 @@ import commands.runnables.Rule34HentaiAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         exclusiveUsers = { 509790627781672960L, 272037078919938058L },
-        aliases = { "tartaglia" }
+        aliases = { "tartaglia" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_HENTAI
 )
 public class TartagliaNSFWCommand extends Rule34HentaiAbstract {
 

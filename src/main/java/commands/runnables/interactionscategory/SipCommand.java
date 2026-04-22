@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "sip",
         emoji = "☕",
         executableWithoutArgs = true,
-        aliases = { "teasip", "tea" }
+        aliases = { "teasip", "tea" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class SipCommand extends RolePlayAbstract {
 

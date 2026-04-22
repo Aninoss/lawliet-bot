@@ -16,12 +16,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_GENERAL;
+
 @CommandProperties(
         trigger = "tags",
         emoji = "🏷️",
         executableWithoutArgs = false,
         nsfw = true,
-        aliases = {"boorutags", "listtags"}
+        aliases = {"boorutags", "listtags"},
+        subCategory = NSFW_SUBCATEGORY_GENERAL
 )
 public class TagsCommand extends Command {
 

@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "reward",
         emoji = "\uD83C\uDF53",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "rewards" }
+        aliases = { "rewards" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class RewardCommand extends RolePlayAbstract {
 

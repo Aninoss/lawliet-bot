@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "slap",
         emoji = "\uD83D\uDC4F",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "smack" }
+        aliases = { "smack" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class SlapCommand extends RolePlayAbstract {
 

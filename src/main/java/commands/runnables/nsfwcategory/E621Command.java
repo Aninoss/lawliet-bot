@@ -1,8 +1,11 @@
 package commands.runnables.nsfwcategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.PornSearchAbstract;
+
+import java.util.Locale;
+
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_SEARCH;
 
 @CommandProperties(
         trigger = "e621",
@@ -11,7 +14,8 @@ import commands.runnables.PornSearchAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "furryb", "furrybooru", "furrb" }
+        aliases = { "furryb", "furrybooru", "furrb" },
+        subCategory = NSFW_SUBCATEGORY_SEARCH
 )
 public class E621Command extends PornSearchAbstract {
 

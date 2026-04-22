@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "furryfuck",
         emoji = "\uD83E\uDD8A",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class FurryFuckCommand extends RolePlayAbstract {
 

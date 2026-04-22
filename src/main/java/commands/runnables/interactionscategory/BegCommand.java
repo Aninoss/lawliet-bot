@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "beg",
         emoji = "\uD83E\uDD7A",
         executableWithoutArgs = true,
-        aliases = { "plz", "please" }
+        aliases = { "plz", "please" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class BegCommand extends RolePlayAbstract {
 

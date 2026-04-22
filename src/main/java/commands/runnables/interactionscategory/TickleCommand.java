@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "tickle",
         emoji = "\uD83E\uDD23",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class TickleCommand extends RolePlayAbstract {
 

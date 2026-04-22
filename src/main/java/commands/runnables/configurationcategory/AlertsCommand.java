@@ -411,7 +411,7 @@ public class AlertsCommand extends NavigationAbstract {
             }
         }
 
-        String commandInfo = TextManager.getString(getLocale(), Category.INFORMATION, "help_commandproperties_PATREON", Emojis.COMMAND_ICON_PREMIUM.getFormatted(), ExternalLinks.PREMIUM_WEBSITE);
+        String commandInfo = TextManager.getString(getLocale(), Category.INFORMATION, "help_category_icon_PATREON", Emojis.COMMAND_ICON_PREMIUM.getFormatted(), ExternalLinks.PREMIUM_WEBSITE);
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), commandInfo, false);
 
         return eb;

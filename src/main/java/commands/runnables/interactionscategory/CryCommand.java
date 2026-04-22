@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "cry",
         emoji = "\uD83D\uDE2D",
         executableWithoutArgs = true,
-        aliases = { "sad", "sob" }
+        aliases = { "sad", "sob" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class CryCommand extends RolePlayAbstract {
 

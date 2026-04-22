@@ -1,10 +1,13 @@
 package commands.runnables.nsfwcategory;
 
+import commands.listeners.CommandProperties;
+import commands.runnables.RealbooruAbstract;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import commands.listeners.CommandProperties;
-import commands.runnables.RealbooruAbstract;
+
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
 @CommandProperties(
         trigger = "rlass",
@@ -14,7 +17,8 @@ import commands.runnables.RealbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "ass", "reallifeass", "butt", "rlbutt", "reallifebutt" }
+        aliases = { "ass", "reallifeass", "butt", "rlbutt", "reallifebutt" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
 public class RealLifeAssCommand extends RealbooruAbstract {
 

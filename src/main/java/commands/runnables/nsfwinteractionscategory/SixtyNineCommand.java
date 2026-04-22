@@ -5,13 +5,16 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "69",
         emoji = "👅",
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
-        aliases = "sixtynine"
+        aliases = "sixtynine",
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class SixtyNineCommand extends RolePlayAbstract {
 

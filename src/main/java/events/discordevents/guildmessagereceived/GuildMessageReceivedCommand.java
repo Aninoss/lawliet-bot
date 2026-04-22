@@ -26,9 +26,9 @@ import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.CustomRolePlayEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autoquote.DBAutoQuote;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.time.Duration;

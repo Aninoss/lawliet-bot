@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "bored",
         emoji = "\uD83E\uDD71",
         executableWithoutArgs = true,
-        aliases = { "boring" }
+        aliases = { "boring" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class BoredCommand extends RolePlayAbstract {
 

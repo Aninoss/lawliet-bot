@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
+
 @CommandProperties(
         trigger = "rlfemabs",
         executableWithoutArgs = true,
@@ -15,7 +17,8 @@ import java.util.Set;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "reallifefemaleabs" }
+        aliases = { "reallifefemaleabs" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
 public class RealLifeFemaleAbsCommand extends RealbooruAbstract {
 

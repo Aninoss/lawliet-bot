@@ -5,13 +5,16 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "masturbate",
         emoji = "✊",
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
-        aliases = { "fap", "jerkoff" }
+        aliases = { "fap", "jerkoff" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class MasturbateCommand extends RolePlayAbstract {
 

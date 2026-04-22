@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.components.ModalTopLevelComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -29,57 +30,64 @@ import java.util.function.Function;
 
 public interface ActionComponentGenerator {
 
-    default Button buttonPrimary(String label, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.PRIMARY, label, buttonConsumer);
+    default Button buttonPrimary(String label, ButtonAction consumer) {
+        return button(ButtonStyle.PRIMARY, label, consumer);
     }
 
-    default Button buttonPrimary(String label, Emoji emoji, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.PRIMARY, label, buttonConsumer)
+    default Button buttonPrimary(String label, Emoji emoji, ButtonAction consumer) {
+        return button(ButtonStyle.PRIMARY, label, consumer)
                 .withEmoji(emoji);
     }
 
-    default Button buttonPrimary(Emoji emoji, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.PRIMARY, emoji, buttonConsumer);
+    default Button buttonPrimary(Emoji emoji, ButtonAction consumer) {
+        return button(ButtonStyle.PRIMARY, emoji, consumer);
     }
 
-    default Button buttonSecondary(String label, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.SECONDARY, label, buttonConsumer);
+    default Button buttonSecondary(String label, ButtonAction consumer) {
+        return button(ButtonStyle.SECONDARY, label, consumer);
     }
 
-    default Button buttonSecondary(String label, Emoji emoji, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.SECONDARY, label, buttonConsumer)
+    default Button buttonSecondary(String label, Emoji emoji, ButtonAction consumer) {
+        return button(ButtonStyle.SECONDARY, label, consumer)
                 .withEmoji(emoji);
     }
 
-    default Button buttonSecondary(Emoji emoji, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.SECONDARY, emoji, buttonConsumer);
+    default Button buttonSecondary(Emoji emoji, ButtonAction consumer) {
+        return button(ButtonStyle.SECONDARY, emoji, consumer);
     }
 
-    default Button buttonDanger(String label, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.DANGER, label, buttonConsumer);
+    default Button buttonDanger(String label, ButtonAction consumer) {
+        return button(ButtonStyle.DANGER, label, consumer);
     }
 
-    default Button buttonDanger(String label, Emoji emoji, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.DANGER, label, buttonConsumer)
+    default Button buttonDanger(String label, Emoji emoji, ButtonAction consumer) {
+        return button(ButtonStyle.DANGER, label, consumer)
                 .withEmoji(emoji);
     }
 
-    default Button buttonDanger(Emoji emoji, ButtonAction buttonConsumer) {
-        return button(ButtonStyle.DANGER, emoji, buttonConsumer);
+    default Button buttonDanger(Emoji emoji, ButtonAction consumer) {
+        return button(ButtonStyle.DANGER, emoji, consumer);
     }
 
-    default Button button(ButtonStyle buttonStyle, String label, ButtonAction buttonConsumer) {
+    default Button button(ButtonStyle buttonStyle, String label, ButtonAction consumer) {
         Button button = Button.of(buttonStyle, String.valueOf(ThreadLocalRandom.current().nextInt()), label);
         ComponentMenuAbstract componentMenuAbstract = (ComponentMenuAbstract) this;
-        componentMenuAbstract.addAction(button, buttonConsumer);
+        componentMenuAbstract.addAction(button, consumer);
         return button;
     }
 
-    default Button button(ButtonStyle buttonStyle, Emoji emoji, ButtonAction buttonConsumer) {
+    default Button button(ButtonStyle buttonStyle, Emoji emoji, ButtonAction consumer) {
         Button button = Button.of(buttonStyle, String.valueOf(ThreadLocalRandom.current().nextInt()), emoji);
         ComponentMenuAbstract componentMenuAbstract = (ComponentMenuAbstract) this;
-        componentMenuAbstract.addAction(button, buttonConsumer);
+        componentMenuAbstract.addAction(button, consumer);
         return button;
+    }
+
+    default StringSelectMenu.Builder stringSelectMenu(StringSelectMenuAction consumer) {
+        StringSelectMenu.Builder builder = StringSelectMenu.create(String.valueOf(ThreadLocalRandom.current().nextInt()));
+        ComponentMenuAbstract componentMenuAbstract = (ComponentMenuAbstract) this;
+        componentMenuAbstract.addAction(builder.getCustomId(), consumer);
+        return builder;
     }
 
     default Modal setIntModal(String property, Integer value, Integer placeholder, int min, int max, ModalIntAction consumer) {
@@ -177,10 +185,10 @@ public interface ActionComponentGenerator {
     interface EntitySelectMenuAction extends Consumer<EntitySelectInteractionEvent> {
     }
 
-    interface StringAction extends Consumer<String> {
+    interface StringSelectMenuAction extends Consumer<StringSelectInteractionEvent> {
     }
 
-    interface StringSelectMenuAction extends Consumer<StringSelectInteractionEvent> {
+    interface StringAction extends Consumer<String> {
     }
 
     interface ModalStringAction extends Consumer<String> {

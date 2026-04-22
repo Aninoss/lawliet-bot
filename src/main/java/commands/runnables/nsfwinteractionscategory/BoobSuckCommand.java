@@ -5,13 +5,16 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "boobsuck",
         emoji = "🍒",
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
-        aliases = { "boobssuck" ,"boobysuck", "suckboob", "suckboobs" }
+        aliases = { "boobssuck" ,"boobysuck", "suckboob", "suckboobs" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class BoobSuckCommand extends RolePlayAbstract {
 

@@ -10,12 +10,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_GENERAL;
+
 @CommandProperties(
         trigger = "txt2hentai",
         emoji = "🖌️",
         executableWithoutArgs = false,
         nsfw = true,
-        aliases = {"nsfwimagine", "imaginensfw"}
+        aliases = {"nsfwimagine", "imaginensfw"},
+        subCategory = NSFW_SUBCATEGORY_GENERAL
 )
 public class Txt2HentaiCommand extends RunPodAbstract {
 

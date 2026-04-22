@@ -41,7 +41,7 @@ class HelpAdapter : SlashAdapter() {
         if (commandOption != null) {
             args = commandOption.asString
         } else if (categoryOption != null) {
-            args = "cat:" + categoryOption.asString
+            args = "category:" + categoryOption.asString
         }
         return SlashMeta(HelpCommand::class.java, args)
     }

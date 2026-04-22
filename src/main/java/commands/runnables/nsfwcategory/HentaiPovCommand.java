@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_HENTAI;
+
 @CommandProperties(
         trigger = "hpov",
         executableWithoutArgs = true,
@@ -14,7 +16,8 @@ import java.util.Set;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "hentaipov" }
+        aliases = { "hentaipov" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_HENTAI
 )
 public class HentaiPovCommand extends DanbooruAbstract {
 

@@ -5,13 +5,16 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "pussyeat",
         emoji = "👅",
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
-        aliases = "eatpussy"
+        aliases = "eatpussy",
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class PussyEatCommand extends RolePlayAbstract {
 

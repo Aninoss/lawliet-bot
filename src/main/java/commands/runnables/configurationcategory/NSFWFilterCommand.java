@@ -26,7 +26,8 @@ import java.util.Locale;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "🔞",
         executableWithoutArgs = true,
-        aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"}
+        aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"},
+        requiresEmbeds = false
 )
 public class NSFWFilterCommand extends ComponentMenuAbstract {
 
@@ -47,7 +48,7 @@ public class NSFWFilterCommand extends ComponentMenuAbstract {
         return true;
     }
 
-    @ComponentMenuAbstract.Draw(state = STATE_ROOT)
+    @Draw(state = STATE_ROOT_ID)
     public List<ContainerChildComponent> drawRoot(Member member) {
         setDescription(getString("root_description"));
 

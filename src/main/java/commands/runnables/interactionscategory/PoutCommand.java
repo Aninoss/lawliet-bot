@@ -5,10 +5,13 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "pout",
         emoji = "\uD83D\uDE21",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class PoutCommand extends RolePlayAbstract {
 

@@ -5,11 +5,14 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_NON_INTERACTIVE;
+
 @CommandProperties(
         trigger = "nervous",
         emoji = "💦",
         executableWithoutArgs = true,
-        aliases = { "nerves" }
+        aliases = { "nerves" },
+        subCategory = RP_SUBCATEGORY_NON_INTERACTIVE
 )
 public class NervousCommand extends RolePlayAbstract {
 

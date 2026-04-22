@@ -5,12 +5,15 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "squish",
         emoji = "🍩",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "squeeze" }
+        aliases = { "squeeze" },
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class SquishCommand extends RolePlayAbstract {
 

@@ -5,13 +5,16 @@ import commands.runnables.RolePlayAbstract;
 
 import java.util.Locale;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "bathroomfuck",
         emoji = "🛁",
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
-        aliases = {"bathfuck"}
+        aliases = {"bathfuck"},
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class BathroomFuckCommand extends RolePlayAbstract {
 

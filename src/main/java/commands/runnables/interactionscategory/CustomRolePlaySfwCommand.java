@@ -22,11 +22,14 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_INTERACTIVE;
+
 @CommandProperties(
         trigger = "customrp_sfw",
         emoji = "🧩",
         executableWithoutArgs = false,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class CustomRolePlaySfwCommand extends RolePlayAbstract {
 

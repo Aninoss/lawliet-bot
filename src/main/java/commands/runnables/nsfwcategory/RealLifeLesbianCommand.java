@@ -4,6 +4,8 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RealbooruAbstract;
 
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
+
 @CommandProperties(
         trigger = "rllesbian",
         executableWithoutArgs = true,
@@ -11,7 +13,8 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "lesbian", "reallifelesbian", "lesbianporn", "rllesbianporn", "reallifelesbianporn" }
+        aliases = { "lesbian", "reallifelesbian", "lesbianporn", "rllesbianporn", "reallifelesbianporn" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
 public class RealLifeLesbianCommand extends RealbooruAbstract {
 
