@@ -9,23 +9,6 @@ import java.util.function.Function;
 
 public enum StableDiffusionModel {
 
-    ILUSTMIX(
-            "idpk0o19b3n6ex",
-            12000,
-            false,
-            Set.of(Txt2HentaiCommand.class),
-            "masterpiece, best quality, amazing quality, very aesthetic, detailed eyes, perfect eyes, realistic eyes, ",
-            "bad quality, worst quality, worst detail, sketch, censor, signature, patreon, watermark, artist name, cropped, ",
-            params -> new JSONObject()
-                    .put("width", params.aspectRatio.getWidth())
-                    .put("height", params.aspectRatio.getHeight())
-                    .put("cfg_scale", 7)
-                    .put("steps", 30)
-                    .put("batch_size", params.images)
-                    .put("sampler_name", "Euler a")
-                    .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
-    ),
-
     NOVA_ANIME(
             "qxq0ff5d0begby",
             12000,
@@ -105,6 +88,23 @@ public enum StableDiffusionModel {
                     .put("width", params.aspectRatio.getWidth())
                     .put("height", params.aspectRatio.getHeight())
                     .put("cfg_scale", 5)
+                    .put("steps", 30)
+                    .put("batch_size", params.images)
+                    .put("sampler_name", "Euler a")
+                    .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
+    ),
+
+    ILUSTMIX(
+            "idpk0o19b3n6ex",
+            12000,
+            false,
+            Set.of(Txt2HentaiCommand.class),
+            "masterpiece, best quality, amazing quality, very aesthetic, detailed eyes, perfect eyes, realistic eyes, ",
+            "bad quality, worst quality, worst detail, sketch, censor, signature, patreon, watermark, artist name, cropped, ",
+            params -> new JSONObject()
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
+                    .put("cfg_scale", 7)
                     .put("steps", 30)
                     .put("batch_size", params.images)
                     .put("sampler_name", "Euler a")
