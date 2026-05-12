@@ -1,6 +1,7 @@
 package commands;
 
 import commands.runnables.ComponentMenuAbstract;
+import constants.Emojis;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.modals.ModalMediator;
@@ -9,7 +10,9 @@ import net.dv8tion.jda.api.components.ModalTopLevelComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.section.Section;
 import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -82,6 +85,16 @@ public interface ActionComponentGenerator {
         componentMenuAbstract.addAction(button, consumer);
         return button;
     }
+
+    default Section buttonBoolean(String label, boolean enabled, Consumer<Boolean> changeConsumer) {
+        ComponentMenuAbstract command = (ComponentMenuAbstract) this;
+        Button enabledButton = buttonSecondary(TextManager.getString(command.getLocale(), TextManager.GENERAL, "onoff", enabled), Emojis.SWITCHES_DOT[enabled ? 1 : 0], e -> {
+            changeConsumer.accept(!enabled);
+            return true;
+        });
+        return Section.of(enabledButton, List.of(TextDisplay.of(label)));
+    }
+
 
     default StringSelectMenu.Builder stringSelectMenu(StringSelectMenuAction consumer) {
         StringSelectMenu.Builder builder = StringSelectMenu.create(String.valueOf(ThreadLocalRandom.current().nextInt()));

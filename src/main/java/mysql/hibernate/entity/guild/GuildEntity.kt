@@ -65,6 +65,14 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     val apiTokenEffectively: String?
         get() = if (ServerPatreonBoostCache.get(guildId.toLong())) apiToken else null
 
+    @Column(name = "nsfwSpoilers")
+    private var _nsfwSpoilers: Boolean? = null
+    var nsfwSpoilers: Boolean
+        get() = _nsfwSpoilers ?: false
+        set(value) {
+            _nsfwSpoilers = value
+        }
+
     @Embedded
     @Column(name = FISHERY)
     val fishery = FisheryEntity()

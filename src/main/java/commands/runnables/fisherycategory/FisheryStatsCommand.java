@@ -14,8 +14,6 @@ import mysql.redis.fisheryusers.FisheryMemberStatsData;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
-import net.dv8tion.jda.api.components.section.Section;
-import net.dv8tion.jda.api.components.section.SectionContentComponent;
 import net.dv8tion.jda.api.components.separator.Separator;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.entities.Member;
@@ -54,18 +52,14 @@ public class FisheryStatsCommand extends ComponentMenuAbstract {
         FisheryMemberStatsData stats = new FisheryGuildData(member.getGuild().getIdLong()).getMemberData(member.getIdLong()).getStats();
         boolean enabled = stats.getEnabled();
 
-        Button enabledButton = buttonSecondary(TextManager.getString(getLocale(), TextManager.GENERAL, "onoff", enabled), Emojis.SWITCHES_DOT[enabled ? 1 : 0], e -> {
-            resetLock = true;
-            stats.setEnabled(!enabled);
-            return true;
-        });
-        ArrayList<SectionContentComponent> enabledSectionComponents = new ArrayList<>();
-        enabledSectionComponents.add(TextDisplay.of(getString("enabled")));
+        String enabledLabel = getString("enabled");
         if (!enabled) {
-            enabledSectionComponents.add(TextDisplay.of(getString("notenabled")));
+            enabledLabel += "\n" + getString("notenabled");
         }
-        Section enabledSection = Section.of(enabledButton, enabledSectionComponents);
-        components.add(enabledSection);
+        components.add(buttonBoolean(enabledLabel, stats.getEnabled(), newEnabled -> {
+            resetLock = true;
+            stats.setEnabled(newEnabled);
+        }));
 
         String treasureChests = getString("treasure_chests",
                 StringUtil.numToString(stats.getTreasureChestsOpened()),

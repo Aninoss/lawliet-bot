@@ -76,7 +76,7 @@ public class CommandContainer {
         commandList.add(CommandPermissionsCommand.class);
         commandList.add(WhiteListCommand.class);
         commandList.add(CommandManagementCommand.class);
-        commandList.add(NSFWFilterCommand.class);
+        commandList.add(NSFWConfigCommand.class);
         commandList.add(SuggestionConfigCommand.class);
         commandList.add(SuggestionManageCommand.class);
         commandList.add(TicketCommand.class);
