@@ -144,7 +144,7 @@ public class MapsCommand extends Command implements OnAlertListener {
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
-        slot.sendMessage(getLocale(), true, getEmbed(true).build());
+        slot.sendMessageEmbed(getLocale(), true, getEmbed(true).build());
         slot.setNextRequest(trackingTime);
 
         return AlertResponse.CONTINUE_AND_SAVE;

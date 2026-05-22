@@ -84,7 +84,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
         }
 
         if (!embedList.isEmpty()) {
-            slot.sendMessage(getLocale(), true, embedList);
+            slot.sendMessageEmbeds(getLocale(), true, embedList);
         }
         slot.setArgs(articles.get(0).getPublicationTime().toString());
         return AlertResponse.CONTINUE_AND_SAVE;

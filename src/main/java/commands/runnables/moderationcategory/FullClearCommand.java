@@ -175,7 +175,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 try {
                     fullClear(channel, (int) hoursMin);
                     if (slot.getEffectiveUserMessage(getLocale()).isPresent() && !slot.getEffectiveUserMessage(getLocale()).get().isBlank()) {
-                        slot.sendMessage(getLocale(), true, "");
+                        slot.sendMessageContent(getLocale(), true, "");
                     }
                 } catch (InterruptedException e) {
                     //ignore
@@ -184,7 +184,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 return AlertResponse.CONTINUE_AND_SAVE;
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_args", "0", StringUtil.numToString(HOURS_MAX)));
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
             }
         }
 

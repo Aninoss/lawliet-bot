@@ -175,7 +175,7 @@ public class AlertScheduler {
         if (command.getCommandProperties().nsfw() && !JDAUtil.channelIsNsfw(channel)) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale(), command.getPrefix());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(command.getLocale(), false, eb.build());
+            slot.sendMessageEmbed(command.getLocale(), false, eb.build());
             slot.delete();
             return true;
         }
@@ -186,7 +186,7 @@ public class AlertScheduler {
         if (command.getCommandProperties().patreonRequired() && !premium) {
             EmbedBuilder eb = EmbedFactory.getPatreonBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(command.getLocale(), false, eb.build());
+            slot.sendMessageEmbed(command.getLocale(), false, eb.build());
             slot.delete();
             return true;
         }
@@ -202,7 +202,7 @@ public class AlertScheduler {
                     .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description"));
 
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(command.getLocale(), false, eb.build());
+            slot.sendMessageEmbed(command.getLocale(), false, eb.build());
             slot.delete();
             return true;
         }
@@ -221,7 +221,7 @@ public class AlertScheduler {
                                 ExternalLinks.PREMIUM_WEBSITE
                         ));
 
-                slot.sendMessage(locale, false, eb.build());
+                slot.sendMessageEmbed(locale, false, eb.build());
                 slot.setNextRequest(Instant.now().plus(Duration.ofHours(1)));
                 slot.save();
                 return true;
@@ -243,7 +243,7 @@ public class AlertScheduler {
                                 ExternalLinks.PREMIUM_WEBSITE
                         ));
 
-                slot.sendMessage(locale, false, eb.build());
+                slot.sendMessageEmbed(locale, false, eb.build());
                 slot.setNextRequest(Instant.now().plus(Duration.ofHours(1)));
                 slot.save();
                 return true;

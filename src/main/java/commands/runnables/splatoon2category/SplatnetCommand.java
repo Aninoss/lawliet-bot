@@ -105,7 +105,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         EmbedBuilder eb = getEmbed(true);
         if (eb != null) {
-            slot.sendMessage(getLocale(), true, eb.build());
+            slot.sendMessageEmbed(getLocale(), true, eb.build());
             slot.setNextRequest(trackingTime);
             return AlertResponse.CONTINUE_AND_SAVE;
         } else {

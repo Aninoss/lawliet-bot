@@ -60,11 +60,11 @@ public class TopicCommand extends Command implements OnAlertListener {
             );
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
 
-            slot.sendMessage(getLocale(), false, eb.build());
+            slot.sendMessageEmbed(getLocale(), false, eb.build());
             return AlertResponse.STOP_AND_DELETE;
         }
 
-        slot.sendMessage(getLocale(), true, getEmbed(slot.getGuildMessageChannel().get()).build());
+        slot.sendMessageEmbed(getLocale(), true, getEmbed(slot.getGuildMessageChannel().get()).build());
         slot.setNextRequest(Instant.now().plus(minutes, ChronoUnit.MINUTES));
         return AlertResponse.CONTINUE_AND_SAVE;
     }

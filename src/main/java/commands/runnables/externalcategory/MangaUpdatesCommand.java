@@ -77,7 +77,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
             } else {
                 EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             }
         } else {
@@ -94,7 +94,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
         if (series.isNsfw() && !JDAUtil.channelIsNsfw(slot.getGuildMessageChannel().get())) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale(), getPrefix());
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            slot.sendMessage(getLocale(), false, eb.build());
+            slot.sendMessageEmbed(getLocale(), false, eb.build());
             return AlertResponse.STOP_AND_DELETE;
         }
 
@@ -110,7 +110,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
 
         if ((maxSlots > 0 && !releases.isEmpty()) || slot.getArgs().isEmpty()) {
             EmbedBuilder eb = generateEmbed(series, releases, maxSlots);
-            slot.sendMessage(getLocale(), true, eb.build());
+            slot.sendMessageEmbed(getLocale(), true, eb.build());
         }
 
         recentRelease = releases.isEmpty() ? "" : releases.get(0).getId();

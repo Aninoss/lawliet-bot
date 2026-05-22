@@ -360,13 +360,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             if (e instanceof IllegalTagException) {
                 EmbedBuilder eb = illegalTagsEmbed();
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e instanceof TooManyTagsException) {
                 EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e).getMaxTags());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e.getMessage() != null && e.getMessage().contains("Booru retrieval error")) {
@@ -379,7 +379,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = noResultsEmbed(slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 return AlertResponse.CONTINUE;
@@ -442,7 +442,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         String messageContent;
         if ((messageContent = generatePostMessagesText(pornImages, channel, newMode ? MAX_FILES_PER_MESSAGE : 1, false)) != null) {
             try {
-                slot.sendMessage(getLocale(), true, messageContent, ActionRow.of(reportButton));
+                slot.sendMessageContent(getLocale(), true, messageContent, ActionRow.of(reportButton));
             } catch (InterruptedException e) {
                 //Ignore
             }
@@ -473,11 +473,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
         }
 
+        boolean spoiler = getGuildEntity().getNsfwSpoilers() && getCommandProperties().nsfw();
         for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
             if (pornImages.get(i) == null) {
                 continue;
             }
-            String line = TextManager.getString(getLocale(), Category.NSFW, "porn_file", String.valueOf(i + 1), pornImages.get(i).getImageUrl(), pornImages.get(i).getPageUrl());
+            String line = TextManager.getString(getLocale(), Category.NSFW, spoiler ? "porn_file_spoiler" : "porn_file", String.valueOf(i + 1), pornImages.get(i).getImageUrl(), pornImages.get(i).getPageUrl());
             sb.append(line)
                     .append('\n');
         }

@@ -73,7 +73,7 @@ public class YouTubeCommand extends Command implements OnAlertListener {
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 slot.setNextRequest(Instant.now().plus(1, ChronoUnit.HOURS));
@@ -101,7 +101,7 @@ public class YouTubeCommand extends Command implements OnAlertListener {
             embedList = List.of(embedList.get(embedList.size() - 1));
         }
         if (!embedList.isEmpty()) {
-            slot.sendMessage(getLocale(), true, embedList);
+            slot.sendMessageEmbeds(getLocale(), true, embedList);
         }
 
         while (idList.size() > 250) {

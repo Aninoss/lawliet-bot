@@ -94,13 +94,13 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
         Collections.reverse(embedList);
         if (!embedList.isEmpty()) {
-            slot.sendMessage(getLocale(), true, embedList);
+            slot.sendMessageEmbeds(getLocale(), true, embedList);
         }
 
         if (first && postBundle.getPosts().isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
-            slot.sendMessage(getLocale(), false, eb.build());
+            slot.sendMessageEmbed(getLocale(), false, eb.build());
         }
 
         if (postBundle.getNewestPost() != null) {

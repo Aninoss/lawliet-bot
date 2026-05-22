@@ -11,17 +11,22 @@ import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
+import net.dv8tion.jda.api.components.container.Container;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class TrackerData extends DataWithGuild implements GuildMessageChannelAsset {
@@ -138,45 +143,65 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
         }
     }
 
-    public Optional<Long> sendMessage(Locale locale, boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
+    public Optional<Long> sendMessageContent(Locale locale, boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
         if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
             content = getEffectiveUserMessage(locale).get() + "\n\n" + content;
         }
-        return processMessage(locale, true, acceptUserMessage, content, Collections.emptyList(), actionRows);
+        return processMessage(locale, true, acceptUserMessage, content, Collections.emptyList(), Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> editMessage(Locale locale, boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
+    public Optional<Long> editMessageContent(Locale locale, boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
         if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
             content = getEffectiveUserMessage(locale).get() + "\n\n" + content;
         }
-        return processMessage(locale, false, acceptUserMessage, content, Collections.emptyList(), actionRows);
+        return processMessage(locale, false, acceptUserMessage, content, Collections.emptyList(), Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> sendMessage(Locale locale, boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
-        return sendMessage(locale, acceptUserMessage, Collections.singletonList(embed), actionRows);
+    public Optional<Long> sendMessageEmbed(Locale locale, boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
+        return sendMessageEmbeds(locale, acceptUserMessage, Collections.singletonList(embed), actionRows);
     }
 
-    public Optional<Long> editMessage(Locale locale, boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
-        return editMessage(locale, acceptUserMessage, Collections.singletonList(embed), actionRows);
+    public Optional<Long> editMessageEmbed(Locale locale, boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
+        return editMessageEmbeds(locale, acceptUserMessage, Collections.singletonList(embed), actionRows);
     }
 
-    public Optional<Long> sendMessage(Locale locale, boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
+    public Optional<Long> sendMessageEmbeds(Locale locale, boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         if (embeds.isEmpty()) {
             MainLogger.get().warn("Empty embeds for alert {} in guild {}", getCommandTrigger(), getGuildId());
             return Optional.empty();
         }
-        return processMessage(locale, true, acceptUserMessage, null, embeds, actionRows);
+        return processMessage(locale, true, acceptUserMessage, null, embeds, Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> editMessage(Locale locale, boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
+    public Optional<Long> editMessageEmbeds(Locale locale, boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         if (embeds.isEmpty()) {
             return Optional.empty();
         }
-        return processMessage(locale, false, acceptUserMessage, null, embeds, actionRows);
+        return processMessage(locale, false, acceptUserMessage, null, embeds, Collections.emptyList(), actionRows);
+    }
+
+    public Optional<Long> sendMessageComponentTree(Locale locale, boolean acceptUserMessage, MessageComponentTree componentTree) throws InterruptedException {
+        List<Container> containers = componentTree.getComponents().stream()
+                .filter(c -> c instanceof Container)
+                .map(c -> (Container) c)
+                .collect(Collectors.toList());
+        return sendMessageContainers(locale, acceptUserMessage, containers);
+    }
+
+    public Optional<Long> sendMessageContainer(Locale locale, boolean acceptUserMessage, Container container) throws InterruptedException {
+        return sendMessageContainers(locale, acceptUserMessage, Collections.singletonList(container));
+    }
+
+    public Optional<Long> sendMessageContainers(Locale locale, boolean acceptUserMessage, List<Container> containers) throws InterruptedException {
+        if (containers.isEmpty()) {
+            MainLogger.get().warn("Empty embeds for alert {} in guild {}", getCommandTrigger(), getGuildId());
+            return Optional.empty();
+        }
+        return processMessage(locale, true, acceptUserMessage, null, Collections.emptyList(), containers);
     }
 
     private Optional<Long> processMessage(Locale locale, boolean newMessage, boolean acceptUserMessage, String content,
-                                          List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
+                                          List<MessageEmbed> embeds, List<Container> containers, ActionRow... actionRows) throws InterruptedException {
         Optional<GuildMessageChannel> channelOpt = getGuildMessageChannel();
         if (channelOpt.isPresent()) {
             GuildMessageChannel channel = channelOpt.get();
@@ -188,7 +213,7 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
                         Member webhookOwner = webhook.getOwner();
                         if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getSelfId()) {
                             webhookUrl = webhook.getUrl();
-                            return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
+                            return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, containers, actionRows);
                         }
                     }
                     if (webhooks.size() < 10) {
@@ -197,23 +222,23 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
                                 .complete();
 
                         webhookUrl = webhook.getUrl();
-                        return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
+                        return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, containers, actionRows);
                     } else {
                         preferWebhook = false;
-                        getGuildMessageChannel().map(c -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows));
+                        getGuildMessageChannel().map(c -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, containers, actionRows));
                     }
                 } catch (InterruptedException e) {
                     throw e;
                 } catch (Throwable e) {
                     MainLogger.get().error("Could not process webhooks", e);
-                    getGuildMessageChannel().map(c -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows));
+                    getGuildMessageChannel().map(c -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, containers, actionRows));
                 }
             }
 
             if (webhookUrl != null) {
-                return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
+                return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, containers, actionRows);
             } else {
-                return processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
+                return processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, containers, actionRows);
             }
         } else {
             MainLogger.get().warn("Channel not present for alert {} in guild {}", getCommandTrigger(), getGuildId());
@@ -222,7 +247,8 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
     }
 
     private Optional<Long> processMessageViaWebhook(Locale locale, boolean newMessage, boolean acceptUserMessage,
-                                                    String content, List<MessageEmbed> embeds, ActionRow... actionRows
+                                                    String content, List<MessageEmbed> embeds, List<Container> containers,
+                                                    ActionRow... actionRows
     ) throws InterruptedException {
         Optional<GuildMessageChannel> channelOpt = getGuildMessageChannel();
         if (channelOpt.isPresent()) {
@@ -233,20 +259,27 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
                         webhookUrl.replace("https://discord.com", "https://" + DiscordDomain.get())
                 );
 
-                List<MessageEmbed> webhookEmbeds = embeds.stream()
-                        .limit(10)
-                        .collect(Collectors.toList());
+                MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder();
+                if (!containers.isEmpty()) {
+                    ArrayList<MessageTopLevelComponent> components = new ArrayList<>(containers);
+                    if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
+                        components.add(0, TextDisplay.of(getEffectiveUserMessage(locale).get()));
+                    }
+                    messageCreateBuilder.setComponents(components)
+                            .useComponentsV2();
+                } else if (!embeds.isEmpty()) {
+                    List<MessageEmbed> webhookEmbeds = embeds.stream()
+                            .limit(10)
+                            .collect(Collectors.toList());
 
-                MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder()
-                        .setComponents(actionRows);
-
-                if (!embeds.isEmpty()) {
-                    messageCreateBuilder.setEmbeds(webhookEmbeds);
+                    messageCreateBuilder.setComponents(actionRows)
+                            .setEmbeds(webhookEmbeds);
                     if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
                         messageCreateBuilder.setContent(getEffectiveUserMessage(locale).get());
                     }
                 } else {
-                    messageCreateBuilder.setContent(content);
+                    messageCreateBuilder.setComponents(actionRows)
+                            .setContent(content);
                 }
 
                 if (newMessage) {
@@ -266,9 +299,9 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
                 Optional<Long> messageIdOpt = Optional.empty();
                 if (e.toString().contains("10015")) { /* Unknown Webhook */
                     this.webhookUrl = null;
-                    messageIdOpt = processMessageViaRest(locale, true, acceptUserMessage, content, embeds, actionRows);
+                    messageIdOpt = processMessageViaRest(locale, true, acceptUserMessage, content, embeds, containers, actionRows);
                 } else if (e.toString().contains("10008") || e.toString().contains("50005")) { /* Unknown Message || Another User */
-                    messageIdOpt = processMessageViaWebhook(locale, true, acceptUserMessage, content, embeds, actionRows);
+                    messageIdOpt = processMessageViaWebhook(locale, true, acceptUserMessage, content, embeds, containers, actionRows);
                 }
 
                 if (messageIdOpt.isPresent()) {
@@ -288,12 +321,30 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
     }
 
     private Optional<Long> processMessageViaRest(Locale locale, boolean newMessage, boolean acceptUserMessage, String content,
-                                                 List<MessageEmbed> embeds, ActionRow... actionRows) {
+                                                 List<MessageEmbed> embeds, List<Container> containers, ActionRow... actionRows) {
         Optional<GuildMessageChannel> channelOpt = getGuildMessageChannel();
         if (channelOpt.isPresent()) {
             GuildMessageChannel channel = channelOpt.get();
             try {
-                if (!embeds.isEmpty()) {
+                if (!containers.isEmpty()) {
+                    ArrayList<MessageTopLevelComponent> components = new ArrayList<>(containers);
+                    if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
+                        components.add(0, TextDisplay.of(getEffectiveUserMessage(locale).get()));
+                    }
+
+                    if (newMessage) {
+                        MessageCreateAction messageAction = channel.sendMessageComponents(components)
+                                .useComponentsV2();
+                        long newMessageId = messageAction
+                                .setAllowedMentions(null)
+                                .complete()
+                                .getIdLong();
+                        return Optional.of(newMessageId);
+                    } else {
+                        MessageEditAction messageAction = channel.editMessageComponentsById(messageId, components);
+                        return Optional.of(messageAction.setAllowedMentions(null).complete().getIdLong());
+                    }
+                } else if (!embeds.isEmpty()) {
                     if (newMessage) {
                         MessageCreateAction messageAction = channel.sendMessageEmbeds(embeds)
                                 .setComponents(actionRows);
@@ -326,7 +377,7 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
                 }
             } catch (Throwable e) {
                 if (e.toString().contains("10008") || e.toString().contains("50005")) { /* Unknown Message || Another User */
-                    return processMessageViaRest(locale, true, acceptUserMessage, content, embeds, actionRows)
+                    return processMessageViaRest(locale, true, acceptUserMessage, content, embeds, containers, actionRows)
                             .map(messageId -> {
                                 if (!newMessage) {
                                     this.messageId = messageId;

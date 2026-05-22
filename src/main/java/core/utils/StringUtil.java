@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 
@@ -321,14 +323,22 @@ public final class StringUtil {
         return Jsoup.parse(str.replace("<br />", "\n")).text();
     }
 
-    public static String escapeMarkdown(String str) {
-        return str.replace("\\", "\\\\")
-                .replace("*", "\\*")
-                .replace("_", "\\_")
-                .replace("`", "\\`")
-                .replace("|", "\\|")
-                .replace("~", "\\~")
-                .replace(">", "\\>");
+    public static String escapeMarkdown(String text) {
+        if (text == null) {
+            return null;
+        }
+        return MarkdownSanitizer.escape(text);
+    }
+
+    public static String sanitizeMarkdown(String text) {
+        if (text == null) {
+            return null;
+        }
+        return MarkdownSanitizer.sanitize(text);
+    }
+
+    public static String maskedLink(String text, String url) {
+        return MarkdownUtil.maskedLink(text.replaceAll("[^\\p{L}\\p{M}\\p{N}\\p{P}\\p{Z}\\p{Cf}\\p{Cs}\\s]", ""), url);
     }
 
     public static String escapeMarkdownInField(String str) {

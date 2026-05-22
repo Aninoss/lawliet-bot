@@ -91,7 +91,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 return AlertResponse.CONTINUE;
@@ -102,12 +102,12 @@ public class TwitchCommand extends Command implements OnAlertListener {
         EmbedBuilder eb = getEmbed(twitchStream);
 
         if (slot.getArgs().isEmpty()) {
-            slot.sendMessage(getLocale(), true, eb.build()).ifPresent(slot::setMessageId); /* always post current twitch status at first run */
+            slot.sendMessageEmbed(getLocale(), true, eb.build()).ifPresent(slot::setMessageId); /* always post current twitch status at first run */
         } else if (twitchStream.isLive()) {
             if (slot.getArgs().get().equals("false")) {
-                slot.sendMessage(getLocale(), true, eb.build()).ifPresent(slot::setMessageId); /* post twitch status if live and not live before */
+                slot.sendMessageEmbed(getLocale(), true, eb.build()).ifPresent(slot::setMessageId); /* post twitch status if live and not live before */
             } else {
-                slot.editMessage(getLocale(), true, eb.build()); /* edit twitch status if live and live before */
+                slot.editMessageEmbed(getLocale(), true, eb.build()); /* edit twitch status if live and live before */
             }
         }
 

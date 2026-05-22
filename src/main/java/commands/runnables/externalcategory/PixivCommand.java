@@ -117,7 +117,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
         if (key.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            slot.sendMessage(getLocale(), false, eb.build());
+            slot.sendMessageEmbed(getLocale(), false, eb.build());
             return AlertResponse.STOP_AND_DELETE;
         } else {
             HashSet<String> filterSet = getFilterSet(slot.getGuildId());
@@ -126,7 +126,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                         .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag"))
                         .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc"));
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             }
 
@@ -168,7 +168,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale(), getPrefix());
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    slot.sendMessage(getLocale(), false, eb.build());
+                    slot.sendMessageEmbed(getLocale(), false, eb.build());
                     return AlertResponse.STOP_AND_DELETE;
                 }
 
@@ -178,7 +178,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                         proxyImageUrlList.remove(0);
                     }
                     ActionRow actionRow = ActionRow.of(generateReportButton(proxyImageUrlList));
-                    slot.sendMessage(getLocale(), true, embedList, actionRow);
+                    slot.sendMessageEmbeds(getLocale(), true, embedList, actionRow);
                 }
 
                 slot.setArgs(postBundle.getNewestPost());
@@ -187,7 +187,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                 if (slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, key);
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    slot.sendMessage(getLocale(), false, eb.build());
+                    slot.sendMessageEmbed(getLocale(), false, eb.build());
                     return AlertResponse.STOP_AND_DELETE;
                 } else {
                     return AlertResponse.CONTINUE;

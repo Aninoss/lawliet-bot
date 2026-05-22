@@ -72,7 +72,7 @@ public class AnilistCommand extends Command implements OnAlertListener {
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(getLocale(), false, eb.build());
+                slot.sendMessageEmbed(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 return AlertResponse.CONTINUE_AND_SAVE;
@@ -82,13 +82,13 @@ public class AnilistCommand extends Command implements OnAlertListener {
         EmbedBuilder eb = generateEmbed(media);
         if (media.getStatus() == AnilistMedia.Status.NOT_YET_RELEASED || media.getStatus() == AnilistMedia.Status.RELEASING) {
             if (previousHash == null || media.hashCode() != previousHash) {
-                slot.sendMessage(getLocale(), true, eb.build());
+                slot.sendMessageEmbed(getLocale(), true, eb.build());
             }
             slot.setArgs(media.getId() + "_" + media.hashCode());
             return AlertResponse.CONTINUE_AND_SAVE;
         } else {
             EmbedUtil.addLog(eb, LogStatus.WARNING, getString("alertcompleted"));
-            slot.sendMessage(getLocale(), true, eb.build());
+            slot.sendMessageEmbed(getLocale(), true, eb.build());
             return AlertResponse.STOP_AND_DELETE;
         }
     }

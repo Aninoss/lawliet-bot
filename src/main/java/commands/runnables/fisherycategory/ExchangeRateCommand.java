@@ -109,7 +109,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
             return AlertResponse.CONTINUE;
         }
 
-        slot.sendMessage(getLocale(), true, generateEmbed().build());
+        slot.sendMessageEmbed(getLocale(), true, generateEmbed().build());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
         return AlertResponse.CONTINUE_AND_SAVE;
     }
