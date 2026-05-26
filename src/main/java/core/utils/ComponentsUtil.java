@@ -70,9 +70,6 @@ public class ComponentsUtil {
     public static MessageComponentTree createCommandComponentTree(Command command, Collection<ContainerChildComponent> components, Color accentColor) {
         ArrayList<ContainerChildComponent> innerComponents = new ArrayList<>();
         innerComponents.add(TextDisplay.of("### " + command.getCommandProperties().emoji() + " " + command.getCommandLanguage().getTitle()));
-        command.getUsername().ifPresent(username ->
-                innerComponents.add(TextDisplay.of("-# @" + StringUtil.escapeMarkdown(username)))
-        );
         innerComponents.add(Separator.createDivider(Separator.Spacing.SMALL));
         innerComponents.addAll(components);
 

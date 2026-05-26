@@ -100,6 +100,7 @@ public class RedditCommand extends Command implements OnAlertListener {
 
     private Container toContainer(RedditPost post) {
         ArrayList<ContainerChildComponent> components = new ArrayList<>();
+        boolean spoiler = post.isNsfw() && getGuildEntity().getNsfwSpoilers();
 
         String author = "-# " + StringUtil.maskedLink(StringUtil.sanitizeMarkdown(post.getAuthor()), "https://www.reddit.com/user/" + post.getAuthor());
         String title;
@@ -118,7 +119,7 @@ public class RedditCommand extends Command implements OnAlertListener {
         }
 
         if (InternetUtil.stringIsURL(post.getThumbnail())) {
-            Section section = Section.of(Thumbnail.fromUrl(post.getThumbnail()), titleComponents);
+            Section section = Section.of(Thumbnail.fromUrl(post.getThumbnail()).withSpoiler(spoiler), titleComponents);
             components.add(section);
         } else {
             components.addAll(titleComponents);
@@ -131,7 +132,9 @@ public class RedditCommand extends Command implements OnAlertListener {
         }
 
         if (InternetUtil.stringIsURL(post.getImage())) {
-            MediaGallery mediaGallery = MediaGallery.of(MediaGalleryItem.fromUrl(post.getImage()));
+            MediaGalleryItem mediaGalleryItem = MediaGalleryItem.fromUrl(post.getImage())
+                    .withSpoiler(spoiler);
+            MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItem);
             components.add(mediaGallery);
         }
 
@@ -154,8 +157,7 @@ public class RedditCommand extends Command implements OnAlertListener {
         ) + nsfwString;
         components.add(TextDisplay.of(footer));
         return Container.of(components)
-                .withAccentColor(ComponentsUtil.DEFAULT_CONTAINER_COLOR)
-                .withSpoiler(post.isNsfw() && getGuildEntity().getNsfwSpoilers());
+                .withAccentColor(ComponentsUtil.DEFAULT_CONTAINER_COLOR);
     }
 
     @Override
