@@ -4,20 +4,24 @@ import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
-import core.EmbedFactory;
 import core.RandomPicker;
 import core.TextManager;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.mention.Mention;
-import core.utils.EmbedUtil;
+import core.utils.ComponentsUtil;
 import core.utils.MentionUtil;
 import modules.CustomRolePlay;
 import mysql.hibernate.entity.CustomRolePlayEntity;
-import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.mediagallery.MediaGallery;
+import net.dv8tion.jda.api.components.mediagallery.MediaGalleryItem;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -50,12 +54,12 @@ public class CustomRolePlaySfwCommand extends RolePlayAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateEmbed(Member member, Mention mention, boolean onlySelfReference) throws ExecutionException, InterruptedException {
-        return super.generateEmbed(member, mention, false);
+    protected MessageComponentTree createComponents(Member member, Mention mention, boolean onlySelfReference, ActionRow actionRow) throws ExecutionException, InterruptedException {
+        return super.createComponents(member, mention, false, actionRow);
     }
 
     @Override
-    protected EmbedBuilder generateEmbedSunshineCase(Member member, Mention mention, String authorString, String quote) throws ExecutionException, InterruptedException {
+    protected MessageComponentTree createComponentsSuccessfully(Member member, Mention mention, String authorString, String quote, ActionRow actionRow) {
         FeatureLogger.inc(PremiumFeature.CUSTOM_ROLE_PLAY, member.getGuild().getIdLong());
 
         String text;
@@ -69,12 +73,12 @@ public class CustomRolePlaySfwCommand extends RolePlayAbstract {
             }
         }
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(customRolePlayEntity.getEmojiFormatted() + " " + customRolePlayEntity.getTitle())
-                .setDescription(CustomRolePlay.resolveVariables(text, authorString, mention.getMentionText()) + quote)
-                .setImage(gifUrl);
-        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.INTERACTIONS, "customroleplay_footer").replace("{PREFIX}", getPrefix()));
-        return eb;
+        MediaGalleryItem image = MediaGalleryItem.fromUrl(gifUrl)
+                .withSpoiler(getGuildEntity().getNsfwSpoilers() && getCommandProperties().nsfw());
+        String title = customRolePlayEntity.getEmojiFormatted() + " " + customRolePlayEntity.getTitle();
+        String desc = CustomRolePlay.resolveVariables(text, authorString, mention.getMentionText()) + quote;
+        TextDisplay footer = TextDisplay.of("-# " + TextManager.getString(getLocale(), Category.INTERACTIONS, "customroleplay_footer").replace("{PREFIX}", getPrefix()));
+        return ComponentsUtil.createCommandComponentTree(title, Arrays.asList(desc.isEmpty() ? null : TextDisplay.of(desc), MediaGallery.of(image), actionRow, footer), ComponentsUtil.DEFAULT_CONTAINER_COLOR);
     }
 
 }

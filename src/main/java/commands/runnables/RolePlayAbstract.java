@@ -6,24 +6,27 @@ import commands.CommandEvent;
 import commands.listeners.OnEntitySelectMenuListener;
 import commands.runnables.interactionscategory.BiteCommand;
 import constants.LogStatus;
-import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.Mention;
-import core.utils.EmbedUtil;
+import core.utils.ComponentsUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import kotlin.Pair;
 import mysql.hibernate.entity.user.RolePlayBlockEntity;
 import mysql.hibernate.entity.user.RolePlayGender;
 import mysql.hibernate.entity.user.UserEntity;
-import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.mediagallery.MediaGallery;
+import net.dv8tion.jda.api.components.mediagallery.MediaGalleryItem;
+import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
-import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
-import net.dv8tion.jda.api.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -82,16 +85,17 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         if (!args.isEmpty()) {
             quote = "\n\n>>> " + args;
         }
-        EmbedBuilder eb = generateEmbed(event.getMember(), mention, selfReference);
 
+        ActionRow actionRow = null;
         if (!mentionPresent && !selfReference) {
             EntitySelectMenu selectMenu = EntitySelectMenu.create("members", EntitySelectMenu.SelectTarget.USER)
                     .setPlaceholder(TextManager.getString(getLocale(), Category.INTERACTIONS, "selectmenu_placeholder"))
                     .setRequiredRange(1, SelectMenu.OPTIONS_MAX_AMOUNT)
                     .build();
-            setComponents(selectMenu);
+            actionRow = ActionRow.of(selectMenu);
         }
-        drawMessage(eb).exceptionally(ExceptionLogger.get());
+        MessageComponentTree components = createComponents(event.getMember(), mention, selfReference, actionRow);
+        drawMessage(components).exceptionally(ExceptionLogger.get());
 
         if (!mentionPresent && !selfReference) {
             registerEntitySelectMenuListener(event.getMember(), false);
@@ -105,8 +109,10 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         }
 
         String desc = getString("template", "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote;
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc).setImage(gifUrl);
-        drawMessage(eb).exceptionally(ExceptionLogger.get());
+        MediaGalleryItem image = MediaGalleryItem.fromUrl(gifUrl)
+                .withSpoiler(getGuildEntity().getNsfwSpoilers() && getCommandProperties().nsfw());
+        MessageComponentTree components = ComponentsUtil.createCommandComponentTree(this, List.of(TextDisplay.of(desc), MediaGallery.of(image)));
+        drawMessage(components).exceptionally(ExceptionLogger.get());
         return true;
     }
 
@@ -121,11 +127,12 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
-        return generateEmbed(
+    public MessageComponentTree draw(Member member) throws Throwable {
+        return createComponents(
                 member,
                 MentionUtil.getMentionedStringOfMembers(getLocale(), selectMenuMemberMentions),
-                selectMenuMemberMentions.isEmpty()
+                selectMenuMemberMentions.isEmpty(),
+                null
         );
     }
 
@@ -165,32 +172,31 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         gifs.put(new Pair<>(RolePlayGender.ANY, RolePlayGender.ANY), newGifs);
     }
 
-    protected EmbedBuilder generateEmbed(Member member, Mention mention, boolean onlySelfReference) throws ExecutionException, InterruptedException {
+    protected MessageComponentTree createComponents(Member member, Mention mention, boolean onlySelfReference, ActionRow actionRow) throws ExecutionException, InterruptedException {
         String authorString = "**" + StringUtil.escapeMarkdown(member.getEffectiveName()) + "**";
         if (onlySelfReference) {
-            return getAloneGif(authorString);
+            return createComponentsWithAloneGif(authorString);
         }
 
         if (containsBlockedUsers(member.getIdLong(), mention.getElementList())) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_blocked"));
-            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_footer").replace("{PREFIX}", getPrefix()));
-            return eb;
+            TextDisplay content = TextDisplay.of(TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_blocked"));
+            return ComponentsUtil.createCommandComponentTreeError(this, List.of(content, getFooter()));
         }
 
-        return generateEmbedSunshineCase(member, mention, authorString, quote);
+        return createComponentsSuccessfully(member, mention, authorString, quote, actionRow);
     }
 
-    protected EmbedBuilder generateEmbedSunshineCase(Member member, Mention mention, String authorString, String quote) throws ExecutionException, InterruptedException {
-        EmbedBuilder eb;
+    protected MessageComponentTree createComponentsSuccessfully(Member member, Mention mention, String authorString, String quote, ActionRow actionRow) throws ExecutionException, InterruptedException {
+        String desc;
         if (mention.getElementList().isEmpty()) {
-            eb = EmbedFactory.getEmbedDefault(this, getString("template_single", authorString) + quote);
+            desc = getString("template_single", authorString) + quote;
         } else {
-            eb = EmbedFactory.getEmbedDefault(this, getString("template", mention.isMultiple(), mention.getMentionText(), authorString) + quote);
+            desc = getString("template", mention.isMultiple(), mention.getMentionText(), authorString) + quote;
         }
 
-        eb.setImage(gifUrl);
-        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_footer").replace("{PREFIX}", getPrefix()));
-        return eb;
+        MediaGalleryItem image = MediaGalleryItem.fromUrl(gifUrl)
+                .withSpoiler(getGuildEntity().getNsfwSpoilers() && getCommandProperties().nsfw());
+        return ComponentsUtil.createCommandComponentTree(this, Arrays.asList(TextDisplay.of(desc), MediaGallery.of(image), actionRow, getFooter()));
     }
 
     private void selectGif(UserEntity userEntity, List<? extends ISnowflake> mentionedUserIds, long guildId) throws ExecutionException, InterruptedException {
@@ -285,7 +291,7 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
         return false;
     }
 
-    private EmbedBuilder getAloneGif(String authorString) {
+    private MessageComponentTree createComponentsWithAloneGif(String authorString) {
         String gif;
         String text;
         if (this instanceof BiteCommand) {
@@ -295,8 +301,13 @@ public abstract class RolePlayAbstract extends Command implements OnEntitySelect
             gif = "https://cdn.discordapp.com/attachments/736277561373491265/736277600053493770/hug.gif";
             text = TextManager.getString(getLocale(), Category.INTERACTIONS, "alone");
         }
-        return EmbedFactory.getEmbedDefault(this, text)
-                .setImage(gif);
+
+        MediaGalleryItem image = MediaGalleryItem.fromUrl(gif);
+        return ComponentsUtil.createCommandComponentTree(this, Arrays.asList(TextDisplay.of(text), MediaGallery.of(image)));
+    }
+
+    private TextDisplay getFooter() {
+        return TextDisplay.of("-# " + TextManager.getString(getLocale(), Category.INTERACTIONS, "roleplay_footer").replace("{PREFIX}", getPrefix()));
     }
 
 }

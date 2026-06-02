@@ -15,10 +15,9 @@ import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNullElse;
 
@@ -68,10 +67,14 @@ public class ComponentsUtil {
     }
 
     public static MessageComponentTree createCommandComponentTree(Command command, Collection<ContainerChildComponent> components, Color accentColor) {
+        return createCommandComponentTree(command.getCommandProperties().emoji() + " " + command.getCommandLanguage().getTitle(), components, accentColor);
+    }
+
+    public static MessageComponentTree createCommandComponentTree(String title, Collection<ContainerChildComponent> components, Color accentColor) {
         ArrayList<ContainerChildComponent> innerComponents = new ArrayList<>();
-        innerComponents.add(TextDisplay.of("### " + command.getCommandProperties().emoji() + " " + command.getCommandLanguage().getTitle()));
+        innerComponents.add(TextDisplay.of("### " + title));
         innerComponents.add(Separator.createDivider(Separator.Spacing.SMALL));
-        innerComponents.addAll(components);
+        innerComponents.addAll(components.stream().filter(Objects::nonNull).collect(Collectors.toList()));
 
         return MessageComponentTree.of(
                 Container.of(innerComponents)
