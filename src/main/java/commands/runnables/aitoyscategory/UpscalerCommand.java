@@ -160,7 +160,7 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
             }
             return false;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, premium ? "txt2img_nocalls" : "txt2img_nocalls_nopremium"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.NSFW, premium ? "txt2hentai_error_nocalls" : "txt2hentai_error_nocalls_nopremium"));
             return true;
         }
     }

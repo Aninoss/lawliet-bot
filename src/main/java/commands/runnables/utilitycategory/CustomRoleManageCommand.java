@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
 import net.dv8tion.jda.api.components.section.Section;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.modals.Modal;
@@ -68,6 +69,7 @@ public class CustomRoleManageCommand extends ComponentMenuAbstract {
                     getString("root_name"),
                     atomicRole.get().map(Role::getName).orElse(null),
                     null,
+                    TextInputStyle.SHORT,
                     1,
                     100,
                     newName -> {
@@ -93,6 +95,7 @@ public class CustomRoleManageCommand extends ComponentMenuAbstract {
                     getString("root_color"),
                     atomicRole.get().map(r -> r.getColors().getPrimary()).map(StringUtil::colorToHex).orElse(null),
                     null,
+                    TextInputStyle.SHORT,
                     6,
                     7,
                     newColorHex -> {

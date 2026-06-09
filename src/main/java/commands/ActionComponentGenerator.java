@@ -6,6 +6,7 @@ import core.ExceptionLogger;
 import core.TextManager;
 import core.modals.ModalMediator;
 import core.utils.ExceptionUtil;
+import core.utils.StringUtil;
 import net.dv8tion.jda.api.components.ModalTopLevelComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
@@ -103,7 +104,7 @@ public interface ActionComponentGenerator {
         return builder;
     }
 
-    default Modal setIntModal(String property, Integer value, Integer placeholder, int min, int max, ModalIntAction consumer) {
+    default Modal setIntModal(String property, Integer value, Integer placeholder, int min, int max, Consumer<Integer> consumer) {
         TextInput textInput = TextInput.create("_", TextInputStyle.SHORT)
                 .setValue(value != null ? String.valueOf(value) : null)
                 .setPlaceholder(placeholder != null ? String.valueOf(placeholder) : null)
@@ -111,15 +112,44 @@ public interface ActionComponentGenerator {
                 .setRequired(min > 0)
                 .build();
 
-        return modal(property, List.of(Label.of(property, textInput)), e -> {
+        return modal(property, List.of(Label.of(property + " (" + StringUtil.numToString(min) + "-" + StringUtil.numToString(max) + ")", textInput)), e -> {
             ModalMapping newValue = e.getValue("_");
-            consumer.accept(newValue != null ? Integer.parseInt(newValue.getAsString()) : 0);
+            if (newValue == null || !StringUtil.stringIsInt(newValue.getAsString())) {
+                return;
+            }
+            int newValueInt = Integer.parseInt(newValue.getAsString());
+            consumer.accept(Math.max(Math.min(newValueInt, max), min));
         });
     }
 
-    default Modal setStringModal(String property, String value, String placeholder, int minLength, int maxLength, ModalStringAction consumer, ModalTopLevelComponent... additionalComponents) {
-        TextInput textInput = TextInput.create("_", TextInputStyle.SHORT)
-                .setValue(value)
+    default <E extends Enum<E>> Modal setEnumModal(String property, Class<? extends Enum<E>> enumClass, Enum<E> value, String placeholder, Function<E, String> labelFunction, Consumer<E> consumer) {
+        StringSelectMenu.Builder selectMenuBuilder = StringSelectMenu.create("_")
+                .setPlaceholder(placeholder)
+                .setRequiredRange(1, 1);
+        for (Enum<E> enumConstant : enumClass.getEnumConstants()) {
+            selectMenuBuilder.addOption(labelFunction.apply((E) enumConstant), enumConstant.name());
+        }
+        if (value != null) {
+            selectMenuBuilder.setDefaultValues(value.name());
+        }
+
+        return modal(property, List.of(Label.of(property, selectMenuBuilder.build())), e -> {
+            ModalMapping newValue = e.getValue("_");
+            String newValueString = newValue != null ? newValue.getAsStringList().get(0) : null;
+            Enum<E> newValueEnum = null;
+            for (Enum<E> enumConstant : enumClass.getEnumConstants()) {
+                if (enumConstant.name().equals(newValueString)) {
+                    newValueEnum = enumConstant;
+                    break;
+                }
+            }
+            consumer.accept((E) newValueEnum);
+        });
+    }
+
+    default Modal setStringModal(String property, String value, String placeholder, TextInputStyle textInputStyle, int minLength, int maxLength, Consumer<String> consumer, ModalTopLevelComponent... additionalComponents) {
+        TextInput textInput = TextInput.create("_", textInputStyle)
+                .setValue(value != null && !value.isBlank() ? value : null)
                 .setPlaceholder(placeholder)
                 .setRequiredRange(minLength, maxLength)
                 .setRequired(minLength > 0)
@@ -135,7 +165,7 @@ public interface ActionComponentGenerator {
         });
     }
 
-    default Modal addStringListModal(String property, String value, int minLength, int maxLength, int maxEntities, Producer<List<String>> listProducer, Function<String, String> mapper, ModalStringAction consumer) {
+    default Modal addStringListModal(String property, String value, int minLength, int maxLength, int maxEntities, Producer<List<String>> listProducer, Function<String, String> mapper, Consumer<String> consumer) {
         TextInput textInput = TextInput.create("_", TextInputStyle.SHORT)
                 .setValue(value != null && value.isEmpty() ? null : value)
                 .setRequiredRange(minLength, maxLength)
@@ -171,7 +201,7 @@ public interface ActionComponentGenerator {
                 .build();
     }
 
-    default Modal modal(String property, Collection<ModalTopLevelComponent> components, ModalAction consumer) {
+    default Modal modal(String property, Collection<ModalTopLevelComponent> components, Consumer<ModalInteractionEvent> consumer) {
         ComponentMenuAbstract command = (ComponentMenuAbstract) this;
         return ModalMediator.createModal(command.getMemberId().get(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "set_property", property), (e, guildEntity) -> {
                     e.deferEdit().queue();
@@ -202,15 +232,6 @@ public interface ActionComponentGenerator {
     }
 
     interface StringAction extends Consumer<String> {
-    }
-
-    interface ModalStringAction extends Consumer<String> {
-    }
-
-    interface ModalIntAction extends Consumer<Integer> {
-    }
-
-    interface ModalAction extends Consumer<ModalInteractionEvent> {
     }
 
 

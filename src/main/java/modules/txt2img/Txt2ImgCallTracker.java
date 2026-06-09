@@ -1,7 +1,7 @@
 package modules.txt2img;
 
 import commands.Category;
-import commands.runnables.RunPodAbstract;
+import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
@@ -17,7 +17,7 @@ public class Txt2ImgCallTracker {
 
     public static int getRemainingCalls(EntityManagerWrapper entityManager, long userId, boolean premium) {
         if (premium) {
-            return RunPodAbstract.LIMIT_CREATIONS_PER_WEEK - getPremiumCalls(entityManager, userId) +
+            return Txt2HentaiCommand.LIMIT_CREATIONS_PER_WEEK - getPremiumCalls(entityManager, userId) +
                     entityManager.findUserEntityReadOnly(userId).getTxt2img().getBoughtImages();
         } else {
             return entityManager.findUserEntityReadOnly(userId).getTxt2img().getBoughtImages();
@@ -38,7 +38,7 @@ public class Txt2ImgCallTracker {
         txt2img.setCallsDate(LocalDate.now());
 
         if (premium) {
-            int premiumCalls = Math.min(images, RunPodAbstract.LIMIT_CREATIONS_PER_WEEK - txt2img.getCalls());
+            int premiumCalls = Math.min(images, Txt2HentaiCommand.LIMIT_CREATIONS_PER_WEEK - txt2img.getCalls());
             txt2img.setCalls(txt2img.getCalls() + premiumCalls);
             images -= premiumCalls;
         }
@@ -58,13 +58,13 @@ public class Txt2ImgCallTracker {
     public static String getRemainingImagesText(Locale locale, long guildId, long userId, UserEntity userEntity) {
         String footer;
         if (isPremium(guildId, userId)) {
-            footer = TextManager.getString(locale, Category.AI_TOYS, "txt2img_footer_premium",
+            footer = TextManager.getString(locale, Category.NSFW, "txt2hentai_root_footer_premium",
                     StringUtil.numToString(userEntity.getTxt2img().getBoughtImages()),
-                    StringUtil.numToString(RunPodAbstract.LIMIT_CREATIONS_PER_WEEK - Txt2ImgCallTracker.getPremiumCalls(userEntity.getEntityManager(), userId)),
-                    StringUtil.numToString(RunPodAbstract.LIMIT_CREATIONS_PER_WEEK)
+                    StringUtil.numToString(Txt2HentaiCommand.LIMIT_CREATIONS_PER_WEEK - Txt2ImgCallTracker.getPremiumCalls(userEntity.getEntityManager(), userId)),
+                    StringUtil.numToString(Txt2HentaiCommand.LIMIT_CREATIONS_PER_WEEK)
             );
         } else {
-            footer = TextManager.getString(locale, Category.AI_TOYS, "txt2img_footer",
+            footer = TextManager.getString(locale, Category.NSFW, "txt2hentai_root_footer",
                     StringUtil.numToString(userEntity.getTxt2img().getBoughtImages())
             );
         }
