@@ -8,19 +8,15 @@ import commands.CommandEvent;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
 import constants.ExternalLinks;
+import constants.LogStatus;
 import constants.RegexPatterns;
-import constants.Settings;
-import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.Program;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
-import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
-import core.utils.NSFWUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.porn.BooruImage;
 import modules.porn.BooruImageDownloader;
 import modules.porn.IllegalTagException;
@@ -29,12 +25,18 @@ import modules.schedulers.AlertResponse;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.container.ContainerChildComponent;
+import net.dv8tion.jda.api.components.mediagallery.MediaGallery;
+import net.dv8tion.jda.api.components.mediagallery.MediaGalleryItem;
+import net.dv8tion.jda.api.components.separator.Separator;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -108,31 +110,16 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 if (amount > 20 && amount <= maxAmount) {
                     FeatureLogger.inc(PremiumFeature.BOORUS_HIGHER_LIMIT, event.getGuild().getIdLong());
                 } else if (amount < 1 || amount > maxAmount) {
-                    if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel())) {
-                        drawMessageNew(EmbedFactory.getEmbedError(
-                                this,
-                                TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(maxAmount))
-                        )).exceptionally(ExceptionLogger.get());
-                    } else {
-                        drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(maxAmount)))
-                                .exceptionally(ExceptionLogger.get());
-                    }
+                    String content = TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(maxAmount));
+                    drawMessageNew(ComponentsUtil.createCommandComponentTreeError(this, content))
+                            .exceptionally(ExceptionLogger.get());
                     return false;
                 }
             } else {
                 if (amount < 1 || amount > 20) {
-                    if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel())) {
-                        EmbedBuilder eb = EmbedFactory.getEmbedDefault(
-                                this,
-                                TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, StringUtil.numToString(maxAmount))
-                        );
-                        eb.setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_title"))
-                                .setColor(Settings.PREMIUM_COLOR);
-                        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-                    } else {
-                        drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, StringUtil.numToString(maxAmount)))
-                                .exceptionally(ExceptionLogger.get());
-                    }
+                    String content = TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, StringUtil.numToString(maxAmount));
+                    drawMessageNew(ComponentsUtil.createCommandComponentTreeError(this, content))
+                            .exceptionally(ExceptionLogger.get());
                     return false;
                 }
             }
@@ -153,21 +140,16 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             try {
                 pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(MAX_FILES_PER_MESSAGE, (int) amount), usedResults, canBeVideo, false);
             } catch (IllegalTagException e) {
-                if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel())) {
-                    drawMessageNew(illegalTagsEmbed()).exceptionally(ExceptionLogger.get());
-                } else {
-                    drawMessageNew(illegalTagsString()).exceptionally(ExceptionLogger.get());
-                }
+                drawMessageNew(illegalTagsComponents())
+                        .exceptionally(ExceptionLogger.get());
                 return false;
             } catch (TooManyTagsException e) {
-                if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel())) {
-                    drawMessageNew(tooManyTagsEmbed(e.getMaxTags())).exceptionally(ExceptionLogger.get());
-                } else {
-                    drawMessageNew(tooManyTagsString(e.getMaxTags())).exceptionally(ExceptionLogger.get());
-                }
+                drawMessageNew(tooManyTagsComponents(e.getMaxTags()))
+                        .exceptionally(ExceptionLogger.get());
                 return false;
             } catch (NoSuchElementException | IOException e) {
-                postApiUnavailable(event.getMessageChannel());
+                drawMessageNew(apiUnavailableComponents())
+                        .exceptionally(ExceptionLogger.get());
                 return false;
             }
 
@@ -178,11 +160,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                         effectiveArgs = "";
                     }
 
-                    if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel())) {
-                        drawMessageNew(noResultsEmbed(effectiveArgs)).exceptionally(ExceptionLogger.get());
-                    } else {
-                        drawMessageNew(noResultsString(effectiveArgs)).exceptionally(ExceptionLogger.get());
-                    }
+                    drawMessageNew(noResultsComponents(effectiveArgs))
+                            .exceptionally(ExceptionLogger.get());
                     return false;
                 } else {
                     return true;
@@ -197,36 +176,16 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
 
             first = false;
-            String messageContent = null;
-
-            while (!pornImages.isEmpty()) {
-                messageContent = generatePostMessagesText(pornImages, event.getMessageChannel(), MAX_FILES_PER_MESSAGE, true);
-                if (messageContent == null || messageContent.length() < 2000) {
-                    break;
-                } else {
-                    pornImages = pornImages.stream()
-                            .limit(pornImages.size() - 1)
-                            .collect(Collectors.toList());
-                }
-            }
-
             if (pornImages.size() < MAX_FILES_PER_MESSAGE) {
                 amount = 0;
             } else {
                 amount -= pornImages.size();
             }
 
-            if (messageContent != null) {
-                ArrayList<Button> buttons = new ArrayList<>();
-                if (amount <= 0) {
-                    Button loadMoreButton = generateLoadMoreButton(premium);
-                    buttons.add(loadMoreButton);
-                }
-                buttons.add(generateReportButton(pornImages));
-
-                setComponents(buttons);
+            MessageComponentTree messageComponents = generateComponents(pornImages, event.getMessageChannel(), MAX_FILES_PER_MESSAGE, amount <= 0, premium);
+            if (messageComponents != null) {
                 boolean registerButton = amount <= 0 && premium;
-                drawMessageNew(messageContent)
+                drawMessageNew(messageComponents)
                         .thenAccept(message -> {
                             if (registerButton) {
                                 setDrawMessage(message);
@@ -270,48 +229,22 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         return Button.of(ButtonStyle.LINK, url, TextManager.getString(getLocale(), Category.NSFW, "porn_report"));
     }
 
-    private void postApiUnavailable(GuildMessageChannel channel) {
-        if (BotPermissionUtil.canWriteEmbed(channel)) {
-            drawMessageNew(apiUnavailableEmbed()).exceptionally(ExceptionLogger.get());
-        } else {
-            drawMessageNew(apiUnavailableString()).exceptionally(ExceptionLogger.get());
-        }
+    private MessageComponentTree apiUnavailableComponents() {
+        return ComponentsUtil.createErrorApiDown(this, getDomain());
     }
 
-    private EmbedBuilder apiUnavailableEmbed() {
-        return EmbedFactory.getApiDownEmbed(this, getDomain());
+    private MessageComponentTree noResultsComponents(String args) {
+        return ComponentsUtil.createErrorNoResults(this, args);
     }
 
-    private String apiUnavailableString() {
-        return "❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain());
+    private MessageComponentTree illegalTagsComponents() {
+        String content = TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc");
+        return ComponentsUtil.createCommandComponentTreeError(this, content);
     }
 
-    private EmbedBuilder noResultsEmbed(String args) {
-        return EmbedFactory.getNoResultsEmbed(this, args);
-    }
-
-    private String noResultsString(String args) {
-        return "❌ " + TextManager.getNoResultsString(getLocale(), args);
-    }
-
-    private EmbedBuilder illegalTagsEmbed() {
-        return EmbedFactory.getEmbedError(this)
-                .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag"))
-                .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc"));
-    }
-
-    private String illegalTagsString() {
-        return "❌ " + TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc");
-    }
-
-    private EmbedBuilder tooManyTagsEmbed(int maxTags) {
-        return EmbedFactory.getEmbedError(this)
-                .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags"))
-                .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags_desc", StringUtil.numToString(maxTags)));
-    }
-
-    private String tooManyTagsString(int maxTags) {
-        return "❌ " + TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags_desc", StringUtil.numToString(maxTags));
+    private MessageComponentTree tooManyTagsComponents(int maxTags) {
+        String content = TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags_desc", StringUtil.numToString(maxTags));
+        return ComponentsUtil.createCommandComponentTreeError(this, content);
     }
 
     @Override
@@ -358,15 +291,15 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
         } catch (Throwable e) {
             if (e instanceof IllegalTagException) {
-                EmbedBuilder eb = illegalTagsEmbed();
-                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessageEmbed(getLocale(), false, eb.build());
+                MessageComponentTree components = illegalTagsComponents();
+                ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
+                slot.sendMessageComponentTree(getLocale(), false, components);
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e instanceof TooManyTagsException) {
-                EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e).getMaxTags());
-                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessageEmbed(getLocale(), false, eb.build());
+                MessageComponentTree components = tooManyTagsComponents(((TooManyTagsException) e).getMaxTags());
+                ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
+                slot.sendMessageComponentTree(getLocale(), false, components);
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e.getMessage() != null && e.getMessage().contains("Booru retrieval error")) {
@@ -377,9 +310,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
         if (pornImages.isEmpty()) {
             if (slot.getArgs().isEmpty()) {
-                EmbedBuilder eb = noResultsEmbed(slot.getCommandKey());
-                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessageEmbed(getLocale(), false, eb.build());
+                MessageComponentTree components = noResultsComponents(slot.getCommandKey());
+                ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
+                slot.sendMessageComponentTree(getLocale(), false, components);
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 return AlertResponse.CONTINUE;
@@ -438,11 +371,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             FeatureLogger.inc(PremiumFeature.BOORUS_PREMIUM_ONLY, slot.getGuildId());
         }
 
-        Button reportButton = generateReportButton(pornImages);
-        String messageContent;
-        if ((messageContent = generatePostMessagesText(pornImages, channel, newMode ? MAX_FILES_PER_MESSAGE : 1, false)) != null) {
+        MessageComponentTree messageComponents;
+        if ((messageComponents = generateComponents(pornImages, channel, newMode ? MAX_FILES_PER_MESSAGE : 1, false, premium)) != null) {
             try {
-                slot.sendMessageContent(getLocale(), true, messageContent, ActionRow.of(reportButton));
+                slot.sendMessageComponentTree(getLocale(), true, messageComponents);
             } catch (InterruptedException e) {
                 //Ignore
             }
@@ -451,14 +383,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
-    private String generatePostMessagesText(List<BooruImage> pornImages, GuildMessageChannel channel, int max, boolean doubleLineBreak) {
-        StringBuilder sb = new StringBuilder();
+    private MessageComponentTree generateComponents(List<BooruImage> pornImages, GuildMessageChannel channel, int max, boolean showLoadMoreButton, boolean premium) {
+        ArrayList<ContainerChildComponent> components = new ArrayList<>();
 
         if (this instanceof PornSearchAbstract && !pornImages.get(0).getTags().isEmpty()) {
             List<String> tags = pornImages.get(0).getTags();
-            if (tags != null) {
-                sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_tags"))
-                        .append(" ");
+            if (tags != null && !tags.isEmpty()) {
                 StringBuilder tagsStringBuilder = new StringBuilder();
                 for (int i = 0; i < tags.size(); i++) {
                     if (i > 0) {
@@ -468,28 +398,45 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                             .append(tags.get(i))
                             .append("`");
                 }
-                sb.append(StringUtil.shortenString(tagsStringBuilder.toString(), 100))
-                        .append(doubleLineBreak ? "\n\n" : "\n");
+                String tagsString = TextManager.getString(getLocale(), Category.NSFW, "porn_tags") + " " + StringUtil.shortenString(tagsStringBuilder.toString(), 100);
+                components.add(TextDisplay.of(tagsString));
+                components.add(Separator.createInvisible(Separator.Spacing.SMALL));
             }
         }
 
+        StringBuilder contentStringBuilder = new StringBuilder();
+        ArrayList<MediaGalleryItem> mediaGalleryItems = new ArrayList<>();
         boolean spoiler = getGuildEntity().getNsfwSpoilers() && getCommandProperties().nsfw();
         for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
             if (pornImages.get(i) == null) {
                 continue;
             }
-            String line = TextManager.getString(getLocale(), Category.NSFW, spoiler ? "porn_file_spoiler" : "porn_file", String.valueOf(i + 1), pornImages.get(i).getImageUrl(), pornImages.get(i).getPageUrl());
-            sb.append(line)
+            String line = TextManager.getString(getLocale(), Category.NSFW, "porn_file", String.valueOf(i + 1), pornImages.get(i).getImageUrl(), pornImages.get(i).getPageUrl());
+            contentStringBuilder.append(line)
                     .append('\n');
+            mediaGalleryItems.add(
+                    MediaGalleryItem.fromUrl(pornImages.get(i).getImageUrl())
+                            .withSpoiler(spoiler)
+            );
         }
+        components.add(TextDisplay.of(contentStringBuilder.toString()));
+        components.add(MediaGallery.of(mediaGalleryItems));
 
+        ArrayList<Button> buttons = new ArrayList<>();
+        if (showLoadMoreButton) {
+            Button loadMoreButton = generateLoadMoreButton(premium);
+            buttons.add(loadMoreButton);
+        }
+        buttons.add(generateReportButton(pornImages));
+        components.add(ActionRow.of(buttons));
+
+        MessageComponentTree commandComponentTree = ComponentsUtil.createCommandComponentTree(this, components);
         if (notice != null) {
-            sb.append('\n')
-                    .append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice));
+            commandComponentTree = ComponentsUtil.addLog(commandComponentTree, LogStatus.WARNING, notice);
         }
 
         if (BotPermissionUtil.canWrite(channel)) {
-            return sb.toString();
+            return commandComponentTree;
         }
         return null;
     }

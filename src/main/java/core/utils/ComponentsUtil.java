@@ -58,6 +58,10 @@ public class ComponentsUtil {
         return createCommandComponentTreeError(command, content);
     }
 
+    public static MessageComponentTree createCommandComponentTreeError(Command command, String text) {
+        return createCommandComponentTreeError(command, TextDisplay.of(text));
+    }
+
     public static MessageComponentTree createCommandComponentTreeError(Command command, ContainerChildComponent component) {
         return createCommandComponentTreeError(command, List.of(component));
     }
