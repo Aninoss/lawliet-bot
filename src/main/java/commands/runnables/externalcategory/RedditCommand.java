@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "reddit",
@@ -138,9 +139,24 @@ public class RedditCommand extends Command implements OnAlertListener {
             components.add(mediaGallery);
         }
 
+        if (post.getImages() != null) {
+            List<MediaGalleryItem> mediaGalleryItems = post.getImages().stream()
+                    .filter(InternetUtil::stringIsURL)
+                    .map(imageUrl -> {
+                        return MediaGalleryItem.fromUrl(imageUrl)
+                                .withSpoiler(spoiler);
+                    })
+                    .limit(MediaGallery.MAX_ITEMS)
+                    .collect(Collectors.toList());
+            if (!mediaGalleryItems.isEmpty()) {
+                MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItems);
+                components.add(mediaGallery);
+            }
+        }
+
         String flairText = "";
         String flair = StringUtil.escapeMarkdown(post.getFlair());
-        if (flair != null && !("" + flair).equals("null") && !("" + flair).equals("") && !("" + flair).equals(" ")) {
+        if (flair != null && !flair.equals("null") && !flair.isBlank()) {
             flairText = flair + "｜";
         }
 

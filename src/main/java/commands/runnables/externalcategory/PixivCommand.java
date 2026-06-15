@@ -193,7 +193,7 @@ public class PixivCommand extends Command implements OnAlertListener {
         }
 
         List<String> images = downloadAndProxyImages(image);
-        for (List<String> imagesPartitioned : Lists.partition(images, 10)) {
+        for (List<String> imagesPartitioned : Lists.partition(images, MediaGallery.MAX_ITEMS)) {
             List<MediaGalleryItem> mediaGalleryItems = imagesPartitioned.stream()
                     .map(url -> MediaGalleryItem.fromUrl(url).withSpoiler(spoiler))
                     .collect(Collectors.toList());

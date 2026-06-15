@@ -1,6 +1,7 @@
 package modules.reddit;
 
 import java.time.Instant;
+import java.util.List;
 
 public class RedditPost {
 
@@ -11,6 +12,7 @@ public class RedditPost {
     private String subreddit;
     private String domain;
     private String image;
+    private List<String> images;
     private String thumbnail;
     private String description;
     private String flair;
@@ -83,6 +85,15 @@ public class RedditPost {
 
     public RedditPost setImage(String image) {
         this.image = image;
+        return this;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public RedditPost setImages(List<String> images) {
+        this.images = images;
         return this;
     }
 
