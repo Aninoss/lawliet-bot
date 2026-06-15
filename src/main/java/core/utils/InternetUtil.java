@@ -39,12 +39,29 @@ public final class InternetUtil {
     }
 
     public static boolean uriIsImage(String url, boolean allowGifs) {
+        if (url == null) {
+            return false;
+        }
+
         url = url.toLowerCase();
         int index = url.indexOf('?');
         if (index != -1) {
             url = url.substring(0, index);
         }
         return url.endsWith(".jpeg") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".bmp") || (url.endsWith(".gif") && allowGifs);
+    }
+
+    public static boolean uriIsVideo(String url) {
+        if (url == null) {
+            return false;
+        }
+
+        url = url.toLowerCase();
+        int index = url.indexOf('?');
+        if (index != -1) {
+            url = url.substring(0, index);
+        }
+        return url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".avi");
     }
 
     public static boolean stringHasURL(String url) {

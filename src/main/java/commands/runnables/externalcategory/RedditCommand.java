@@ -119,7 +119,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             titleComponents.add(TextDisplay.of(desc));
         }
 
-        if (InternetUtil.stringIsURL(post.getThumbnail())) {
+        if ((post.getImages() == null || post.getImages().isEmpty()) && !InternetUtil.stringIsURL(post.getImage()) && InternetUtil.stringIsURL(post.getThumbnail())) {
             Section section = Section.of(Thumbnail.fromUrl(post.getThumbnail()).withSpoiler(spoiler), titleComponents);
             components.add(section);
         } else {
@@ -130,13 +130,6 @@ public class RedditCommand extends Command implements OnAlertListener {
             String label = TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_linktext");
             Button button = Button.of(ButtonStyle.LINK, post.getSourceLink(), label);
             components.add(ActionRow.of(button));
-        }
-
-        if (InternetUtil.stringIsURL(post.getImage())) {
-            MediaGalleryItem mediaGalleryItem = MediaGalleryItem.fromUrl(post.getImage())
-                    .withSpoiler(spoiler);
-            MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItem);
-            components.add(mediaGallery);
         }
 
         if (post.getImages() != null) {
@@ -152,6 +145,11 @@ public class RedditCommand extends Command implements OnAlertListener {
                 MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItems);
                 components.add(mediaGallery);
             }
+        } else if (InternetUtil.stringIsURL(post.getImage())) {
+            MediaGalleryItem mediaGalleryItem = MediaGalleryItem.fromUrl(post.getImage())
+                    .withSpoiler(spoiler);
+            MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItem);
+            components.add(mediaGallery);
         }
 
         String flairText = "";
@@ -190,7 +188,7 @@ public class RedditCommand extends Command implements OnAlertListener {
 
         List<RedditPost> redditPosts;
         try {
-            redditPosts = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
+            redditPosts = redditDownloader.retrievePostsBulk(key).get();
         } catch (ExecutionException e) {
             slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
             return AlertResponse.CONTINUE;

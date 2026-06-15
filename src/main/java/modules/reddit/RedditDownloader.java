@@ -45,7 +45,7 @@ public class RedditDownloader {
         }
     }
 
-    public CompletableFuture<List<RedditPost>> retrievePostsBulk(String input, String args) {
+    public CompletableFuture<List<RedditPost>> retrievePostsBulk(String input) {
         String[] inputExt = extractSubredditAndOrderBy(input);
         if (inputExt == null) {
             return CompletableFuture.completedFuture(List.of());

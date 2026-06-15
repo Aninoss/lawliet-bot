@@ -88,10 +88,6 @@ public class BooruImage {
         return this;
     }
 
-    public boolean isVideo() {
-        return video;
-    }
-
     public List<String> getImageTags() {
         return imageTags;
     }

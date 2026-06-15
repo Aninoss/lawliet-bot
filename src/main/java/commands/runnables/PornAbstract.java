@@ -209,7 +209,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         return button;
     }
 
-    private Button generateReportButton(List<BooruImage> pornImages) {
+    protected Button generateReportButton(List<BooruImage> pornImages) {
         StringBuilder reportArgsBuilder = new StringBuilder();
         for (BooruImage pornImage : pornImages) {
             if (!reportArgsBuilder.isEmpty()) {
@@ -414,10 +414,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             String line = TextManager.getString(getLocale(), Category.NSFW, "porn_file", String.valueOf(i + 1), pornImages.get(i).getImageUrl(), pornImages.get(i).getPageUrl());
             contentStringBuilder.append(line)
                     .append('\n');
-            mediaGalleryItems.add(
-                    MediaGalleryItem.fromUrl(pornImages.get(i).getImageUrl())
-                            .withSpoiler(spoiler)
-            );
+            if (InternetUtil.stringIsURL(pornImages.get(i).getImageUrl())) {
+                mediaGalleryItems.add(
+                        MediaGalleryItem.fromUrl(pornImages.get(i).getImageUrl())
+                                .withSpoiler(spoiler)
+                );
+            }
         }
         components.add(TextDisplay.of(contentStringBuilder.toString()));
         components.add(MediaGallery.of(mediaGalleryItems));
@@ -427,8 +429,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             Button loadMoreButton = generateLoadMoreButton(premium);
             buttons.add(loadMoreButton);
         }
-        buttons.add(generateReportButton(pornImages));
-        components.add(ActionRow.of(buttons));
+        Button reportButton = generateReportButton(pornImages);
+        if (reportButton != null) {
+            buttons.add(reportButton);
+        }
+        if (!buttons.isEmpty()) {
+            components.add(ActionRow.of(buttons));
+        }
 
         MessageComponentTree commandComponentTree = ComponentsUtil.createCommandComponentTree(this, components);
         if (notice != null) {
@@ -443,7 +450,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
                                             String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
-                                            boolean bulkMode, ArrayList<String> usedResults) throws IOException {
+                                            boolean bulkMode, ArrayList<String> usedResults
+    ) throws IOException {
         if (NSFWUtil.containsFilterTags(search, nsfwFilter)) {
             throw new IllegalTagException();
         }
