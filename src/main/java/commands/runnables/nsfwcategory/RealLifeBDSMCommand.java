@@ -1,10 +1,9 @@
 package commands.runnables.nsfwcategory;
 
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.RealbooruAbstract;
+import commands.runnables.RedditNSFWAbstract;
+
+import java.util.Locale;
 
 import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
@@ -19,7 +18,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         aliases = { "bdsm", "realllifebdsm" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
-public class RealLifeBDSMCommand extends RealbooruAbstract {
+public class RealLifeBDSMCommand extends RedditNSFWAbstract {
 
     public RealLifeBDSMCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -28,18 +27,6 @@ public class RealLifeBDSMCommand extends RealbooruAbstract {
     @Override
     protected String getSearchKey() {
         return "bdsm";
-    }
-
-    @Override
-    protected Set<String> getAdditionalFilters() {
-        HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("gay", "shemale", "trap", "transgender", "otoko_no_ko"));
-        return filters;
-    }
-
-    @Override
-    protected boolean isAnimatedOnly() {
-        return true;
     }
 
 }

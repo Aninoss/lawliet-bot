@@ -1,11 +1,9 @@
 package commands.runnables.nsfwcategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.RealbooruAbstract;
+import commands.runnables.RedditNSFWAbstract;
 
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
 import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
@@ -19,7 +17,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         aliases = { "pussy", "reallifepussy", "vagina", "rlvagina", "reallifevagina" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
-public class RealLifePussy extends RealbooruAbstract {
+public class RealLifePussy extends RedditNSFWAbstract {
 
     public RealLifePussy(Locale locale, String prefix) {
         super(locale, prefix);
@@ -27,23 +25,7 @@ public class RealLifePussy extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "pussy solo";
-    }
-
-    @Override
-    protected Set<String> getAdditionalFilters() {
-        HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("1boy", "vaginal", "dildo", "2boys", "sex", "oral", "penetration", "celebrity", "anal",
-                "fellatio", "deep_penetration", "fakes", "machine", "electrostimulation", "anilingus", "double_anal",
-                "double_penetration", "toy", "face_fuck", "censored", "ass", "breasts", "pregnant", "nipples",
-                "cigarette", "cartoon", "riding", "spider-man_(series)", "strap-on", "large_insertion",
-                "vaginal_insertion", "gaping"));
-        return filters;
-    }
-
-    @Override
-    protected boolean isAnimatedOnly() {
-        return false;
+        return "pussy";
     }
 
 }

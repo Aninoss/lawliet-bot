@@ -1,8 +1,9 @@
 package commands.runnables.nsfwcategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.RealbooruAbstract;
+import commands.runnables.RedditNSFWAbstract;
+
+import java.util.Locale;
 
 import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
@@ -16,7 +17,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         aliases = { "lesbian", "reallifelesbian", "lesbianporn", "rllesbianporn", "reallifelesbianporn" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
-public class RealLifeLesbianCommand extends RealbooruAbstract {
+public class RealLifeLesbianCommand extends RedditNSFWAbstract {
 
     public RealLifeLesbianCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -24,12 +25,7 @@ public class RealLifeLesbianCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "lesbian";
-    }
-
-    @Override
-    protected boolean isAnimatedOnly() {
-        return true;
+        return "lesbians";
     }
 
 }

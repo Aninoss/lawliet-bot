@@ -1,11 +1,9 @@
 package commands.runnables.nsfwcategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.RealbooruAbstract;
+import commands.runnables.RedditNSFWAbstract;
 
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
 import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
@@ -20,7 +18,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         aliases = { "boobs", "reallifeboobs", "tits", "rltits", "reallifetits", "boobies", "rlboobies", "reallifeboobies" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
-public class RealLifeBoobsCommand extends RealbooruAbstract {
+public class RealLifeBoobsCommand extends RedditNSFWAbstract {
 
     public RealLifeBoobsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -29,27 +27,6 @@ public class RealLifeBoobsCommand extends RealbooruAbstract {
     @Override
     protected String getSearchKey() {
         return "boobs";
-    }
-
-    @Override
-    protected Set<String> getAdditionalFilters() {
-        HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("gay", "shemale", "trap", "transgender", "otoko_no_ko", "sex", "dildo",
-                "orgasm", "1boy", "2boys", "penis", "penetration", "double_penetration", "fellatio", "handjob",
-                "oral", "threesome", "anal", "vaginal", "vaginal_sex", "doggy_style", "squirt", "squirting",
-                "vaginal_penetration", "fingering", "cum", "buttjob", "cum_in_pussy", "vaginal_insertion",
-                "mia_khalifa", "reverse_cowgirl_position", "riding", "enema", "between_breasts"));
-        return filters;
-    }
-
-    @Override
-    public boolean mustBeExplicit() {
-        return false;
-    }
-
-    @Override
-    protected boolean isAnimatedOnly() {
-        return false;
     }
 
 }

@@ -1,11 +1,9 @@
 package commands.runnables.nsfwcategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.RealbooruAbstract;
+import commands.runnables.RedditNSFWAbstract;
 
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
 import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
@@ -19,7 +17,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         aliases = { "dick", "reallifedick", "cock", "rlcock", "reallifecock", "penis", "rlpenis", "reallifepenis" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
-public class RealLifeDick extends RealbooruAbstract {
+public class RealLifeDick extends RedditNSFWAbstract {
 
     public RealLifeDick(Locale locale, String prefix) {
         super(locale, prefix);
@@ -27,25 +25,7 @@ public class RealLifeDick extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "penis male_only";
-    }
-
-    @Override
-    protected Set<String> getAdditionalFilters() {
-        HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("barry_allen", "pussy", "tits", "female", "oral", "2boys", "penetration", "celebrity",
-                "panty_shot", "anal", "trap", "dildo", "transgender", "onahole", "shemale", "transvestite", "fleshlight",
-                "fellatio", "self_suck", "milking_machine", "penis_lick", "deep_penetration", "outercourse",
-                "otoko_no_ko", "fakes", "autofellatio", "cum_on_anus", "cum_on_ass", "kangaroo", "handjob", "manpussy",
-                "machine", "electrostimulation", "anilingus", "crossdresser", "crossdressing", "double_anal",
-                "double_penetration", "breasts", "cum_on_food", "toy", "face_fuck", "sexdoll", "sextoy",
-                "spider-man_(series)", "cum_on_face", "censored"));
-        return filters;
-    }
-
-    @Override
-    protected boolean isAnimatedOnly() {
-        return false;
+        return "Dick";
     }
 
 }

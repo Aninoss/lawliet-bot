@@ -124,6 +124,7 @@ public class HelpCommand extends ComponentMenuAbstract {
                     CommandProperties commandProperties = command.getCommandProperties();
                     CommandEntry entry = new CommandEntry(
                             command.getReleaseDate().orElse(LocalDate.MIN).isAfter(LocalDate.now()),
+                            commandProperties.obsolete(),
                             commandProperties.trigger(),
                             commandProperties.emoji(),
                             getCommandIcons(command),
@@ -145,6 +146,7 @@ public class HelpCommand extends ComponentMenuAbstract {
                         continue;
                     }
                     CommandEntry entry = new CommandEntry(
+                            false,
                             false,
                             keyValueEntry.getKey(),
                             customRolePlay.getEmojiFormatted(),
@@ -219,7 +221,14 @@ public class HelpCommand extends ComponentMenuAbstract {
         components.addAll(categoryPageable.getComponents(entry -> {
             includedIcons.addAll(entry.icons);
 
-            String text = getString(entry.beta ? "category_command_beta" : "category_command",
+            String textKey = "category_command";
+            if (entry.beta) {
+                textKey = "category_command_beta";
+            } else if (entry.obsolete) {
+                textKey = "category_command_obsolete";
+            }
+
+            String text = getString(textKey,
                     entry.emoji,
                     entry.trigger,
                     commandIconsToString(channel, entry.icons)
@@ -471,6 +480,7 @@ public class HelpCommand extends ComponentMenuAbstract {
     private class CommandEntry {
 
         private boolean beta;
+        private boolean obsolete;
         private String trigger;
         private String emoji;
         private List<CommandIcon> icons;
@@ -478,8 +488,9 @@ public class HelpCommand extends ComponentMenuAbstract {
         private String subCategory;
         private Command command;
 
-        public CommandEntry(boolean beta, String trigger, String emoji, List<CommandIcon> icons, String descriptionShort, String subCategory, Command command) {
+        public CommandEntry(boolean beta, boolean obsolete, String trigger, String emoji, List<CommandIcon> icons, String descriptionShort, String subCategory, Command command) {
             this.beta = beta;
+            this.obsolete = obsolete;
             this.trigger = trigger;
             this.emoji = emoji;
             this.icons = icons;
