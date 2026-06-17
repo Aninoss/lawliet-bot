@@ -62,17 +62,17 @@ public abstract class RedditNSFWAbstract extends PornPredefinedAbstract {
     }
 
     private BooruImage mapToBooruImage(RedditPost redditPost, boolean canBeVideo) {
-        if (redditPost.getImage() == null || redditPost.getImage().isEmpty()) {
-            redditPost.setImage(redditPost.getThumbnail());
+        if (redditPost.getMediaUrls() == null || redditPost.getMediaUrls().isEmpty()) {
+            redditPost.setMediaUrls(List.of(redditPost.getThumbnail()));
         }
+        String mediaUrl = redditPost.getMediaUrls().isEmpty() ? null : redditPost.getMediaUrls().get(0);
         return new BooruImage()
                 .setId(redditPost.getId().hashCode())
-                .setImageUrl(!InternetUtil.uriIsVideo(redditPost.getImage()) || canBeVideo || redditPost.getThumbnail() == null || redditPost.getThumbnail().isBlank() ? redditPost.getImage() : redditPost.getThumbnail())
-                .setOriginalImageUrl(redditPost.getImage())
-                .setPageUrl(redditPost.getSourceLink() != null ?  redditPost.getSourceLink() : redditPost.getUrl())
+                .setImageUrl(!InternetUtil.uriIsVideo(mediaUrl) || canBeVideo || redditPost.getThumbnail() == null || redditPost.getThumbnail().isBlank() ? mediaUrl : redditPost.getThumbnail())
+                .setPageUrl(redditPost.getRedditUrl())
                 .setScore(redditPost.getScore())
                 .setInstant(redditPost.getInstant())
-                .setVideo(InternetUtil.uriIsVideo(redditPost.getImage()))
+                .setVideo(InternetUtil.uriIsVideo(mediaUrl))
                 .setTags(Collections.emptyList())
                 .setImageTags(Collections.emptyList());
     }

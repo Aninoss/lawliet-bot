@@ -105,8 +105,8 @@ public class RedditCommand extends Command implements OnAlertListener {
 
         String author = "-# " + StringUtil.maskedLink(StringUtil.sanitizeMarkdown(post.getAuthor()), "https://www.reddit.com/user/" + post.getAuthor());
         String title;
-        if (InternetUtil.stringIsURL(post.getUrl())) {
-            title = "**" + StringUtil.maskedLink(StringUtil.sanitizeMarkdown(StringUtil.shortenString(post.getTitle(), 256)), post.getUrl()) + "**";
+        if (InternetUtil.stringIsURL(post.getRedditUrl())) {
+            title = "**" + StringUtil.maskedLink(StringUtil.sanitizeMarkdown(StringUtil.shortenString(post.getTitle(), 256)), post.getRedditUrl()) + "**";
         } else {
             title = "**" + StringUtil.escapeMarkdown(StringUtil.shortenString(post.getTitle(), 256)) + "**";
         }
@@ -119,21 +119,21 @@ public class RedditCommand extends Command implements OnAlertListener {
             titleComponents.add(TextDisplay.of(desc));
         }
 
-        if ((post.getImages() == null || post.getImages().isEmpty()) && !InternetUtil.stringIsURL(post.getImage()) && InternetUtil.stringIsURL(post.getThumbnail())) {
+        if ((post.getMediaUrls() == null || post.getMediaUrls().isEmpty()) && InternetUtil.stringIsURL(post.getThumbnail())) {
             Section section = Section.of(Thumbnail.fromUrl(post.getThumbnail()).withSpoiler(spoiler), titleComponents);
             components.add(section);
         } else {
             components.addAll(titleComponents);
         }
 
-        if (post.getSourceLink() != null) {
+        if (post.getContentUrl() != null) {
             String label = TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_linktext");
-            Button button = Button.of(ButtonStyle.LINK, post.getSourceLink(), label);
+            Button button = Button.of(ButtonStyle.LINK, post.getContentUrl(), label);
             components.add(ActionRow.of(button));
         }
 
-        if (post.getImages() != null) {
-            List<MediaGalleryItem> mediaGalleryItems = post.getImages().stream()
+        if (post.getMediaUrls() != null) {
+            List<MediaGalleryItem> mediaGalleryItems = post.getMediaUrls().stream()
                     .filter(InternetUtil::stringIsURL)
                     .map(imageUrl -> {
                         return MediaGalleryItem.fromUrl(imageUrl)
@@ -145,11 +145,6 @@ public class RedditCommand extends Command implements OnAlertListener {
                 MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItems);
                 components.add(mediaGallery);
             }
-        } else if (InternetUtil.stringIsURL(post.getImage())) {
-            MediaGalleryItem mediaGalleryItem = MediaGalleryItem.fromUrl(post.getImage())
-                    .withSpoiler(spoiler);
-            MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItem);
-            components.add(mediaGallery);
         }
 
         String flairText = "";

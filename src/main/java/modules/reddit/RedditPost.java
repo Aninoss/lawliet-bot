@@ -8,15 +8,13 @@ public class RedditPost {
     private String id;
     private String title;
     private String author;
-    private String url;
+    private String redditUrl;
+    private String contentUrl;
     private String subreddit;
-    private String domain;
-    private String image;
-    private List<String> images;
+    private List<String> mediaUrls;
     private String thumbnail;
     private String description;
     private String flair;
-    private String sourceLink;
     private int score;
     private int comments;
     private boolean nsfw;
@@ -52,12 +50,21 @@ public class RedditPost {
         return this;
     }
 
-    public String getUrl() {
-        return url;
+    public String getRedditUrl() {
+        return redditUrl;
     }
 
-    public RedditPost setUrl(String url) {
-        this.url = url;
+    public RedditPost setRedditUrl(String redditUrl) {
+        this.redditUrl = redditUrl;
+        return this;
+    }
+
+    public String getContentUrl() {
+        return contentUrl;
+    }
+
+    public RedditPost setContentUrl(String contentUrl) {
+        this.contentUrl = contentUrl;
         return this;
     }
 
@@ -70,30 +77,12 @@ public class RedditPost {
         return this;
     }
 
-    public String getDomain() {
-        return domain;
+    public List<String> getMediaUrls() {
+        return mediaUrls;
     }
 
-    public RedditPost setDomain(String domain) {
-        this.domain = domain;
-        return this;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public RedditPost setImage(String image) {
-        this.image = image;
-        return this;
-    }
-
-    public List<String> getImages() {
-        return images;
-    }
-
-    public RedditPost setImages(List<String> images) {
-        this.images = images;
+    public RedditPost setMediaUrls(List<String> mediaUrls) {
+        this.mediaUrls = mediaUrls;
         return this;
     }
 
@@ -121,15 +110,6 @@ public class RedditPost {
 
     public RedditPost setFlair(String flair) {
         this.flair = flair;
-        return this;
-    }
-
-    public String getSourceLink() {
-        return sourceLink;
-    }
-
-    public RedditPost setSourceLink(String sourceLink) {
-        this.sourceLink = sourceLink;
         return this;
     }
 
