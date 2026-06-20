@@ -104,15 +104,8 @@ public class Txt2HentaiCommand extends ComponentMenuAbstract {
 
         if (args.contains("|")) {
             String[] parts = args.split("\\|");
-            if (parts.length <= 2) {
-                prompt = parts[0].trim();
-                negativePrompt = parts.length == 2 ? parts[1].trim() : "";
-            } else {
-                String error = getString("error_ambiguous_negativeprompt", "|");
-                drawMessageNew(ComponentsUtil.createCommandComponentTreeError(this, TextDisplay.of(error)))
-                        .exceptionally(ExceptionLogger.get());
-                return false;
-            }
+            prompt = parts[0].trim();
+            negativePrompt = parts[1].trim();
         } else {
             prompt = args;
             negativePrompt = "";
