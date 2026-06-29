@@ -212,7 +212,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 idList.add(0, redditPosts.get(i).getId());
             }
         }
-        for (int i = 0; i < Math.min(50, redditPosts.size()) && containers.size() < 5; i++) {
+        for (int i = 0; i < Math.min(50, redditPosts.size()) && containers.size() < 4; i++) {
             RedditPost post = redditPosts.get(i);
             if (post.isNsfw() && !JDAUtil.channelIsNsfw(slot.getGuildMessageChannel().get())) {
                 continue;

@@ -408,15 +408,16 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         ArrayList<MediaGalleryItem> mediaGalleryItems = new ArrayList<>();
         boolean spoiler = getGuildEntity().getNsfwSpoilers() && getCommandProperties().nsfw();
         for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
-            if (pornImages.get(i) == null) {
+            BooruImage pornImage = pornImages.get(i);
+            if (pornImage == null || pornImage.getImageUrl() == null || pornImage.getPageUrl() == null) {
                 continue;
             }
-            String line = TextManager.getString(getLocale(), Category.NSFW, "porn_file", String.valueOf(i + 1), pornImages.get(i).getImageUrl(), pornImages.get(i).getPageUrl());
+            String line = TextManager.getString(getLocale(), Category.NSFW, "porn_file", String.valueOf(i + 1), pornImage.getImageUrl(), pornImage.getPageUrl());
             contentStringBuilder.append(line)
                     .append('\n');
-            if (InternetUtil.stringIsURL(pornImages.get(i).getImageUrl())) {
+            if (InternetUtil.stringIsURL(pornImage.getImageUrl())) {
                 mediaGalleryItems.add(
-                        MediaGalleryItem.fromUrl(pornImages.get(i).getImageUrl())
+                        MediaGalleryItem.fromUrl(pornImage.getImageUrl())
                                 .withSpoiler(spoiler)
                 );
             }

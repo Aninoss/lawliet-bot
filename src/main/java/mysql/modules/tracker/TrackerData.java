@@ -311,7 +311,7 @@ public class TrackerData extends DataWithGuild implements GuildMessageChannelAss
                     return messageIdOpt;
                 }
 
-                MainLogger.get().error("Alert webhook exception", e);
+                MainLogger.get().error("Alert webhook exception (command: {}, key: {})", commandTrigger, commandKey, e);
                 return Optional.empty();
             }
         } else {
