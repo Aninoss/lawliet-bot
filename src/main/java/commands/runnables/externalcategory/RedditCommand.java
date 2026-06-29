@@ -82,7 +82,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                                 return false;
                             }
 
-                            MessageComponentTree components = MessageComponentTree.of(toContainer(post));
+                            MessageComponentTree components = MessageComponentTree.of(toContainer(post, false));
                             components = ComponentsUtil.addTrackerNoteLog(this, event.getMember(), components);
                             drawMessageNew(components).exceptionally(ExceptionLogger.get());
                             return true;
@@ -99,23 +99,23 @@ public class RedditCommand extends Command implements OnAlertListener {
         }
     }
 
-    private Container toContainer(RedditPost post) {
+    private Container toContainer(RedditPost post, boolean shortened) {
         ArrayList<ContainerChildComponent> components = new ArrayList<>();
         boolean spoiler = post.isNsfw() && getGuildEntity().getNsfwSpoilers();
 
         String author = "-# " + StringUtil.maskedLink(StringUtil.sanitizeMarkdown(post.getAuthor()), "https://www.reddit.com/user/" + post.getAuthor());
         String title;
         if (InternetUtil.stringIsURL(post.getRedditUrl())) {
-            title = "**" + StringUtil.maskedLink(StringUtil.sanitizeMarkdown(StringUtil.shortenString(post.getTitle(), 256)), post.getRedditUrl()) + "**";
+            title = "**" + StringUtil.maskedLink(StringUtil.sanitizeMarkdown(StringUtil.shortenString(post.getTitle(), 250)), post.getRedditUrl()) + "**";
         } else {
-            title = "**" + StringUtil.escapeMarkdown(StringUtil.shortenString(post.getTitle(), 256)) + "**";
+            title = "**" + StringUtil.escapeMarkdown(StringUtil.shortenString(post.getTitle(), 250)) + "**";
         }
 
         ArrayList<TextDisplay> titleComponents = new ArrayList<>();
         titleComponents.add(TextDisplay.of(author + "\n" + title));
 
-        if (post.getDescription() != null && !post.getDescription().isEmpty()) {
-            String desc = StringUtil.shortenString(StringUtil.escapeMarkdown(post.getDescription()), 2048);
+        if (post.getDescription() != null && !post.getDescription().isBlank()) {
+            String desc = StringUtil.shortenString(StringUtil.escapeMarkdown(post.getDescription()), shortened ? 500 : 2000);
             titleComponents.add(TextDisplay.of(desc));
         }
 
@@ -126,7 +126,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             components.addAll(titleComponents);
         }
 
-        if (post.getContentUrl() != null) {
+        if (post.getContentUrl() != null && post.getContentUrl().length() <= Button.URL_MAX_LENGTH) {
             String label = TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_linktext");
             Button button = Button.of(ButtonStyle.LINK, post.getContentUrl(), label);
             components.add(ActionRow.of(button));
@@ -212,14 +212,14 @@ public class RedditCommand extends Command implements OnAlertListener {
                 idList.add(0, redditPosts.get(i).getId());
             }
         }
-        for (int i = 0; i < Math.min(50, redditPosts.size()) && containers.size() < 4; i++) {
+        for (int i = 0; i < Math.min(50, redditPosts.size()) && containers.size() < 5; i++) {
             RedditPost post = redditPosts.get(i);
             if (post.isNsfw() && !JDAUtil.channelIsNsfw(slot.getGuildMessageChannel().get())) {
                 continue;
             }
             containsOnlyNsfw = false;
             if (!idList.contains(post.getId())) {
-                Container container = toContainer(post);
+                Container container = toContainer(post, true);
                 containers.add(0, container);
                 newIdList.add(0, post.getId());
             }

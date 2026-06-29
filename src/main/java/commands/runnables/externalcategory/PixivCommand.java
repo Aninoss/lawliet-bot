@@ -214,7 +214,7 @@ public class PixivCommand extends Command implements OnAlertListener {
 
     private List<String> downloadAndProxyImages(PixivImage image) {
         ArrayList<String> proxyImageUrls = new ArrayList<>();
-        for (int i = 0; i < Math.min(image.getImageUrls().size(), 30); i++) {
+        for (int i = 0; i < Math.min(image.getImageUrls().size(), 25); i++) {
             String proxyImageUrl = downloadAndProxyImage(image.getId(), image.getImageUrls().get(i), i);
             proxyImageUrls.add(proxyImageUrl);
         }

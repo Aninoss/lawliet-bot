@@ -96,7 +96,12 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
         }
 
         ArrayList<Card> cards = playerCards.get(currentPlayer);
-        Card card = cards.get(Integer.parseInt(event.getSelectedOptions().get(0).getValue()));
+        int cardIndex = Integer.parseInt(event.getSelectedOptions().get(0).getValue());
+        if (cardIndex >= cards.size()) {
+            return false;
+        }
+
+        Card card = cards.get(cardIndex);
         if (!playCard(card)) {
             event.replyEmbeds(EmbedFactory.getEmbedError(this, getString(attackValue > 0 ? "error_attack_incompatible" : "error_incompatible", activeCard.getLabel(getLocale()))).build())
                     .setEphemeral(true)

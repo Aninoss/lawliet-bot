@@ -11,6 +11,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.RegexPatterns;
 import core.ExceptionLogger;
+import core.MainLogger;
 import core.Program;
 import core.TextManager;
 import core.cache.PatreonCache;
@@ -420,10 +421,14 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                         MediaGalleryItem.fromUrl(pornImage.getImageUrl())
                                 .withSpoiler(spoiler)
                 );
+            } else {
+                MainLogger.get().error("Invalid booru image url: {}", pornImage.getImageUrl());
             }
         }
-        components.add(TextDisplay.of(contentStringBuilder.toString()));
-        components.add(MediaGallery.of(mediaGalleryItems));
+        if (!contentStringBuilder.isEmpty() && !mediaGalleryItems.isEmpty()) {
+            components.add(TextDisplay.of(contentStringBuilder.toString()));
+            components.add(MediaGallery.of(mediaGalleryItems));
+        }
 
         ArrayList<Button> buttons = new ArrayList<>();
         if (showLoadMoreButton) {

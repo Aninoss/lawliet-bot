@@ -12,7 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +85,7 @@ public class AnimeNewsDownloader {
                 tempFile.createNewFile();
                 String thumbnailUrl = InternetUtil.retrieveThumbnailPreview(jsonPost.getString("link")).get();
                 InternetUtil.downloadFile(thumbnailUrl, tempFile);
-            } catch (InterruptedException | ExecutionException | IOException e) {
+            } catch (Throwable e) {
                 MainLogger.get().error("Anime news thumbnail download error", e);
             }
         }
