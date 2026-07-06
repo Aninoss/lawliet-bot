@@ -41,8 +41,6 @@ import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
-import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
-import net.dv8tion.jda.api.events.user.UserTypingEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
@@ -106,13 +104,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
             GlobalThreadPool.submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class), startTime));
         } else if (event.getChannel() instanceof PrivateChannel) {
             GlobalThreadPool.submit(() -> PrivateMessageReceivedAbstract.onPrivateMessageReceivedStatic(event, getListenerList(PrivateMessageReceivedAbstract.class)));
-        }
-    }
-
-    @Override
-    public void onUserTyping(@NotNull UserTypingEvent event) {
-        if (event.getChannel() instanceof GuildMessageChannel) {
-            GlobalThreadPool.submit(() -> UserTypingAbstract.onUserTypingStatic(event, getListenerList(UserTypingAbstract.class)));
         }
     }
 
@@ -204,11 +195,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
     @Override
     public void onGuildUpdateBoostCount(@NotNull GuildUpdateBoostCountEvent event) {
         GlobalThreadPool.submit(() -> GuildUpdateBoostCountAbstract.onGuildUpdateBoostCountStatic(event, getListenerList(GuildUpdateBoostCountAbstract.class)));
-    }
-
-    @Override
-    public void onUserActivityStart(@NotNull UserActivityStartEvent event) {
-        GlobalThreadPool.submit(() -> UserActivityStartAbstract.onUserActivityStartStatic(event, getListenerList(UserActivityStartAbstract.class)));
     }
 
     @Override

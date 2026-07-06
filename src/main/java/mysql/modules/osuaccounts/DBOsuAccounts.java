@@ -1,12 +1,13 @@
 package mysql.modules.osuaccounts;
 
-import java.util.Map;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBSingleCache;
 import mysql.MySQLManager;
 
-public class DBOsuAccounts extends DBSingleCache<CustomObservableMap<Long, OsuAccountData>> {
+import java.util.Map;
+
+public class DBOsuAccounts extends DBSingleCache<CustomObservableMap<Long, OsuAccountData>> { //TODO: delete after update
 
     private static final DBOsuAccounts ourInstance = new DBOsuAccounts();
 

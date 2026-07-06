@@ -82,6 +82,8 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
             _rolePlayGender = value
         }
 
+    var osuId: Long? = null
+
 
     constructor() : this("0")
 
