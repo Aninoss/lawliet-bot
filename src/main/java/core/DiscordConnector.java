@@ -204,7 +204,7 @@ public class DiscordConnector {
         for (OsuAccountData oldOsuAccount : DBOsuAccounts.getInstance().retrieve().values()) {
             long userId = oldOsuAccount.getUserId();
             long osuId = oldOsuAccount.getOsuId();
-            try (UserEntity userEntity = HibernateManager.findUserEntityReadOnly(userId, DiscordConnector.class)) {
+            try (UserEntity userEntity = HibernateManager.findUserEntity(userId, DiscordConnector.class)) {
                 if (userEntity.getOsuId() != null) {
                     continue;
                 }
