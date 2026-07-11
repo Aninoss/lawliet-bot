@@ -182,7 +182,10 @@ public class KissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280745601007737/991345678464856094/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/1091393370502467664/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/1200732629784338442/yaoikiss.gif",
-                "https://cdn.discordapp.com/attachments/736280745601007737/1365344023430303754/yaoikiss.gif"
+                "https://cdn.discordapp.com/attachments/736280745601007737/1365344023430303754/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/1525448106991419442/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/1525448231318716486/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/1525448496780677130/yaoikiss.gif"
         );
         setAtaGifs(
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280379862024443/kiss.gif",
