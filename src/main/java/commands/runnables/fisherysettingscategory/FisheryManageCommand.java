@@ -47,7 +47,6 @@ import java.util.stream.Collectors;
         executableWithoutArgs = false,
         patreonRequired = true,
         usesExtEmotes = true,
-        requiresFullMemberCache = true,
         aliases = {"fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager", "fm", "managefishery"}
 )
 public class FisheryManageCommand extends NavigationAbstract implements FisheryInterface {

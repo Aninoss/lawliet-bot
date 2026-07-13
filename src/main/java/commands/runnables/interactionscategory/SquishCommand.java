@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "squish",
         emoji = "🍩",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "squeeze" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

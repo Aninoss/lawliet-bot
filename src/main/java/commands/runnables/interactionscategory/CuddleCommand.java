@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "cuddle",
         emoji = "\uD83D\uDC50",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "snuggle", "yaoicuddle", "yuricuddle" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

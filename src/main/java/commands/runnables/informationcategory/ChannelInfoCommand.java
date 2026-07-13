@@ -25,7 +25,6 @@ import java.util.Locale;
         trigger = "channelinfo",
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "channelinfos", "channelstat", "channelstats", "channel" }
 )
 public class ChannelInfoCommand extends Command {

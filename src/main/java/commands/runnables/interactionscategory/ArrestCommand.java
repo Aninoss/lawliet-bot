@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "arrest",
         emoji = "👮",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = {"handcuffs"},
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

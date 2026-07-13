@@ -28,7 +28,6 @@ import java.util.Locale;
         emoji = "\uD83C\uDF81",
         executableWithoutArgs = false,
         usesExtEmotes = true,
-        requiresFullMemberCache = true,
         aliases = { "gift", "pay" }
 )
 public class GiveCommand extends Command implements FisheryInterface {

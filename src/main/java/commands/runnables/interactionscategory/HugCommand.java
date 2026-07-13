@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "hug",
         emoji = "👐",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "yaoihug", "yurihug" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

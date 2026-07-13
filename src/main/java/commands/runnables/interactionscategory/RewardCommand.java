@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "reward",
         emoji = "\uD83C\uDF53",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "rewards" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

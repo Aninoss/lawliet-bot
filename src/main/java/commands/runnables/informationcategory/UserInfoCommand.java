@@ -18,7 +18,6 @@ import java.util.Locale;
         trigger = "userinfo",
         emoji = "\uD83D\uDC81",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "userinfos", "userstat", "userstats", "accountinfo", "whois", "memberinfo", "user", "member" }
 )
 public class UserInfoCommand extends MemberAccountAbstract {

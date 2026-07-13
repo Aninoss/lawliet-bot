@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "praise", "yaoipat", "yuripat", "pet", "caress" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

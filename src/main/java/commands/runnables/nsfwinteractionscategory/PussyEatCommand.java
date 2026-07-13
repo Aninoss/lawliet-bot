@@ -12,7 +12,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         emoji = "👅",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresFullMemberCache = true,
         aliases = "eatpussy",
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

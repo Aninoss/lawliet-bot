@@ -25,7 +25,6 @@ import java.util.Locale;
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
         emoji = "\uD83C\uDF08",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "lgbt", "pride" }
 )
 public class RainbowCommand extends MemberAccountAbstract {

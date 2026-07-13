@@ -16,7 +16,6 @@ import java.util.Locale;
         emoji = "\uD83D\uDE4B",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        requiresFullMemberCache = true,
         aliases = { "profile", "profil", "account", "balance", "bal", "a" }
 )
 public class AccountCommand extends FisheryMemberAccountInterface {

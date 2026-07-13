@@ -34,7 +34,6 @@ import java.util.Optional;
         trigger = "osu",
         emoji = "✍️",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         releaseDate = { 2020, 11, 28 },
         aliases = { "osu!" }
 )

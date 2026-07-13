@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.Permission;
         executableWithoutArgs = false,
         patreonRequired = true,
         enableCacheWipe = false,
-        requiresFullMemberCache = true,
         aliases = { "takerole", "revoke", "revokerole" }
 )
 public class RevokeRoleCommand extends AssignRoleCommand {

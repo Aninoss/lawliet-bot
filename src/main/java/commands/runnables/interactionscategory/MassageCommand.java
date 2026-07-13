@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "massage",
         emoji = "\uD83D\uDC86",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class MassageCommand extends RolePlayAbstract {

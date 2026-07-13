@@ -25,7 +25,6 @@ import java.util.*;
         emoji = "\uD83C\uDFC6",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        requiresFullMemberCache = true,
         aliases = { "rankings", "ranking", "rank", "ranks", "t", "fisherytop", "fishtop" }
 )
 public class TopCommand extends ListAbstract implements FisheryInterface {

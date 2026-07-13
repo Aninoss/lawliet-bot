@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "marry",
         emoji = "\uD83D\uDC8D",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class MarryCommand extends RolePlayAbstract {

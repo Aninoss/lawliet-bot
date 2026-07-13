@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
         executableWithoutArgs = true,
         patreonRequired = true,
         enableCacheWipe = false,
-        requiresFullMemberCache = true,
         aliases = {"impersonate"}
 )
 public class ImitateCommand extends Command {

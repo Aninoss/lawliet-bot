@@ -20,8 +20,7 @@ import java.util.concurrent.ExecutionException;
         trigger = "celebrate",
         emoji = "\uD83C\uDF89",
         exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-        executableWithoutArgs = true,
-        requiresFullMemberCache = true
+        executableWithoutArgs = true
 )
 public class CelebrateCommand extends Command {
 

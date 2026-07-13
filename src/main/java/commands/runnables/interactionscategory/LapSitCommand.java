@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "lapsit",
         emoji = "🪑",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class LapSitCommand extends RolePlayAbstract {

@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "tickle",
         emoji = "\uD83E\uDD23",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class TickleCommand extends RolePlayAbstract {

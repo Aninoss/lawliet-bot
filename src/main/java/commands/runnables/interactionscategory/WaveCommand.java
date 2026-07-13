@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "wave",
         emoji = "\uD83D\uDC4B",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "greet", "bye", "hi", "cya" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

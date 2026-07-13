@@ -13,7 +13,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         executableWithoutArgs = true,
         nsfw = true,
         aliases = "squirt",
-        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class SquirtingCommand extends RolePlayAbstract {

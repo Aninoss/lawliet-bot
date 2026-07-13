@@ -11,7 +11,6 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "punch",
         emoji = "\uD83D\uDC4A",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true,
         aliases = { "hit", "attack" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException;
         trigger = "ship",
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
         emoji = "\uD83D\uDC6B",
-        requiresFullMemberCache = true,
         executableWithoutArgs = false
 )
 public class ShipCommand extends Command {

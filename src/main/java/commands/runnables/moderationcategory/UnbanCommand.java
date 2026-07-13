@@ -19,8 +19,7 @@ import java.util.stream.Collectors;
         botGuildPermissions = Permission.BAN_MEMBERS,
         userGuildPermissions = Permission.BAN_MEMBERS,
         emoji = "🌼",
-        executableWithoutArgs = false,
-        requiresFullMemberCache = true
+        executableWithoutArgs = false
 )
 public class UnbanCommand extends WarnCommand {
 

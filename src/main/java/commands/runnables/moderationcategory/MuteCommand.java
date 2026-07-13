@@ -29,7 +29,6 @@ import java.util.Locale;
         emoji = "🛑",
         executableWithoutArgs = false,
         releaseDate = { 2021, 4, 16 },
-        requiresFullMemberCache = true,
         aliases = { "chmute", "channelmute", "timeout" }
 )
 public class MuteCommand extends WarnCommand {
