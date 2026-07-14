@@ -22,7 +22,8 @@ import org.jetbrains.annotations.NotNull;
         trigger = "roses",
         emoji = "🌹",
         exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-        executableWithoutArgs = false
+        executableWithoutArgs = false,
+        requiresFullMemberCache = true
 )
 public class RosesCommand extends Command {
 

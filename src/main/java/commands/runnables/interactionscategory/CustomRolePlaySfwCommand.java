@@ -32,6 +32,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "customrp_sfw",
         emoji = "🧩",
         executableWithoutArgs = false,
+        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class CustomRolePlaySfwCommand extends RolePlayAbstract {

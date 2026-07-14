@@ -24,6 +24,7 @@ import java.util.Optional;
         trigger = "invtop",
         emoji = "🏆",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         releaseDate = { 2022, 4, 3 },
         aliases = { "invitestop", "invitetop", "leaderboard", "leaderboards" }
 )

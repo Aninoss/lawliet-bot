@@ -19,6 +19,7 @@ import java.util.Locale;
         trigger = "avatar",
         emoji = "\uD83D\uDDBC️️",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         aliases = { "profilepic" }
 )
 public class AvatarCommand extends MemberAccountAbstract {

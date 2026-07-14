@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
         userGuildPermissions = Permission.BAN_MEMBERS,
         emoji = "\uD83D\uDEAB",
         executableWithoutArgs = false,
+        requiresFullMemberCache = true,
         aliases = {"tempban"}
 )
 public class BanCommand extends WarnCommand {

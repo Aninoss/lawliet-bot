@@ -25,6 +25,7 @@ import java.util.Locale;
         emoji = "\uD83D\uDDD1",
         userGuildPermissions = Permission.KICK_MEMBERS,
         executableWithoutArgs = false,
+        requiresFullMemberCache = true,
         aliases = { "unwarn", "removewarn" }
 )
 public class WarnRemoveCommand extends WarnCommand {

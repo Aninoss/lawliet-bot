@@ -20,6 +20,7 @@ import java.util.Optional;
         trigger = "serverinfo",
         emoji = "👪",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         aliases = { "serverinfos", "serverstat", "serverstats", "guild", "server" }
 )
 public class ServerInfoCommand extends Command {

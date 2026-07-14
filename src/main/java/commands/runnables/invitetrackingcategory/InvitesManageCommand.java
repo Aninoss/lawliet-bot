@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
         emoji = "📖",
         executableWithoutArgs = false,
         patreonRequired = true,
+        requiresFullMemberCache = true,
         aliases = {"invitesmanage", "invitemanage", "invitetrackingmanage", "invitestrackingmanage", "manageinv", "manageinvites"}
 )
 public class InvitesManageCommand extends NavigationAbstract {

@@ -12,6 +12,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         emoji = "\uD83E\uDD65️",
         executableWithoutArgs = true,
         nsfw = true,
+        requiresFullMemberCache = true,
         aliases = { "titjob", "titfuck", "boobfuck", "boobsfuck" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

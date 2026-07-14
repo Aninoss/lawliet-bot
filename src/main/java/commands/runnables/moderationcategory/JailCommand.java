@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "🔒",
         executableWithoutArgs = false,
+        requiresFullMemberCache = true,
         aliases = { "isolate" }
 )
 public class JailCommand extends WarnCommand {

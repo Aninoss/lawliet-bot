@@ -12,6 +12,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         emoji = "\uD83D\uDECF️",
         executableWithoutArgs = true,
         nsfw = true,
+        requiresFullMemberCache = true,
         aliases = { "yaoifuck", "yurifuck" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

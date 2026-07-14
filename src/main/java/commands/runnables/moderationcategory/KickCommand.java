@@ -13,7 +13,8 @@ import java.util.Locale;
         botGuildPermissions = Permission.KICK_MEMBERS,
         userGuildPermissions = Permission.KICK_MEMBERS,
         emoji = "\uD83D\uDEAA",
-        executableWithoutArgs = false
+        executableWithoutArgs = false,
+        requiresFullMemberCache = true
 )
 public class KickCommand extends WarnCommand {
 

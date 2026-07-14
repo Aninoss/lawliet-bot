@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
         emoji = "\uD83D\uDEAB",
         executableWithoutArgs = false,
         patreonRequired = true,
+        requiresFullMemberCache = true,
         aliases = { "newcomersban", "newcomerban", "bannew", "bannewcomer", "bannewcomers", "annihilate", "obliterate" }
 )
 public class NewBanCommand extends NewKickCommand {

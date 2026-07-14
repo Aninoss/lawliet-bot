@@ -24,6 +24,7 @@ import java.util.Locale;
         releaseDate = { 2021, 9, 21 },
         emoji = "✉️",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         aliases = { "serverinvites", "serverinvite", "inv" }
 )
 public class InvitesCommand extends MemberAccountAbstract {

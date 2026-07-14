@@ -11,6 +11,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "poke",
         emoji = "\uD83D\uDC49",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class PokeCommand extends RolePlayAbstract {

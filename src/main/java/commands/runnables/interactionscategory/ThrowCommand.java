@@ -11,6 +11,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "throw",
         emoji = "\uD83D\uDCA8",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class ThrowCommand extends RolePlayAbstract {

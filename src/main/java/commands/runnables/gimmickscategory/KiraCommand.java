@@ -13,7 +13,8 @@ import net.dv8tion.jda.api.entities.Member;
 @CommandProperties(
         trigger = "kira",
         emoji = "\u270D\uFE0F️️",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresFullMemberCache = true
 )
 public class KiraCommand extends MemberAccountAbstract {
 

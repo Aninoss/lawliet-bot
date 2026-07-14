@@ -23,7 +23,8 @@ import java.util.concurrent.ExecutionException;
         trigger = "nibble",
         emoji = "👂",
         exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresFullMemberCache = true
 )
 public class NibbleCommand extends Command {
 

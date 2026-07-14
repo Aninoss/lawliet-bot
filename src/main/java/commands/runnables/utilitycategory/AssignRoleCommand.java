@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
         executableWithoutArgs = false,
         patreonRequired = true,
         enableCacheWipe = false,
+        requiresFullMemberCache = true,
         aliases = { "giverole", "assign", "assignrole" }
 )
 public class AssignRoleCommand extends Command implements OnButtonListener {

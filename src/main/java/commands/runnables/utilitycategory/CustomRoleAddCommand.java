@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
         botGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDD16",
         executableWithoutArgs = false,
+        requiresFullMemberCache = true,
         aliases = { "customroleassign", "customrolecreate" }
 )
 public class CustomRoleAddCommand extends Command {

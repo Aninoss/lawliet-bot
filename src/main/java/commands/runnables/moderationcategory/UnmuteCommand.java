@@ -13,6 +13,7 @@ import java.util.Locale;
         emoji = "🛑",
         executableWithoutArgs = false,
         releaseDate = { 2021, 4, 16 },
+        requiresFullMemberCache = true,
         aliases = { "chunmute", "channelunmute", "demute" }
 )
 public class UnmuteCommand extends MuteCommand {

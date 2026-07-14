@@ -12,6 +12,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         emoji = "\uD83C\uDF46",
         executableWithoutArgs = true,
         nsfw = true,
+        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class BlowjobCommand extends RolePlayAbstract {

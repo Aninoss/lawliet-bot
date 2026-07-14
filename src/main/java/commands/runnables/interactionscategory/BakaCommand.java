@@ -11,6 +11,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "baka",
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class BakaCommand extends RolePlayAbstract {

@@ -10,6 +10,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "merkel",
         emoji = "\uD83C\uDDE9\uD83C\uDDEA",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class MerkelCommand extends RolePlayAbstract {

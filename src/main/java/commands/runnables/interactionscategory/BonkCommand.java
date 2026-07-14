@@ -10,6 +10,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "bonk",
         emoji = "🏏",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         aliases = { "lewd", "hornyjail", "horny" },
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

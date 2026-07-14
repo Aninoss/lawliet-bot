@@ -38,7 +38,8 @@ import java.util.stream.Collectors;
         trigger = "warn",
         userGuildPermissions = Permission.KICK_MEMBERS,
         emoji = "\uD83D\uDEA8",
-        executableWithoutArgs = false
+        executableWithoutArgs = false,
+        requiresFullMemberCache = true
 )
 public class WarnCommand extends Command implements OnButtonListener {
 

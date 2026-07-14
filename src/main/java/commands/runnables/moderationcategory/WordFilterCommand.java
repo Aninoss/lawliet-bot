@@ -30,6 +30,7 @@ import java.util.Locale;
         userGuildPermissions = {Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS},
         emoji = "️🚧️",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         usesExtEmotes = true,
         aliases = {"wordsfilter", "badwordfilter", "badwordsfilter", "bannedwords"}
 )

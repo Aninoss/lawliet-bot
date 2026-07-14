@@ -9,7 +9,8 @@ import java.util.Locale;
         trigger = "customrp_nsfw",
         emoji = "🧩",
         executableWithoutArgs = false,
-        nsfw = true
+        nsfw = true,
+        requiresFullMemberCache = true
 )
 public class CustomRolePlayNsfwCommand extends CustomRolePlaySfwCommand {
 

@@ -11,6 +11,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "spank",
         emoji = "\uD83C\uDF51",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         nsfw = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )

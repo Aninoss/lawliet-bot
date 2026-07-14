@@ -13,6 +13,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         executableWithoutArgs = true,
         nsfw = true,
         aliases = "semen",
+        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class CumCommand extends RolePlayAbstract {

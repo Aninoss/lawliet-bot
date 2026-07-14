@@ -35,6 +35,7 @@ import java.util.*;
         trigger = "warnlog",
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         aliases = { "warns" }
 )
 public class WarnLogCommand extends MemberAccountAbstract implements OnButtonListener {

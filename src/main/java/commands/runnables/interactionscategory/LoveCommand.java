@@ -11,6 +11,7 @@ import static commands.runnables.informationcategory.HelpCommand.RP_SUBCATEGORY_
         trigger = "love",
         emoji = "\u2764\uFE0F",
         executableWithoutArgs = true,
+        requiresFullMemberCache = true,
         subCategory = RP_SUBCATEGORY_INTERACTIVE
 )
 public class LoveCommand extends RolePlayAbstract {

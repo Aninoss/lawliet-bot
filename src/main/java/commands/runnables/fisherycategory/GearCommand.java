@@ -31,6 +31,7 @@ import java.util.Locale;
         emoji = "\uD83C\uDFA3",
         executableWithoutArgs = true,
         usesExtEmotes = true,
+        requiresFullMemberCache = true,
         aliases = {"equip", "equipment", "inventory", "level", "g"}
 )
 public class GearCommand extends FisheryMemberAccountInterface {

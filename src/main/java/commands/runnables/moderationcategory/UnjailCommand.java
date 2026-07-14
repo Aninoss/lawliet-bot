@@ -12,6 +12,7 @@ import java.util.Locale;
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "🔒",
         executableWithoutArgs = false,
+        requiresFullMemberCache = true,
         aliases = { "dejail", "unisolate", "deisolate" }
 )
 public class UnjailCommand extends JailCommand {
