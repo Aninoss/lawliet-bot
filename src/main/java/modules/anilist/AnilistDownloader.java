@@ -41,6 +41,34 @@ public class AnilistDownloader {
                     }
                     averageScore
                     meanScore
+                    recommendations(perPage: 5, sort: RATING_DESC) {
+                        nodes {
+                            mediaRecommendation {
+                                id
+                                title {
+                                    native
+                                    romaji
+                                    english
+                                }
+                                description
+                                coverImage {
+                                    medium
+                                    large
+                                }
+                                siteUrl
+                                status
+                                isAdult
+                                genres
+                                episodes
+                                nextAiringEpisode {
+                                    airingAt
+                                    episode
+                                }
+                                averageScore
+                                meanScore
+                            }
+                        }
+                    }
                 }
             }
             """;
@@ -208,6 +236,15 @@ public class AnilistDownloader {
             score = jsonObject.getInt("meanScore");
         }
 
+        ArrayList<AnilistMedia> recommendations = new ArrayList<>();
+        if (jsonObject.has("recommendations")) {
+            JSONArray nodesJson = jsonObject.getJSONObject("recommendations").getJSONArray("nodes");
+            for (int i = 0; i < nodesJson.length(); i++) {
+                JSONObject recommendationJson = nodesJson.getJSONObject(i).getJSONObject("mediaRecommendation");
+                recommendations.add(extractMediaObject(recommendationJson));
+            }
+        }
+
         return new AnilistMedia(
                 jsonObject.getInt("id"),
                 extractTitle(jsonObject.getJSONObject("title")),
@@ -220,7 +257,8 @@ public class AnilistDownloader {
                 jsonObject.isNull("episodes") ? null : jsonObject.getInt("episodes"),
                 jsonObject.isNull("nextAiringEpisode") ? null : jsonObject.getJSONObject("nextAiringEpisode").getInt("episode") - 1,
                 jsonObject.isNull("nextAiringEpisode") ? null : Instant.ofEpochSecond(jsonObject.getJSONObject("nextAiringEpisode").getInt("airingAt")),
-                score
+                score,
+                recommendations
         );
     }
 

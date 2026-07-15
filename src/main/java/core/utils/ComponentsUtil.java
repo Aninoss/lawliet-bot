@@ -87,6 +87,10 @@ public class ComponentsUtil {
     }
 
     public static MessageComponentTree addLog(MessageComponentTree componentTree, LogStatus logStatus, String log) {
+        return addLog(componentTree, logStatus, log, null);
+    }
+
+    public static MessageComponentTree addLog(MessageComponentTree componentTree, LogStatus logStatus, String log, Separator separator) {
         if (log == null || log.isEmpty()) {
             return componentTree;
         }
@@ -107,7 +111,7 @@ public class ComponentsUtil {
         for (MessageTopLevelComponentUnion component : componentTree.getComponents()) {
             if (component instanceof Container) {
                 ArrayList<ContainerChildComponent> newContainerComponents = new ArrayList<>(((Container) component).getComponents());
-                newContainerComponents.add(Separator.createInvisible(Separator.Spacing.SMALL));
+                newContainerComponents.add(separator != null ? separator : Separator.createInvisible(Separator.Spacing.SMALL));
                 newContainerComponents.add(TextDisplay.of("> " + StringUtil.shortenString(add + log, 500)));
                 newComponents.add(
                         Container.of(newContainerComponents)
@@ -123,16 +127,20 @@ public class ComponentsUtil {
     }
 
     public static MessageComponentTree addTrackerNoteLog(Command command, Member member, MessageComponentTree componentTree) {
+        return addTrackerNoteLog(command, member, componentTree, null);
+    }
+
+    public static MessageComponentTree addTrackerNoteLog(Command command, Member member, MessageComponentTree componentTree, Separator separator) {
         if (BotPermissionUtil.can(member, Command.getCommandProperties(AlertsCommand.class).userGuildPermissions()) &&
                 DBTracker.getInstance().retrieve(member.getGuild().getIdLong()).values().stream().noneMatch(s -> s.getCommandTrigger().equals(command.getTrigger()))
         ) {
-            return addLog(componentTree, LogStatus.WARNING, TextManager.getString(command.getLocale(), TextManager.GENERAL, "tracker", command.getPrefix(), command.getTrigger()));
+            return addLog(componentTree, LogStatus.WARNING, TextManager.getString(command.getLocale(), TextManager.GENERAL, "tracker", command.getPrefix(), command.getTrigger()), separator);
         }
         return componentTree;
     }
 
     public static MessageComponentTree addTrackerRemoveLog(Locale locale, MessageComponentTree componentTree) {
-        return addLog(componentTree, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker_remove"));
+        return addLog(componentTree, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker_remove"), null);
     }
 
 }

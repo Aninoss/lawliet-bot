@@ -21,6 +21,8 @@ public interface Emojis {
     CustomEmoji MENU_SHORT_ARROW_LEFT = Emoji.fromCustom("short_arrow_left", 1455576428014862468L, false);
     CustomEmoji MENU_SHORT_ARROW_RIGHT = Emoji.fromCustom("short_arrow_right", 1455576453285679174L, false);
     CustomEmoji MENU_SHORT_ARROW_RIGHT_GRAY = Emoji.fromCustom("short_arrow_right_gray", 1461692214676684961L, false);
+    CustomEmoji MENU_SHORT_ARROW_UP_GRAY = Emoji.fromCustom("short_arrow_up_gray", 1526908477669113928L, false);
+    CustomEmoji MENU_SHORT_ARROW_DOWN_GRAY = Emoji.fromCustom("short_arrow_down_gray", 1526908512356270180L, false);
     CustomEmoji MENU_BACK = Emoji.fromCustom("back", 1461687082308079714L, false);
     CustomEmoji MENU_EDIT = Emoji.fromCustom("edit", 1461689492271272121L, false);
     CustomEmoji MENU_EDIT_GRAY = Emoji.fromCustom("edit_gray", 1461692189082910810L, false);

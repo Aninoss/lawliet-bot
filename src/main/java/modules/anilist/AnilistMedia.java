@@ -20,10 +20,11 @@ public class AnilistMedia {
     private final Integer currentEpisode;
     private final Instant nextEpisode;
     private final Integer averageScore;
+    private final List<AnilistMedia> recommendations;
 
     public AnilistMedia(int id, String title, String description, String coverImage, String anilistUrl, Status status,
                         boolean isAdult, List<String> genres, Integer totalEpisodes, Integer currentEpisode, Instant nextEpisode,
-                        Integer averageScore
+                        Integer averageScore, List<AnilistMedia> recommendations
     ) {
         this.id = id;
         this.title = title;
@@ -37,6 +38,7 @@ public class AnilistMedia {
         this.currentEpisode = currentEpisode;
         this.nextEpisode = nextEpisode;
         this.averageScore = averageScore;
+        this.recommendations = recommendations;
     }
 
     public int getId() {
@@ -85,6 +87,10 @@ public class AnilistMedia {
 
     public Integer getAverageScore() {
         return averageScore;
+    }
+
+    public List<AnilistMedia> getRecommendations() {
+        return recommendations;
     }
 
     @Override
