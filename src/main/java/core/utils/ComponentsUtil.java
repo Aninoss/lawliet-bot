@@ -2,11 +2,14 @@ package core.utils;
 
 import commands.Command;
 import commands.runnables.configurationcategory.AlertsCommand;
+import constants.ExternalLinks;
 import constants.LogStatus;
 import core.TextManager;
 import mysql.modules.tracker.DBTracker;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.components.MessageTopLevelComponentUnion;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
 import net.dv8tion.jda.api.components.separator.Separator;
@@ -141,6 +144,10 @@ public class ComponentsUtil {
 
     public static MessageComponentTree addTrackerRemoveLog(Locale locale, MessageComponentTree componentTree) {
         return addLog(componentTree, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker_remove"), null);
+    }
+
+    public static Button getPatreonButton(Locale locale) {
+        return Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_unlock"));
     }
 
 }

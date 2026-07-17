@@ -50,8 +50,21 @@ public class PatreonCache extends SingleCache<PatreonData> {
     }
 
     public boolean isUnlocked(long guildId) {
+        if (!Program.publicInstance()) {
+            return true;
+        }
+
         PatreonData patreonData = getAsync();
-        return !Program.publicInstance() || (patreonData != null && patreonData.getGuildList().contains(guildId));
+        if (patreonData == null) {
+            return false;
+        }
+
+        return patreonData.getGuildList().contains(guildId) || patreonData.getGuildPlusList().contains(guildId);
+    }
+
+    public boolean isUnlockedPlus(long guildId) {
+        PatreonData patreonData = getAsync();
+        return patreonData != null && patreonData.getGuildPlusList().contains(guildId);
     }
 
     public void requestUpdate() {
@@ -67,7 +80,7 @@ public class PatreonCache extends SingleCache<PatreonData> {
                 throw new RuntimeException(e);
             }
         } else {
-            return new PatreonData(new HashMap<>(), new HashSet<>(), new HashSet<>());
+            return new PatreonData(new HashMap<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
         }
     }
 
@@ -78,9 +91,6 @@ public class PatreonCache extends SingleCache<PatreonData> {
 
     public static PatreonData patreonDataFromJson(JSONObject responseJson) {
         HashMap<Long, Integer> userTierMap = new HashMap<>();
-        HashSet<Long> unlockedGuilds = new HashSet<>();
-        HashSet<Long> oldUsers = new HashSet<>();
-
         JSONArray usersArray = responseJson.getJSONArray("users");
         for (int i = 0; i < usersArray.length(); i++) {
             JSONObject userJson = usersArray.getJSONObject(i);
@@ -91,17 +101,25 @@ public class PatreonCache extends SingleCache<PatreonData> {
             }
         }
 
+        HashSet<Long> unlockedGuilds = new HashSet<>();
         JSONArray guildsArray = responseJson.getJSONArray("guilds");
         for (int i = 0; i < guildsArray.length(); i++) {
             unlockedGuilds.add(guildsArray.getLong(i));
         }
 
+        HashSet<Long> unlockedGuildsPlus = new HashSet<>();
+        JSONArray guildsPlusArray = responseJson.getJSONArray("guilds_plus");
+        for (int i = 0; i < guildsPlusArray.length(); i++) {
+            unlockedGuildsPlus.add(guildsPlusArray.getLong(i));
+        }
+
+        HashSet<Long> oldUsers = new HashSet<>();
         JSONArray oldUsersArray = responseJson.getJSONArray("old_users");
         for (int i = 0; i < oldUsersArray.length(); i++) {
             oldUsers.add(oldUsersArray.getLong(i));
         }
 
-        return new PatreonData(userTierMap, unlockedGuilds, oldUsers);
+        return new PatreonData(userTierMap, unlockedGuilds, unlockedGuildsPlus, oldUsers);
     }
 
     public static void sendJoinDm(long userId, PatreonTier patreonTier) {
