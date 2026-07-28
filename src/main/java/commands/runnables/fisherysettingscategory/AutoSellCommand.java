@@ -8,7 +8,7 @@ import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.modals.ModalMediator;
 import core.utils.StringUtil;
 import mysql.modules.autosell.DBAutoSell;

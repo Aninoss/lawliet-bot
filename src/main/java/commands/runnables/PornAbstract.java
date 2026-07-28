@@ -14,7 +14,7 @@ import core.ExceptionLogger;
 import core.MainLogger;
 import core.Program;
 import core.TextManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.utils.*;

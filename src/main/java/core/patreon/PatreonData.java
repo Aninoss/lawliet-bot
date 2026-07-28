@@ -1,4 +1,4 @@
-package core;
+package core.patreon;
 
 import java.util.HashMap;
 import java.util.HashSet;

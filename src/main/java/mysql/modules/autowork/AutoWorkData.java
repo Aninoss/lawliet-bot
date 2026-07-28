@@ -2,7 +2,7 @@ package mysql.modules.autowork;
 
 import java.util.List;
 import core.CustomObservableList;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class AutoWorkData {

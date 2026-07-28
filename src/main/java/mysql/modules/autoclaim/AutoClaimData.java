@@ -2,7 +2,7 @@ package mysql.modules.autoclaim;
 
 import java.util.List;
 import core.CustomObservableList;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 
 public class AutoClaimData {
 

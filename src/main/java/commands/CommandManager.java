@@ -11,7 +11,7 @@ import constants.ExceptionIds;
 import constants.ExternalLinks;
 import constants.Settings;
 import core.*;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;

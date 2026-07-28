@@ -1,7 +1,7 @@
 package core;
 
 import constants.AssetIds;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.cache.UserWithWorkFisheryDmReminderCache;
 import core.utils.CollectionUtil;
 import net.dv8tion.jda.api.entities.*;

@@ -8,7 +8,7 @@ import core.ShardManager
 import core.TextManager
 import core.atomicassets.AtomicGuild
 import core.atomicassets.AtomicMember
-import core.cache.PatreonCache
+import core.patreon.PatreonCache
 import core.utils.BotPermissionUtil
 import dashboard.component.DashboardText
 import dashboard.container.DashboardContainer

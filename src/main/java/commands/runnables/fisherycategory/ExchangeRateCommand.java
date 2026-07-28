@@ -7,7 +7,7 @@ import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;

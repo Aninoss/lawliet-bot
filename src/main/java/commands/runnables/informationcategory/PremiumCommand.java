@@ -4,12 +4,12 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import constants.Emojis;
-import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.PatreonData;
 import core.ShardManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
+import core.patreon.PatreonData;
+import core.patreon.PatreonTier;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +51,7 @@ public class PremiumCommand extends Command {
 
         deferReply();
         StringBuilder sb = new StringBuilder();
-        for (int i = Settings.PATREON_ROLE_IDS.length - 1; i >= 3; i--) {
+        for (int i = PatreonTier.values().length - 1; i >= 3; i--) {
             sb.append(getPatreonUsersString(i));
         }
         sb.append(getString("andmanymore"));

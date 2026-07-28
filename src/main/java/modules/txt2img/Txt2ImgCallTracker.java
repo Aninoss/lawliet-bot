@@ -3,7 +3,7 @@ package modules.txt2img;
 import commands.Category;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import core.TextManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.utils.StringUtil;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.user.Txt2ImgEntity;

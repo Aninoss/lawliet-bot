@@ -6,7 +6,7 @@ import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
 import core.assets.MemberAsset;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.utils.*;

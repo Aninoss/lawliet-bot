@@ -9,7 +9,7 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.atomicassets.AtomicGuildMessageChannel;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;

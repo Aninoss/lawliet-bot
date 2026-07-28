@@ -6,7 +6,7 @@ import commands.runnables.CommandOnOffSwitchAbstract;
 import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import mysql.modules.autowork.DBAutoWork;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;

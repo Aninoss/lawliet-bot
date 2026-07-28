@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.MainLogger;
 import core.ShardManager;
+import core.patreon.PatreonCache;
 import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.Permission;
 import org.checkerframework.checker.nullness.qual.NonNull;

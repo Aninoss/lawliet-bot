@@ -197,11 +197,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMemberRoleRemove(@NotNull GuildMemberRoleRemoveEvent event) {
-        GlobalThreadPool.submit(() -> GuildMemberRoleRemoveAbstract.onGuildMemberRoleRemoveStatic(event, getListenerList(GuildMemberRoleRemoveAbstract.class)));
-    }
-
-    @Override
     public void onGenericGuildMember(@NotNull GenericGuildMemberEvent event) {
         GlobalThreadPool.submit(() -> GenericGuildMemberAbstract.onGuildMemberStatic(event, getListenerList(GenericGuildMemberAbstract.class)));
     }

@@ -1,8 +1,8 @@
 package events.sync.events;
 
 import core.MainLogger;
-import core.PatreonData;
-import core.cache.PatreonCache;
+import core.patreon.PatreonData;
+import core.patreon.PatreonCache;
 import org.json.JSONObject;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;

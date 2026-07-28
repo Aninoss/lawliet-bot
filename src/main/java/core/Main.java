@@ -1,6 +1,6 @@
 package core;
 
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
 import events.sync.EventManager;

@@ -5,7 +5,7 @@ import commands.SlashCommandManager;
 import commands.runningchecker.RunningCheckerManager;
 import constants.AssetIds;
 import constants.Language;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.utils.*;
 import events.scheduleevents.events.*;

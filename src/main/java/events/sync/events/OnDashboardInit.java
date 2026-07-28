@@ -3,7 +3,7 @@ package events.sync.events;
 import constants.Language;
 import core.Program;
 import core.ShardManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
 import events.sync.SyncServerEvent;

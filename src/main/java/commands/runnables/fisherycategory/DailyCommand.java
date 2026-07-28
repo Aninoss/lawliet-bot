@@ -10,7 +10,7 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;

@@ -6,7 +6,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryMemberAccountInterface;
 import core.EmbedFactory;
 import core.TextManager;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;

@@ -3,7 +3,7 @@ package events.scheduleevents.events;
 import constants.ExceptionRunnable;
 import constants.ExternalLinks;
 import core.*;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.utils.JDAUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.ScheduleEventDaily;

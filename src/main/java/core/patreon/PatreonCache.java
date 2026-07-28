@@ -1,12 +1,24 @@
-package core.cache;
+package core.patreon;
 
 import constants.AssetIds;
-import core.PatreonData;
+import constants.ExternalLinks;
 import core.Program;
+import core.ShardManager;
+import core.cache.SingleCache;
+import core.utils.ComponentsUtil;
+import core.utils.JDAUtil;
 import events.sync.SendEvent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.container.ContainerChildComponent;
+import net.dv8tion.jda.api.components.separator.Separator;
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
+import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
@@ -90,6 +102,31 @@ public class PatreonCache extends SingleCache<PatreonData> {
         }
 
         return new PatreonData(userTierMap, unlockedGuilds, oldUsers);
+    }
+
+    public static void sendJoinDm(long userId, PatreonTier patreonTier) {
+        ArrayList<ContainerChildComponent> components = new ArrayList<>();
+        components.add(TextDisplay.of("Thank you very much for your support! ❤️"));
+        if (patreonTier.getUnlocksServers()) {
+            components.add(TextDisplay.of("ℹ\uFE0F You need to specify the server you want to unlock in order to run Premium commands:\n> Go to the [Lawliet Premium page](%s) → log into your Discord account → go to the \"Unlock Servers\" tab on the same page.".formatted(ExternalLinks.PREMIUM_WEBSITE)));
+        }
+        components.add(TextDisplay.of("Your Premium subscription includes an exclusive role on the Lawliet Discord server. If you would like to leave the Lawliet server, please do so via the [Connected Apps settings in your Patreon account](%s) to ensure that you will not be added to the server again after your next payment.".formatted(ExternalLinks.PATREON_DISCORD_SETTINGS)));
+
+        components.add(Separator.createInvisible(Separator.Spacing.SMALL));
+
+        ArrayList<Button> buttons = new ArrayList<>();
+        if (patreonTier.getUnlocksServers()) {
+            buttons.add(Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_COMMANDS_WEBSITE, "Premium Commands"));
+        }
+        buttons.add(Button.of(ButtonStyle.LINK, ExternalLinks.DEVELOPMENT_VOTES_URL, "Monthly Development Votes"));
+        buttons.add(Button.of(ButtonStyle.LINK, ExternalLinks.FEATURE_REQUESTS_WEBSITE, "Feature Requests (More Boosts)"));
+        buttons.add(Button.of(ButtonStyle.LINK, ExternalLinks.BETA_SERVER_INVITE, "Join Private Development Discord Server"));
+        components.add(ActionRow.of(buttons));
+
+        MessageComponentTree commandComponentTree = ComponentsUtil.createCommandComponentTree("Lawliet Premium - " + patreonTier.getName(), components, ComponentsUtil.DEFAULT_CONTAINER_COLOR);
+        JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
+                .flatMap(messageChannel -> messageChannel.sendMessageComponents(commandComponentTree).useComponentsV2())
+                .queue();
     }
 
 }

@@ -2,7 +2,7 @@ package mysql.modules.autosell;
 
 import java.util.Map;
 import core.CustomObservableMap;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class AutoSellData {
