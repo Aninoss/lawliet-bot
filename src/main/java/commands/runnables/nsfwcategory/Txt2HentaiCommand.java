@@ -14,9 +14,9 @@ import core.ExceptionLogger;
 import core.LocalFile;
 import core.MainLogger;
 import core.TextManager;
-import core.patreon.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
+import core.patreon.PatreonCache;
 import core.utils.*;
 import modules.graphics.AIWatermarkGraphics;
 import modules.txt2img.*;
@@ -25,7 +25,6 @@ import mysql.modules.nsfwfilter.DBNSFWFilters;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
 import net.dv8tion.jda.api.components.mediagallery.MediaGallery;
 import net.dv8tion.jda.api.components.mediagallery.MediaGalleryItem;
@@ -211,12 +210,11 @@ public class Txt2HentaiCommand extends ComponentMenuAbstract {
         components.add(aspectRatioSection);
 
         //Buttons
-        Button buyButton = Button.of(ButtonStyle.LINK, "https://lawlietbot.xyz/premium?tab=1", getString("root_buyimagecreations"));
         Button upscaleButton = buttonPrimary(getString("root_upscaleprevciousresults"), event -> {
             setState(STATE_UPSCALE_RESULTS_ID);
             return true;
         });
-        components.add(ActionRow.of(buyButton, upscaleButton));
+        components.add(ActionRow.of(upscaleButton));
 
         // Model
         StringSelectMenu.Builder modelSelectMenu = stringSelectMenu(e -> {

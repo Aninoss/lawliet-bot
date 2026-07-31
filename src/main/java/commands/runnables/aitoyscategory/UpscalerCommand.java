@@ -5,15 +5,14 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStringSelectMenuListener;
-import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.LocalFile;
 import core.TextManager;
-import core.patreon.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
+import core.patreon.PatreonCache;
 import core.utils.*;
 import modules.txt2img.PredictionResult;
 import modules.txt2img.RunPodDownloader;
@@ -21,16 +20,14 @@ import modules.txt2img.Txt2ImgCallTracker;
 import modules.txt2img.UpscalerModel;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
-import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.components.selections.SelectMenu;
-import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -169,9 +166,6 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
     @Override
     public EmbedBuilder draw(Member member) {
         if (predictionResult == null) {
-            ArrayList<ActionRow> actionRows = new ArrayList<>();
-            Button button = Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE + "?tab=1", getString("buybutton"));
-            actionRows.add(ActionRow.of(button));
 
             StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("scale_and_model")
                     .setRequiredRange(1, 1)
@@ -187,8 +181,7 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
                 }
             }
             SelectMenu menu = menuBuilder.build();
-            actionRows.add(ActionRow.of(menu));
-            setActionRows(actionRows);
+            setActionRows(ActionRow.of(menu));
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("home_desc"))
                     .addField(getString("home_images"), StringUtil.numToString(base64Images.size()), true);
