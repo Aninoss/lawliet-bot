@@ -108,7 +108,7 @@ public class PatreonCache extends SingleCache<PatreonData> {
         ArrayList<ContainerChildComponent> components = new ArrayList<>();
         components.add(TextDisplay.of("Thank you very much for your support! ❤️"));
         if (patreonTier.getUnlocksServers()) {
-            components.add(TextDisplay.of("ℹ\uFE0F You need to specify the server you want to unlock in order to run Premium commands:\n> Go to the [Lawliet Premium page](%s) → log into your Discord account → go to the \"Unlock Servers\" tab on the same page.".formatted(ExternalLinks.PREMIUM_WEBSITE)));
+            components.add(TextDisplay.of("ℹ\uFE0F You need to specify the server you want to unlock in order to run Premium commands:\n> Go to the [Lawliet Premium page](%s) → log into your Discord account → go to the \"Unlock Servers\" section at the bottom of the page.".formatted(ExternalLinks.PREMIUM_WEBSITE)));
         }
         components.add(TextDisplay.of("Your Premium subscription includes an exclusive role on the Lawliet Discord server. If you would like to leave the Lawliet server, please do so via the [Connected Apps settings in your Patreon account](%s) to ensure that you will not be added to the server again after your next payment.".formatted(ExternalLinks.PATREON_DISCORD_SETTINGS)));
 
