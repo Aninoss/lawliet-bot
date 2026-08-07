@@ -43,7 +43,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         mainContainer.isCard = true
 
         if (anyCommandsAreAccessible(LanguageCommand::class, PrefixCommand::class)) {
-            mainContainer.add(generateTextFields(guild))
+            mainContainer.add(generateTextFields())
         }
 
         if (anyCommandsAreAccessible(AutoQuoteCommand::class)) {
@@ -61,7 +61,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
     }
 
-    private fun generateTextFields(guild: Guild): DashboardComponent {
+    private fun generateTextFields(): DashboardComponent {
         val container = HorizontalContainer()
         container.allowWrap = true
 

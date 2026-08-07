@@ -235,7 +235,8 @@ class BotLogEntity(
         API_TOKEN_REMOVE,
         CHANNEL_LOCK(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
         CHANNEL_UNLOCK(ValuesRelationship.SINGLE_VALUE_COLUMN, ValueType.CHANNEL),
-        ADD_CUSTOM_ROLE
+        ADD_CUSTOM_ROLE,
+        CUSTOMIZATIONS_USERNAME(ValuesRelationship.OLD_AND_NEW, ValueType.STRING)
     }
 
 

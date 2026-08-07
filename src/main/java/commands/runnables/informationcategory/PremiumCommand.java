@@ -4,7 +4,7 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.ExceptionLogger;
-import core.cache.PatreonCache;
+import core.patreon.PatreonCache;
 import core.utils.ComponentsUtil;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;

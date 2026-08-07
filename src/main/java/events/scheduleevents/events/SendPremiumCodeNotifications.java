@@ -28,7 +28,7 @@ public class SendPremiumCodeNotifications implements ExceptionRunnable {
     }
 
     public static void execute() throws ExecutionException, InterruptedException {
-        if (!Program.isMainCluster() || !Program.publicInstance()) {
+        if (!Program.isMainCluster() || !Program.publicInstance() || !Program.productionMode()) {
             return;
         }
 

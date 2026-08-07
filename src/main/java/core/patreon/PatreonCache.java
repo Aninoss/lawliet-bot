@@ -50,7 +50,7 @@ public class PatreonCache extends SingleCache<PatreonData> {
     }
 
     public boolean isUnlocked(long guildId) {
-        if (!Program.publicInstance()) {
+        if (!Program.publicInstance() || !Program.productionMode()) {
             return true;
         }
 
@@ -63,6 +63,10 @@ public class PatreonCache extends SingleCache<PatreonData> {
     }
 
     public boolean isUnlockedPlus(long guildId) {
+        if (!Program.productionMode()) {
+            return true;
+        }
+
         PatreonData patreonData = getAsync();
         return patreonData != null && patreonData.getGuildPlusList().contains(guildId);
     }

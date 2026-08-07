@@ -40,7 +40,8 @@ object DashboardManager {
             CustomRolePlayCategory::class,
             BirthdayCategory::class,
             ApiCategory::class,
-            BotLogsCategory::class
+            BotLogsCategory::class,
+            CustomizationsCategory::class
         )
     }
 
