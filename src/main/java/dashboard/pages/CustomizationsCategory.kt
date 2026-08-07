@@ -7,6 +7,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.DashboardButton
+import dashboard.component.DashboardText
 import dashboard.component.DashboardTextField
 import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
@@ -30,6 +31,12 @@ class CustomizationsCategory(guildId: Long, userId: Long, locale: Locale, guildE
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         mainContainer.isCard = true
         mainContainer.add(generateUsernameComponents(guild))
+
+        if (!PatreonCache.getInstance().isUnlockedPlus(guild.idLong)) {
+            val text = DashboardText(getString(TextManager.GENERAL, "dashboard_customizations_pro_plus"))
+            text.style = DashboardText.Style.ERROR
+            mainContainer.add(text)
+        }
     }
 
     fun generateUsernameComponents(guild: Guild): DashboardComponent {

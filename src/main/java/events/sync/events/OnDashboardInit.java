@@ -1,7 +1,6 @@
 package events.sync.events;
 
 import constants.Language;
-import core.Program;
 import core.ShardManager;
 import core.patreon.PatreonCache;
 import dashboard.DashboardCategory;
@@ -25,7 +24,7 @@ public class OnDashboardInit implements SyncServerFunction {
         boolean ok = ShardManager.getLocalGuildById(guildId).isPresent();
         resultJson.put("ok", ok);
         if (ok) {
-            resultJson.put("premium", Program.productionMode() && PatreonCache.getInstance().isUnlocked(guildId));
+            resultJson.put("premium", PatreonCache.getInstance().isUnlocked(guildId));
             long userId = jsonObject.getLong("user_id");
             String localeString = jsonObject.getString("locale");
             Locale locale = Language.from(localeString).getLocale();
