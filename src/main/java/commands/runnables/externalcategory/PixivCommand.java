@@ -83,7 +83,7 @@ public class PixivCommand extends Command implements OnAlertListener {
                                 return false;
                             }
 
-                            Container container = toContainer(image);
+                            Container container = toContainer(image, false);
                             MessageComponentTree components = MessageComponentTree.of(container);
                             components = ComponentsUtil.addTrackerNoteLog(this, event.getMember(), components);
                             drawMessageNew(components).exceptionally(ExceptionLogger.get());
@@ -138,7 +138,7 @@ public class PixivCommand extends Command implements OnAlertListener {
                 for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     PixivImage image = postBundle.getPosts().get(i);
                     if (!image.isNsfw() || JDAUtil.channelIsNsfw(channel)) {
-                        Container container = toContainer(image);
+                        Container container = toContainer(image, true);
                         containers.add(0, container);
 
                         containsOnlyNsfw = false;
@@ -179,7 +179,7 @@ public class PixivCommand extends Command implements OnAlertListener {
         return true;
     }
 
-    private Container toContainer(PixivImage image) {
+    private Container toContainer(PixivImage image, boolean compact) {
         ArrayList<ContainerChildComponent> components = new ArrayList<>();
         String desc = StringUtil.shortenString(StringUtil.unescapeHtml(image.getDescription()), 2048);
         String nsfwString = image.isNsfw() ? getString("nsfw") : "";
@@ -192,7 +192,7 @@ public class PixivCommand extends Command implements OnAlertListener {
             components.add(TextDisplay.of(desc));
         }
 
-        List<String> images = downloadAndProxyImages(image);
+        List<String> images = downloadAndProxyImages(image, compact);
         for (List<String> imagesPartitioned : Lists.partition(images, MediaGallery.MAX_ITEMS)) {
             List<MediaGalleryItem> mediaGalleryItems = imagesPartitioned.stream()
                     .map(url -> MediaGalleryItem.fromUrl(url).withSpoiler(spoiler))
@@ -212,9 +212,9 @@ public class PixivCommand extends Command implements OnAlertListener {
                 .withAccentColor(ComponentsUtil.DEFAULT_CONTAINER_COLOR);
     }
 
-    private List<String> downloadAndProxyImages(PixivImage image) {
+    private List<String> downloadAndProxyImages(PixivImage image, boolean compact) {
         ArrayList<String> proxyImageUrls = new ArrayList<>();
-        for (int i = 0; i < Math.min(image.getImageUrls().size(), 25); i++) {
+        for (int i = 0; i < Math.min(image.getImageUrls().size(), compact ? 5 : 25); i++) {
             String proxyImageUrl = downloadAndProxyImage(image.getId(), image.getImageUrls().get(i), i);
             proxyImageUrls.add(proxyImageUrl);
         }
