@@ -72,7 +72,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         super(locale, prefix);
     }
 
-    public abstract List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults, boolean canBeVideo, boolean bulkMode) throws Exception;
+    public abstract List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults, boolean canBeVideo, boolean bulkMode, boolean skipAI) throws Exception;
 
     public abstract boolean mustBeExplicit();
 
@@ -139,7 +139,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         do {
             List<BooruImage> pornImages;
             try {
-                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(MAX_FILES_PER_MESSAGE, (int) amount), usedResults, canBeVideo, false);
+                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(MAX_FILES_PER_MESSAGE, (int) amount), usedResults, canBeVideo, false, getGuildEntity().getSkipAIGeneratedContent());
             } catch (IllegalTagException e) {
                 drawMessageNew(illegalTagsComponents())
                         .exceptionally(ExceptionLogger.get());
@@ -272,6 +272,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         ArrayList<String> nsfwFiltersList = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
         HashSet<String> nsfwFilters = new HashSet<>();
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
+        boolean skipAI = getGuildEntity().getSkipAIGeneratedContent();
         List<BooruImage> pornImages;
         try {
             if (!premium && slot.getArgs().isEmpty()) {
@@ -279,12 +280,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
 
             if (newMode) {
-                pornImages = getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium, true);
+                pornImages = getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium, true, skipAI);
             } else {
-                String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.generateFilterString(nsfwFiltersList) + ":" + premium;
+                String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.generateFilterString(nsfwFiltersList, skipAI) + ":" + premium;
                 pornImages = alertsCache.get(
                         cacheKey,
-                        () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium, false)
+                        () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium, false, skipAI)
                 );
                 if (pornImages.isEmpty()) {
                     alertsCache.invalidate(cacheKey);
@@ -456,14 +457,14 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
                                             String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
-                                            boolean bulkMode, ArrayList<String> usedResults
+                                            boolean bulkMode, ArrayList<String> usedResults, boolean skipAI
     ) throws IOException {
-        if (NSFWUtil.containsFilterTags(search, nsfwFilter)) {
+        if (NSFWUtil.containsFilterTags(search, nsfwFilter, skipAI)) {
             throw new IllegalTagException();
         }
 
         try {
-            List<BooruImage> booruImages = booruImageDownloader.getImages(guildId, domain, search, animatedOnly, mustBeExplicit, canBeVideo, bulkMode, nsfwFilter, usedResults, amount).get();
+            List<BooruImage> booruImages = booruImageDownloader.getImages(guildId, domain, search, animatedOnly, mustBeExplicit, canBeVideo, bulkMode, nsfwFilter, usedResults, amount, skipAI).get();
             booruImages.forEach(booruImage -> usedResults.add(booruImage.getImageUrl()));
             return booruImages;
         } catch (Throwable e) {

@@ -31,7 +31,7 @@ public abstract class RedditNSFWAbstract extends PornPredefinedAbstract {
     @Override
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
                                             String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
-                                            boolean bulkMode, ArrayList<String> usedResults
+                                            boolean bulkMode, ArrayList<String> usedResults, boolean skipAI
     ) throws IOException {
         try {
             if (bulkMode) {

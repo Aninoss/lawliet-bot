@@ -5,6 +5,7 @@ import mysql.hibernate.entity.guild.GuildEntity
 import mysql.hibernate.entity.user.UserEntity
 import java.io.IOException
 import java.util.*
+import java.util.function.Function
 import javax.persistence.EntityManagerFactory
 import javax.persistence.Persistence
 
@@ -42,6 +43,14 @@ object HibernateManager {
     @JvmStatic
     fun findUserEntityReadOnly(userId: Long, callingClass: Class<*>): UserEntity {
         return createEntityManager(callingClass).findUserEntityReadOnly(userId)
+    }
+
+    @JvmStatic
+    fun <T> apply(callingClass: Class<*>, timeoutMinutes: Int = 1, function: Function<EntityManagerWrapper?, T?>): T? {
+        val entityManager: EntityManagerWrapper = createEntityManager(callingClass, timeoutMinutes)
+        entityManager.use { entityManager ->
+            return function.apply(entityManager)
+        }
     }
 
 }

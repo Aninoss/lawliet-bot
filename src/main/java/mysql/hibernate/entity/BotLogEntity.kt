@@ -102,6 +102,7 @@ class BotLogEntity(
         ALERTS(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING, AlertsCommand::class.java),
         NSFW_FILTER(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING, NSFWConfigCommand::class.java, "nsfwconfig_dashboard_filter_label"),
         NSFW_SPOILERS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, NSFWConfigCommand::class.java, "nsfwconfig_root_spoiler_label"),
+        NSFW_SKIP_AI_GENERATED_CONTENT(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, NSFWConfigCommand::class.java, "nsfwconfig_root_skip_ai_label"),
         MOD_NOTIFICATION_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, ModSettingsCommand::class.java, "mod_state0_mchannel"),
         MOD_CONFIRMATION_MESSAGES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, ModSettingsCommand::class.java, "mod_state0_mquestion"),
         MOD_JAIL_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, ModSettingsCommand::class.java, "mod_state0_mjailroles"),

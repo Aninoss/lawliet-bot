@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class PixivAutoComplete {
 
-    public CompletableFuture<List<PixivChoice>> getTags(String search, HashSet<String> nsfwAdditionalFilters) {
+    public CompletableFuture<List<PixivChoice>> getTags(String search, HashSet<String> nsfwAdditionalFilters, boolean skipAI) {
         String encodedSearch = URLEncoder.encode(search, StandardCharsets.UTF_8);
         if (encodedSearch.isEmpty()) {
             encodedSearch = "+";
@@ -36,8 +36,8 @@ public class PixivAutoComplete {
                             ObjectReader reader = mapper.readerForListOf(PixivChoice.class);
                             List<PixivChoice> choices = reader.readValue(content);
                             return choices.stream()
-                                    .filter(ch -> !NSFWUtil.containsFilterTags(NSFWUtil.expandTags(ch.getTag()), nsfwAdditionalFilters) &&
-                                            (ch.getTranslatedTag() == null || !NSFWUtil.containsFilterTags(NSFWUtil.expandTags(ch.getTranslatedTag()), nsfwAdditionalFilters)))
+                                    .filter(ch -> !NSFWUtil.containsFilterTags(NSFWUtil.expandTags(ch.getTag()), nsfwAdditionalFilters, skipAI) &&
+                                            (ch.getTranslatedTag() == null || !NSFWUtil.containsFilterTags(NSFWUtil.expandTags(ch.getTranslatedTag()), nsfwAdditionalFilters, skipAI)))
                                     .collect(Collectors.toList());
                         } catch (JsonProcessingException e) {
                             MainLogger.get().error("Pixiv choices list parsing error", e);

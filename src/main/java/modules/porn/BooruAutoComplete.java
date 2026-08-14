@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class BooruAutoComplete {
 
-    public CompletableFuture<List<BooruChoice>> getTags(String domain, String search, HashSet<String> nsfwAdditionalFilters) {
+    public CompletableFuture<List<BooruChoice>> getTags(String domain, String search, HashSet<String> nsfwAdditionalFilters, boolean skipAI) {
         String encodedSearch = URLEncoder.encode(search, StandardCharsets.UTF_8);
         if (encodedSearch.isEmpty()) {
             encodedSearch = "+";
@@ -36,7 +36,7 @@ public class BooruAutoComplete {
                             ObjectReader reader = mapper.readerForListOf(BooruChoice.class);
                             List<BooruChoice> choices = reader.readValue(content);
                             return choices.stream()
-                                    .filter(ch -> !NSFWUtil.containsFilterTags(ch.getValue(), nsfwAdditionalFilters))
+                                    .filter(ch -> !NSFWUtil.containsFilterTags(ch.getValue(), nsfwAdditionalFilters, skipAI))
                                     .collect(Collectors.toList());
                         } catch (JsonProcessingException e) {
                             MainLogger.get().error("Booru choices list parsing error", e);

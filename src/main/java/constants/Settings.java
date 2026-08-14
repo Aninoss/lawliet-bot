@@ -35,4 +35,8 @@ public interface Settings {
 
     String[] NSFW_STRICT_FILTERS = { "death" };
 
+    String[] NSFW_AI_FILTERS = {
+            "ai_generated", "ai-generated", "ai_assisted", "ai_art"
+    };
+
 }

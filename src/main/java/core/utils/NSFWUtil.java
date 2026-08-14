@@ -14,7 +14,7 @@ public final class NSFWUtil {
     private NSFWUtil() {
     }
 
-    public static String generateFilterString(ArrayList<String> additionalFilter) {
+    public static String generateFilterString(ArrayList<String> additionalFilter, boolean skipAI) {
         StringBuilder str = new StringBuilder();
         additionalFilter.sort(String::compareTo);
         for (String filter : Settings.NSFW_FILTERS) {
@@ -26,12 +26,20 @@ public final class NSFWUtil {
         for (String filter : additionalFilter) {
             str.append(" -").append(filter.toLowerCase());
         }
+        if (skipAI) {
+            for (String filter : Settings.NSFW_AI_FILTERS) {
+                str.append(" -").append(filter.toLowerCase());
+            }
+        }
         return str.toString();
     }
 
-    public static boolean containsFilterTags(String tagString, Set<String> additionalFilters) {
+    public static boolean containsFilterTags(String tagString, Set<String> additionalFilters, boolean skipAI) {
         List<String> filterTags = new ArrayList<>(List.of(Settings.NSFW_FILTERS));
         filterTags.addAll(additionalFilters);
+        if (skipAI) {
+            filterTags.addAll(List.of(Settings.NSFW_AI_FILTERS));
+        }
 
         return containsNormalFilterTags(tagString, filterTags) ||
                 containsStrictFilters(tagString, List.of(Settings.NSFW_STRICT_FILTERS));

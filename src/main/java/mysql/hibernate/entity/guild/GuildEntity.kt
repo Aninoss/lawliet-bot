@@ -73,6 +73,14 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
             _nsfwSpoilers = value
         }
 
+    @Column(name = "skipAIGeneratedContent")
+    private var _skipAIGeneratedContent: Boolean? = null
+    var skipAIGeneratedContent: Boolean
+        get() = _skipAIGeneratedContent ?: false
+        set(value) {
+            _skipAIGeneratedContent = value
+        }
+
     @Embedded
     @Column(name = FISHERY)
     val fishery = FisheryEntity()

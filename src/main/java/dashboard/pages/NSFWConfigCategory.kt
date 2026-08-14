@@ -8,6 +8,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.DashboardComboBox
+import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardSwitch
 import dashboard.component.DashboardText
 import dashboard.component.DashboardTitle
@@ -57,7 +58,19 @@ class NSFWConfigCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         }
         spoilersSwitch.subtitle = getString(Category.CONFIGURATION, "nsfwconfig_root_spoiler_subtext")
         spoilersSwitch.isChecked = guildEntity.nsfwSpoilers
-        container.add(spoilersSwitch)
+        container.add(spoilersSwitch, DashboardSeparator())
+
+        val skipAISwitch = DashboardSwitch(getString(Category.CONFIGURATION, "nsfwconfig_root_skip_ai_label")) {
+            guildEntity.beginTransaction()
+            guildEntity.skipAIGeneratedContent = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.NSFW_SKIP_AI_GENERATED_CONTENT, atomicMember, null, it.data)
+            guildEntity.commitTransaction()
+            ActionResult()
+        }
+        skipAISwitch.subtitle = getString(Category.CONFIGURATION, "nsfwconfig_root_skip_ai_subtext")
+        skipAISwitch.isChecked = guildEntity.skipAIGeneratedContent
+        container.add(skipAISwitch)
+
         return container
     }
 

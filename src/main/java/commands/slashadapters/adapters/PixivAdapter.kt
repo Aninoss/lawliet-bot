@@ -47,7 +47,7 @@ class PixivAdapter : SlashAdapter() {
         if (tag.contains(" ") || tag.length > 100) {
             return emptyList()
         } else {
-            return pixivAutoComplete.getTags(tag, filterSet).get()
+            return pixivAutoComplete.getTags(tag, filterSet, guildEntity.skipAIGeneratedContent).get()
                     .map {
                         val displayedTag = if (it.translatedTag != null) {
                             "${it.tag} (${it.translatedTag})"

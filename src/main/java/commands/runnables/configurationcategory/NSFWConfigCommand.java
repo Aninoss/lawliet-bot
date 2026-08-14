@@ -38,7 +38,7 @@ public class NSFWConfigCommand extends ComponentMenuAbstract {
     public final static int MAX_LENGTH = 50;
 
     private CustomObservableList<String> filterTags;
-    private final Pageable<String> pageable = new Pageable<>(this, 8, () -> filterTags);
+    private final Pageable<String> pageable = new Pageable<>(this, 7, () -> filterTags);
 
     public NSFWConfigCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -63,7 +63,17 @@ public class NSFWConfigCommand extends ComponentMenuAbstract {
             guildEntity.setNsfwSpoilers(newEnabled);
             guildEntity.commitTransaction();
         }));
+
+        String skipAILabel = getString("root_skip_ai_label") + "\n-# " + getString("root_skip_ai_subtext");
+        components.add(buttonBoolean(skipAILabel, getGuildEntity().getSkipAIGeneratedContent(), newEnabled -> {
+            GuildEntity guildEntity = getGuildEntity();
+            guildEntity.beginTransaction();
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.NSFW_SKIP_AI_GENERATED_CONTENT, member, null, newEnabled);
+            guildEntity.setSkipAIGeneratedContent(newEnabled);
+            guildEntity.commitTransaction();
+        }));
         components.add(Separator.createInvisible(Separator.Spacing.SMALL));
+
         components.add(TextDisplay.of(getString("root_filter_title")));
 
         Button addButton = buttonPrimary(TextManager.getString(getLocale(), TextManager.GENERAL, "add"), Emojis.MENU_PLUS_GRAY, e -> {

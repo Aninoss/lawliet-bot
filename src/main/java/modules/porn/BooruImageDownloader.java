@@ -20,10 +20,13 @@ public class BooruImageDownloader {
     public CompletableFuture<List<BooruImage>> getImages(long guildId, String domain, String searchTerm,
                                                          boolean animatedOnly, boolean mustBeExplicit,
                                                          boolean canBeVideo, boolean bulkMode, Set<String> filters,
-                                                         List<String> skippedResults, int number
+                                                         List<String> skippedResults, int number, boolean skipAI
     ) throws JsonProcessingException {
         filters = new HashSet<>(filters);
         filters.addAll(Arrays.asList(Settings.NSFW_FILTERS));
+        if (skipAI) {
+            filters.addAll(Arrays.asList(Settings.NSFW_AI_FILTERS));
+        }
 
         BooruRequest booruRequest = new BooruRequest()
                 .setGuildId(guildId)

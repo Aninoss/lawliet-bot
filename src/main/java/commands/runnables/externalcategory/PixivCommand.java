@@ -65,7 +65,7 @@ public class PixivCommand extends Command implements OnAlertListener {
             return false;
         } else {
             HashSet<String> filterSet = getFilterSet(event.getGuild().getIdLong());
-            if (NSFWUtil.containsFilterTags(NSFWUtil.expandTags(args), filterSet)) {
+            if (NSFWUtil.containsFilterTags(NSFWUtil.expandTags(args), filterSet, getGuildEntity().getSkipAIGeneratedContent())) {
                 MessageComponentTree components = ComponentsUtil.createCommandComponentTreeError(this, TextDisplay.of(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc")));
                 drawMessageNew(components)
                         .exceptionally(ExceptionLogger.get());
@@ -111,7 +111,7 @@ public class PixivCommand extends Command implements OnAlertListener {
             return AlertResponse.STOP_AND_DELETE;
         } else {
             HashSet<String> filterSet = getFilterSet(slot.getGuildId());
-            if (NSFWUtil.containsFilterTags(NSFWUtil.expandTags(key), filterSet)) {
+            if (NSFWUtil.containsFilterTags(NSFWUtil.expandTags(key), filterSet, getGuildEntity().getSkipAIGeneratedContent())) {
                 MessageComponentTree components = ComponentsUtil.createCommandComponentTreeError(this, TextDisplay.of(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc")));
                 components = ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
                 slot.sendMessageComponentTree(getLocale(), false, components);
@@ -243,9 +243,15 @@ public class PixivCommand extends Command implements OnAlertListener {
     }
 
     private HashSet<String> getFilterSet(long guildId) {
-        List<String> nsfwFiltersList = DBNSFWFilters.getInstance().retrieve(guildId).getKeywords();
         HashSet<String> filters = new HashSet<>(Set.of(Settings.NSFW_FILTERS));
+
+        List<String> nsfwFiltersList = DBNSFWFilters.getInstance().retrieve(guildId).getKeywords();
         nsfwFiltersList.forEach(filter -> filters.add(filter.toLowerCase()));
+
+        if (getGuildEntity().getSkipAIGeneratedContent()) {
+            filters.addAll(Set.of("AIイラスト", "AI生成"));
+        }
+
         return filters;
     }
 

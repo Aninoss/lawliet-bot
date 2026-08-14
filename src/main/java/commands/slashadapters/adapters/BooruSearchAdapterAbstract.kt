@@ -54,7 +54,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
             if (tag.contains(" ") || tag.length > 100) {
                 return emptyList()
             } else {
-                return booruAutoComplete.getTags(command.getDomain(), tag, nsfwAdditionalFilters).get()
+                return booruAutoComplete.getTags(command.getDomain(), tag, nsfwAdditionalFilters, guildEntity.skipAIGeneratedContent).get()
                     .map {
                         Command.Choice(
                             StringUtil.shortenString(it.name.replace("\\", ""), 100),

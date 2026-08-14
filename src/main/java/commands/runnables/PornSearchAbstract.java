@@ -20,7 +20,8 @@ public abstract class PornSearchAbstract extends PornAbstract {
 
     @Override
     public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount,
-                                           ArrayList<String> usedResults, boolean canBeVideo, boolean bulkMode
+                                           ArrayList<String> usedResults, boolean canBeVideo, boolean bulkMode,
+                                           boolean skipAI
     ) throws IOException {
         if (search.isEmpty()) {
             search = "animated";
@@ -48,7 +49,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
         nsfwFilters.addAll(getAdditionalFilters());
 
         return downloadPorn(guildId, nsfwFilters, amount, getDomain(), search, false, mustBeExplicit(),
-                canBeVideo, bulkMode, usedResults);
+                canBeVideo, bulkMode, usedResults, skipAI);
     }
 
     @Override
