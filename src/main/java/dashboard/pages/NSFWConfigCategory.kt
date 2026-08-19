@@ -69,7 +69,18 @@ class NSFWConfigCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         }
         skipAISwitch.subtitle = getString(Category.CONFIGURATION, "nsfwconfig_root_skip_ai_subtext")
         skipAISwitch.isChecked = guildEntity.skipAIGeneratedContent
-        container.add(skipAISwitch)
+        container.add(skipAISwitch, DashboardSeparator())
+
+        val oldMessageLayoutSwitch = DashboardSwitch(getString(Category.CONFIGURATION, "nsfwconfig_root_old_message_layout_label")) {
+            guildEntity.beginTransaction()
+            guildEntity.oldMessageLayout = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.NSFW_OLD_MESSAGE_LAYOUT, atomicMember, null, it.data)
+            guildEntity.commitTransaction()
+            ActionResult()
+        }
+        oldMessageLayoutSwitch.subtitle = getString(Category.CONFIGURATION, "nsfwconfig_root_old_message_layout_subtext")
+        oldMessageLayoutSwitch.isChecked = guildEntity.oldMessageLayout
+        container.add(oldMessageLayoutSwitch)
 
         return container
     }

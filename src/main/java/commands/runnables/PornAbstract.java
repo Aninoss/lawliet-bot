@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.components.separator.Separator;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.apache.logging.log4j.util.Strings;
@@ -50,6 +51,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -176,29 +178,66 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 FeatureLogger.inc(PremiumFeature.BOORUS_PREMIUM_ONLY, event.getGuild().getIdLong());
             }
 
-            first = false;
             if (pornImages.size() < MAX_FILES_PER_MESSAGE) {
                 amount = 0;
             } else {
                 amount -= pornImages.size();
             }
 
-            MessageComponentTree messageComponents = generateComponents(pornImages, event.getMessageChannel(), MAX_FILES_PER_MESSAGE, amount <= 0, premium);
-            if (messageComponents != null) {
-                boolean registerButton = amount <= 0 && premium;
-                drawMessageNew(messageComponents)
-                        .thenAccept(message -> {
-                            if (registerButton) {
+            first = false;
+            long finalAmount = amount;
+
+            CompletableFuture<Message> future;
+            if (getGuildEntity().getOldMessageLayout()) {
+                future = sendTextMessage(pornImages, event.getMessageChannel(), amount <= 0, premium);
+            } else {
+                future = sendComponentsMessage(pornImages, event.getMessageChannel(), amount <= 0, premium);
+            }
+
+            if (future != null) {
+                future.thenAccept(message -> {
+                            if (finalAmount <= 0 && premium) {
                                 setDrawMessage(message);
                                 registerButtonListener(event.getMember(), false);
                             }
                         })
                         .exceptionally(ExceptionLogger.get());
-                TimeUnit.SECONDS.sleep(MAX_FILES_PER_MESSAGE);
             }
+            TimeUnit.SECONDS.sleep(MAX_FILES_PER_MESSAGE);
         } while (amount > 0 && BotPermissionUtil.canWrite(event.getMessageChannel()));
 
         return true;
+    }
+
+    private CompletableFuture<Message> sendComponentsMessage(List<BooruImage> pornImages, GuildMessageChannel channel, boolean showLoadMoreButton, boolean premium) {
+        MessageComponentTree messageComponents = generateComponents(pornImages, channel, MAX_FILES_PER_MESSAGE, showLoadMoreButton, premium);
+        if (messageComponents == null) {
+            return null;
+        }
+
+        return drawMessageNew(messageComponents);
+    }
+
+    private CompletableFuture<Message> sendTextMessage(List<BooruImage> pornImages, GuildMessageChannel channel, boolean showLoadMoreButton, boolean premium) {
+        String messageContent = generatePostMessagesText(pornImages, channel, MAX_FILES_PER_MESSAGE, true);
+        if (messageContent == null) {
+            return null;
+        }
+
+
+        ArrayList<Button> buttons = new ArrayList<>();
+        if (showLoadMoreButton) {
+            Button loadMoreButton = generateLoadMoreButton(premium);
+            buttons.add(loadMoreButton);
+        }
+        Button reportButton = generateReportButton(pornImages);
+        if (reportButton != null) {
+            buttons.add(reportButton);
+        }
+        if (!buttons.isEmpty()) {
+            setComponents(buttons);
+        }
+        return drawMessageNew(messageContent);
     }
 
     private Button generateLoadMoreButton(boolean patreon) {
@@ -373,16 +412,62 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             FeatureLogger.inc(PremiumFeature.BOORUS_PREMIUM_ONLY, slot.getGuildId());
         }
 
-        MessageComponentTree messageComponents;
-        if ((messageComponents = generateComponents(pornImages, channel, newMode ? MAX_FILES_PER_MESSAGE : 1, false, premium)) != null) {
-            try {
-                slot.sendMessageComponentTree(getLocale(), true, messageComponents);
-            } catch (InterruptedException e) {
-                //Ignore
+        if (getGuildEntity().getOldMessageLayout()) {
+            Button reportButton = generateReportButton(pornImages);
+            String messageContent;
+            if ((messageContent = generatePostMessagesText(pornImages, channel, newMode ? MAX_FILES_PER_MESSAGE : 1, false)) != null) {
+                try {
+                    slot.sendMessageContent(getLocale(), true, messageContent, reportButton != null ? new ActionRow[] { ActionRow.of(reportButton) } : new ActionRow[0]);
+                } catch (InterruptedException e) {
+                    //Ignore
+                }
+            }
+        } else {
+            MessageComponentTree messageComponents;
+            if ((messageComponents = generateComponents(pornImages, channel, newMode ? MAX_FILES_PER_MESSAGE : 1, false, premium)) != null) {
+                try {
+                    slot.sendMessageComponentTree(getLocale(), true, messageComponents);
+                } catch (InterruptedException e) {
+                    //Ignore
+                }
             }
         }
 
         return AlertResponse.CONTINUE_AND_SAVE;
+    }
+
+    private String generatePostMessagesText(List<BooruImage> pornImages, GuildMessageChannel channel, int max, boolean doubleLineBreak) {
+        StringBuilder sb = new StringBuilder();
+
+        if (this instanceof PornSearchAbstract && !pornImages.get(0).getTags().isEmpty()) {
+            List<String> tags = pornImages.get(0).getTags();
+            if (tags != null) {
+                sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_tags"))
+                        .append(" ");
+                sb.append(combineTags(tags))
+                        .append(doubleLineBreak ? "\n\n" : "\n");
+            }
+        }
+
+        boolean spoiler = getGuildEntity().getNsfwSpoilers() && getCommandProperties().nsfw();
+        for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
+            if (pornImages.get(i) == null) {
+                continue;
+            }
+            String line = TextManager.getString(getLocale(), Category.NSFW, spoiler ? "porn_file_spoiler" : "porn_file", String.valueOf(i + 1), pornImages.get(i).getImageUrl(), pornImages.get(i).getPageUrl());
+            sb.append(line)
+                    .append('\n');
+        }
+
+        if (notice != null) {
+            sb.append('\n')
+                    .append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice));
+        }
+
+        if (BotPermissionUtil.canWrite(channel)) {
+            return StringUtil.shortenStringLine(sb.toString(), Message.MAX_CONTENT_LENGTH);
+        }
+        return null;
     }
 
     private MessageComponentTree generateComponents(List<BooruImage> pornImages, GuildMessageChannel channel, int max, boolean showLoadMoreButton, boolean premium) {
@@ -391,16 +476,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         if (this instanceof PornSearchAbstract && !pornImages.get(0).getTags().isEmpty()) {
             List<String> tags = pornImages.get(0).getTags();
             if (tags != null && !tags.isEmpty()) {
-                StringBuilder tagsStringBuilder = new StringBuilder();
-                for (int i = 0; i < tags.size(); i++) {
-                    if (i > 0) {
-                        tagsStringBuilder.append(", ");
-                    }
-                    tagsStringBuilder.append("`")
-                            .append(tags.get(i))
-                            .append("`");
-                }
-                String tagsString = TextManager.getString(getLocale(), Category.NSFW, "porn_tags") + " " + StringUtil.shortenString(tagsStringBuilder.toString(), 100);
+                String tagsString = TextManager.getString(getLocale(), Category.NSFW, "porn_tags") + " " + combineTags(tags);
                 components.add(TextDisplay.of(tagsString));
                 components.add(Separator.createInvisible(Separator.Spacing.SMALL));
             }
@@ -453,6 +529,19 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             return commandComponentTree;
         }
         return null;
+    }
+
+    private String combineTags(List<String> tags) {
+        StringBuilder tagsStringBuilder = new StringBuilder();
+        for (int i = 0; i < tags.size(); i++) {
+            if (i > 0) {
+                tagsStringBuilder.append(", ");
+            }
+            tagsStringBuilder.append("`")
+                    .append(tags.get(i))
+                    .append("`");
+        }
+        return StringUtil.shortenString(tagsStringBuilder.toString(), 100);
     }
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,

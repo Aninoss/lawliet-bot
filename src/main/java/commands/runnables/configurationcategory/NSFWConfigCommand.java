@@ -38,7 +38,7 @@ public class NSFWConfigCommand extends ComponentMenuAbstract {
     public final static int MAX_LENGTH = 50;
 
     private CustomObservableList<String> filterTags;
-    private final Pageable<String> pageable = new Pageable<>(this, 7, () -> filterTags);
+    private final Pageable<String> pageable = new Pageable<>(this, 5, () -> filterTags);
 
     public NSFWConfigCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -72,10 +72,18 @@ public class NSFWConfigCommand extends ComponentMenuAbstract {
             guildEntity.setSkipAIGeneratedContent(newEnabled);
             guildEntity.commitTransaction();
         }));
+
+        String oldMessageLayoutLabel = getString("root_old_message_layout_label") + "\n-# " + getString("root_old_message_layout_subtext");
+        components.add(buttonBoolean(oldMessageLayoutLabel, getGuildEntity().getOldMessageLayout(), newEnabled -> {
+            GuildEntity guildEntity = getGuildEntity();
+            guildEntity.beginTransaction();
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.NSFW_OLD_MESSAGE_LAYOUT, member, null, newEnabled);
+            guildEntity.setOldMessageLayout(newEnabled);
+            guildEntity.commitTransaction();
+        }));
+
         components.add(Separator.createInvisible(Separator.Spacing.SMALL));
-
         components.add(TextDisplay.of(getString("root_filter_title")));
-
         Button addButton = buttonPrimary(TextManager.getString(getLocale(), TextManager.GENERAL, "add"), Emojis.MENU_PLUS_GRAY, e -> {
             Modal modal = addStringListModal(
                     getString("root_modal_property"),

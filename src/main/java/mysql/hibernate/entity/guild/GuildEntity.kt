@@ -81,6 +81,14 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
             _skipAIGeneratedContent = value
         }
 
+    @Column(name = "oldMessageLayout")
+    private var _oldMessageLayout: Boolean? = null
+    var oldMessageLayout: Boolean
+        get() = _oldMessageLayout ?: false
+        set(value) {
+            _oldMessageLayout = value
+        }
+
     @Embedded
     @Column(name = FISHERY)
     val fishery = FisheryEntity()
