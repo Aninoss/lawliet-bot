@@ -14,9 +14,6 @@ import core.ExceptionLogger;
 import core.LocalFile;
 import core.MainLogger;
 import core.TextManager;
-import core.featurelogger.FeatureLogger;
-import core.featurelogger.PremiumFeature;
-import core.patreon.PatreonCache;
 import core.utils.*;
 import modules.graphics.AIWatermarkGraphics;
 import modules.txt2img.*;
@@ -38,12 +35,14 @@ import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
+import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -64,8 +63,8 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
 public class Txt2HentaiCommand extends ComponentMenuAbstract {
 
     public static int MAX_PROMPT_LENGTH = 1000;
-    public static int LIMIT_CREATIONS_PER_WEEK = 50;
     public static int PROMPT_MAX_LENGTH = 2000;
+    public static final Instant SHUTDOWN_TIME = LocalDate.parse("2026-11-14").atStartOfDay().toInstant(ZoneOffset.UTC);
     private static final String[] INAPPROPRIATE_CONTENT_FILTERS = {"nigga", "nigger", "niggas", "niggers", "rape", "raping", "raped"};
     private static final String PROMPT_ADDITIONAL = "explicit, lazynsfw, ";
     private static final String NEGATIVE_PROMPT_ADDITIONAL = "looks underage, child, teen, ";
@@ -217,6 +216,7 @@ public class Txt2HentaiCommand extends ComponentMenuAbstract {
         components.add(ActionRow.of(upscaleButton));
 
         // Model
+        int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), member.getIdLong());
         StringSelectMenu.Builder modelSelectMenu = stringSelectMenu(e -> {
             try {
                 onModelSelected(e);
@@ -224,7 +224,9 @@ public class Txt2HentaiCommand extends ComponentMenuAbstract {
                 throw new RuntimeException(ex);
             }
         });
-        modelSelectMenu.setMinValues(1)
+        modelSelectMenu
+                .setDisabled(remainingCalls <= 0)
+                .setMinValues(1)
                 .setMaxValues(1)
                 .setPlaceholder(getString("root_selectmodel"));
 
@@ -239,8 +241,9 @@ public class Txt2HentaiCommand extends ComponentMenuAbstract {
 
         components.add(Separator.createDivider(Separator.Spacing.LARGE));
         components.add(ActionRow.of(modelSelectMenu.build()));
-        components.add(TextDisplay.of(Txt2ImgCallTracker.getRemainingImagesText(getLocale(), member.getGuild().getIdLong(), member.getIdLong(), getUserEntity())));
-        components.add(TextDisplay.of("> " + getString("root_contentwarning")));
+        components.add(TextDisplay.of("> ⚠\uFE0F " + getString("disabled", TimeFormat.DATE_TIME_LONG.atInstant(SHUTDOWN_TIME).toString())));
+        components.add(TextDisplay.of(Txt2ImgCallTracker.getRemainingImagesText(getLocale(), getUserEntity())));
+        components.add(TextDisplay.of("-# " + getString("root_contentwarning")));
         return components;
     }
 
@@ -285,12 +288,10 @@ public class Txt2HentaiCommand extends ComponentMenuAbstract {
             return;
         }
 
-        boolean premium = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
-                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
         boolean isFirstToday = !LocalDate.now().equals(getUserEntity().getTxt2img().getCallsDate());
-        int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), event.getMember().getIdLong(), premium);
+        int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), event.getMember().getIdLong());
         if (remainingCalls <= 0) {
-            setLog(LogStatus.FAILURE, getString(premium ? "error_nocalls" : "error_nocalls_nopremium"));
+            setLog(LogStatus.FAILURE, getString("error_nocalls_nopremium"));
             return;
         }
 
@@ -301,10 +302,7 @@ public class Txt2HentaiCommand extends ComponentMenuAbstract {
         AspectRatio localAspectRatio = txt2img.getConfigAspectRatio();
         boolean markAsSpoiler = getGuildEntity().getNsfwSpoilers();
 
-        if (premium) {
-            FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
-        }
-        Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, localImages);
+        Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), localImages);
 
         StableDiffusionModel model = StableDiffusionModel.values()[Integer.parseInt(event.getValues().get(0))];
         String predictionId = RunPodDownloader.createTxt2ImgPrediction(

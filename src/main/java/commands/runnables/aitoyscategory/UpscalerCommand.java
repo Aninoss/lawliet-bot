@@ -10,9 +10,6 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.LocalFile;
 import core.TextManager;
-import core.featurelogger.FeatureLogger;
-import core.featurelogger.PremiumFeature;
-import core.patreon.PatreonCache;
 import core.utils.*;
 import modules.txt2img.PredictionResult;
 import modules.txt2img.RunPodDownloader;
@@ -28,6 +25,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,6 +41,8 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import static commands.runnables.nsfwcategory.Txt2HentaiCommand.SHUTDOWN_TIME;
 
 @CommandProperties(
         trigger = "upscaler",
@@ -130,16 +130,11 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
 
     @Override
     public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) throws ExecutionException, InterruptedException {
-        boolean premium = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
-                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
-        int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), event.getMember().getIdLong(), premium);
+        int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), event.getMember().getIdLong());
 
         if (remainingCalls >= base64Images.size()) {
             deregisterListeners();
-            if (premium) {
-                FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
-            }
-            Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, base64Images.size());
+            Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), base64Images.size());
 
             ScaleAndModel scaleAndModel = SCALE_AND_MODELS[Integer.parseInt(event.getValues().get(0))];
             String predictionId = RunPodDownloader.createUpscalePrediction(scaleAndModel.model, scaleAndModel.scale, base64Images).get();
@@ -157,7 +152,7 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
             }
             return false;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.NSFW, premium ? "txt2hentai_error_nocalls" : "txt2hentai_error_nocalls_nopremium"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.NSFW, "txt2hentai_error_nocalls_nopremium"));
             return true;
         }
     }
@@ -166,8 +161,9 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
     @Override
     public EmbedBuilder draw(Member member) {
         if (predictionResult == null) {
-
+            int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), member.getIdLong());
             StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("scale_and_model")
+                    .setDisabled(remainingCalls <= 0)
                     .setRequiredRange(1, 1)
                     .setPlaceholder(getString("home_placeholder"));
             for (int i = 0; i < SCALE_AND_MODELS.length; i++) {
@@ -183,9 +179,9 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
             SelectMenu menu = menuBuilder.build();
             setActionRows(ActionRow.of(menu));
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("home_desc"))
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("home_desc") + "\n> ⚠\uFE0F " + TextManager.getString(getLocale(), Category.NSFW, "txt2hentai_disabled", TimeFormat.DATE_TIME_LONG.atInstant(SHUTDOWN_TIME).toString()))
                     .addField(getString("home_images"), StringUtil.numToString(base64Images.size()), true);
-            EmbedUtil.setFooter(eb, this, Txt2ImgCallTracker.getRemainingImagesText(getLocale(), member.getGuild().getIdLong(), member.getIdLong(), getUserEntity()));
+            EmbedUtil.setFooter(eb, this, Txt2ImgCallTracker.getRemainingImagesText(getLocale(), getUserEntity()));
             return eb;
         }
 
@@ -196,7 +192,7 @@ public class UpscalerCommand extends Command implements OnStringSelectMenuListen
                         getString("status_processing_status").split("\n")[predictionResult.getStatus() == PredictionResult.Status.IN_PROGRESS ? 1 : 0]
                 );
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, text);
-                EmbedUtil.setFooter(eb, this, Txt2ImgCallTracker.getRemainingImagesText(getLocale(), member.getGuild().getIdLong(), member.getIdLong(), getUserEntity()));
+                EmbedUtil.setFooter(eb, this, Txt2ImgCallTracker.getRemainingImagesText(getLocale(), getUserEntity()));
                 return eb;
             }
             case COMPLETED -> {

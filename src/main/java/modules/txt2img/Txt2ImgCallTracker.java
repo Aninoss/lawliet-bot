@@ -3,45 +3,30 @@ package modules.txt2img;
 import commands.Category;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import core.TextManager;
-import core.patreon.PatreonCache;
 import core.utils.StringUtil;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.user.Txt2ImgEntity;
 import mysql.hibernate.entity.user.UserEntity;
 
-import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Locale;
 
 public class Txt2ImgCallTracker {
 
-    public static int getRemainingCalls(EntityManagerWrapper entityManager, long userId, boolean premium) {
-        if (premium) {
-            return Txt2HentaiCommand.LIMIT_CREATIONS_PER_WEEK - getPremiumCalls(entityManager, userId) +
-                    entityManager.findUserEntityReadOnly(userId).getTxt2img().getBoughtImages();
-        } else {
-            return entityManager.findUserEntityReadOnly(userId).getTxt2img().getBoughtImages();
+    public static int getRemainingCalls(EntityManagerWrapper entityManager, long userId) {
+        if (Instant.now().isAfter(Txt2HentaiCommand.SHUTDOWN_TIME)) {
+            return 0;
         }
+
+        return entityManager.findUserEntityReadOnly(userId).getTxt2img().getBoughtImages();
     }
 
-    public static int getPremiumCalls(EntityManagerWrapper entityManager, long userId) {
-        Txt2ImgEntity txt2img = entityManager.findUserEntity(userId).getTxt2img();
-        resetPremiumCallsOnNewWeek(txt2img);
-        return txt2img.getCalls();
-    }
-
-    public static void increaseCalls(EntityManagerWrapper entityManager, long userId, boolean premium, int images) {
+    public static void increaseCalls(EntityManagerWrapper entityManager, long userId, int images) {
         Txt2ImgEntity txt2img = entityManager.findUserEntity(userId).getTxt2img();
 
-        resetPremiumCallsOnNewWeek(txt2img);
         txt2img.beginTransaction();
         txt2img.setCallsDate(LocalDate.now());
-
-        if (premium) {
-            int premiumCalls = Math.min(images, Txt2HentaiCommand.LIMIT_CREATIONS_PER_WEEK - txt2img.getCalls());
-            txt2img.setCalls(txt2img.getCalls() + premiumCalls);
-            images -= premiumCalls;
-        }
 
         int boughtCalls = Math.min(images, txt2img.getBoughtImages());
         txt2img.setBoughtImages(txt2img.getBoughtImages() - boughtCalls);
@@ -55,33 +40,10 @@ public class Txt2ImgCallTracker {
         txt2img.commitTransaction();
     }
 
-    public static String getRemainingImagesText(Locale locale, long guildId, long userId, UserEntity userEntity) {
-        String footer;
-        if (isPremium(guildId, userId)) {
-            footer = TextManager.getString(locale, Category.NSFW, "txt2hentai_root_footer_premium",
-                    StringUtil.numToString(userEntity.getTxt2img().getBoughtImages()),
-                    StringUtil.numToString(Txt2HentaiCommand.LIMIT_CREATIONS_PER_WEEK - Txt2ImgCallTracker.getPremiumCalls(userEntity.getEntityManager(), userId)),
-                    StringUtil.numToString(Txt2HentaiCommand.LIMIT_CREATIONS_PER_WEEK)
-            );
-        } else {
-            footer = TextManager.getString(locale, Category.NSFW, "txt2hentai_root_footer",
-                    StringUtil.numToString(userEntity.getTxt2img().getBoughtImages())
-            );
-        }
-        return footer;
-    }
-
-    private static void resetPremiumCallsOnNewWeek(Txt2ImgEntity txt2img) {
-        if (txt2img.getCallsDate() != null && txt2img.getCalls() > 0 && LocalDate.now().with(DayOfWeek.MONDAY).isAfter(txt2img.getCallsDate())) {
-            txt2img.beginTransaction();
-            txt2img.setCalls(0);
-            txt2img.commitTransaction();
-        }
-    }
-
-    private static boolean isPremium(long guildId, long userId) {
-        return PatreonCache.getInstance().hasPremium(userId, true) ||
-                PatreonCache.getInstance().isUnlocked(guildId);
+    public static String getRemainingImagesText(Locale locale, UserEntity userEntity) {
+        return TextManager.getString(locale, Category.NSFW, "txt2hentai_root_footer",
+                StringUtil.numToString(getRemainingCalls(userEntity.entityManager, userEntity.getUserId()))
+        );
     }
 
 }
