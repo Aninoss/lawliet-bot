@@ -2,6 +2,7 @@ package core;
 
 import commands.CommandContainer;
 import commands.SlashCommandManager;
+import commands.runnables.informationcategory.NewCommand;
 import commands.runningchecker.RunningCheckerManager;
 import constants.AssetIds;
 import constants.Language;
@@ -58,6 +59,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("unlock_changelog", Console::onUnlockChangelog);
         tasks.put("cached_members", Console::onCachedMembers);
         tasks.put("fishery_guilds_by_user", Console::onFisheryGuildsByUser);
         tasks.put("fishery_users_by_guild", Console::onFisheryUsersByGuild);
@@ -118,6 +120,11 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onUnlockChangelog(String[] args) {
+        NewCommand.blockAlert = false;
+        MainLogger.get().info("Changelog unlocked");
     }
 
     private static void onCachedMembers(String[] args) {

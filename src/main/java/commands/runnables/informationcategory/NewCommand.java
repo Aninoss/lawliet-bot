@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 )
 public class NewCommand extends Command implements OnAlertListener {
 
-    VersionData versionData;
+    public static boolean blockAlert = true;
 
     public NewCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -45,7 +45,7 @@ public class NewCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        versionData = DBVersion.getInstance().retrieve();
+        VersionData versionData = DBVersion.getInstance().retrieve();
 
         // without args
         if (args.isEmpty()) {
@@ -143,18 +143,23 @@ public class NewCommand extends Command implements OnAlertListener {
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
-        if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
-            VersionSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
-            long messageId = slot.sendMessageEmbed(getLocale(), true, getVersionsEmbed(newestSlot).build()).orElse(0L);
-            if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID && messageId != 0) {
-                ((NewsChannel) slot.getGuildMessageChannel().get()).crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
+        if (slot.getArgs().isPresent()) {
+            if (slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
+                return AlertResponse.STOP;
             }
-
-            slot.setArgs(BotUtil.getCurrentVersion());
-            return AlertResponse.STOP_AND_SAVE;
+            if (blockAlert) {
+                return AlertResponse.CONTINUE;
+            }
         }
 
-        return AlertResponse.STOP;
+        VersionSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
+        long messageId = slot.sendMessageEmbed(getLocale(), true, getVersionsEmbed(newestSlot).build()).orElse(0L);
+        if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID && messageId != 0) {
+            ((NewsChannel) slot.getGuildMessageChannel().get()).crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
+        }
+
+        slot.setArgs(BotUtil.getCurrentVersion());
+        return AlertResponse.STOP_AND_SAVE;
     }
 
     @Override
