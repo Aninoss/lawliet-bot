@@ -97,7 +97,9 @@ public class DiscordConnector {
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
 
-        transferOsu();
+        if (Program.productionMode() && Program.publicInstance() && Program.isMainCluster()) {
+            transferOsu();
+        }
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
