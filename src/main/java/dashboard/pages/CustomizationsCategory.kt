@@ -111,7 +111,7 @@ class CustomizationsCategory(guildId: Long, userId: Long, locale: Locale, guildE
     fun generateAvatarComponents(guild: Guild): DashboardComponent {
         val imageUpload = DashboardImageUpload(getString(TextManager.GENERAL, "dashboard_customizations_avatar"), "temp", 1) { e ->
             if (e.type == "add") {
-                newAvatarFilename = e.data.split("/")[5]
+                newAvatarFilename = e.data
             } else if (e.type == "remove") {
                 newAvatarFilename = ""
             }
@@ -126,7 +126,7 @@ class CustomizationsCategory(guildId: Long, userId: Long, locale: Locale, guildE
     fun generateBannerComponents(guild: Guild): DashboardComponent {
         val imageUpload = DashboardImageUpload(getString(TextManager.GENERAL, "dashboard_customizations_banner"), "temp", 1) { e ->
             if (e.type == "add") {
-                newBannerFilename = e.data.split("/")[5]
+                newBannerFilename = e.data
             } else if (e.type == "remove") {
                 newBannerFilename = ""
             }
@@ -145,8 +145,8 @@ class CustomizationsCategory(guildId: Long, userId: Long, locale: Locale, guildE
             guild.selfMember.manager
                 .setNickname(newUsername.ifEmpty { null })
                 .setBio(newBio.ifEmpty { null })
-                .setAvatar(if (newAvatarFilename.isEmpty()) {null} else {Icon.from(LocalFile(LocalFile.Directory.CDN, "temp/$newAvatarFilename"))})
-                .setBanner(if (newBannerFilename.isEmpty()) {null} else {Icon.from(LocalFile(LocalFile.Directory.CDN, "temp/$newBannerFilename"))})
+                .setAvatar(if (newAvatarFilename.isEmpty()) {null} else {Icon.from(LocalFile.cdnFromUrl(newAvatarFilename))})
+                .setBanner(if (newBannerFilename.isEmpty()) {null} else {Icon.from(LocalFile.cdnFromUrl(newBannerFilename))})
                 .complete()
 
             guildEntity.beginTransaction()
