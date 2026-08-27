@@ -12,6 +12,8 @@ import core.utils.StringUtil;
 import modules.OsuGame;
 import modules.osu.OsuAccount;
 import modules.osu.OsuAccountDownloader;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.user.UserEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
@@ -44,22 +46,24 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         this.memberIsAuthor = memberIsAuthor;
-
-        boolean userExists = false;
         OsuGame gameMode = extractGameMode(args);
 
-        EmbedBuilder eb;
-        Long osuId = getUserEntityReadOnly().getOsuId();
+        Long osuId;
+        try (UserEntity userEntity = HibernateManager.findUserEntityReadOnly(member.getIdLong(), OsuCommand.class)) {
+            osuId = userEntity.getOsuId();
+        }
         OsuAccount osuAccount = osuId != null ? OsuAccountDownloader.download(String.valueOf(osuId), gameMode).get().orElse(null) : null;
+
+        EmbedBuilder eb;
         if (osuAccount != null) {
             eb = generateAccountEmbed(member, osuAccount, gameMode);
         } else {
             eb = EmbedFactory.getEmbedDefault(this, getString("noacc", StringUtil.escapeMarkdown(member.getEffectiveName())));
-            if (memberIsAuthor) {
-                setComponents(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", userExists)));
-            }
         }
 
+        if (memberIsAuthor) {
+            setComponents(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", osuAccount != null)));
+        }
         return eb;
     }
 
