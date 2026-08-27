@@ -41,11 +41,11 @@ public class EncryptionUtil {
         System.arraycopy(iv, 0, combinedIvAndCipherText, 0, iv.length);
         System.arraycopy(encryptedBytes, 0, combinedIvAndCipherText, iv.length, encryptedBytes.length);
 
-        return Base64.getEncoder().encodeToString(combinedIvAndCipherText);
+        return Base64.getUrlEncoder().encodeToString(combinedIvAndCipherText);
     }
 
     public static String decrypt(String cipherText) throws Exception {
-        byte[] decodedCipherText = Base64.getDecoder().decode(cipherText);
+        byte[] decodedCipherText = Base64.getUrlDecoder().decode(cipherText);
 
         // Generate the AES key from the local passphrase
         SecretKeySpec aesKey = generateAesKeyFromPassphrase();
