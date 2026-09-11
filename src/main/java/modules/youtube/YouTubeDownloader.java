@@ -87,7 +87,7 @@ public class YouTubeDownloader {
         return new YouTubeVideo(
                 StringUtil.shortenString(authorJson.getString("name"), MessageEmbed.AUTHOR_MAX_LENGTH),
                 authorJson.getString("uri"),
-                StringUtil.shortenString(jsonVideo.getString("title"), MessageEmbed.TITLE_MAX_LENGTH),
+                jsonVideo.has("title") && jsonVideo.get("title") instanceof String ? StringUtil.shortenString(jsonVideo.getString("title"), MessageEmbed.TITLE_MAX_LENGTH) : null,
                 mediaJson.getJSONObject("media:thumbnail").getString("url"),
                 jsonVideo.getJSONObject("link").getString("href"),
                 Instant.parse(jsonVideo.getString("published")),
