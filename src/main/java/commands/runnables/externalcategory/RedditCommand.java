@@ -115,7 +115,7 @@ public class RedditCommand extends Command implements OnAlertListener {
         titleComponents.add(TextDisplay.of(author + "\n" + title));
 
         if (post.getDescription() != null && !post.getDescription().isBlank()) {
-            String desc = StringUtil.shortenString(StringUtil.escapeMarkdown(post.getDescription()), shortened ? 500 : 2000);
+            String desc = StringUtil.shortenString(StringUtil.escapeMarkdown(post.getDescription()), shortened ? 300 : 2000);
             titleComponents.add(TextDisplay.of(desc));
         }
 
