@@ -34,7 +34,7 @@ public class InviteTracking {
         CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
         Set<Long> serverMemberIds = retrieveRelevantMemberIds(guild, inviterUserId, inviteTrackingSlots);
 
-        for (InviteTrackingSlot inviteTrackingSlot : inviteTrackingSlots.values()) {
+        for (InviteTrackingSlot inviteTrackingSlot : new ArrayList<>(inviteTrackingSlots.values())) {
             InviteMetrics inviteMetrics = inviteMetricsMap.computeIfAbsent(inviteTrackingSlot.getInviterUserId(), k -> new InviteMetrics(guild.getIdLong(), inviteTrackingSlot.getInviterUserId()));
             inviteMetrics.incrTotalInvites();
             if (serverMemberIds.contains(inviteTrackingSlot.getMemberId())) {
