@@ -38,16 +38,19 @@ public class MessageQuote {
                 eb.setDescription("\"" + searchedMessage.getContentRaw() + "\"");
             }
             if (!searchedMessage.getAttachments().isEmpty()) {
-                eb.setImage(searchedMessage.getAttachments().get(0).getUrl());
+                Message.Attachment attachment = searchedMessage.getAttachments().get(0);
+                setEmbedImage(eb, attachment.getUrl(), attachment.getDescription());
             }
         } else {
             MessageEmbed embed = searchedMessage.getEmbeds().get(0);
             eb = new EmbedBuilder(embed);
 
-            if (embed.getImage() != null) {
-                eb.setImage(embed.getImage().getUrl());
+            if (embed.getImage() != null && embed.getImage().getUrl() != null) {
+                MessageEmbed.ImageInfo image = embed.getImage();
+                setEmbedImage(eb, image.getUrl(), image.getDescription());
             } else if (!searchedMessage.getAttachments().isEmpty()) {
-                eb.setImage(searchedMessage.getAttachments().get(0).getUrl());
+                Message.Attachment attachment = searchedMessage.getAttachments().get(0);
+                setEmbedImage(eb, attachment.getUrl(), attachment.getDescription());
             }
 
             if (embed.getFooter() != null) {
@@ -72,6 +75,14 @@ public class MessageQuote {
         return new MessageCreateBuilder()
                 .setEmbeds(eb.build())
                 .build();
+    }
+
+    private static void setEmbedImage(EmbedBuilder eb, String url, String description) {
+        if (description != null) {
+            eb.setImage(url, description);
+        } else {
+            eb.setImage(url);
+        }
     }
 
 }
