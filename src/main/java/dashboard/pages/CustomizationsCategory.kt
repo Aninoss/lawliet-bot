@@ -1,5 +1,7 @@
 package dashboard.pages
 
+import com.google.common.cache.Cache
+import com.google.common.cache.CacheBuilder
 import core.LocalFile
 import core.TextManager
 import core.patreon.PatreonCache
@@ -7,12 +9,7 @@ import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
-import dashboard.component.DashboardButton
-import dashboard.component.DashboardImageUpload
-import dashboard.component.DashboardMultiLineTextField
-import dashboard.component.DashboardSeparator
-import dashboard.component.DashboardText
-import dashboard.component.DashboardTextField
+import dashboard.component.*
 import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.BotLogEntity
@@ -22,8 +19,9 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Icon
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.SelfMember
-import net.dv8tion.jda.api.managers.SelfMemberManager
+import java.time.Instant
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @DashboardProperties(
         id = "customizations",
@@ -142,6 +140,12 @@ class CustomizationsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         val horizontalContainer = HorizontalContainer()
 
         val applyButton = DashboardButton(getString(TextManager.GENERAL, "dashboard_customizations_apply")) {
+            if (ratelimitCache.getIfPresent(guild.idLong) != null) {
+                return@DashboardButton ActionResult()
+                    .withErrorMessage(getString(TextManager.GENERAL, "dashboard_customizations_wait"))
+            }
+            ratelimitCache.put(guild.idLong, Instant.now())
+
             guild.selfMember.manager
                 .setNickname(newUsername.ifEmpty { null })
                 .setBio(newBio.ifEmpty { null })
@@ -164,6 +168,12 @@ class CustomizationsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         horizontalContainer.add(applyButton)
 
         val deleteButton = DashboardButton(getString(TextManager.GENERAL, "dashboard_customizations_delete")) {
+            if (ratelimitCache.getIfPresent(guild.idLong) != null) {
+                return@DashboardButton ActionResult()
+                    .withErrorMessage(getString(TextManager.GENERAL, "dashboard_customizations_wait"))
+            }
+            ratelimitCache.put(guild.idLong, Instant.now())
+
             guild.selfMember.manager
                 .setNickname(null)
                 .setBio(null)
@@ -195,5 +205,14 @@ class CustomizationsCategory(guildId: Long, userId: Long, locale: Locale, guildE
         newAvatarFilename = ""
         newBannerFilename = ""
     }
+
+    companion object {
+
+        private val ratelimitCache: Cache<Long, Instant> = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .build()
+
+    }
+
 
 }
