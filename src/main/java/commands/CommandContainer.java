@@ -125,6 +125,7 @@ public class CommandContainer {
         commandList.add(UnjailCommand.class);
         commandList.add(InviteFilterCommand.class);
         commandList.add(WordFilterCommand.class);
+        commandList.add(SpamFilterCommand.class);
         commandList.add(ClearCommand.class);
         commandList.add(FullClearCommand.class);
         commandList.add(LockCommand.class);
