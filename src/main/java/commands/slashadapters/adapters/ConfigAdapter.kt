@@ -14,6 +14,7 @@ import commands.runnables.moderationcategory.ModSettingsCommand
 import commands.runnables.moderationcategory.WordFilterCommand
 import commands.runnables.fisherysettingscategory.FisheryCurrenciesCommand
 import commands.runnables.informationcategory.HelpCommand
+import commands.runnables.moderationcategory.SpamFilterCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
@@ -38,7 +39,7 @@ import java.util.*
             NSFWConfigCommand::class, SuggestionConfigCommand::class, SuggestionManageCommand::class, AlertsCommand::class, ReactionRolesCommand::class,
             WelcomeCommand::class, AutoRolesCommand::class, StickyRolesCommand::class, AutoChannelCommand::class, AutoQuoteCommand::class,
             MemberCountDisplayCommand::class, TriggerDeleteCommand::class, GiveawayCommand::class, TicketCommand::class, ModSettingsCommand::class,
-            InviteFilterCommand::class, WordFilterCommand::class, FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class,
+            InviteFilterCommand::class, WordFilterCommand::class, SpamFilterCommand::class, FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class,
             FisheryCurrenciesCommand::class, InviteTrackingCommand::class, CustomConfigCommand::class, CommandChannelShortcutsCommand::class,
             ReminderManageCommand::class, RolePlayBlockCommand::class, CustomRolePlayCommand::class, BirthdayConfigCommand::class, ApiCommand::class,
         ]

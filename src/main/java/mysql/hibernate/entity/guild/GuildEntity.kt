@@ -106,6 +106,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
     val wordFilter = WordFilterEntity()
 
     @Embedded
+    @Column(name = SPAM_FILTER)
+    val spamFilter = SpamFilterEntity()
+
+    @Embedded
     @Column(name = STICKY_ROLES)
     val stickyRoles = StickyRolesEntity()
 
@@ -178,6 +182,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
         moderation.postLoad(this)
         inviteFilter.postLoad(this)
         wordFilter.postLoad(this)
+        spamFilter.postLoad(this)
         stickyRoles.postLoad(this)
         tickets.postLoad(this)
         welcomeMessages.postLoad(this)

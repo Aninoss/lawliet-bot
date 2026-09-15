@@ -14,6 +14,7 @@ import commands.runnables.fisherysettingscategory.VCTimeCommand
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand
 import commands.runnables.moderationcategory.InviteFilterCommand
 import commands.runnables.moderationcategory.ModSettingsCommand
+import commands.runnables.moderationcategory.SpamFilterCommand
 import commands.runnables.moderationcategory.WordFilterCommand
 import core.MainLogger
 import core.ShardManager
@@ -146,6 +147,11 @@ class BotLogEntity(
         WORD_FILTER_EXCLUDED_MEMBERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.USER, WordFilterCommand::class.java, "wordfilter_state0_mignoredusers"),
         WORD_FILTER_LOG_RECEIVERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.USER, WordFilterCommand::class.java, "wordfilter_state0_mlogreciever"),
         WORD_FILTER_WORDS(ValuesRelationship.ADD_AND_REMOVE, ValueType.STRING, WordFilterCommand::class.java, "wordfilter_state0_mwords"),
+        SPAM_FILTER_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, SpamFilterCommand::class.java, "spamfilter_state0_menabled"),
+        SPAM_FILTER_EXCLUDED_MEMBERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.USER, SpamFilterCommand::class.java, "spamfilter_state0_mignoredusers"),
+        SPAM_FILTER_EXCLUDED_CHANNELS(ValuesRelationship.ADD_AND_REMOVE, ValueType.CHANNEL, SpamFilterCommand::class.java, "spamfilter_state0_mignoredchannels"),
+        SPAM_FILTER_LOG_RECEIVERS(ValuesRelationship.ADD_AND_REMOVE, ValueType.USER, SpamFilterCommand::class.java, "spamfilter_state0_mlogreciever"),
+        SPAM_FILTER_ACTION(ValuesRelationship.OLD_AND_NEW, ValueType.TEXT_KEY, SpamFilterCommand::class.java, "spamfilter_state0_maction"),
         INVITE_TRACKING_ACTIVE(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, InviteTrackingCommand::class.java, "invitetracking_state0_mactive"),
         INVITE_TRACKING_LOG_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, InviteTrackingCommand::class.java, "invitetracking_state0_mchannel"),
         INVITE_TRACKING_PING_MEMBERS(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, InviteTrackingCommand::class.java, "invitetracking_state0_mping"),
