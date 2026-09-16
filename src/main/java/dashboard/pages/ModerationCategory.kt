@@ -3,6 +3,7 @@ package dashboard.pages
 import commands.Category
 import commands.runnables.moderationcategory.InviteFilterCommand
 import commands.runnables.moderationcategory.ModSettingsCommand
+import commands.runnables.moderationcategory.SpamFilterCommand
 import commands.runnables.moderationcategory.WordFilterCommand
 import constants.ExternalLinks
 import core.TextManager
@@ -26,6 +27,7 @@ import mysql.hibernate.entity.guild.GuildEntity
 import mysql.hibernate.entity.guild.ModerationEntity
 import mysql.hibernate.entity.guild.WordFilterEntity
 import mysql.hibernate.entity.guild.InviteFilterEntity
+import mysql.hibernate.entity.guild.SpamFilterEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -50,6 +52,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         get() = guildEntity.inviteFilter
     val wordFilterEntity: WordFilterEntity
         get() = guildEntity.wordFilter
+    val spamFilterEntity: SpamFilterEntity
+        get() = guildEntity.spamFilter
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.COMMANDS, "moderation")
@@ -81,6 +85,14 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         DashboardTitle(getString(Category.MODERATION, "wordfilter_title")),
                         DashboardText(getString(Category.MODERATION, "wordfilter_description")),
                         generateWordFilterField()
+                )
+            }
+
+            if (anyCommandsAreAccessible(SpamFilterCommand::class)) {
+                mainContainer.add(
+                    DashboardTitle(getString(Category.MODERATION, "spamfilter_title")),
+                    DashboardText(getString(Category.MODERATION, "spamfilter_description")),
+                    generateSpamFilterField()
                 )
             }
         } else {
@@ -457,6 +469,94 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         comboBox.selectedValues = wordFilterEntity.words.map { DiscordEntity(it, it) }
         comboBox.placeholder = getString(Category.MODERATION, "mod_dashboard_wordlist_placeholder")
         return comboBox
+    }
+
+    private fun generateSpamFilterField(): DashboardComponent {
+        val container = VerticalContainer()
+        container.isCard = true
+        val activeSwitch = DashboardSwitch(getString(Category.MODERATION, "spamfilter_state0_menabled")) {
+            if (!anyCommandsAreAccessible(SpamFilterCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
+            spamFilterEntity.beginTransaction()
+            spamFilterEntity.active = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.SPAM_FILTER_ACTIVE, atomicMember, null, it.data)
+            spamFilterEntity.commitTransaction()
+
+            ActionResult()
+                .withRedraw()
+        }
+        activeSwitch.isChecked = spamFilterEntity.active
+        container.add(activeSwitch, DashboardSeparator(true), generateSpamFilterExcludedField())
+
+        val logReceivers = DashboardMultiMembersComboBox(
+            this,
+            getString(Category.MODERATION, "spamfilter_state0_mlogreciever"),
+            { it.spamFilter.logReceiverUserIds },
+            true,
+            SpamFilterCommand.MAX_LOG_RECEIVERS,
+            SpamFilterCommand::class,
+            BotLogEntity.Event.SPAM_FILTER_LOG_RECEIVERS
+        )
+        container.add(
+            logReceivers,
+            DashboardText(getString(Category.MODERATION, "mod_dashboard_logreceivers"), DashboardText.Style.HINT),
+            DashboardSeparator(true)
+        )
+
+        val actions = (0 until 3).map {
+            DiscordEntity(it.toString(), getString(Category.MODERATION, "spamfilter_state0_mactionlist").split("\n")[it])
+        }
+        val action = DashboardComboBox(getString(Category.MODERATION, "spamfilter_state0_maction"), actions, false, 1) {
+            if (!anyCommandsAreAccessible(SpamFilterCommand::class)) {
+                return@DashboardComboBox ActionResult()
+                    .withRedraw()
+            }
+
+            val newAction = SpamFilterEntity.Action.values()[it.data.toInt()]
+            spamFilterEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.SPAM_FILTER_ACTION, atomicMember, spamFilterEntity.action, newAction)
+            spamFilterEntity.action = newAction
+            spamFilterEntity.commitTransaction()
+
+            ActionResult()
+        }
+        action.selectedValues = actions.filter { it.id.toInt() == spamFilterEntity.action.ordinal }
+        container.add(action)
+
+        return container
+    }
+
+    private fun generateSpamFilterExcludedField(): DashboardComponent {
+        val container = HorizontalContainer()
+        container.allowWrap = true
+
+        val ignoredUsers = DashboardMultiMembersComboBox(
+            this,
+            getString(Category.MODERATION, "spamfilter_state0_mignoredusers"),
+            { it.spamFilter.excludedMemberIds },
+            true,
+            SpamFilterCommand.MAX_EXCLUDED_MEMBERS,
+            SpamFilterCommand::class,
+            BotLogEntity.Event.SPAM_FILTER_EXCLUDED_MEMBERS
+        )
+        container.add(ignoredUsers)
+
+        val ignoredChannels = DashboardMultiChannelsComboBox(
+            this,
+            getString(Category.MODERATION, "spamfilter_state0_mignoredchannels"),
+            DashboardComboBox.DataType.GUILD_CHANNELS,
+            { it.spamFilter.excludedChannelIds },
+            true,
+            SpamFilterCommand.MAX_EXCLUDED_CHANNELS,
+            SpamFilterCommand::class,
+            BotLogEntity.Event.SPAM_FILTER_EXCLUDED_CHANNELS
+        )
+        container.add(ignoredChannels)
+
+        return container;
     }
 
     private fun generateAutoModConfigTitle(): DashboardComponent {

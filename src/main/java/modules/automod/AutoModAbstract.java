@@ -54,7 +54,7 @@ public abstract class AutoModAbstract {
         }
     }
 
-    private void punish(Message message, Member member, GuildEntity guildEntity, Class<? extends Command> commandClass) {
+    protected void punish(Message message, Member member, GuildEntity guildEntity, Class<? extends Command> commandClass) {
         Guild guild = member.getGuild();
         CommandProperties commandProperties = Command.getCommandProperties(commandClass);
         Locale locale = guildEntity.getLocale();
