@@ -19,19 +19,20 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class SpamFilter extends AutoModAbstract {
 
-    public static final int EVENTS_SECONDS = 2;
-    public static final int EVENTS_NUMBER = 5;
+    public static final int EVENTS_SECONDS = 4;
+    public static final int EVENTS_NUMBER = 4;
 
     private static final LoadingCache<Pair<Long, Long>, MemberEvents> memberEventsCache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofSeconds(EVENTS_SECONDS))
@@ -52,7 +53,15 @@ public class SpamFilter extends AutoModAbstract {
     @Override
     protected void punish(Message message, Member member, GuildEntity guildEntity, Class<? extends Command> commandClass) {
         try {
-            if (memberEventsCache.get(new Pair<>(member.getGuild().getIdLong(), member.getIdLong())).checkNotYetPunished()) {
+            MemberEvents memberEvents = memberEventsCache.get(new Pair<>(member.getGuild().getIdLong(), member.getIdLong()));
+            if (memberEvents.checkNotYetPunished()) {
+                Map<GuildMessageChannelUnion, List<Message>> messages = memberEvents.collectMessages(message);
+                for (GuildMessageChannelUnion channel : messages.keySet()) {
+                    if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), commandClass, channel, Permission.MESSAGE_MANAGE)) {
+                        channel.deleteMessages(messages.get(channel))
+                                .queue();
+                    }
+                }
                 super.punish(message, member, guildEntity, commandClass);
             }
         } catch (ExecutionException e) {
@@ -118,7 +127,7 @@ public class SpamFilter extends AutoModAbstract {
                     !spamFilterEntity.getExcludedMemberIds().contains(member.getIdLong()) &&
                     !JDAUtil.collectionContainsChannelOrParent(spamFilterEntity.getExcludedChannelIds(), message.getChannel()) &&
                     !BotPermissionUtil.can(member, Permission.ADMINISTRATOR) &&
-                    memberEventsCache.get(new Pair<>(member.getGuild().getIdLong(), member.getIdLong())).checkAndSet(message.getContentRaw());
+                    memberEventsCache.get(new Pair<>(member.getGuild().getIdLong(), member.getIdLong())).checkAndSet(message);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
@@ -127,26 +136,28 @@ public class SpamFilter extends AutoModAbstract {
 
     private static class MemberEvents {
 
-        private final ArrayList<Instant> events = new ArrayList<>();
+        private final ArrayList<MemberEvent> events = new ArrayList<>();
         private String messageContent = null;
         private boolean notYetPunished = true;
 
-        public synchronized boolean checkAndSet(String newMessageContent) {
+        public synchronized boolean checkAndSet(Message message) {
+            String newMessageContent = message.getContentRaw();
             if (!newMessageContent.equals(messageContent)) {
                 messageContent = newMessageContent;
                 events.clear();
             }
 
+            events.add(new MemberEvent(Instant.now(), message));
             boolean valid = false;
             if (events.size() >= EVENTS_NUMBER) {
-                Instant firstOccurrence = events.get(0);
+                Instant firstOccurrence = events.get(0).instant;
                 if (TimeUtil.getMillisBetweenInstants(firstOccurrence, Instant.now()) < EVENTS_SECONDS * 1000) {
                     valid = true;
                 }
+            }
+            while (events.size() > EVENTS_NUMBER) {
                 events.remove(0);
             }
-
-            events.add(Instant.now());
             return valid;
         }
 
@@ -154,6 +165,33 @@ public class SpamFilter extends AutoModAbstract {
             boolean value = notYetPunished;
             notYetPunished = false;
             return value;
+        }
+
+        public synchronized Map<GuildMessageChannelUnion, List<Message>> collectMessages(Message doNotIncludeMessage) {
+            HashSet<Message> messages = new HashSet<>();
+            for (MemberEvent event : events) {
+                if (event.message == null) {
+                    continue;
+                }
+                if (event.message != doNotIncludeMessage) {
+                    messages.add(event.message);
+                }
+                event.message = null;
+            }
+            return messages.stream().collect(Collectors.groupingBy(Message::getGuildChannel));
+        }
+
+
+        private static class MemberEvent {
+
+            private final Instant instant;
+            private Message message;
+
+            public MemberEvent(Instant instant, Message message) {
+                this.instant = instant;
+                this.message = message;
+            }
+
         }
 
     }
