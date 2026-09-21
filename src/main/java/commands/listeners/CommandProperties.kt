@@ -21,6 +21,7 @@ annotation class CommandProperties(
     val exclusiveUsers: LongArray = [],
     val enableCacheWipe: Boolean = true,
     val releaseDate: IntArray = [],
+    val releaseVersion: String = "",
     val onlyPublicVersion: Boolean = false,
     val usesExtEmotes: Boolean = false,
     val requiresFullMemberCache: Boolean = false,

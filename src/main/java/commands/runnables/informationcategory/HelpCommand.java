@@ -10,6 +10,7 @@ import commands.runnables.nsfwinteractionscategory.CustomRolePlayNsfwCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
+import constants.Versions;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.Program;
@@ -127,6 +128,7 @@ public class HelpCommand extends ComponentMenuAbstract {
                             commandProperties.obsolete(),
                             commandProperties.trigger(),
                             commandProperties.emoji(),
+                            commandProperties.releaseVersion().equals(Versions.VERSIONS[Versions.VERSIONS.length - 1]),
                             getCommandIcons(command),
                             commandLanguage.getDescShort(),
                             commandProperties.subCategory(),
@@ -150,6 +152,7 @@ public class HelpCommand extends ComponentMenuAbstract {
                             false,
                             keyValueEntry.getKey(),
                             customRolePlay.getEmojiFormatted(),
+                            false,
                             customRolePlay.getNsfw() ? List.of(CommandIcon.NSFW, CommandIcon.PATREON) : List.of(CommandIcon.PATREON),
                             null,
                             RP_SUBCATEGORY_CUSTOM,
@@ -164,16 +167,21 @@ public class HelpCommand extends ComponentMenuAbstract {
                     int subCategoryCompare = a.subCategory.compareTo(b.subCategory);
                     if (subCategoryCompare != 0) {
                         return subCategoryCompare;
-                    } else {
-                        if (a.subCategory.equals(RP_SUBCATEGORY_CUSTOM)) {
-                            return a.trigger.compareTo(b.trigger);
-                        } else {
-                            return Long.compare(
-                                    DBCommandUsages.getInstance().retrieve(b.trigger).getValue(),
-                                    DBCommandUsages.getInstance().retrieve(a.trigger).getValue()
-                            );
-                        }
                     }
+
+                    if (a.subCategory.equals(RP_SUBCATEGORY_CUSTOM)) {
+                        return a.trigger.compareTo(b.trigger);
+                    }
+
+                    int newCommandCompare = Boolean.compare(b.newCommand, a.newCommand);
+                    if (newCommandCompare != 0) {
+                        return newCommandCompare;
+                    }
+
+                    return Long.compare(
+                            DBCommandUsages.getInstance().retrieve(b.trigger).getValue(),
+                            DBCommandUsages.getInstance().retrieve(a.trigger).getValue()
+                    );
                 });
                 commandEntries.put(category, newCommandEntries);
             }
@@ -483,16 +491,18 @@ public class HelpCommand extends ComponentMenuAbstract {
         private boolean obsolete;
         private String trigger;
         private String emoji;
+        private boolean newCommand;
         private List<CommandIcon> icons;
         private String descriptionShort;
         private String subCategory;
         private Command command;
 
-        public CommandEntry(boolean beta, boolean obsolete, String trigger, String emoji, List<CommandIcon> icons, String descriptionShort, String subCategory, Command command) {
+        public CommandEntry(boolean beta, boolean obsolete, String trigger, String emoji, boolean newCommand, List<CommandIcon> icons, String descriptionShort, String subCategory, Command command) {
             this.beta = beta;
             this.obsolete = obsolete;
             this.trigger = trigger;
             this.emoji = emoji;
+            this.newCommand = newCommand;
             this.icons = icons;
             this.descriptionShort = descriptionShort;
             this.subCategory = subCategory;
