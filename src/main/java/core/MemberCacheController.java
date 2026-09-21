@@ -1,8 +1,10 @@
 package core;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import constants.AssetIds;
-import core.patreon.PatreonCache;
 import core.cache.UserWithWorkFisheryDmReminderCache;
+import core.patreon.PatreonCache;
 import core.utils.CollectionUtil;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -22,6 +24,9 @@ public class MemberCacheController implements MemberCachePolicy {
 
     private final HashMap<Long, Instant> guildAccessMap = new HashMap<>();
     private final HashMap<Long, HashSet<Long>> missingMemberIdCacheMap = new HashMap<>();
+    private final Cache<Long, Instant> blockCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofHours(1))
+            .build();
 
     public static MemberCacheController getInstance() {
         return ourInstance;
@@ -100,7 +105,7 @@ public class MemberCacheController implements MemberCachePolicy {
 
     public CompletableFuture<List<Member>> loadMembersFull(Guild guild, boolean skipBigGuilds) {
         cacheGuild(guild);
-        if (skipBigGuilds && guild.getMemberCount() >= BIG_SERVER_THRESHOLD) {
+        if ((skipBigGuilds && guild.getMemberCount() >= BIG_SERVER_THRESHOLD) || blockCache.getIfPresent(guild.getIdLong()) != null) {
             return CompletableFuture.completedFuture(guild.getMembers());
         }
 
@@ -112,6 +117,7 @@ public class MemberCacheController implements MemberCachePolicy {
                     .setTimeout(Duration.ofSeconds(10))
                     .onError(e -> {
                         MainLogger.get().error("Loading all guild members failed for {} ({} members)", guild.getIdLong(), guild.getMemberCount(), e);
+                        blockCache.put(guild.getIdLong(), Instant.now());
                         future.complete(guild.getMembers());
                     })
                     .onSuccess(future::complete);
