@@ -32,7 +32,8 @@ import java.util.Locale;
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
         usesExtEmotes = true,
-        aliases = {"scamfilter", "antispam", "antiscam", "spamblock"}
+        aliases = {"scamfilter", "antispam", "antiscam", "spamblock"},
+        releaseVersion = "2.74"
 )
 public class SpamFilterCommand extends NavigationAbstract {
 
