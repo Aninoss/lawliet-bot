@@ -58,7 +58,8 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         executableWithoutArgs = false,
         nsfw = true,
         aliases = {"nsfwimagine", "imaginensfw"},
-        subCategory = NSFW_SUBCATEGORY_GENERAL
+        subCategory = NSFW_SUBCATEGORY_GENERAL,
+        listed = false
 )
 public class Txt2HentaiCommand extends ComponentMenuAbstract {
 

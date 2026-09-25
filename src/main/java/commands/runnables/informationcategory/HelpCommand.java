@@ -114,6 +114,10 @@ public class HelpCommand extends ComponentMenuAbstract {
             ArrayList<CommandEntry> newCommandEntries = new ArrayList<>();
             for (Class<? extends Command> clazz : commandClasses) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+                if (!command.getCommandProperties().listed()) {
+                    continue;
+                }
+
                 String commandTrigger = command.getTrigger();
                 if (!commandTrigger.equals(getTrigger()) &&
                         CommandManager.commandIsEnabledEffectively(getGuildEntity(), command, event.getMember(), event.getMessageChannel()) &&
