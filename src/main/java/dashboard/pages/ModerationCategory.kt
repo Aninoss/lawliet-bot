@@ -1,6 +1,7 @@
 package dashboard.pages
 
 import commands.Category
+import commands.Command
 import commands.runnables.moderationcategory.InviteFilterCommand
 import commands.runnables.moderationcategory.ModSettingsCommand
 import commands.runnables.moderationcategory.SpamFilterCommand
@@ -30,6 +31,7 @@ import mysql.hibernate.entity.guild.InviteFilterEntity
 import mysql.hibernate.entity.guild.SpamFilterEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import java.time.LocalDate
 import java.util.*
 
 @DashboardProperties(
@@ -472,6 +474,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     }
 
     private fun generateSpamFilterField(): DashboardComponent {
+        val unlocked = isPremium || !LocalDate.now().isBefore(Command.getReleaseDate(SpamFilterCommand::class.java).get())
+
         val container = VerticalContainer()
         container.isCard = true
         val activeSwitch = DashboardSwitch(getString(Category.MODERATION, "spamfilter_state0_menabled")) {
@@ -488,8 +492,9 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             ActionResult()
                 .withRedraw()
         }
+        activeSwitch.isEnabled = unlocked
         activeSwitch.isChecked = spamFilterEntity.active
-        container.add(activeSwitch, DashboardSeparator(true), generateSpamFilterExcludedField())
+        container.add(activeSwitch, DashboardSeparator(true), generateSpamFilterExcludedField(unlocked))
 
         val logReceivers = DashboardMultiMembersComboBox(
             this,
@@ -500,6 +505,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             SpamFilterCommand::class,
             BotLogEntity.Event.SPAM_FILTER_LOG_RECEIVERS
         )
+        logReceivers.isEnabled = unlocked
+
         container.add(
             logReceivers,
             DashboardText(getString(Category.MODERATION, "mod_dashboard_logreceivers"), DashboardText.Style.HINT),
@@ -523,13 +530,17 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
             ActionResult()
         }
+        action.isEnabled = unlocked
         action.selectedValues = actions.filter { it.id.toInt() == spamFilterEntity.action.ordinal }
         container.add(action)
 
+        if (!unlocked) {
+            container.add(DashboardText(getString(TextManager.GENERAL, "patreon_beta_description"), DashboardText.Style.ERROR))
+        }
         return container
     }
 
-    private fun generateSpamFilterExcludedField(): DashboardComponent {
+    private fun generateSpamFilterExcludedField(unlocked: Boolean): DashboardComponent {
         val container = HorizontalContainer()
         container.allowWrap = true
 
@@ -542,6 +553,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             SpamFilterCommand::class,
             BotLogEntity.Event.SPAM_FILTER_EXCLUDED_MEMBERS
         )
+        ignoredUsers.isEnabled = unlocked
         container.add(ignoredUsers)
 
         val ignoredChannels = DashboardMultiChannelsComboBox(
@@ -554,6 +566,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             SpamFilterCommand::class,
             BotLogEntity.Event.SPAM_FILTER_EXCLUDED_CHANNELS
         )
+        ignoredChannels.isEnabled = unlocked
         container.add(ignoredChannels)
 
         return container;

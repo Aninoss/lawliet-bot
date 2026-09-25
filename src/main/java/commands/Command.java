@@ -657,6 +657,11 @@ public abstract class Command implements OnTriggerListener {
         return Optional.ofNullable(releaseDateArray.length == 3 ? LocalDate.of(releaseDateArray[0], releaseDateArray[1], releaseDateArray[2]) : null);
     }
 
+    public static Optional<LocalDate> getReleaseDate(Class<? extends Command> clazz) {
+        int[] releaseDateArray = getCommandProperties(clazz).releaseDate();
+        return Optional.ofNullable(releaseDateArray.length == 3 ? LocalDate.of(releaseDateArray[0], releaseDateArray[1], releaseDateArray[2]) : null);
+    }
+
     public void addCompletedListener(Runnable runnable) {
         completedListeners.add(runnable);
     }
