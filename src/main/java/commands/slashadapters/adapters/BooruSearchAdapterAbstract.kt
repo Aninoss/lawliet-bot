@@ -54,7 +54,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
             if (tag.contains(" ") || tag.length > 100) {
                 return emptyList()
             } else {
-                return booruAutoComplete.getTags(command.getDomain(), tag, nsfwAdditionalFilters, guildEntity.skipAIGeneratedContent).get()
+                return BooruAutoComplete.getTags(command.getDomain(), tag, nsfwAdditionalFilters, guildEntity.skipAIGeneratedContent).get()
                     .map {
                         Command.Choice(
                             StringUtil.shortenString(it.name.replace("\\", ""), 100),
@@ -65,12 +65,6 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
         } else {
             return emptyList()
         }
-    }
-
-    companion object {
-
-        val booruAutoComplete = BooruAutoComplete()
-
     }
 
 }

@@ -45,14 +45,8 @@ class RedditAdapter : SlashAdapter() {
         }
 
         val allowNsfw = JDAUtil.channelIsNsfw(event.channel)
-        return redditAutoComplete.getAutoComplete(query).get()
+        return RedditAutoComplete.getAutoComplete(query).get()
             .filter { !it.isNsfw || allowNsfw }
             .map { Command.Choice("${it.name} (${it.subscribers})", it.name) }
-    }
-
-    companion object {
-
-        val redditAutoComplete = RedditAutoComplete()
-
     }
 }

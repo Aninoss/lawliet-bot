@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class RedditAutoComplete {
 
-    public CompletableFuture<List<SubredditAutoComplete>> getAutoComplete(String query) {
+    public static CompletableFuture<List<SubredditAutoComplete>> getAutoComplete(String query) {
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());

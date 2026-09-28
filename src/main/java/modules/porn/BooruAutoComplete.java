@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class BooruAutoComplete {
 
-    public CompletableFuture<List<BooruChoice>> getTags(String domain, String search, HashSet<String> nsfwAdditionalFilters, boolean skipAI) {
+    public static CompletableFuture<List<BooruChoice>> getTags(String domain, String search, HashSet<String> nsfwAdditionalFilters, boolean skipAI) {
         String encodedSearch = URLEncoder.encode(search, StandardCharsets.UTF_8);
         if (encodedSearch.isEmpty()) {
             encodedSearch = "+";

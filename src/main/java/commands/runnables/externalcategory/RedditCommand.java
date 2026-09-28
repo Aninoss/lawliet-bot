@@ -47,8 +47,6 @@ import java.util.stream.Collectors;
 )
 public class RedditCommand extends Command implements OnAlertListener {
 
-    private static final RedditDownloader redditDownloader = new RedditDownloader();
-
     private final String forceSubreddit;
 
     public RedditCommand(Locale locale, String prefix) {
@@ -74,7 +72,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             String finalArgs = args;
             deferReply();
             try {
-                return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, JDAUtil.channelIsNsfw(event.getChannel())).get()
+                return RedditDownloader.retrievePost(event.getGuild().getIdLong(), args, JDAUtil.channelIsNsfw(event.getChannel())).get()
                         .map(post -> {
                             if (post.isNsfw() && !JDAUtil.channelIsNsfw(event.getChannel())) {
                                 drawMessageNew(ComponentsUtil.createErrorNsfwBlock(this))
@@ -183,7 +181,7 @@ public class RedditCommand extends Command implements OnAlertListener {
 
         List<RedditPost> redditPosts;
         try {
-            redditPosts = redditDownloader.retrievePostsBulk(key).get();
+            redditPosts = RedditDownloader.retrievePostsBulk(key).get();
         } catch (ExecutionException e) {
             slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
             return AlertResponse.CONTINUE;

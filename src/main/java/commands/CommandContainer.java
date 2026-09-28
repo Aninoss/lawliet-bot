@@ -309,6 +309,7 @@ public class CommandContainer {
         commandList.add(RealbooruCommand.class);
         commandList.add(E621Command.class);
         commandList.add(DanbooruCommand.class);
+        commandList.add(RedditNSFWCommand.class);
         //commandList.add(KonachanCommand.class);
         commandList.add(RealLifePornCommand.class);
         commandList.add(RealLifeThreesomeCommand.class);
