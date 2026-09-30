@@ -45,7 +45,8 @@ public class PremiumCommand extends Command {
             unlockState = 0;
         }
         components.add(TextDisplay.of(getString("server_unlocked", unlockState)));
-        components.add(Separator.createInvisible(Separator.Spacing.SMALL));
+        components.add(Separator.createInvisible(Separator.Spacing.LARGE));
+        components.add(TextDisplay.of(getString("button_label")));
         components.add(ActionRow.of(ComponentsUtil.getPatreonButton(getLocale())));
 
         drawMessageNew(ComponentsUtil.createCommandComponentTree(this, components))
