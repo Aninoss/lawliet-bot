@@ -18,4 +18,9 @@ public abstract class E621Abstract extends PornPredefinedAbstract {
         return true;
     }
 
+    @Override
+    public int getMaxTags() {
+        return 40;
+    }
+
 }

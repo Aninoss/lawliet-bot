@@ -3,7 +3,6 @@ package commands.runnables;
 import commands.Category;
 import core.TextManager;
 import modules.porn.BooruImage;
-import modules.porn.TooManyTagsException;
 
 import java.io.IOException;
 import java.util.*;
@@ -12,10 +11,6 @@ public abstract class PornSearchAbstract extends PornAbstract {
 
     public PornSearchAbstract(Locale locale, String prefix) {
         super(locale, prefix);
-    }
-
-    public int getMaxTags() {
-        return -1;
     }
 
     @Override
@@ -39,12 +34,6 @@ public abstract class PornSearchAbstract extends PornAbstract {
             case "brawl stars" -> search = "brawl_stars";
         }
 
-        int maxTags = getMaxTags();
-        int tags = countTags(search);
-        if (maxTags != -1 && tags > maxTags) {
-            throw new TooManyTagsException(maxTags);
-        }
-
         nsfwFilters = new HashSet<>(nsfwFilters);
         nsfwFilters.addAll(getAdditionalFilters());
 
@@ -55,10 +44,6 @@ public abstract class PornSearchAbstract extends PornAbstract {
     @Override
     public boolean trackerUsesKey() {
         return true;
-    }
-
-    private int countTags(String search) {
-        return search.replace("+", " ").split(" ").length;
     }
 
 }

@@ -1,7 +1,5 @@
 package commands.runnables;
 
-import commands.Category;
-import core.TextManager;
 import modules.porn.BooruImage;
 
 import java.io.IOException;
@@ -22,24 +20,16 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
                                            ArrayList<String> usedResults, boolean canBeVideo, boolean bulkMode,
                                            boolean skipAI
     ) throws IOException {
-        if (!search.isEmpty()) {
-            setNotice(TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden"));
-        }
-
         nsfwFilters = new HashSet<>(nsfwFilters);
         nsfwFilters.addAll(getAdditionalFilters());
 
-        String searchKey = getSearchKey();
+        String searchKey = search + " " + getSearchKey();
         if (!bulkMode && isAnimatedOnly()) {
             searchKey = "animated " + searchKey;
         }
 
-        return downloadPorn(guildId, nsfwFilters, amount, getDomain(), searchKey, isAnimatedOnly() && !bulkMode, mustBeExplicit(),
+        return downloadPorn(guildId, nsfwFilters, amount, getDomain(), searchKey.trim(), isAnimatedOnly() && !bulkMode, mustBeExplicit(),
                 canBeVideo, bulkMode, usedResults, skipAI);
-    }
-
-    public boolean trackerUsesKey() {
-        return false;
     }
 
 }

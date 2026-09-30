@@ -80,6 +80,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     public abstract String getDomain();
 
+    public int getMaxTags() {
+        return -1;
+    }
+
     private String args = null;
     private int newAmount = 5;
 
@@ -147,7 +151,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                         .exceptionally(ExceptionLogger.get());
                 return false;
             } catch (TooManyTagsException e) {
-                drawMessageNew(tooManyTagsComponents(e.getMaxTags()))
+                drawMessageNew(tooManyTagsComponents())
                         .exceptionally(ExceptionLogger.get());
                 return false;
             } catch (NoSuchElementException | IOException e) {
@@ -158,12 +162,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
             if (pornImages.isEmpty()) {
                 if (first) {
-                    String effectiveArgs = args;
-                    if (this instanceof PornPredefinedAbstract) {
-                        effectiveArgs = "";
-                    }
-
-                    drawMessageNew(noResultsComponents(effectiveArgs))
+                    drawMessageNew(noResultsComponents(args))
                             .exceptionally(ExceptionLogger.get());
                     return false;
                 } else {
@@ -282,8 +281,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         return ComponentsUtil.createCommandComponentTreeError(this, content);
     }
 
-    private MessageComponentTree tooManyTagsComponents(int maxTags) {
-        String content = TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags_desc", StringUtil.numToString(maxTags));
+    private MessageComponentTree tooManyTagsComponents() {
+        String content = TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags_desc");
         return ComponentsUtil.createCommandComponentTreeError(this, content);
     }
 
@@ -338,7 +337,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e instanceof TooManyTagsException) {
-                MessageComponentTree components = tooManyTagsComponents(((TooManyTagsException) e).getMaxTags());
+                MessageComponentTree components = tooManyTagsComponents();
                 ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
                 slot.sendMessageComponentTree(getLocale(), false, components);
                 return AlertResponse.STOP_AND_DELETE;
@@ -434,6 +433,11 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         }
 
         return AlertResponse.CONTINUE_AND_SAVE;
+    }
+
+    @Override
+    public boolean trackerUsesKey() {
+        return true;
     }
 
     private String generatePostMessagesText(List<BooruImage> pornImages, GuildMessageChannel channel, int max, boolean doubleLineBreak) {
@@ -548,6 +552,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                                             String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
                                             boolean bulkMode, ArrayList<String> usedResults, boolean skipAI
     ) throws IOException {
+        int maxTags = getMaxTags();
+        int tags = countTags(search);
+        if (maxTags != -1 && tags > maxTags) {
+            throw new TooManyTagsException();
+        }
+
         if (NSFWUtil.containsFilterTags(search, nsfwFilter, skipAI)) {
             throw new IllegalTagException();
         }
@@ -565,6 +575,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         if (this.notice == null) {
             this.notice = notice;
         }
+    }
+
+    private int countTags(String search) {
+        return search.replace("+", " ").split(" ").length;
     }
 
 }

@@ -1,5 +1,7 @@
 package commands.runnables;
 
+import commands.Category;
+import core.TextManager;
 import modules.porn.BooruImage;
 import modules.reddit.RedditDownloader;
 import net.dv8tion.jda.api.components.buttons.Button;
@@ -31,6 +33,10 @@ public abstract class RedditNSFWAbstract extends PornPredefinedAbstract {
                                             String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
                                             boolean bulkMode, ArrayList<String> usedResults, boolean skipAI
     ) throws IOException {
+        if (search.length() > getSearchKey().length()) {
+            setNotice(TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden"));
+        }
+
         return RedditDownloader.retrieveBooruImages(guildId, nsfwFilter, amount, getSearchKey(), canBeVideo, bulkMode, skipAI);
     }
 
@@ -42,6 +48,11 @@ public abstract class RedditNSFWAbstract extends PornPredefinedAbstract {
     @Override
     protected Button generateReportButton(List<BooruImage> pornImages) {
         return null;
+    }
+
+    @Override
+    public boolean trackerUsesKey() {
+        return false;
     }
 
 }

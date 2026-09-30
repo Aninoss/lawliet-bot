@@ -24,4 +24,9 @@ public abstract class DanbooruAbstract extends PornPredefinedAbstract {
         return true;
     }
 
+    @Override
+    public int getMaxTags() {
+        return 10;
+    }
+
 }
