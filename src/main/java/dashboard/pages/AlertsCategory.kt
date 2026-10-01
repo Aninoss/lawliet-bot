@@ -196,7 +196,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
             val commandUsesKey = (command as OnAlertListener).trackerUsesKey()
             if (!commandUsesKey) {
                 commandKey = ""
-            } else if (commandKey.isEmpty()) { /* no argument specified */
+            } else if (commandKey.isEmpty() && !(command as OnAlertListener).trackerAllowEmptyKey()) { /* no argument specified */
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.CONFIGURATION, "alerts_dashboard_specifykey"))
             }
