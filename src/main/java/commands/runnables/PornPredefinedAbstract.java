@@ -32,4 +32,9 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
                 canBeVideo, bulkMode, usedResults, skipAI);
     }
 
+    @Override
+    public boolean trackerAllowEmptyKey() {
+        return true;
+    }
+
 }

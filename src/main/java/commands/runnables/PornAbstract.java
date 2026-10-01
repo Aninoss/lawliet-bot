@@ -14,9 +14,9 @@ import core.ExceptionLogger;
 import core.MainLogger;
 import core.Program;
 import core.TextManager;
-import core.patreon.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
+import core.patreon.PatreonCache;
 import core.utils.*;
 import modules.porn.BooruImage;
 import modules.porn.BooruImageDownloader;
@@ -32,7 +32,6 @@ import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.components.container.ContainerChildComponent;
 import net.dv8tion.jda.api.components.mediagallery.MediaGallery;
 import net.dv8tion.jda.api.components.mediagallery.MediaGalleryItem;
-import net.dv8tion.jda.api.components.separator.Separator;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.Member;
@@ -332,13 +331,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         } catch (Throwable e) {
             if (e instanceof IllegalTagException) {
                 MessageComponentTree components = illegalTagsComponents();
-                ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
+                components = ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
                 slot.sendMessageComponentTree(getLocale(), false, components);
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e instanceof TooManyTagsException) {
                 MessageComponentTree components = tooManyTagsComponents();
-                ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
+                components = ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
                 slot.sendMessageComponentTree(getLocale(), false, components);
                 return AlertResponse.STOP_AND_DELETE;
             }
@@ -351,7 +350,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         if (pornImages.isEmpty()) {
             if (slot.getArgs().isEmpty()) {
                 MessageComponentTree components = noResultsComponents(slot.getCommandKey());
-                ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
+                components = ComponentsUtil.addTrackerRemoveLog(getLocale(), components);
                 slot.sendMessageComponentTree(getLocale(), false, components);
                 return AlertResponse.STOP_AND_DELETE;
             } else {
@@ -443,16 +442,6 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
     private String generatePostMessagesText(List<BooruImage> pornImages, GuildMessageChannel channel, int max, boolean doubleLineBreak) {
         StringBuilder sb = new StringBuilder();
 
-        if (this instanceof PornSearchAbstract && !pornImages.get(0).getTags().isEmpty()) {
-            List<String> tags = pornImages.get(0).getTags();
-            if (tags != null) {
-                sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_tags"))
-                        .append(" ");
-                sb.append(combineTags(tags))
-                        .append(doubleLineBreak ? "\n\n" : "\n");
-            }
-        }
-
         boolean spoiler = getGuildEntity().getNsfwSpoilers() && getCommandProperties().nsfw();
         for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
             if (pornImages.get(i) == null) {
@@ -463,6 +452,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                     .append('\n');
         }
 
+        if (!pornImages.isEmpty() && pornImages.get(0).getApproximateResults()) {
+            setNotice(TextManager.getString(getLocale(), Category.NSFW, "porn_approximate"));
+        }
         if (notice != null) {
             sb.append('\n')
                     .append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice));
@@ -476,15 +468,6 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     private MessageComponentTree generateComponents(List<BooruImage> pornImages, GuildMessageChannel channel, int max, boolean showLoadMoreButton, boolean premium) {
         ArrayList<ContainerChildComponent> components = new ArrayList<>();
-
-        if (this instanceof PornSearchAbstract && !pornImages.get(0).getTags().isEmpty()) {
-            List<String> tags = pornImages.get(0).getTags();
-            if (tags != null && !tags.isEmpty()) {
-                String tagsString = TextManager.getString(getLocale(), Category.NSFW, "porn_tags") + " " + combineTags(tags);
-                components.add(TextDisplay.of(tagsString));
-                components.add(Separator.createInvisible(Separator.Spacing.SMALL));
-            }
-        }
 
         StringBuilder contentStringBuilder = new StringBuilder();
         ArrayList<MediaGalleryItem> mediaGalleryItems = new ArrayList<>();
@@ -525,6 +508,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         }
 
         MessageComponentTree commandComponentTree = ComponentsUtil.createCommandComponentTree(this, components);
+        if (!pornImages.isEmpty() && pornImages.get(0).getApproximateResults()) {
+            setNotice(TextManager.getString(getLocale(), Category.NSFW, "porn_approximate"));
+        }
         if (notice != null) {
             commandComponentTree = ComponentsUtil.addLog(commandComponentTree, LogStatus.WARNING, notice);
         }

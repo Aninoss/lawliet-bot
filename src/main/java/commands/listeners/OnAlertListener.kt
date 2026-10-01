@@ -10,4 +10,6 @@ interface OnAlertListener {
 
     fun trackerUsesKey(): Boolean
 
+    fun trackerAllowEmptyKey(): Boolean = false
+
 }

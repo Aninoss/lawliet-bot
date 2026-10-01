@@ -12,8 +12,8 @@ public class BooruImage {
     private int score;
     private Instant instant;
     private boolean video;
-    private List<String> tags;
     private List<String> imageTags;
+    private boolean approximateResults;
 
     public long getId() {
         return id;
@@ -79,21 +79,21 @@ public class BooruImage {
         return this;
     }
 
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public BooruImage setTags(List<String> tags) {
-        this.tags = tags;
-        return this;
-    }
-
     public List<String> getImageTags() {
         return imageTags;
     }
 
     public BooruImage setImageTags(List<String> imageTags) {
         this.imageTags = imageTags;
+        return this;
+    }
+
+    public boolean getApproximateResults() {
+        return approximateResults;
+    }
+
+    public BooruImage setApproximateResults(boolean approximateResults) {
+        this.approximateResults = approximateResults;
         return this;
     }
 

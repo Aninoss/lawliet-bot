@@ -129,8 +129,8 @@ public class RedditDownloader {
                 .setScore(redditPost.getScore())
                 .setInstant(redditPost.getInstant())
                 .setVideo(InternetUtil.uriIsVideo(mediaUrl))
-                .setTags(Collections.emptyList())
-                .setImageTags(Collections.emptyList());
+                .setImageTags(Collections.emptyList())
+                .setApproximateResults(false);
     }
 
 }

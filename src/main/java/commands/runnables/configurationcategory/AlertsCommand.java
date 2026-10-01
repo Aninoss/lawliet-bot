@@ -208,12 +208,12 @@ public class AlertsCommand extends NavigationAbstract {
                             return false;
                         }
 
-                        if (trackerSlotExists(command.getTrigger(), "")) {
+                        OnAlertListener trackerCommand = (OnAlertListener) command;
+                        if (!trackerCommand.trackerUsesKey() && trackerSlotExists(command.getTrigger(), "")) {
                             setLog(LogStatus.FAILURE, getString("state1_alreadytracking", command.getTrigger()));
                             return false;
                         }
 
-                        OnAlertListener trackerCommand = (OnAlertListener) command;
                         commandCache = command;
                         if (trackerCommand.trackerUsesKey()) {
                             setState(STATE_KEY);
@@ -236,34 +236,47 @@ public class AlertsCommand extends NavigationAbstract {
             return true;
         }
 
-        if (i == -1) {
-            setState(STATE_COMMAND);
-            return true;
-        } else if (i == 0) {
-            Modal modal = new StringModalBuilder(this, getString("dashboard_arg"), TextInputStyle.SHORT)
-                    .setMinMaxLength(1, TextInput.MAX_VALUE_LENGTH)
-                    .setSetterOptionalLogs(input -> {
-                        if (getAlertChannelOrFail(event.getMember()) == null) {
-                            return false;
-                        }
+        switch (i) {
+            case -1 -> {
+                setState(STATE_COMMAND);
+                return true;
+            }
+            case 0 -> {
+                Modal modal = new StringModalBuilder(this, getString("dashboard_arg"), TextInputStyle.SHORT)
+                        .setMinMaxLength(1, TextInput.MAX_VALUE_LENGTH)
+                        .setSetterOptionalLogs(input -> {
+                            if (getAlertChannelOrFail(event.getMember()) == null) {
+                                return false;
+                            }
 
-                        if (input.length() > LIMIT_KEY_LENGTH) {
-                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(LIMIT_KEY_LENGTH)));
-                            return false;
-                        }
+                            if (input.length() > LIMIT_KEY_LENGTH) {
+                                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(LIMIT_KEY_LENGTH)));
+                                return false;
+                            }
 
-                        if (trackerSlotExists(commandCache.getTrigger(), input)) {
-                            setLog(LogStatus.FAILURE, getString("state3_alreadytracking", input));
-                            return false;
-                        }
+                            if (trackerSlotExists(commandCache.getTrigger(), input)) {
+                                setLog(LogStatus.FAILURE, getString("state3_alreadytracking", input));
+                                return false;
+                            }
 
-                        commandKeyCache = input;
-                        setState(STATE_USERMESSAGE);
-                        return false;
-                    })
-                    .build();
-            event.replyModal(modal).queue();
-            return false;
+                            commandKeyCache = input;
+                            setState(STATE_USERMESSAGE);
+                            return false;
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+            }
+            case 1 -> {
+                if (trackerSlotExists(commandCache.getTrigger(), "")) {
+                    setLog(LogStatus.FAILURE, getString("state3_alreadytracking", ""));
+                    return true;
+                }
+
+                commandKeyCache = "";
+                setState(STATE_USERMESSAGE);
+                return true;
+            }
         }
         return false;
     }
@@ -419,7 +432,8 @@ public class AlertsCommand extends NavigationAbstract {
 
     @Draw(state = STATE_KEY)
     public EmbedBuilder onDrawKey(Member member) {
-        setComponents(getString("state3_options").split("\n"));
+        OnAlertListener trackerCommand = (OnAlertListener) commandCache;
+        setComponents(getString(trackerCommand.trackerAllowEmptyKey() ? "state3_options_allow_empty" : "state3_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, StringUtil.stepPoints(2, 5) + "\n\n" + TextManager.getString(getLocale(), commandCache.getCategory(), commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
     }
 
