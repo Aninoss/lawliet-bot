@@ -22,7 +22,8 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        subCategory = NSFW_SUBCATEGORY_SEARCH
+        subCategory = NSFW_SUBCATEGORY_SEARCH,
+        aliases = {"nsfwreddit"}
 )
 public class RedditNSFWCommand extends PornSearchAbstract {
 
