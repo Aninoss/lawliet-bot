@@ -14,10 +14,7 @@ import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.hibernate.entity.user.UserEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
-import mysql.modules.osuaccounts.DBOsuAccounts;
-import mysql.modules.osuaccounts.OsuAccountData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.JDAInfo;
@@ -96,10 +93,6 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
-
-        if (Program.productionMode() && Program.publicInstance() && Program.isMainCluster()) {
-            transferOsu();
-        }
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -198,25 +191,6 @@ public class DiscordConnector {
         ShardManager.start();
         FeatureLogger.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
-    }
-
-    private static void transferOsu() { //TODO: remove after update
-        MainLogger.get().info("Transferring osu! MySQL data to MongoDB...");
-        int updates = 0;
-        for (OsuAccountData oldOsuAccount : DBOsuAccounts.getInstance().retrieve().values()) {
-            long userId = oldOsuAccount.getUserId();
-            long osuId = oldOsuAccount.getOsuId();
-            try (UserEntity userEntity = HibernateManager.findUserEntity(userId, DiscordConnector.class)) {
-                if (userEntity.getOsuId() != null) {
-                    continue;
-                }
-                userEntity.beginTransaction();
-                userEntity.setOsuId(osuId);
-                userEntity.commitTransaction();
-                updates++;
-            }
-        }
-        MainLogger.get().info("Completed with {} updates!", updates);
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(
