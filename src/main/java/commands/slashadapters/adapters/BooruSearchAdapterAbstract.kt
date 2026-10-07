@@ -10,7 +10,6 @@ import core.utils.JDAUtil
 import core.utils.StringUtil
 import modules.porn.BooruAutoComplete
 import mysql.hibernate.entity.guild.GuildEntity
-import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
@@ -44,24 +43,15 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent, guildEntity: GuildEntity): List<Command.Choice> {
         if (JDAUtil.channelIsNsfw(event.channel) || (this is SafeBooruAdapter)) {
-            val nsfwAdditionalFiltersList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
-            val nsfwAdditionalFilters = HashSet<String>()
-            nsfwAdditionalFiltersList.forEach { nsfwAdditionalFilters.add(it.lowercase()) }
-
             val commandClass = commandClass()
             val command = CommandManager.createCommandByClass(commandClass.java, Language.EN.locale, "") as PornAbstract
-            val tag = event.focusedOption.value
-            if (tag.contains(" ") || tag.length > 100) {
-                return emptyList()
-            } else {
-                return BooruAutoComplete.getTags(command.getDomain(), tag, nsfwAdditionalFilters, guildEntity.skipAIGeneratedContent).get()
-                    .map {
-                        Command.Choice(
-                            StringUtil.shortenString(it.name.replace("\\", ""), 100),
-                            StringUtil.shortenString(it.value.replace("\\", ""), 100)
-                        )
-                    }
-            }
+            return BooruAutoComplete.getTags(event.guild!!.idLong, command.getDomain(), event.focusedOption.value, guildEntity.skipAIGeneratedContent).get()
+                .map {
+                    Command.Choice(
+                        StringUtil.shortenString(it.name.replace("\\", ""), 100),
+                        StringUtil.shortenString(it.value.replace("\\", ""), 100)
+                    )
+                }
         } else {
             return emptyList()
         }

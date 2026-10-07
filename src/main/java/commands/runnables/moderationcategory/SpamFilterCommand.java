@@ -34,7 +34,7 @@ import java.util.Locale;
         usesExtEmotes = true,
         aliases = {"scamfilter", "antispam", "antiscam", "spamblock"},
         releaseVersion = "2.74",
-        releaseDate = { 2026, 10, 7 }
+        releaseDate = { 2026, 10, 12 }
 )
 public class SpamFilterCommand extends NavigationAbstract {
 

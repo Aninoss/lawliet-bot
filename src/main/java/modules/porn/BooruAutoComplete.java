@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import core.MainLogger;
 import core.restclient.RestClient;
 import core.utils.NSFWUtil;
+import mysql.modules.nsfwfilter.DBNSFWFilters;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +20,15 @@ import java.util.stream.Collectors;
 
 public class BooruAutoComplete {
 
-    public static CompletableFuture<List<BooruChoice>> getTags(String domain, String search, HashSet<String> nsfwAdditionalFilters, boolean skipAI) {
+    public static CompletableFuture<List<BooruChoice>> getTags(long guildId, String domain, String search, boolean skipAI) {
+        if (search.contains(" ") || search.length() > 100) {
+            return CompletableFuture.completedFuture(Collections.emptyList());
+        }
+
+        List<String> nsfwAdditionalFiltersList = DBNSFWFilters.getInstance().retrieve(guildId).getKeywords();
+        HashSet<String> nsfwAdditionalFilters = new HashSet<>();
+        nsfwAdditionalFiltersList.forEach(tag -> nsfwAdditionalFilters.add(tag.toLowerCase()));
+
         String encodedSearch = URLEncoder.encode(search, StandardCharsets.UTF_8);
         if (encodedSearch.isEmpty()) {
             encodedSearch = "+";
