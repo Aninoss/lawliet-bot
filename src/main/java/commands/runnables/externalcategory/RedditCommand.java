@@ -137,7 +137,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                         return MediaGalleryItem.fromUrl(imageUrl)
                                 .withSpoiler(spoiler);
                     })
-                    .limit(MediaGallery.MAX_ITEMS)
+                    .limit(shortened ? 8 : MediaGallery.MAX_ITEMS)
                     .collect(Collectors.toList());
             if (!mediaGalleryItems.isEmpty()) {
                 MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItems);
