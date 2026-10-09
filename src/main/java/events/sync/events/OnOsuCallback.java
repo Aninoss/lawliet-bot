@@ -7,6 +7,7 @@ import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.user.UserEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 @SyncServerEvent(event = "OSU_CALLBACK")
@@ -37,13 +38,21 @@ public class OnOsuCallback implements SyncServerFunction {
     private long requestOsuId(String code) {
         String accessToken = requestAccessToken(code);
         String responseBody = HttpRequest.get("https://osu.ppy.sh/api/v2/me/osu", new HttpHeader("Authorization", "Bearer " + accessToken)).join().getBody();
-        return new JSONObject(responseBody).getLong("id");
+        try {
+            return new JSONObject(responseBody).getLong("id");
+        } catch (JSONException e) {
+            throw new JSONException("Invalid JSON:\n" + responseBody, e);
+        }
     }
 
     private String requestAccessToken(String code) {
         String requestBody = "client_id=" + System.getenv("OSU_CLIENT_ID") + "&client_secret=" + System.getenv("OSU_CLIENT_SECRET") + "&code=" + code + "&grant_type=authorization_code&redirect_uri=" + System.getenv("OSU_REDIRECT_URI");
         String responseBody = HttpRequest.post("https://osu.ppy.sh/oauth/token", "application/x-www-form-urlencoded", requestBody).join().getBody();
-        return new JSONObject(responseBody).getString("access_token");
+        try {
+            return new JSONObject(responseBody).getString("access_token");
+        } catch (JSONException e) {
+            throw new JSONException("Invalid JSON:\n" + responseBody, e);
+        }
     }
 
 }
