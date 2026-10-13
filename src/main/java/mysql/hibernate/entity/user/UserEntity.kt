@@ -2,6 +2,7 @@ package mysql.hibernate.entity.user
 
 import core.assets.UserAsset
 import modules.fishery.Stock
+import mysql.hibernate.InstantConverter
 import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.template.HibernateEntity
 import java.time.Duration
@@ -83,6 +84,12 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
         }
 
     var osuId: Long? = null
+
+    @Convert(converter = InstantConverter::class)
+    var lastInvitePromptInstant: Instant? = null
+
+    @Convert(converter = InstantConverter::class)
+    var lastProPromptInstant: Instant? = null
 
 
     constructor() : this("0")

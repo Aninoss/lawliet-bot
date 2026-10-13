@@ -201,7 +201,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                         })
                         .exceptionally(ExceptionLogger.get());
             }
-            TimeUnit.SECONDS.sleep(MAX_FILES_PER_MESSAGE);
+            if (amount > 0) {
+                TimeUnit.SECONDS.sleep(MAX_FILES_PER_MESSAGE);
+            }
         } while (amount > 0 && BotPermissionUtil.canWrite(event.getMessageChannel()));
 
         return true;
