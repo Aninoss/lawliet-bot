@@ -11,16 +11,15 @@ import constants.ExceptionIds;
 import constants.ExternalLinks;
 import constants.Settings;
 import core.*;
-import core.patreon.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
+import core.patreon.PatreonCache;
 import core.schedule.MainScheduler;
 import core.utils.*;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -39,7 +38,6 @@ import java.util.stream.Collectors;
 public class CommandManager {
 
     private final static int SEC_UNTIL_REMOVAL = 60;
-    private final static Random random = new Random();
 
     public static void manage(CommandEvent event, Command command, String args, GuildEntity guildEntity, Instant startTime) {
         manage(event, command, args, guildEntity, startTime, true);
@@ -89,32 +87,14 @@ public class CommandManager {
                 sendOverwrittenSignals(command, event.getMember());
 
                 boolean success = command.processTrigger(event, args, guildEntity, freshCommand);
-                if (success && Program.publicInstance()) {
-                    maybeSendBotInvite(event, command.getLocale());
+                if (success) {
+                    PromoManager.onCommandSuccess(event, command);
                 }
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, event, guildEntity);
             } finally {
                 CommandContainer.cleanUp();
             }
-        }
-    }
-
-    private static void maybeSendBotInvite(CommandEvent event, Locale locale) {
-        if (Program.publicInstance() &&
-                random.nextInt(180) == 0 &&
-                !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER, Permission.MESSAGE_MANAGE) &&
-                BotPermissionUtil.canWriteEmbed(event.getMessageChannel())
-        ) {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setThumbnail(ShardManager.getSelf().getAvatarUrl())
-                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite"));
-
-            Button button = Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_REMINDER_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"));
-            event.getMessageChannel()
-                    .sendMessageEmbeds(eb.build())
-                    .setComponents(ActionRows.of(button))
-                    .queue();
         }
     }
 
@@ -158,14 +138,19 @@ public class CommandManager {
 
         if (cooldownUserData.canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", TimeFormat.RELATIVE.after(Duration.ofSeconds(waitingSec.get())).toString());
+            Button[] buttons = new Button[0];
+            if (PromoManager.shouldAddProHintToCooldown(event.getMember().getIdLong())) {
+                desc += "\n\n" + TextManager.getString(command.getLocale(), TextManager.GENERAL, "pro_hint_cooldown");
+                buttons = new Button[]{ EmbedFactory.getPatreonBlockButton(command.getLocale()) };
+            }
 
             if (BotPermissionUtil.canWriteEmbed(event.getMessageChannel()) || event.isGenericCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
-                sendError(event, guildEntity, eb, false);
+                sendError(event, guildEntity, eb, false, buttons);
             } else if (BotPermissionUtil.canWrite(event.getMessageChannel())) {
-                sendErrorNoEmbed(event, guildEntity, desc, false);
+                sendErrorNoEmbed(event, guildEntity, desc, false, buttons);
             }
         }
 
