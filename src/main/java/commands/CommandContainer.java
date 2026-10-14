@@ -325,7 +325,7 @@ public class CommandContainer {
         commandList.add(RealLifeBDSMCommand.class);
         commandList.add(RealLifeFemaleAbsCommand.class);
         commandList.add(RealLifeCosplayCommand.class);
-        commandList.add(FemboyCommand.class);
+        commandList.add(RealLifeFemboyCommand.class);
         commandList.add(RealLifeGayCommand.class);
         commandList.add(RealLifeLesbianCommand.class);
         commandList.add(HentaiCommand.class);
@@ -343,10 +343,10 @@ public class CommandContainer {
         commandList.add(HentaiBlowjobCommand.class);
         commandList.add(HentaiBDSMCommand.class);
         commandList.add(HentaiFemaleAbsCommand.class);
+        commandList.add(HentaiFemboyCommand.class);
         commandList.add(AhegaoCommand.class);
         commandList.add(NekoCommand.class);
         commandList.add(FutaCommand.class);
-        commandList.add(TrapCommand.class);
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
         commandList.add(BaraCommand.class);

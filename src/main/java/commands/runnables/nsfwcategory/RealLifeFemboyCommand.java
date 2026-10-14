@@ -8,19 +8,19 @@ import java.util.Locale;
 import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
 @CommandProperties(
-        trigger = "femboy",
+        trigger = "rlfemboy",
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "rlfemboy", "reallifefemboy" },
+        aliases = { "femboy", "reallifefemboy" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
-public class FemboyCommand extends RedditNSFWAbstract {
+public class RealLifeFemboyCommand extends RedditNSFWAbstract {
 
-    public FemboyCommand(Locale locale, String prefix) {
+    public RealLifeFemboyCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
