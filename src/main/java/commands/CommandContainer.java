@@ -368,7 +368,6 @@ public class CommandContainer {
         commandList.add(WeaknessTypeCommand.class);
         commandList.add(WeaknessMonCommand.class);
         commandList.add(HeineCommand.class);
-        commandList.add(TartagliaNSFWCommand.class);
         commandList.add(DiamondsCommand.class);
 
         for (Class<? extends Command> clazz : commandList) {
