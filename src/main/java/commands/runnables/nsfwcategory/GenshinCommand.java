@@ -7,17 +7,17 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_HENTAI;
+import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_RULE_34;
 
 @CommandProperties(
-        trigger = "genshin",
+        trigger = "r34genshin",
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "genshinimpact" },
-        subCategory = NSFW_SUBCATEGORY_TEMPLATES_HENTAI
+        aliases = { "genshin", "genshinimpact" },
+        subCategory = NSFW_SUBCATEGORY_TEMPLATES_RULE_34
 )
 public class GenshinCommand extends DanbooruAbstract {
 
