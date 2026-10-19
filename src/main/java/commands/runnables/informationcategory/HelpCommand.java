@@ -57,7 +57,7 @@ public class HelpCommand extends ComponentMenuAbstract {
     public static final String NSFW_SUBCATEGORY_SEARCH = "nsfw_1_search";
     public static final String NSFW_SUBCATEGORY_TEMPLATES_HENTAI = "nsfw_2_templates_hentai";
     public static final String NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE = "nsfw_3_templates_real_life";
-    public static final String NSFW_SUBCATEGORY_TEMPLATES_RULE_34 = "nsfw_4_templates_rule_34";
+    public static final String NSFW_SUBCATEGORY_TEMPLATES_RULE_34 = "nsfw_2_1_templates_rule_34";
     public static final String RP_SUBCATEGORY_GENERAL = "rp_0_general";
     public static final String RP_SUBCATEGORY_CUSTOM = "rp_1_custom";
     public static final String RP_SUBCATEGORY_INTERACTIVE = "rp_2_interactive";

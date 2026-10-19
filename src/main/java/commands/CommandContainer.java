@@ -353,6 +353,13 @@ public class CommandContainer {
         commandList.add(FurryCommand.class);
         commandList.add(GenshinCommand.class);
         commandList.add(GenshinYaoiCommand.class);
+        commandList.add(RobloxCommand.class);
+        commandList.add(PokemonNSFWCommand.class);
+        commandList.add(OverwatchCommand.class);
+        commandList.add(NarutoCommand.class);
+        commandList.add(FortniteCommand.class);
+        commandList.add(OnePieceCommand.class);
+        commandList.add(MinecraftCommand.class);
 
         //SPLATOON
         commandList.add(MapsCommand.class);
