@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class SpamFilter extends AutoModAbstract {
 
-    public static final int EVENTS_SECONDS = 4;
+    public static final int EVENTS_SECONDS = 5;
     public static final int EVENTS_NUMBER = 4;
 
     private static final LoadingCache<Pair<Long, Long>, MemberEvents> memberEventsCache = CacheBuilder.newBuilder()
