@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.CasinoMultiplayerAbstract;
 import constants.Emojis;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @CommandProperties(
         trigger = "matchingcards",
@@ -87,7 +89,7 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
     }
 
     @Override
-    public boolean onStringSelectMenuCasino(StringSelectInteractionEvent event, int player) {
+    public synchronized boolean onStringSelectMenuCasino(StringSelectInteractionEvent event, int player) {
         if (currentPlayer != player) {
             event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("error_notyourturn")).build())
                     .setEphemeral(true)
@@ -96,12 +98,17 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
         }
 
         ArrayList<Card> cards = playerCards.get(currentPlayer);
-        int cardIndex = Integer.parseInt(event.getSelectedOptions().get(0).getValue());
-        if (cardIndex >= cards.size()) {
+        int cardId = Integer.parseInt(event.getSelectedOptions().get(0).getValue());
+        Card card = cards.stream()
+                .filter(c -> c.id == cardId)
+                .findFirst()
+                .orElse(null);
+        if (card == null) {
+            MainLogger.get().warn("Matching cards invalid card id");
+            event.editComponents(generatePlayerActionRows(player)).queue();
             return false;
         }
 
-        Card card = cards.get(cardIndex);
         if (!playCard(card)) {
             event.replyEmbeds(EmbedFactory.getEmbedError(this, getString(attackValue > 0 ? "error_attack_incompatible" : "error_incompatible", activeCard.getLabel(getLocale()))).build())
                     .setEphemeral(true)
@@ -139,7 +146,7 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
 
         for (int i = 0; i < playerCards.get(player).size(); i++) {
             Card card = playerCards.get(player).get(i);
-            selectMenuBuilder.addOption(card.getLabel(getLocale()), String.valueOf(i), card.getDescription(getLocale()), card.getEmoji());
+            selectMenuBuilder.addOption(card.getLabel(getLocale()), String.valueOf(card.id), card.getDescription(getLocale()), card.getEmoji());
         }
         actionRows.add(ActionRow.of(selectMenuBuilder.build()));
 
@@ -216,15 +223,17 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
         schedule(Duration.ofSeconds(seconds), () -> onTimeout(newActionId));
     }
 
-    private void onTimeout(int actionId) {
+    private synchronized void onTimeout(int actionId) {
         if (actionId != this.actionId || getStatus() != Status.PLAYING) {
             return;
         }
 
-        ArrayList<Card> cards = playerCards.get(currentPlayer);
-        for (Card card : cards) {
+        int player = currentPlayer;
+        ArrayList<Card> cards = playerCards.get(player);
+        for (Card card : new ArrayList<>(cards)) {
             if (playCard(card)) {
                 redraw();
+                refreshPrivateTerminal(player);
                 return;
             }
         }
@@ -232,6 +241,7 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
         if (canDrawCards) {
             drawCards(true);
             redraw();
+            refreshPrivateTerminal(player);
             return;
         }
 
@@ -248,6 +258,9 @@ public class MatchingCardsCommand extends CasinoMultiplayerAbstract {
         private final static int VALUE_DRAW_2 = 12;
         private final static int VALUE_DRAW_4 = 13;
 
+        private final static AtomicInteger ID_COUNTER = new AtomicInteger();
+
+        private final int id = ID_COUNTER.incrementAndGet();
         private final int color;
         private int value;
 

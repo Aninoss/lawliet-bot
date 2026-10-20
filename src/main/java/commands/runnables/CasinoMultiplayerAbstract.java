@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -58,6 +59,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     private final ArrayList<AtomicMember> playerList = new ArrayList<>();
     private final HashMap<Long, Boolean> trackingActiveMap = new HashMap<>();
     private final HashMap<Long, Long> userPrivateTerminalMap = new HashMap<>();
+    private final HashMap<Long, InteractionHook> userPrivateTerminalHookMap = new HashMap<>();
 
     public CasinoMultiplayerAbstract(Locale locale, String prefix, long playersMin, long playersMax, boolean enablePrivateTerminal) {
         super(locale, prefix);
@@ -278,13 +280,28 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     }
 
     private void onButtonTerminal(ButtonInteractionEvent event, int player) {
-        long messageId = event.reply("")
+        InteractionHook hook = event.reply("")
                 .setEphemeral(true)
                 .setComponents(generatePlayerActionRows(player))
-                .map(interactionHook -> interactionHook.getCallbackResponse().getMessage())
-                .complete()
-                .getIdLong();
+                .complete();
+        long messageId = hook.getCallbackResponse().getMessage().getIdLong();
         userPrivateTerminalMap.put(event.getUser().getIdLong(), messageId);
+        userPrivateTerminalHookMap.put(event.getUser().getIdLong(), hook);
+    }
+
+    protected void refreshPrivateTerminal(int player) {
+        if (!enablePrivateTerminal || player < 0 || player >= playerList.size()) {
+            return;
+        }
+
+        long userId = playerList.get(player).getIdLong();
+        InteractionHook hook = userPrivateTerminalHookMap.get(userId);
+        Long messageId = userPrivateTerminalMap.get(userId);
+        if (hook == null || messageId == null) {
+            return;
+        }
+
+        hook.editMessageComponentsById(messageId, generatePlayerActionRows(player)).queue(null, e -> {});
     }
 
     protected void end(List<Integer> winners) {
