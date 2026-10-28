@@ -73,7 +73,7 @@ public class ChannelLockScheduler {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(Command.getCommandProperties(UnlockCommand.class).emoji() + " " + Command.getCommandLanguage(UnlockCommand.class, guildEntity.getLocale()).getTitle())
-                .setDescription(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "unlock_success", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(guildEntity.getLocale())));
+                .setDescription(TextManager.getString(guildEntity.getLocale(), Category.MODERATION, "unlock_success", new AtomicGuildMessageChannel(channel).getAsMention(guildEntity.getLocale())));
         GuildMessageChannel logChannel = channel.getGuild().getChannelById(GuildMessageChannel.class, channelLock.getLogChannelId());
         if (logChannel != null && BotPermissionUtil.canWriteEmbed(logChannel)) {
             logChannel.sendMessageEmbeds(eb.build()).queue();

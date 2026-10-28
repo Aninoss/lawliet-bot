@@ -115,7 +115,7 @@ public class AutoChannelCommand extends NavigationAbstract {
         GuildMessageChannel channel = getGuildMessageChannel().get();
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(channel, getLocale(), autoChannel.getActive()), true)
-                .addField(getString("state0_mchannel"), new ListGen<AtomicVoiceChannel>().getList(autoChannel.getParentChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
+                .addField(getString("state0_mchannel"), new ListGen<AtomicVoiceChannel>().getList(autoChannel.getParentChannels(), getLocale(), m -> m.getAsMention(getLocale())), true)
                 .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(
                         StringUtil.escapeMarkdown(autoChannel.getNameMask()),
                         "`%VCNAME`",

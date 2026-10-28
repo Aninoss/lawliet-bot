@@ -385,8 +385,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this)
-                .addField(getString("state0_mannouncement"), tickets.getLogChannelId() != null ? tickets.getLogChannel().getPrefixedNameInField(getLocale()) : notSet, true)
-                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(tickets.getStaffRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
+                .addField(getString("state0_mannouncement"), tickets.getLogChannelId() != null ? tickets.getLogChannel().getAsMention(getLocale()) : notSet, true)
+                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(tickets.getStaffRoles(), getLocale(), m -> m.getAsMention(getLocale())), true)
                 .addField(getString("state0_massign"), getString("assignment_modes").split("\n")[tickets.getAssignmentMode().ordinal()], true)
                 .addField(getString("state0_mcloseoninactivity") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), getCloseOnInactivityValue(tickets), true)
                 .addField(getString("state0_mcreatemessage"), StringUtil.shortenString(tickets.getGreetingText() != null ? StringUtil.escapeMarkdown(tickets.getGreetingText()) : notSet, 1024), false)
@@ -420,7 +420,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         setComponents(options, Set.of(4), null, createMessageAtomicChannel.get().isEmpty() ? Set.of(4) : null);
 
         return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"))
-                .addField(getString("state4_mchannel"), createMessageAtomicChannel.getPrefixedNameInField(getLocale()), true)
+                .addField(getString("state4_mchannel"), createMessageAtomicChannel.getAsMention(getLocale()), true)
                 .addField(getString("state4_mtext"), createMessageContent, true)
                 .addField(getString("state4_mcategories") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), new ListGen<String>().getList(createMessageCategories, getString("state4_notconfigured"), str -> str), true)
                 .addField(getString("state4_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), createMessageFile != null), true);

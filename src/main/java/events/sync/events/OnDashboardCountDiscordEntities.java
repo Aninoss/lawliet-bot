@@ -39,7 +39,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
             case GUILD_CHANNELS -> {
                 Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                 yield guild.getChannelCache().stream()
-                        .filter(c -> new AtomicGuildChannel(c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c))
+                        .filter(c -> new AtomicGuildChannel(c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c) && BotPermissionUtil.can(c))
                         .count();
             }
 
@@ -47,7 +47,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
                 Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                 yield guild.getChannelCache().stream()
                         .filter(c -> c instanceof GuildMessageChannel &&
-                                new AtomicGuildMessageChannel((GuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c)
+                                new AtomicGuildMessageChannel((GuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c) && BotPermissionUtil.can(c)
                         )
                         .count();
             }
@@ -56,7 +56,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
                 Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                 yield guild.getChannelCache().stream()
                         .filter(c -> c instanceof StandardGuildMessageChannel &&
-                                new AtomicStandardGuildMessageChannel((StandardGuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c)
+                                new AtomicStandardGuildMessageChannel((StandardGuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c) && BotPermissionUtil.can(c)
                         )
                         .count();
             }
@@ -64,7 +64,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
             case VOICE_CHANNELS -> {
                 Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                 yield guild.getVoiceChannels().stream()
-                        .filter(c -> c.getName().toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c))
+                        .filter(c -> c.getName().toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c) && BotPermissionUtil.can(c))
                         .count();
             }
 

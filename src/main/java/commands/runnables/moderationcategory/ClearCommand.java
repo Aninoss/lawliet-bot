@@ -212,9 +212,9 @@ public class ClearCommand extends Command implements OnButtonListener {
         if (!interrupt) {
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             if (memberFilter.isEmpty()) {
-                return EmbedFactory.getEmbedDefault(this, getString("progress", String.valueOf(amount), new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().get())));
+                return EmbedFactory.getEmbedDefault(this, getString("progress", String.valueOf(amount), new AtomicGuildMessageChannel(channel).getAsMention(getLocale()), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().get())));
             } else {
-                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", String.valueOf(amount), MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().get())));
+                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", String.valueOf(amount), MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), new AtomicGuildMessageChannel(channel).getAsMention(getLocale()), EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().get())));
             }
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));

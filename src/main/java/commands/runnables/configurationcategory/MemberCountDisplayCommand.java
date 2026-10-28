@@ -170,7 +170,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
         setComponents(getString("state0_options").split("\n"));
         String listString = new ListGen<MemberCountDisplaySlot>()
                 .getList(memberCountData.getMemberCountDisplaySlots().values(), getLocale(), data -> {
-                    return getString("state0_displays", new AtomicVoiceChannel(member.getGuild().getIdLong(), data.getVoiceChannelId()).getPrefixedNameInField(getLocale()), StringUtil.escapeMarkdown(data.getMask()));
+                    return getString("state0_displays", new AtomicVoiceChannel(member.getGuild().getIdLong(), data.getVoiceChannelId()).getAsMention(getLocale()), StringUtil.escapeMarkdown(data.getMask()));
                 });
 
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
@@ -182,7 +182,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setComponents(getString("state1_options").split("\n"), Set.of(2));
         return EmbedFactory.getEmbedDefault(this, null)
-                .addField(getString("dashboard_vc"), currentChannel != null ? currentChannel.getPrefixedNameInField(getLocale()) : notSet, true)
+                .addField(getString("dashboard_vc"), currentChannel != null ? currentChannel.getAsMention(getLocale()) : notSet, true)
                 .addField(getString("dashboard_mask"), highlightVariables(currentNameMask), true);
     }
 

@@ -46,7 +46,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
         }
 
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
-            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()));
+            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicGuildMessageChannel(channel).getAsMention(getLocale()));
             drawMessageNew(EmbedFactory.getEmbedError(this, error)).exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -80,7 +80,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
         for (int i = 0; i < amount; i++) {
             Fishery.spawnTreasureChest(channel, getGuildEntity());
         }
-        drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success", amount != 1, StringUtil.numToString(amount), new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()))))
+        drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success", amount != 1, StringUtil.numToString(amount), new AtomicGuildMessageChannel(channel).getAsMention(getLocale()))))
                 .exceptionally(ExceptionLogger.get());
         return true;
     }

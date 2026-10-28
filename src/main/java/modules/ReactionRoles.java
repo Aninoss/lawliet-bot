@@ -70,7 +70,7 @@ public class ReactionRoles {
         if (!configuration.getRoleRequirements().isEmpty()) {
             eb.addField(
                     TextManager.getString(locale, Category.CONFIGURATION, "reactionroles_state3_mrolerequirements"),
-                    new ListGen<AtomicRole>().getList(configuration.getRoleRequirements(), locale, m -> m.getPrefixedNameInField(locale)),
+                    new ListGen<AtomicRole>().getList(configuration.getRoleRequirements(), locale, m -> m.getAsMention(locale)),
                     true
             );
         }

@@ -46,7 +46,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
         }
 
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
-            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()));
+            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicGuildMessageChannel(channel).getAsMention(getLocale()));
             return EmbedFactory.getEmbedError(this, error);
         }
 
@@ -83,7 +83,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
                 amount != 1,
                 StringUtil.numToString(amount),
                 member.getEffectiveName(),
-                new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale())
+                new AtomicGuildMessageChannel(channel).getAsMention(getLocale())
         );
         return EmbedFactory.getEmbedDefault(this, successText);
     }

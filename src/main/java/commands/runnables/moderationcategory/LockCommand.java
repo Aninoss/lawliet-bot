@@ -45,7 +45,7 @@ public class LockCommand extends Command {
 
         GuildEntity guildEntity = getGuildEntity();
         if (guildEntity.getChannelLocks().containsKey(channel.getIdLong())) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("error_alreadylocked", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale())));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("error_alreadylocked", new AtomicGuildMessageChannel(channel).getAsMention(getLocale())));
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -62,7 +62,7 @@ public class LockCommand extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
                 minutes > 0 ? "success_until" : "success",
-                new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale()),
+                new AtomicGuildMessageChannel(channel).getAsMention(getLocale()),
                 TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString()
         ));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());

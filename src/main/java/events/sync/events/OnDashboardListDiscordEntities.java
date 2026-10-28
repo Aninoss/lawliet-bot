@@ -63,7 +63,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                     Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                     guild.getChannelCache().stream()
                             .filter(c -> new AtomicGuildChannel(c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) &&
-                                    BotPermissionUtil.can(member, c)
+                                    BotPermissionUtil.can(member, c) && BotPermissionUtil.can(c)
                             )
                             .sorted()
                             .skip(offset)
@@ -81,7 +81,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                     guild.getChannelCache().stream()
                             .filter(c -> c instanceof GuildMessageChannel &&
                                     new AtomicGuildMessageChannel((GuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) &&
-                                    BotPermissionUtil.can(member, c)
+                                    BotPermissionUtil.can(member, c) && BotPermissionUtil.can(c)
                             )
                             .map(c -> (GuildMessageChannel) c)
                             .sorted()
@@ -100,7 +100,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                     guild.getChannelCache().stream()
                             .filter(c -> c instanceof StandardGuildMessageChannel &&
                                     new AtomicStandardGuildMessageChannel((StandardGuildMessageChannel) c).getPrefixedNameRaw().orElse("").toLowerCase().contains(filterText) &&
-                                    BotPermissionUtil.can(member, c)
+                                    BotPermissionUtil.can(member, c) && BotPermissionUtil.can(c)
                             )
                             .map(c -> (StandardGuildMessageChannel) c)
                             .sorted()
@@ -117,7 +117,9 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                 case VOICE_CHANNELS -> {
                     Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                     guild.getVoiceChannels().stream()
-                            .filter(c -> c.getName().toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c))
+                            .filter(c -> c.getName().toLowerCase().contains(filterText) &&
+                                    BotPermissionUtil.can(member, c) && BotPermissionUtil.can(c)
+                            )
                             .skip(offset)
                             .limit(limit)
                             .forEach(c -> {

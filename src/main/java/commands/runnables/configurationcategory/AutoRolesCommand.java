@@ -113,7 +113,7 @@ public class AutoRolesCommand extends NavigationAbstract {
     public EmbedBuilder onDrawDefault(Member member) {
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
+                .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), m -> m.getAsMention(getLocale())), true);
     }
 
 }

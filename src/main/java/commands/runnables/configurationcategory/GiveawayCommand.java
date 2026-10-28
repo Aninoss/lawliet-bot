@@ -424,7 +424,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 .addField(getString("state3_mwinners"), String.valueOf(config.getWinners()), true)
                 .addField(getString("state3_memoji"), config.getEmojiFormatted(), true)
                 .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), config.getImageFilename() != null), true)
-                .addField(getString("state3_mprizeroles"), new ListGen<AtomicRole>().getList(config.getPrizeRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
+                .addField(getString("state3_mprizeroles"), new ListGen<AtomicRole>().getList(config.getPrizeRoles(), getLocale(), m -> m.getAsMention(getLocale())), true);
     }
 
     @Draw(state = STATE_EXAMPLE)
@@ -441,7 +441,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 getString("state13_title")
         );
         if (!config.getPrizeRoleIds().isEmpty()) {
-            eb.addField(getString("state3_mprizeroles"), new ListGen<AtomicRole>().getList(config.getPrizeRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
+            eb.addField(getString("state3_mprizeroles"), new ListGen<AtomicRole>().getList(config.getPrizeRoles(), getLocale(), m -> m.getAsMention(getLocale())), true);
         }
         return eb;
     }

@@ -168,7 +168,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                 .addField(getString("state0_mroles"), new ListGen<Role>().getList(getRoles(), getLocale(), this::getRoleString), false)
                 .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), fishery.getSingleRoles())), getString("state0_msinglerole_desc"), false)
-                .addField(getString("state0_mannouncementchannel"), fishery.getRoleUpgradeChannel().getPrefixedNameInField(getLocale()), true)
+                .addField(getString("state0_mannouncementchannel"), fishery.getRoleUpgradeChannel().getAsMention(getLocale()), true)
                 .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(fishery.getRolePriceMin()), StringUtil.numToString(fishery.getRolePriceMax())), true);
     }
 
@@ -178,7 +178,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
         FisheryEntity fishery = getGuildEntity().getFishery();
         return getString(
                 "state0_rolestring",
-                new AtomicRole(role).getPrefixedNameInField(getLocale()),
+                new AtomicRole(role).getAsMention(getLocale()),
                 StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), roles.size(), n))
         );
     }

@@ -214,8 +214,8 @@ public class RolePlayBlockCommand extends NavigationAbstract {
         setComponents(getString("home_options").split("\n"));
 
         return EmbedFactory.getEmbedDefault(this, getString("home_desc"))
-                .addField(getString("home_title_allowed"), StringUtil.shortenString(new ListGen<Long>().getList(rolePlayBlock.getAllowedUserIds(), getLocale(), userId -> AtomicUser.fromOutsideCache(userId).getPrefixedNameInField(getLocale())), MessageEmbed.VALUE_MAX_LENGTH), true)
-                .addField(getString("home_title_blocked"), StringUtil.shortenString(new ListGen<Long>().getList(rolePlayBlock.getBlockedUserIds(), getLocale(), userId -> AtomicUser.fromOutsideCache(userId).getPrefixedNameInField(getLocale())), MessageEmbed.VALUE_MAX_LENGTH), true)
+                .addField(getString("home_title_allowed"), StringUtil.shortenString(new ListGen<Long>().getList(rolePlayBlock.getAllowedUserIds(), getLocale(), userId -> AtomicUser.fromOutsideCache(userId).getAsMention(getLocale())), MessageEmbed.VALUE_MAX_LENGTH), true)
+                .addField(getString("home_title_blocked"), StringUtil.shortenString(new ListGen<Long>().getList(rolePlayBlock.getBlockedUserIds(), getLocale(), userId -> AtomicUser.fromOutsideCache(userId).getAsMention(getLocale())), MessageEmbed.VALUE_MAX_LENGTH), true)
                 .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("home_blockbydefault", StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), rolePlayBlock.getBlockByDefault())), false);
     }
 

@@ -66,7 +66,7 @@ public class CommandUtil {
             }
             CompletableFuture<Message> messageFuture = messageAction.submit();
 
-            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(command.getLocale())));
+            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", new AtomicGuildMessageChannel(channel).getAsMention(command.getLocale())));
             command.drawMessageNew(confirmEmbed).exceptionally(ExceptionLogger.get());
 
             return messageFuture;

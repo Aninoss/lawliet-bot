@@ -44,7 +44,7 @@ public class SetNSFWCommand extends Command {
         BotLogEntity.log(entityManager, nsfwTarget ? BotLogEntity.Event.SET_NSFW : BotLogEntity.Event.SET_NOT_NSFW, event.getMember(), channel.getIdLong());
         entityManager.getTransaction().commit();
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(nsfwTarget ? "setnsfw" : "setnotnsfw", new AtomicGuildChannel(channel).getPrefixedNameInField(getLocale())));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(nsfwTarget ? "setnsfw" : "setnotnsfw", new AtomicGuildChannel(channel).getAsMention(getLocale())));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }

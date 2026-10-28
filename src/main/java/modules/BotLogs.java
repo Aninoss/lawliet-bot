@@ -112,7 +112,7 @@ public class BotLogs {
                 case CHANNEL -> {
                     AtomicGuildChannel atomicGuildChannel = new AtomicGuildChannel(guildId, Long.parseLong(value));
                     if (inBlocks) {
-                        yield atomicGuildChannel.getPrefixedNameInField(locale);
+                        yield atomicGuildChannel.getAsMention(locale);
                     } else {
                         yield atomicGuildChannel.getPrefixedName(locale);
                     }
@@ -120,7 +120,7 @@ public class BotLogs {
                 case ROLE -> {
                     AtomicRole atomicRole = new AtomicRole(guildId, Long.parseLong(value));
                     if (inBlocks) {
-                        yield atomicRole.getPrefixedNameInField(locale);
+                        yield atomicRole.getAsMention(locale);
                     } else {
                         yield atomicRole.getPrefixedName(locale);
                     }
@@ -128,7 +128,7 @@ public class BotLogs {
                 case USER -> {
                     AtomicUser atomicUser = AtomicUser.fromOutsideCache(Long.parseLong(value));
                     if (inBlocks) {
-                        yield atomicUser.getPrefixedNameInField(locale);
+                        yield atomicUser.getAsMention(locale);
                     } else {
                         yield atomicUser.getPrefixedName(locale);
                     }

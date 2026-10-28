@@ -155,7 +155,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         }
 
         String channelStr = channel != null
-                ? new AtomicGuildMessageChannel(channel).getPrefixedNameInField(locale)
+                ? new AtomicGuildMessageChannel(channel).getAsMention(locale)
                 : TextManager.getString(locale, Category.UTILITY, "reminder_channel_dms");
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()

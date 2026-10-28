@@ -37,7 +37,7 @@ public class UnlockCommand extends LockCommand {
 
         GuildEntity guildEntity = getGuildEntity();
         if (!guildEntity.getChannelLocks().containsKey(channel.getIdLong())) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("error_notlocked", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale())));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("error_notlocked", new AtomicGuildMessageChannel(channel).getAsMention(getLocale())));
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -52,7 +52,7 @@ public class UnlockCommand extends LockCommand {
             throw e;
         }
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", new AtomicGuildMessageChannel(channel).getPrefixedNameInField(getLocale())));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", new AtomicGuildMessageChannel(channel).getAsMention(getLocale())));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }

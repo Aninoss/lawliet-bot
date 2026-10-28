@@ -92,8 +92,8 @@ public class BirthdayConfigCommand extends NavigationAbstract {
         BirthdayEntity birthday = getGuildEntity().getBirthday();
         return EmbedFactory.getEmbedDefault(this, getString("home_desc"))
                 .addField(getString("home_active"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), birthday.getActive()), true)
-                .addField(getString("home_channel"),birthday.getChannel().getPrefixedNameInField(getLocale()), true)
-                .addField(getString("home_role"),birthday.getRole().getPrefixedNameInField(getLocale()), true);
+                .addField(getString("home_channel"), birthday.getChannel().getAsMention(getLocale()), true)
+                .addField(getString("home_role"), birthday.getRole().getAsMention(getLocale()), true);
     }
 
 }

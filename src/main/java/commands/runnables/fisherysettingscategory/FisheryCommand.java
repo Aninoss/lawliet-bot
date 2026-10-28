@@ -322,7 +322,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .addField(getString("state0_mprobs", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), generateProbabilitiesTextValue(fishery) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
                 .addField(getString("state0_mworkinterval", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(fishery.getWorkIntervalMinutesEffectively())), true)
                 .addField(getString("state0_mchestlimit", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), StringUtil.numToString(fishery.getWeeklyTreasureChestUserLimitEffectively()), true)
-                .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
+                .addField(getString("state0_mchannels"), new ListGen<AtomicGuildChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getAsMention(getLocale())), true);
     }
 
     @Override

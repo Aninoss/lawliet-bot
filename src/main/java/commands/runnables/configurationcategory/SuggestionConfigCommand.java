@@ -92,7 +92,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), suggestionsData.isActive()), true)
-                .addField(getString("state0_mchannel"), suggestionsData.getChannel().map(c -> new AtomicGuildMessageChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
+                .addField(getString("state0_mchannel"), suggestionsData.getChannel().map(c -> new AtomicGuildMessageChannel(c).getAsMention(getLocale())).orElse(notSet), true);
     }
 
 }

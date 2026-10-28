@@ -95,7 +95,7 @@ public class WhiteListCommand extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(
                         getString("state0_mchannel"),
-                        new ListGen<Long>().getList(getGuildEntity().getWhitelistedChannelIds(), everyChannel, channelId -> new AtomicGuildChannel(member.getGuild().getIdLong(), channelId).getPrefixedNameInField(getLocale())),
+                        new ListGen<Long>().getList(getGuildEntity().getWhitelistedChannelIds(), everyChannel, channelId -> new AtomicGuildChannel(member.getGuild().getIdLong(), channelId).getAsMention(getLocale())),
                         true
                 );
     }

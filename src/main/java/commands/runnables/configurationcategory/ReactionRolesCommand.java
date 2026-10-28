@@ -538,7 +538,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(configuration.getDescription()).orElse(notSet)), SLOTS_TEXT_LENGTH_MAX), true)
                 .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(currentChannel, getLocale(), configuration.getImageFilename() != null), true)
                 .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(linkString).orElse(notSet), SLOTS_TEXT_LENGTH_MAX), true)
-                .addField(getString("state3_mrolerequirements"), new ListGen<AtomicRole>().getList(configuration.getRoleRequirements(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
+                .addField(getString("state3_mrolerequirements"), new ListGen<AtomicRole>().getList(configuration.getRoleRequirements(), getLocale(), m -> m.getAsMention(getLocale())), true)
                 .addField(getString("state3_mproperties"), getString(
                                 configuration.getComponentType() == ReactionRoleEntity.ComponentType.REACTIONS ? "state3_mproperties_desc" : "state3_mproperties_desc_newcomponents",
                                 StringUtil.getOnOffForBoolean(currentChannel, getLocale(), configuration.getRoleRemovals()),
@@ -563,7 +563,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return EmbedFactory.getEmbedDefault(this)
                 .setTitle(getString("addslot_title"))
                 .addField(getString("addslot_emoji"), Objects.requireNonNullElse(slotConfiguration.getEmojiFormatted(), notSet), true)
-                .addField(getString("addslot_roles"), new ListGen<AtomicRole>().getList(atomicRoles, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
+                .addField(getString("addslot_roles"), new ListGen<AtomicRole>().getList(atomicRoles, getLocale(), m -> m.getAsMention(getLocale())), true)
                 .addField(getString("addslot_customlabel"), Objects.requireNonNullElse(slotConfiguration.getCustomLabel(), notSet), true)
                 .addField(getString("addslot_position"), StringUtil.numToString(slotPosition + 1) + "/" + StringUtil.numToString(configuration.getSlots().size() + (slotEditMode ? 0 : 1)), true);
     }
@@ -852,10 +852,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             eb.setDescription(getString("components_result_noupdates"));
         } else {
             if (!removedRoles.isEmpty()) {
-                eb.addField(getString("components_result_removedroles"), new ListGen<Role>().getList(removedRoles, ListGen.SLOT_TYPE_BULLET, r -> new AtomicRole(r).getPrefixedNameInField(getLocale())), true);
+                eb.addField(getString("components_result_removedroles"), new ListGen<Role>().getList(removedRoles, ListGen.SLOT_TYPE_BULLET, r -> new AtomicRole(r).getAsMention(getLocale())), true);
             }
             if (!addedRoles.isEmpty()) {
-                eb.addField(getString("components_result_newroles"), new ListGen<Role>().getList(addedRoles, ListGen.SLOT_TYPE_BULLET, r -> new AtomicRole(r).getPrefixedNameInField(getLocale())), true);
+                eb.addField(getString("components_result_newroles"), new ListGen<Role>().getList(addedRoles, ListGen.SLOT_TYPE_BULLET, r -> new AtomicRole(r).getAsMention(getLocale())), true);
             }
         }
 

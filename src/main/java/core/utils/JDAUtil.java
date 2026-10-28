@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.components.tree.MessageComponentTree;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.ChannelFlag;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.attribute.IAgeRestrictedChannel;
 import net.dv8tion.jda.api.entities.channel.attribute.ICategorizableChannel;
@@ -32,10 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.CheckReturnValue;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JDAUtil {
@@ -126,6 +124,17 @@ public class JDAUtil {
             @NotNull
             @Override
             public RestAction<User> retrieveUser() {
+                throw new UnsupportedOperationException();
+            }
+
+            @NotNull
+            @Override
+            public EnumSet<ChannelFlag> getFlags() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public long getFlagsRaw() {
                 throw new UnsupportedOperationException();
             }
 

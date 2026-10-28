@@ -227,7 +227,7 @@ public class WelcomeCommand extends NavigationAbstract {
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getActive()), true)
                         .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(join.getText()), 1024), true)
                         .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), join.getEmbeds()), true)
-                        .addField(getString("state0_mchannel"), join.getChannel().getPrefixedNameInField(getLocale()), true)
+                        .addField(getString("state0_mchannel"), join.getChannel().getAsMention(getLocale()), true)
                         .addField(getString("state0_mattachmenttype"), getString("state0_attachmenttype").split("\n")[join.getAttachmentType().ordinal()], true);
 
                 switch (join.getAttachmentType()) {
@@ -253,7 +253,7 @@ public class WelcomeCommand extends NavigationAbstract {
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getActive()), true)
                         .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(leave.getText()), 1024), true)
                         .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(channel, getLocale(), leave.getEmbeds()), true)
-                        .addField(getString("state0_mchannel"), leave.getChannel().getPrefixedNameInField(getLocale()), true)
+                        .addField(getString("state0_mchannel"), leave.getChannel().getAsMention(getLocale()), true)
                         .addField(getString("state0_mimagespecified"), StringUtil.numToString(leave.getImageFilenames().size()), true);
             }
             default -> throw new UnsupportedOperationException("Invalid category");

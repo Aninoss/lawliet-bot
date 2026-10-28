@@ -198,7 +198,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
                 this,
                 getString("add_desc"), getString("add_title")
         );
-        eb.addField(getString("add_channel"), atomicChannel != null ? atomicChannel.getPrefixedNameInField(getLocale()) : notSet, true);
+        eb.addField(getString("add_channel"), atomicChannel != null ? atomicChannel.getAsMention(getLocale()) : notSet, true);
         eb.addField(getString("add_command"), trigger != null ? "`" + trigger + "`" : notSet, true);
         return eb;
     }
@@ -221,7 +221,7 @@ public class CommandChannelShortcutsCommand extends NavigationAbstract {
 
     private String generateShortcutList(long guildId) {
         return new ListGen<Map.Entry<Long, String>>().getList(getGuildEntity().getCommandChannelShortcuts().entrySet(), getLocale(), set -> {
-            return new AtomicGuildMessageChannel(guildId, set.getKey()).getPrefixedNameInField(getLocale()) + " → `" + set.getValue() + "`";
+            return new AtomicGuildMessageChannel(guildId, set.getKey()).getAsMention(getLocale()) + " → `" + set.getValue() + "`";
         });
     }
 

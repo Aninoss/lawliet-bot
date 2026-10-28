@@ -615,10 +615,10 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
         setComponents(getString("state0_options").split("\n"));
 
         return EmbedFactory.getEmbedDefault(this)
-                .addField(getString("state0_mchannel"), moderation.getLogChannelId() != null ? moderation.getLogChannel().getPrefixedNameInField(locale) : notSet, true)
+                .addField(getString("state0_mchannel"), moderation.getLogChannelId() != null ? moderation.getLogChannel().getAsMention(locale) : notSet, true)
                 .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(channel, locale, moderation.getConfirmationMessages()), true)
-                .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(moderation.getJailRoles(), locale, m -> m.getPrefixedNameInField(locale)), true)
-                .addField(getString("state0_mbanappeallogchannel") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), moderation.getBanAppealLogChannelIdEffectively() != null ? moderation.getBanAppealLogChannelEffectively().getPrefixedNameInField(locale) : notSet, true)
+                .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(moderation.getJailRoles(), locale, m -> m.getAsMention(locale)), true)
+                .addField(getString("state0_mbanappeallogchannel") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), moderation.getBanAppealLogChannelIdEffectively() != null ? moderation.getBanAppealLogChannelEffectively().getAsMention(locale) : notSet, true)
                 .addField(getString("state0_mautomod"), getString(
                         "state0_mautomod_desc",
                         getAutoModString(channel, moderation.getAutoMute()),

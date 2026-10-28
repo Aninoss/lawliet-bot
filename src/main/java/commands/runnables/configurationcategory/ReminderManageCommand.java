@@ -325,7 +325,7 @@ public class ReminderManageCommand extends NavigationAbstract {
         );
 
         if (type == ReminderEntity.Type.GUILD_REMINDER) {
-            eb.addField(getString("manage_channel"), guildChannel.getPrefixedNameInField(getLocale()), true);
+            eb.addField(getString("manage_channel"), guildChannel.getAsMention(getLocale()), true);
         }
         eb.addField(getString("manage_triggertime"), TimeFormat.DATE_TIME_SHORT.atInstant(triggerTime).toString(), true);
 

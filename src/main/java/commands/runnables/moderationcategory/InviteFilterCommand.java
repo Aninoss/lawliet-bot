@@ -139,9 +139,9 @@ public class InviteFilterCommand extends NavigationAbstract {
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), inviteFilter.getActive()), true)
-                .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(inviteFilter.getExcludedMembers(), getLocale(), m -> m.getPrefixedNameInField(locale)), true)
-                .addField(getString("state0_mignoredchannels"), new ListGen<AtomicGuildChannel>().getList(inviteFilter.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(locale)), true)
-                .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(inviteFilter.getLogReceivers(), getLocale(), m -> m.getPrefixedNameInField(locale)), true)
+                .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(inviteFilter.getExcludedMembers(), getLocale(), m -> m.getAsMention(locale)), true)
+                .addField(getString("state0_mignoredchannels"), new ListGen<AtomicGuildChannel>().getList(inviteFilter.getExcludedChannels(), getLocale(), m -> m.getAsMention(locale)), true)
+                .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(inviteFilter.getLogReceivers(), getLocale(), m -> m.getAsMention(locale)), true)
                 .addField(getString("state0_maction"), getString("state0_mactionlist").split("\n")[inviteFilter.getAction().ordinal()], true);
     }
 
