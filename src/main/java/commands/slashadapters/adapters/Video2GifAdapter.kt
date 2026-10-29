@@ -1,6 +1,6 @@
 package commands.slashadapters.adapters
 
-import commands.runnables.aitoyscategory.UpscalerCommand
+import commands.runnables.utilitycategory.Video2GifCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
@@ -9,22 +9,18 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
-@Slash(command = UpscalerCommand::class)
-class UpscalerAdapter : SlashAdapter() {
+@Slash(command = Video2GifCommand::class)
+class Video2GifAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOptions(
-                generateOptionData(OptionType.ATTACHMENT, "image_file", "ai_file", true),
-                generateOptionData(OptionType.ATTACHMENT, "image_file2", "ai_file", false),
-                generateOptionData(OptionType.ATTACHMENT, "image_file3", "ai_file", false),
-                generateOptionData(OptionType.ATTACHMENT, "image_file4", "ai_file", false),
-                generateOptionData(OptionType.ATTACHMENT, "image_file5", "ai_file", false)
+                generateOptionData(OptionType.ATTACHMENT, "video_file", "video2gif_file", true)
             )
     }
 
     override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
-        return SlashMeta(UpscalerCommand::class.java, "")
+        return SlashMeta(Video2GifCommand::class.java, "")
     }
 
 }

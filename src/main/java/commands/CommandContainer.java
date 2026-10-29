@@ -108,6 +108,7 @@ public class CommandContainer {
         commandList.add(SetNSFWCommand.class);
         commandList.add(CustomRoleAddCommand.class);
         commandList.add(CustomRoleManageCommand.class);
+        commandList.add(Video2GifCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);
