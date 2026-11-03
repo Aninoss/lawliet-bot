@@ -15,6 +15,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
+        releaseVersion = "2.75",
         aliases = { "hentaifemboy", "trap" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_HENTAI
 )

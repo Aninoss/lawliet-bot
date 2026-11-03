@@ -140,3 +140,4 @@ src/main/jib/data/cdn/emoji_cache
 .local
 .config
 devvotes
+.ash_history
