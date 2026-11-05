@@ -54,6 +54,8 @@ public class Video2GifCommand extends ComponentMenuAbstract {
     private Message.Attachment attachment;
     private int width = Video2GifConverter.DEFAULT_WIDTH;
     private int fps = Video2GifConverter.DEFAULT_FPS;
+    private int length = Video2GifConverter.DEFAULT_LENGTH_SECONDS;
+    private int skip = Video2GifConverter.DEFAULT_SKIP_SECONDS;
     private boolean loop = true;
 
     public Video2GifCommand(Locale locale, String prefix) {
@@ -86,7 +88,7 @@ public class Video2GifCommand extends ComponentMenuAbstract {
 
     @Draw(state = STATE_ROOT_ID)
     public List<ContainerChildComponent> drawRoot(Member member) {
-        setDescription(getString("root_description", String.valueOf(Video2GifConverter.MAX_DURATION_SECONDS)));
+        setDescription(getString("root_description", getMaxOutputMegabytes()));
 
         ArrayList<ContainerChildComponent> components = new ArrayList<>();
         components.add(TextDisplay.of(getString("root_video") + "\n> " + getVideoText()));
@@ -121,6 +123,37 @@ public class Video2GifCommand extends ComponentMenuAbstract {
         });
         components.add(Section.of(fpsButton, TextDisplay.of(fpsString + "\n> " + getString("root_fps_value", String.valueOf(fps)))));
 
+        String lengthString = getString("root_length");
+        Button lengthButton = buttonSecondary(Emojis.MENU_EDIT, e -> {
+            Modal modal = setIntModal(
+                    lengthString,
+                    length,
+                    null,
+                    Video2GifConverter.MIN_LENGTH_SECONDS,
+                    Video2GifConverter.MAX_LENGTH_SECONDS,
+                    newLength -> length = newLength,
+                    TextDisplay.of("-# " + getString("root_length_hint"))
+            );
+            e.replyModal(modal).queue();
+            return false;
+        });
+        components.add(Section.of(lengthButton, TextDisplay.of(lengthString + "\n> " + getString("root_length_value", String.valueOf(length)))));
+
+        String skipString = getString("root_skip");
+        Button skipButton = buttonSecondary(Emojis.MENU_EDIT, e -> {
+            Modal modal = setIntModal(
+                    skipString,
+                    skip,
+                    null,
+                    Video2GifConverter.MIN_SKIP_SECONDS,
+                    Video2GifConverter.MAX_SKIP_SECONDS,
+                    newSkip -> skip = newSkip
+            );
+            e.replyModal(modal).queue();
+            return false;
+        });
+        components.add(Section.of(skipButton, TextDisplay.of(skipString + "\n> " + getString("root_skip_value", String.valueOf(skip)))));
+
         components.add(buttonBoolean(getString("root_loop"), loop, newLoop -> loop = newLoop));
 
         components.add(Separator.createDivider(Separator.Spacing.LARGE));
@@ -133,7 +166,7 @@ public class Video2GifCommand extends ComponentMenuAbstract {
         String loadingEmoji = EmojiUtil.getLoadingEmojiMention(getGuildMessageChannel().orElse(null));
         return List.of(
                 TextDisplay.of(getString("converting", loadingEmoji)),
-                TextDisplay.of(getSettingsText(width, fps, loop))
+                TextDisplay.of(getSettingsText(width, fps, loop, length, skip))
         );
     }
 
@@ -148,19 +181,21 @@ public class Video2GifCommand extends ComponentMenuAbstract {
         int localWidth = width;
         int localFps = fps;
         boolean localLoop = loop;
+        int localLength = length;
+        int localSkip = skip;
         Member member = event.getMember();
 
         setState(STATE_CONVERTING);
         drawMessage(draw(member))
-                .whenComplete((message, e) -> GlobalThreadPool.submit(() -> convert(event, member, userId, localWidth, localFps, localLoop)));
+                .whenComplete((message, e) -> GlobalThreadPool.submit(() -> convert(event, member, userId, localWidth, localFps, localLoop, localLength, localSkip)));
         return false;
     }
 
-    private void convert(ButtonInteractionEvent event, Member member, long userId, int width, int fps, boolean loop) {
+    private void convert(ButtonInteractionEvent event, Member member, long userId, int width, int fps, boolean loop, int length, int skip) {
         LocalFile output = null;
         Failure failure = null;
         try {
-            output = Video2GifConverter.convert(attachment, width, fps, loop);
+            output = Video2GifConverter.convert(attachment, width, fps, loop, length, skip);
         } catch (Video2GifException e) {
             failure = e.getFailure();
         } catch (Throwable e) {
@@ -173,7 +208,7 @@ public class Video2GifCommand extends ComponentMenuAbstract {
         try (GuildEntity guildEntity = refreshGuildEntity()) {
             setState(STATE_ROOT_ID);
             if (failure == null) {
-                MessageComponentTree resultComponents = generateResultComponents(output, width, fps, loop);
+                MessageComponentTree resultComponents = generateResultComponents(output, width, fps, loop, length, skip);
                 event.getHook().sendMessageComponents(resultComponents)
                         .useComponentsV2()
                         .queue(null, e -> MainLogger.get().error("Video2gif result message exception", e));
@@ -191,19 +226,21 @@ public class Video2GifCommand extends ComponentMenuAbstract {
         }
     }
 
-    private MessageComponentTree generateResultComponents(LocalFile gifFile, int width, int fps, boolean loop) {
+    private MessageComponentTree generateResultComponents(LocalFile gifFile, int width, int fps, boolean loop, int length, int skip) {
         String url = gifFile.cdnGetUrl();
         ArrayList<ContainerChildComponent> components = new ArrayList<>();
         components.add(MediaGallery.of(List.of(MediaGalleryItem.fromUrl(url))));
-        components.add(TextDisplay.of(getSettingsText(width, fps, loop) + "｜" + formatMegabytes(gifFile.length()) + " MB"));
+        components.add(TextDisplay.of(getSettingsText(width, fps, loop, length, skip) + "｜" + formatMegabytes(gifFile.length()) + " MB"));
         components.add(ActionRow.of(Button.of(ButtonStyle.LINK, url + "?download=1", getString("result_download"))));
         components.add(Separator.createDivider(Separator.Spacing.SMALL));
         components.add(TextDisplay.of(getString("result_warning")));
         return ComponentsUtil.createCommandComponentTree(this, components);
     }
 
-    private String getSettingsText(int width, int fps, boolean loop) {
-        return getString("root_width_value", String.valueOf(width)) +
+    private String getSettingsText(int width, int fps, boolean loop, int length, int skip) {
+        return getString("settings_length", String.valueOf(length)) +
+                (skip > 0 ? "｜" + getString("settings_skip", String.valueOf(skip)) : "") +
+                "｜" + getString("root_width_value", String.valueOf(width)) +
                 "｜" + getString("root_fps_value", String.valueOf(fps)) +
                 "｜" + getString("result_loop").split("\n")[loop ? 1 : 0];
     }
@@ -217,9 +254,13 @@ public class Video2GifCommand extends ComponentMenuAbstract {
         String key = "error_" + failure.name().toLowerCase(Locale.ROOT);
         return switch (failure) {
             case UNSUPPORTED_TYPE -> getString(key, getSupportedExtensionsText());
-            case OUTPUT_TOO_LARGE -> getString(key, String.valueOf(Video2GifConverter.MAX_OUTPUT_BYTES / 1024 / 1024));
+            case OUTPUT_TOO_LARGE -> getString(key, getMaxOutputMegabytes());
             default -> getString(key);
         };
+    }
+
+    private static String getMaxOutputMegabytes() {
+        return String.valueOf(Video2GifConverter.MAX_OUTPUT_BYTES / 1024 / 1024);
     }
 
     private String getSupportedExtensionsText() {

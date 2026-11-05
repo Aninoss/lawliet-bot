@@ -104,7 +104,7 @@ public interface ActionComponentGenerator {
         return builder;
     }
 
-    default Modal setIntModal(String property, Integer value, Integer placeholder, int min, int max, Consumer<Integer> consumer) {
+    default Modal setIntModal(String property, Integer value, Integer placeholder, int min, int max, Consumer<Integer> consumer, ModalTopLevelComponent... additionalComponents) {
         TextInput textInput = TextInput.create("_", TextInputStyle.SHORT)
                 .setValue(value != null ? String.valueOf(value) : null)
                 .setPlaceholder(placeholder != null ? String.valueOf(placeholder) : null)
@@ -112,7 +112,11 @@ public interface ActionComponentGenerator {
                 .setRequired(min > 0)
                 .build();
 
-        return modal(property, List.of(Label.of(property + " (" + StringUtil.numToString(min) + "-" + StringUtil.numToString(max) + ")", textInput)), e -> {
+        ArrayList<ModalTopLevelComponent> components = new ArrayList<>();
+        components.add(Label.of(property + " (" + StringUtil.numToString(min) + "-" + StringUtil.numToString(max) + ")", textInput));
+        components.addAll(List.of(additionalComponents));
+
+        return modal(property, components, e -> {
             ModalMapping newValue = e.getValue("_");
             if (newValue == null || !StringUtil.stringIsInt(newValue.getAsString())) {
                 return;

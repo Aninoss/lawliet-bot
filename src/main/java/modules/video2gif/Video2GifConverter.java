@@ -28,12 +28,18 @@ public final class Video2GifConverter {
     public static final int MIN_FPS = 1;
     public static final int MAX_FPS = 30;
     public static final int DEFAULT_FPS = 15;
-    public static final int MAX_DURATION_SECONDS = 15;
+    public static final int MIN_LENGTH_SECONDS = 1;
+    public static final int MAX_LENGTH_SECONDS = 120;
+    public static final int DEFAULT_LENGTH_SECONDS = 15;
+    public static final int MIN_SKIP_SECONDS = 0;
+    public static final int MAX_SKIP_SECONDS = 3600;
+    public static final int DEFAULT_SKIP_SECONDS = 0;
     public static final long MAX_OUTPUT_BYTES = 50L * 1024 * 1024;
     public static final int MAX_CONCURRENT_CONVERSIONS = 2;
 
     private static final int TIMEOUT_SECONDS = 90;
     private static final int FFMPEG_LOG_MAX_LENGTH = 2000;
+    private static final String FFMPEG_EMPTY_OUTPUT_LOG = "Output file is empty";
 
     /* The demuxer is forced based on the file extension so that crafted playlist/concat files cannot be processed */
     private static final Map<String, String> DEMUXERS = Map.of(
@@ -88,7 +94,7 @@ public final class Video2GifConverter {
         }
     }
 
-    public static LocalFile convert(Message.Attachment attachment, int width, int fps, boolean loop) throws Video2GifException {
+    public static LocalFile convert(Message.Attachment attachment, int width, int fps, boolean loop, int length, int skip) throws Video2GifException {
         String extension = getSupportedExtension(attachment);
         if (extension == null) {
             throw new Video2GifException(Failure.UNSUPPORTED_TYPE);
@@ -96,6 +102,8 @@ public final class Video2GifConverter {
 
         width = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width));
         fps = Math.max(MIN_FPS, Math.min(MAX_FPS, fps));
+        length = Math.max(MIN_LENGTH_SECONDS, Math.min(MAX_LENGTH_SECONDS, length));
+        skip = Math.max(MIN_SKIP_SECONDS, Math.min(MAX_SKIP_SECONDS, skip));
 
         String inputName = RandomUtil.generateRandomString(30) + "." + extension;
         String outputName = RandomUtil.generateRandomString(30) + ".gif";
@@ -111,7 +119,7 @@ public final class Video2GifConverter {
                 throw new Video2GifException(Failure.DOWNLOAD_FAILED);
             }
 
-            runFfmpeg(DEMUXERS.get(extension), input, output, width, fps, loop);
+            runFfmpeg(DEMUXERS.get(extension), input, output, width, fps, loop, length, skip);
 
             if (!output.exists() || output.length() == 0) {
                 throw new Video2GifException(Failure.CONVERSION_FAILED);
@@ -130,7 +138,7 @@ public final class Video2GifConverter {
         }
     }
 
-    private static void runFfmpeg(String demuxer, LocalFile input, LocalFile output, int width, int fps, boolean loop) throws Video2GifException {
+    private static void runFfmpeg(String demuxer, LocalFile input, LocalFile output, int width, int fps, boolean loop, int length, int skip) throws Video2GifException {
         String filter = String.format(
                 "fps=%d,scale=min(%d\\,iw):-2:flags=lanczos,split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5",
                 fps, width
@@ -139,10 +147,11 @@ public final class Video2GifConverter {
         /* -fs makes ffmpeg stop writing once the output exceeds the limit, so oversized results never fill up the disk */
         List<String> command = List.of(
                 new LocalFile("ffmpeg/ffmpeg").getAbsolutePath(),
-                "-nostdin", "-hide_banner", "-loglevel", "error", "-y",
+                "-nostdin", "-hide_banner", "-loglevel", "warning", "-y",
                 "-protocol_whitelist", "file",
                 "-f", demuxer,
-                "-t", String.valueOf(MAX_DURATION_SECONDS),
+                "-ss", String.valueOf(skip),
+                "-t", String.valueOf(length),
                 "-i", input.getAbsolutePath(),
                 "-vf", filter,
                 "-an", "-sn",
@@ -185,8 +194,11 @@ public final class Video2GifConverter {
 
         int exitCode = process.exitValue();
         if (exitCode != 0) {
-            String log = logFuture.getNow("");
+            String log = logFuture.completeOnTimeout("", 1, TimeUnit.SECONDS).join();
             MainLogger.get().warn("Video2gif ffmpeg exited with code {}: {}", exitCode, log);
+            if (skip > 0 && log.contains(FFMPEG_EMPTY_OUTPUT_LOG)) {
+                throw new Video2GifException(Failure.SKIP_TOO_LONG);
+            }
             throw new Video2GifException(Failure.CONVERSION_FAILED);
         }
     }
@@ -214,6 +226,7 @@ public final class Video2GifConverter {
         CONVERSION_FAILED,
         TIMEOUT,
         OUTPUT_TOO_LARGE,
+        SKIP_TOO_LONG,
         USER_BUSY,
         SERVER_BUSY
 
