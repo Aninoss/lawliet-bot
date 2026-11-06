@@ -1,9 +1,11 @@
 package commands.runnables.nsfwcategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.RedditNSFWAbstract;
+import commands.runnables.RealbooruAbstract;
 
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Set;
 
 import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
@@ -18,7 +20,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         aliases = { "femboy", "reallifefemboy" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
-public class RealLifeFemboyCommand extends RedditNSFWAbstract {
+public class RealLifeFemboyCommand extends RealbooruAbstract {
 
     public RealLifeFemboyCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -26,7 +28,17 @@ public class RealLifeFemboyCommand extends RedditNSFWAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "FemBoys";
+        return "femboy";
+    }
+
+    @Override
+    protected Set<String> getAdditionalFilters() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    protected boolean isAnimatedOnly() {
+        return false;
     }
 
 }

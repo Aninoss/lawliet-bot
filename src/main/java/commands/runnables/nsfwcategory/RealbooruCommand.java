@@ -15,8 +15,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         aliases = { "rbooru", "realbooru", "rlbooru" },
-        subCategory = NSFW_SUBCATEGORY_SEARCH,
-        obsolete = true
+        subCategory = NSFW_SUBCATEGORY_SEARCH
 )
 public class RealbooruCommand extends PornSearchAbstract {
 

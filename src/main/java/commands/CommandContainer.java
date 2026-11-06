@@ -320,8 +320,8 @@ public class CommandContainer {
         commandList.add(RealLifeBoobsCommand.class);
         commandList.add(RealLifeThighsCommand.class);
         commandList.add(RealLifeCreampieCommand.class);
-        commandList.add(RealLifePussy.class);
-        commandList.add(RealLifeDick.class);
+        commandList.add(RealLifePussyCommand.class);
+        commandList.add(RealLifeDickCommand.class);
         commandList.add(RealLifeBlowjobCommand.class);
         commandList.add(RealLifeBDSMCommand.class);
         commandList.add(RealLifeFemaleAbsCommand.class);

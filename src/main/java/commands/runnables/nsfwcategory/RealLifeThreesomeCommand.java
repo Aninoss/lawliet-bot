@@ -1,9 +1,11 @@
 package commands.runnables.nsfwcategory;
 
 import commands.listeners.CommandProperties;
-import commands.runnables.RedditNSFWAbstract;
+import commands.runnables.RealbooruAbstract;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE;
 
@@ -18,7 +20,7 @@ import static commands.runnables.informationcategory.HelpCommand.NSFW_SUBCATEGOR
         aliases = { "reallifthreesome" },
         subCategory = NSFW_SUBCATEGORY_TEMPLATES_REAL_LIFE
 )
-public class RealLifeThreesomeCommand extends RedditNSFWAbstract {
+public class RealLifeThreesomeCommand extends RealbooruAbstract {
 
     public RealLifeThreesomeCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -26,7 +28,19 @@ public class RealLifeThreesomeCommand extends RedditNSFWAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "Threesome";
+        return "sex threesome";
+    }
+
+    @Override
+    protected Set<String> getAdditionalFilters() {
+        HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
+        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap", "transgender", "otoko_no_ko", "censored"));
+        return filters;
+    }
+
+    @Override
+    protected boolean isAnimatedOnly() {
+        return false;
     }
 
 }
