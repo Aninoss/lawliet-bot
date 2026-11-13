@@ -80,6 +80,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                                 return false;
                             }
 
+                            RedditDownloader.resolveRedGifsMedia(post);
                             MessageComponentTree components = MessageComponentTree.of(toContainer(post, false));
                             components = ComponentsUtil.addTrackerNoteLog(this, event.getMember(), components);
                             drawMessageNew(components).exceptionally(ExceptionLogger.get());
@@ -124,12 +125,6 @@ public class RedditCommand extends Command implements OnAlertListener {
             components.addAll(titleComponents);
         }
 
-        if (post.getContentUrl() != null && post.getContentUrl().length() <= Button.URL_MAX_LENGTH) {
-            String label = TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_linktext");
-            Button button = Button.of(ButtonStyle.LINK, post.getContentUrl(), label);
-            components.add(ActionRow.of(button));
-        }
-
         if (post.getMediaUrls() != null) {
             List<MediaGalleryItem> mediaGalleryItems = post.getMediaUrls().stream()
                     .filter(InternetUtil::stringIsURL)
@@ -143,6 +138,12 @@ public class RedditCommand extends Command implements OnAlertListener {
                 MediaGallery mediaGallery = MediaGallery.of(mediaGalleryItems);
                 components.add(mediaGallery);
             }
+        }
+
+        if (post.getContentUrl() != null && post.getContentUrl().length() <= Button.URL_MAX_LENGTH) {
+            String label = TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_linktext");
+            Button button = Button.of(ButtonStyle.LINK, post.getContentUrl(), label);
+            components.add(ActionRow.of(button));
         }
 
         String flairText = "";
@@ -217,6 +218,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             }
             containsOnlyNsfw = false;
             if (!idList.contains(post.getId())) {
+                RedditDownloader.resolveRedGifsMedia(post);
                 Container container = toContainer(post, true);
                 containers.add(0, container);
                 newIdList.add(0, post.getId());

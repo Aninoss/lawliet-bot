@@ -22,6 +22,7 @@ import modules.porn.BooruImage;
 import modules.porn.BooruImageDownloader;
 import modules.porn.IllegalTagException;
 import modules.porn.TooManyTagsException;
+import modules.reddit.RedditDownloader;
 import modules.schedulers.AlertResponse;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
@@ -154,6 +155,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                         .exceptionally(ExceptionLogger.get());
                 return false;
             } catch (NoSuchElementException | IOException e) {
+                MainLogger.get().error("Booru error", e);
                 drawMessageNew(apiUnavailableComponents())
                         .exceptionally(ExceptionLogger.get());
                 return false;
@@ -453,7 +455,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             if (pornImages.get(i) == null) {
                 continue;
             }
-            String line = TextManager.getString(getLocale(), Category.NSFW, spoiler ? "porn_file_spoiler" : "porn_file", String.valueOf(i + 1), pornImages.get(i).getImageUrl(), pornImages.get(i).getPageUrl());
+
+            BooruImage pornImage = pornImages.get(i);
+            String imageUrl = RedditDownloader.resolveRedGifsMedia(pornImage.getImageUrl());
+            String line = TextManager.getString(getLocale(), Category.NSFW, spoiler ? "porn_file_spoiler" : "porn_file", String.valueOf(i + 1), imageUrl, pornImage.getPageUrl());
             sb.append(line)
                     .append('\n');
         }
@@ -483,16 +488,18 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             if (pornImage == null || pornImage.getImageUrl() == null || pornImage.getImageUrl().isBlank() || pornImage.getPageUrl() == null || pornImage.getPageUrl().isBlank()) {
                 continue;
             }
-            String line = TextManager.getString(getLocale(), Category.NSFW, "porn_file", String.valueOf(i + 1), pornImage.getImageUrl(), pornImage.getPageUrl());
+
+            String imageUrl = RedditDownloader.resolveRedGifsMedia(pornImage.getImageUrl());
+            String line = TextManager.getString(getLocale(), Category.NSFW, "porn_file", String.valueOf(i + 1), imageUrl, pornImage.getPageUrl());
             contentStringBuilder.append(line)
                     .append('\n');
-            if (InternetUtil.stringIsURL(pornImage.getImageUrl())) {
+            if (InternetUtil.stringIsURL(imageUrl)) {
                 mediaGalleryItems.add(
-                        MediaGalleryItem.fromUrl(pornImage.getImageUrl())
+                        MediaGalleryItem.fromUrl(imageUrl)
                                 .withSpoiler(spoiler)
                 );
             } else {
-                MainLogger.get().error("Invalid booru image url: {}", pornImage.getImageUrl());
+                MainLogger.get().error("Invalid booru image url: {}", imageUrl);
             }
         }
         if (!contentStringBuilder.isEmpty() && !mediaGalleryItems.isEmpty()) {

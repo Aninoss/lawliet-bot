@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import constants.RegexPatterns;
+import core.MainLogger;
+import core.internet.HttpCache;
 import core.restclient.RestClient;
 import core.utils.InternetUtil;
 import core.utils.NSFWUtil;
@@ -12,13 +14,17 @@ import modules.porn.BooruImage;
 import modules.porn.IllegalTagException;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class RedditDownloader {
+
+    private static final Pattern REDGIFS_OG_VIDEO_PATTERN = Pattern.compile("<meta property=\"og:video\" content=\"([^\"]+)\"");
 
     public static CompletableFuture<Optional<RedditPost>> retrievePost(long guildId, String input, boolean nsfwAllowed) {
         String[] inputExt = extractSubredditAndOrderBy(input);
@@ -99,7 +105,7 @@ public class RedditDownloader {
                 return images;
             }
         } catch (Throwable e) {
-            throw new IOException("Reddit retrieval error");
+            throw new IOException("Reddit retrieval error for " + search, e);
         }
     }
 
@@ -117,18 +123,60 @@ public class RedditDownloader {
         }
     }
 
-    private static BooruImage mapToBooruImage(RedditPost redditPost, boolean canBeVideo) {
-        if (redditPost.getMediaUrls() == null || redditPost.getMediaUrls().isEmpty()) {
-            redditPost.setMediaUrls(List.of(redditPost.getThumbnail()));
+    public static void resolveRedGifsMedia(RedditPost redditPost) {
+        String contentUrl = redditPost.getContentUrl();
+        if (contentUrl == null || !contentUrl.contains("redgifs.com")) {
+            return;
         }
-        String mediaUrl = redditPost.getMediaUrls().isEmpty() ? null : redditPost.getMediaUrls().get(0);
+
+        try {
+            String content = HttpCache.get(contentUrl, Duration.ofHours(24)).get().getBody();
+            Matcher matcher = REDGIFS_OG_VIDEO_PATTERN.matcher(content);
+            if (matcher.find()) {
+                String mediaUrl = matcher.group(1).replaceFirst("-silent\\.mp4$", ".mp4");
+                redditPost.setMediaUrls(List.of(mediaUrl));
+            }
+        } catch (Throwable e) {
+            MainLogger.get().warn("RedGifs media resolving failed for {}", contentUrl, e);
+        }
+    }
+
+    public static String resolveRedGifsMedia(String url) {
+        if (url == null || !url.contains("redgifs.com")) {
+            return url;
+        }
+
+        try {
+            String content = HttpCache.get(url, Duration.ofHours(24)).get().getBody();
+            Matcher matcher = REDGIFS_OG_VIDEO_PATTERN.matcher(content);
+            if (matcher.find()) {
+                return matcher.group(1).replaceFirst("-silent\\.mp4$", ".mp4");
+            }
+        } catch (Throwable e) {
+            MainLogger.get().warn("RedGifs media resolving failed for {}", url, e);
+        }
+        return url;
+    }
+
+    private static BooruImage mapToBooruImage(RedditPost redditPost, boolean canBeVideo) {
+        String mediaUrl = redditPost.getMediaUrls() == null || redditPost.getMediaUrls().isEmpty() ? null : redditPost.getMediaUrls().get(0);
+        boolean redgifsVideo = false;
+        if (mediaUrl == null) {
+            if (redditPost.getThumbnail() != null && !redditPost.getThumbnail().isEmpty()) {
+                mediaUrl = redditPost.getThumbnail();
+            } else if (redditPost.getContentUrl() != null && redditPost.getContentUrl().contains("redgifs.com")) {
+                mediaUrl = redditPost.getContentUrl();
+                redgifsVideo = true;
+            }
+        }
+
         return new BooruImage()
                 .setId(redditPost.getId().hashCode())
-                .setImageUrl(!InternetUtil.uriIsVideo(mediaUrl) || canBeVideo || redditPost.getThumbnail() == null || redditPost.getThumbnail().isBlank() ? mediaUrl : redditPost.getThumbnail())
+                .setImageUrl(mediaUrl)
                 .setPageUrl(redditPost.getRedditUrl())
                 .setScore(redditPost.getScore())
                 .setInstant(redditPost.getInstant())
-                .setVideo(InternetUtil.uriIsVideo(mediaUrl))
+                .setVideo(redgifsVideo || InternetUtil.uriIsVideo(mediaUrl))
                 .setImageTags(Collections.emptyList())
                 .setApproximateResults(false);
     }
