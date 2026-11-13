@@ -43,7 +43,8 @@ import java.util.stream.Collectors;
 @CommandProperties(
         trigger = "reddit",
         emoji = "\uD83E\uDD16",
-        executableWithoutArgs = false
+        executableWithoutArgs = false,
+        patreonRequired = true
 )
 public class RedditCommand extends Command implements OnAlertListener {
 

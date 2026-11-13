@@ -17,7 +17,7 @@ class RedditNSFWAdapter : BooruSearchAdapterAbstract() {
     override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOptions(
-                generateOptionData(OptionType.STRING, "subreddit", Category.EXTERNAL.id, "reddit_subreddit", true, true),
+                generateOptionData(OptionType.STRING, "subreddit", Category.EXTERNAL.id, "reddit_subreddit", true, false), //TODO: add again when it's working with nsfw content
                 generateOptionData(OptionType.INTEGER, "amount", Category.NSFW.id, "porn_amount", false)
             )
     }

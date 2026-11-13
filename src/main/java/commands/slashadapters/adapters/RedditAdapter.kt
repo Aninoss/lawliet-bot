@@ -25,7 +25,7 @@ class RedditAdapter : SlashAdapter() {
         )
         return commandData
             .addOptions(
-                generateOptionData(OptionType.STRING, "subreddit", "reddit_subreddit", true, true),
+                generateOptionData(OptionType.STRING, "subreddit", "reddit_subreddit", true, false), //TODO: add again when it's working with nsfw content
                 orderBy
             )
     }

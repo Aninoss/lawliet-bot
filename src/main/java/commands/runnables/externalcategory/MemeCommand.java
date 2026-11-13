@@ -1,7 +1,8 @@
 package commands.runnables.externalcategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "meme",
