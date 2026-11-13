@@ -67,7 +67,6 @@ public class CommandContainer {
 
         //AI TOYS
         commandList.add(ImitateCommand.class);
-        commandList.add(UpscalerCommand.class);
         commandList.add(TranslateCommand.class);
 
         //CONFIGURATION
@@ -305,7 +304,6 @@ public class CommandContainer {
         //NSFW
         commandList.add(PersonalNSFWFilterCommand.class);
         commandList.add(TagsCommand.class);
-        commandList.add(Txt2HentaiCommand.class);
         commandList.add(Rule34Command.class);
         commandList.add(RealbooruCommand.class);
         commandList.add(E621Command.class);

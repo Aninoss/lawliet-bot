@@ -19,7 +19,6 @@ import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.user.Txt2ImgEntity;
 import mysql.hibernate.entity.user.UserEntity;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -72,7 +71,6 @@ public class Console {
         tasks.put("bot_logs_cleanup", Console::onBotLogsCleanUp);
         tasks.put("fishery_copy", Console::onFisheryCopy);
         tasks.put("featurelogging", Console::onFeatureLogging);
-        tasks.put("txt2img_ban", Console::onTxt2ImgBan);
         tasks.put("casino_logs", Console::onCasinoLogs);
         tasks.put("tickets_auto_close", Console::onTicketsAutoClose);
         tasks.put("slash_update", Console::onSlashUpdate);
@@ -192,34 +190,6 @@ public class Console {
             daysSubstract = Integer.parseInt(args[1]);
         }
         FeatureLogger.persist(LocalDate.now().minusDays(daysSubstract));
-    }
-
-    private static void onTxt2ImgBan(String[] args) {
-        long userId = Long.parseLong(args[1]);
-        long durationMinutes = MentionUtil.getTimeMinutes(args[2]).getValue();
-        String reason = collectArgs(args, 3).replace("\\n", "\n");
-
-        if (durationMinutes > 0 && Program.isMainCluster() && Program.publicInstance()) {
-            Instant bannedUntil = Instant.now().plus(Duration.ofMinutes(durationMinutes));
-            try (UserEntity user = HibernateManager.findUserEntity(userId, Console.class)) {
-                Txt2ImgEntity txt2img = user.getTxt2img();
-
-                txt2img.beginTransaction();
-                txt2img.setBannedUntil(bannedUntil);
-                txt2img.setBannedNumber(txt2img.getBannedNumber() + 1);
-                txt2img.setBanReason(reason);
-                txt2img.commitTransaction();
-            }
-
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setDescription("⚠\uFE0F Due to rule violations, you have been banned from the txt2img commands until <t:" + bannedUntil.getEpochSecond() + ":f>!")
-                    .addField("Reason", reason.isEmpty() ? "Unspecified" : reason, false);
-            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
-                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                    .queue();
-
-            MainLogger.get().info("{} has been banned from txt2img for {} minutes for the reason: {}", userId, durationMinutes, reason);
-        }
     }
 
     private static void onCasinoLogs(String[] args) {

@@ -18,10 +18,6 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
 
     var banReason: String? = null
 
-    @Embedded
-    @Column(name = TXT2IMG)
-    val txt2img = Txt2ImgEntity()
-
     val reminders: List<ReminderEntity>
         get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", userId.toLong())
 
@@ -100,7 +96,6 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
 
     @PostLoad
     override fun postLoad() {
-        txt2img.postLoad(this)
         fisheryDmReminders.values.forEach { it.postLoad(this) }
         rolePlayBlock.postLoad(this)
         autoStocksBuyOrders.values.forEach { it.postLoad(this) }
