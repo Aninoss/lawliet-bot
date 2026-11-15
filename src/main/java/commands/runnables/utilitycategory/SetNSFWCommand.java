@@ -6,7 +6,10 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.atomicassets.AtomicGuildChannel;
+import core.mention.MentionList;
+import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
+import core.utils.MentionUtil;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,7 +38,27 @@ public class SetNSFWCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
-        GuildChannel channel = getRootChannel(event.getMessageChannel());
+        MentionList<GuildMessageChannel> channelMention = MentionUtil.getGuildMessageChannels(event.getGuild(), args);
+        GuildMessageChannel targetChannel = event.getMessageChannel();
+        if (!channelMention.getList().isEmpty()) {
+            targetChannel = channelMention.getList().get(0);
+        }
+
+        GuildChannel channel = getRootChannel(targetChannel);
+        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionsMissingEmbed(
+                getLocale(),
+                channel,
+                event.getMember(),
+                new Permission[0],
+                new Permission[] { Permission.MANAGE_CHANNEL },
+                new Permission[0],
+                new Permission[] { Permission.MANAGE_CHANNEL }
+        );
+        if (errEmbed != null) {
+            drawMessageNew(errEmbed).exceptionally(ExceptionLogger.get());
+            return false;
+        }
+
         boolean nsfwTarget = !JDAUtil.channelIsNsfw(channel);
         switchAgeRestricted(channel, nsfwTarget);
 
