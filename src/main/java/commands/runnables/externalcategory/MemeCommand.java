@@ -8,6 +8,7 @@ import java.util.Locale;
         trigger = "meme",
         emoji = "\uD83D\uDDBC",
         executableWithoutArgs = true,
+        maxCalculationTimeSec = 5 * 60,
         aliases = { "memes" }
 )
 public class MemeCommand extends RedditCommand {

@@ -44,7 +44,8 @@ import java.util.stream.Collectors;
         trigger = "reddit",
         emoji = "\uD83E\uDD16",
         executableWithoutArgs = false,
-        patreonRequired = true
+        patreonRequired = true,
+        maxCalculationTimeSec = 5 * 60
 )
 public class RedditCommand extends Command implements OnAlertListener {
 
