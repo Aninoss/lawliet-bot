@@ -310,6 +310,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
+        slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         GuildMessageChannel channel = slot.getGuildMessageChannel().get();
         boolean premium = PatreonCache.getInstance().isUnlocked(slot.getGuildId());
         boolean newMode = !Program.productionMode() || slot.getCreationTime().isAfter(NEW_ALERT_DATE.atStartOfDay().toInstant(ZoneOffset.UTC));
@@ -350,7 +351,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e.getMessage() != null && e.getMessage().contains("Booru retrieval error")) {
-                return AlertResponse.CONTINUE;
+                return AlertResponse.CONTINUE_AND_SAVE;
             }
             throw e;
         }
@@ -362,7 +363,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 slot.sendMessageComponentTree(getLocale(), false, components);
                 return AlertResponse.STOP_AND_DELETE;
             } else {
-                return AlertResponse.CONTINUE;
+                slot.setNextRequest(Instant.now().plus(60, ChronoUnit.MINUTES));
+                return AlertResponse.CONTINUE_AND_SAVE;
             }
         }
 
@@ -400,7 +402,6 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
 
             slot.setArgs(Strings.join(idList, '|'));
-            slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
             if (usedBooruImages.isEmpty()) {
                 return AlertResponse.CONTINUE_AND_SAVE;
             }
@@ -408,7 +409,6 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             pornImages = usedBooruImages;
         } else {
             slot.setArgs("found");
-            slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         }
 
         if (premium && pornImages.stream().anyMatch(BooruImage::getVideo)) {
