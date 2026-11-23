@@ -240,6 +240,9 @@ public class AnilistDownloader {
         if (jsonObject.has("recommendations")) {
             JSONArray nodesJson = jsonObject.getJSONObject("recommendations").getJSONArray("nodes");
             for (int i = 0; i < nodesJson.length(); i++) {
+                if (nodesJson.getJSONObject(i).isNull("mediaRecommendation")) {
+                    continue;
+                }
                 JSONObject recommendationJson = nodesJson.getJSONObject(i).getJSONObject("mediaRecommendation");
                 recommendations.add(extractMediaObject(recommendationJson));
             }
