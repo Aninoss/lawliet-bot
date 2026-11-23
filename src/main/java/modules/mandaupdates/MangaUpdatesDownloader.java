@@ -1,16 +1,19 @@
 package modules.mandaupdates;
 
+import core.MainLogger;
+import core.internet.HttpCache;
+import core.internet.HttpResponse;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import core.internet.HttpCache;
-import core.internet.HttpResponse;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.XML;
 
 public class MangaUpdatesDownloader {
 
@@ -23,7 +26,14 @@ public class MangaUpdatesDownloader {
 
         String response = HttpCache.post("https://api.mangaupdates.com/v1/series/search", jsonBody.toString(), "application/json", Duration.ofHours(1)).get()
                 .getBody();
-        JSONArray resultsJson = new JSONObject(response).getJSONArray("results");
+
+        JSONArray resultsJson;
+        try {
+            resultsJson = new JSONObject(response).getJSONArray("results");
+        } catch (JSONException e) {
+            MainLogger.get().error("Manga updates invalid response: {}", response, e);
+            throw e;
+        }
 
         ArrayList<MangaUpdatesSeries> series = new ArrayList<>();
         for (int i = 0; i < resultsJson.length(); i++) {
