@@ -21,10 +21,12 @@ import java.util.concurrent.TimeUnit;
 public class InviteFilter extends AutoModAbstract {
 
     private final InviteFilterEntity inviteFilterEntity;
+    private final int banDeleteMessageMinutes;
 
     public InviteFilter(Message message, GuildEntity guildEntity) {
         super(message, guildEntity);
         inviteFilterEntity = guildEntity.getInviteFilter();
+        banDeleteMessageMinutes = guildEntity.getModeration().getBanDeleteMessageMinutes();
     }
 
     @Override
@@ -38,7 +40,7 @@ public class InviteFilter extends AutoModAbstract {
     protected boolean withAutoActions(Message message, Member member, Locale locale) {
         if (willBanMember(message, member, locale)) {
             message.getGuild()
-                    .ban(member, 0, TimeUnit.DAYS)
+                    .ban(member, banDeleteMessageMinutes, TimeUnit.MINUTES)
                     .reason(TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;

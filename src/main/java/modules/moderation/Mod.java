@@ -102,7 +102,7 @@ public class Mod {
 
                     postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationEntity, target, true).join();
 
-                    guild.ban(target, 0, TimeUnit.DAYS)
+                    guild.ban(target, moderationEntity.getBanDeleteMessageMinutes(), TimeUnit.MINUTES)
                             .reason(TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
                             .queue();
 

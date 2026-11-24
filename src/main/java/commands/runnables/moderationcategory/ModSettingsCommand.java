@@ -58,6 +58,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
     private static final int STATE_SET_LOG_CHANNEL = 1,
             STATE_SET_JAIL_ROLES = 11,
             STATE_SET_BAN_APPEAL_LOG_CHANNEL = 16,
+            STATE_SET_BAN_DELETE_MESSAGES = 17,
             STATE_SET_AUTO_MUTE_WARNS = 8,
             STATE_SET_AUTO_MUTE_WARN_DAYS = 9,
             STATE_SET_AUTO_MUTE_DURATION = 10,
@@ -137,6 +138,10 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                 return true;
 
             case 3:
+                setState(STATE_SET_BAN_DELETE_MESSAGES);
+                return true;
+
+            case 4:
                 if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
                     return true;
@@ -144,20 +149,57 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                 setState(STATE_SET_BAN_APPEAL_LOG_CHANNEL);
                 return true;
 
-            case 4:
+            case 5:
                 setState(STATE_SET_AUTO_MUTE_WARNS);
                 return true;
 
-            case 5:
+            case 6:
                 setState(STATE_SET_AUTO_JAIL_WARNS);
                 return true;
 
-            case 6:
+            case 7:
                 setState(STATE_SET_AUTO_KICK_WARNS);
                 return true;
 
-            case 7:
+            case 8:
                 setState(STATE_SET_AUTO_BAN_WARNS);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_SET_BAN_DELETE_MESSAGES)
+    public boolean onButtonBanDeleteMessages(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                setState(DEFAULT_STATE);
+                return true;
+
+            case 0:
+                Modal modal = new DurationModalBuilder(this, getString("state0_mbandeletemessages"))
+                        .setMinMinutes(1)
+                        .setMaxMinutes(Duration.ofDays(7).toMinutes())
+                        .setLogEvent(BotLogEntity.Event.MOD_BAN_DELETE_MESSAGES)
+                        .setGetterInt(() -> getGuildEntity().getModeration().getBanDeleteMessageMinutes())
+                        .setSetterInt(value -> {
+                            getGuildEntity().getModeration().setBanDeleteMessageMinutes(value);
+                            setState(DEFAULT_STATE);
+                        })
+                        .build();
+                event.replyModal(modal).queue();
+                return false;
+
+            case 1:
+                ModerationEntity moderation = getGuildEntity().getModeration();
+                moderation.beginTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.MOD_BAN_DELETE_MESSAGES, event.getMember(), moderation.getBanDeleteMessageMinutes(), 0);
+                moderation.setBanDeleteMessageMinutes(0);
+                moderation.commitTransaction();
+
+                setLog(LogStatus.SUCCESS, getString("banmessagesset"));
+                setState(DEFAULT_STATE);
                 return true;
 
             default:
@@ -618,6 +660,7 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                 .addField(getString("state0_mchannel"), moderation.getLogChannelId() != null ? moderation.getLogChannel().getAsMention(locale) : notSet, true)
                 .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(channel, locale, moderation.getConfirmationMessages()), true)
                 .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(moderation.getJailRoles(), locale, m -> m.getAsMention(locale)), true)
+                .addField(getString("state0_mbandeletemessages"), getBanDeleteMessagesString(moderation), true)
                 .addField(getString("state0_mbanappeallogchannel") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), moderation.getBanAppealLogChannelIdEffectively() != null ? moderation.getBanAppealLogChannelEffectively().getAsMention(locale) : notSet, true)
                 .addField(getString("state0_mautomod"), getString(
                         "state0_mautomod_desc",
@@ -626,6 +669,12 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
                         getAutoModString(channel, moderation.getAutoKick()),
                         getAutoModString(channel, moderation.getAutoBan())
                 ), false);
+    }
+
+    @Draw(state = STATE_SET_BAN_DELETE_MESSAGES)
+    public EmbedBuilder drawBanDeleteMessages(Member member) {
+        setComponents(getString("state17_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state17_description"), getString("state17_title"));
     }
 
     @Draw(state = STATE_SET_AUTO_MUTE_WARNS)
@@ -693,6 +742,13 @@ public class ModSettingsCommand extends NavigationAbstract implements OnStaticBu
     public EmbedBuilder drawAutoBanDuration(Member member) {
         setComponents(getString("state7_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state7_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state7_title"));
+    }
+
+    private String getBanDeleteMessagesString(ModerationEntity moderation) {
+        int minutes = moderation.getBanDeleteMessageMinutes();
+        return minutes > 0
+                ? TimeUtil.getDurationString(getLocale(), Duration.ofMinutes(minutes))
+                : TextManager.getString(getLocale(), Category.MODERATION, "mod_off");
     }
 
     private String getAutoModString(GuildMessageChannel channel, AutoModEntity autoModEntity) {

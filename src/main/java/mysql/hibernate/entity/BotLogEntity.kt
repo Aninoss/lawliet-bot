@@ -109,6 +109,7 @@ class BotLogEntity(
         MOD_CONFIRMATION_MESSAGES(ValuesRelationship.OLD_AND_NEW, ValueType.BOOLEAN, ModSettingsCommand::class.java, "mod_state0_mquestion"),
         MOD_JAIL_ROLES(ValuesRelationship.ADD_AND_REMOVE, ValueType.ROLE, ModSettingsCommand::class.java, "mod_state0_mjailroles"),
         MOD_BAN_APPEAL_LOG_CHANNEL(ValuesRelationship.OLD_AND_NEW, ValueType.CHANNEL, ModSettingsCommand::class.java, "mod_state0_mbanappeallogchannel"),
+        MOD_BAN_DELETE_MESSAGES(ValuesRelationship.OLD_AND_NEW, ValueType.DURATION, ModSettingsCommand::class.java, "mod_state0_mbandeletemessages"),
         MOD_AUTO_MUTE_DISABLE,
         MOD_AUTO_MUTE_WARNS(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER),
         MOD_AUTO_MUTE_WARN_DAYS(ValuesRelationship.OLD_AND_NEW, ValueType.INTEGER),

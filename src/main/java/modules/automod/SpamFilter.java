@@ -44,10 +44,12 @@ public class SpamFilter extends AutoModAbstract {
             });
 
     private final SpamFilterEntity spamFilterEntity;
+    private final int banDeleteMessageMinutes;
 
     public SpamFilter(Message message, GuildEntity guildEntity) {
         super(message, guildEntity);
         spamFilterEntity = guildEntity.getSpamFilter();
+        banDeleteMessageMinutes = guildEntity.getModeration().getBanDeleteMessageMinutes();
     }
 
     @Override
@@ -80,7 +82,7 @@ public class SpamFilter extends AutoModAbstract {
     protected boolean withAutoActions(Message message, Member member, Locale locale) {
         if (willBanMember(message, member, locale)) {
             message.getGuild()
-                    .ban(member, 0, TimeUnit.DAYS)
+                    .ban(member, banDeleteMessageMinutes, TimeUnit.MINUTES)
                     .reason(TextManager.getString(locale, Category.MODERATION, "spamfilter_auditlog_sp"))
                     .queue();
             return false;

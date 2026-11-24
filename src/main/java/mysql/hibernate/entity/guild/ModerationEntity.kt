@@ -26,6 +26,14 @@ class ModerationEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscor
             _confirmationMessages = value
         }
 
+    @Column(name = "$MODERATION.banDeleteMessageMinutes")
+    private var _banDeleteMessageMinutes: Int? = null
+    var banDeleteMessageMinutes: Int
+        get() = _banDeleteMessageMinutes ?: 0
+        set(value) {
+            _banDeleteMessageMinutes = value
+        }
+
     var banAppealLogChannelId: Long? = null
     val banAppealLogChannelIdEffectively: Long?
         get() = if (ServerPatreonBoostCache.get(guildId)) banAppealLogChannelId else null

@@ -62,7 +62,7 @@ public class BotLogs {
                     fields.add(new Pair<>(TextManager.getString(locale, TextManager.LOGS, "values_old"), values));
                 }
                 String values = botLog.getValues1().isEmpty()
-                        ? TextManager.getString(locale, TextManager.GENERAL, "empty")
+                        ? "- " + TextManager.getString(locale, TextManager.GENERAL, "empty")
                         : extractValues(locale, guildId, botLog.getValues1(), valueType, inBlocks);
                 fields.add(new Pair<>(TextManager.getString(locale, TextManager.LOGS, "values_new"), values));
             }
@@ -108,7 +108,10 @@ public class BotLogs {
                     }
                     yield value;
                 }
-                case DURATION -> TimeUtil.getDurationString(locale, Duration.ofMinutes(Long.parseLong(value)));
+                case DURATION -> {
+                    Duration duration = Duration.ofMinutes(Long.parseLong(value));
+                    yield duration.isZero() ? TextManager.getString(locale, TextManager.GENERAL, "empty") : TimeUtil.getDurationString(locale, duration);
+                }
                 case CHANNEL -> {
                     AtomicGuildChannel atomicGuildChannel = new AtomicGuildChannel(guildId, Long.parseLong(value));
                     if (inBlocks) {

@@ -31,8 +31,11 @@ import mysql.hibernate.entity.guild.InviteFilterEntity
 import mysql.hibernate.entity.guild.SpamFilterEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import java.time.Duration
 import java.time.LocalDate
 import java.util.*
+
+private val MAX_BAN_DELETE_MESSAGES_MINUTES = Duration.ofDays(7).toMinutes()
 
 @DashboardProperties(
         id = "moderation",
@@ -66,6 +69,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             if (anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 mainContainer.add(
                         generateGeneralConfigurationField(),
+                        DashboardTitle(getString(Category.MODERATION, "mod_state0_mbandeletemessages")),
+                        generateBanDeleteMessagesField(),
                         DashboardTitle(getString(Category.MODERATION, "mod_banappeals")),
                         DashboardText(getString(Category.MODERATION, "mod_banappeals_desc", ExternalLinks.BAN_APPEAL_URL + atomicGuild.idLong)),
                         generateBanAppealField(),
@@ -123,6 +128,57 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 generateJailRolesComponent(),
                 DashboardText(getString(Category.MODERATION, "mod_dashboard_jailroles_hint"), DashboardText.Style.HINT)
         )
+        return container
+    }
+
+    fun generateBanDeleteMessagesField(): DashboardComponent {
+        val container = VerticalContainer()
+        container.isCard = true
+
+        val horizontalContainer = HorizontalContainer()
+        horizontalContainer.allowWrap = true
+        horizontalContainer.alignment = HorizontalContainer.Alignment.BOTTOM
+
+        val durationField = DashboardDurationField(getString(Category.MODERATION, "mod_state0_mbandeletemessages")) {
+            if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
+                return@DashboardDurationField ActionResult()
+                        .withRedraw()
+            }
+
+            if (it.data > MAX_BAN_DELETE_MESSAGES_MINUTES) {
+                return@DashboardDurationField ActionResult()
+                    .withRedraw()
+                    .withErrorMessage(getString(Category.MODERATION, "mod_dashboard_banmessages_toolong"))
+            }
+
+            moderationEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_BAN_DELETE_MESSAGES, atomicMember, moderationEntity.banDeleteMessageMinutes, it.data)
+            moderationEntity.banDeleteMessageMinutes = it.data.toInt()
+            moderationEntity.commitTransaction()
+
+            ActionResult()
+        }
+        durationField.value = moderationEntity.banDeleteMessageMinutes.toLong()
+        horizontalContainer.add(durationField)
+
+        val turnOffButton = DashboardButton(getString(Category.MODERATION, "mod_turnoff")) {
+            if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
+                return@DashboardButton ActionResult()
+                    .withRedraw()
+            }
+
+            moderationEntity.beginTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.MOD_BAN_DELETE_MESSAGES, atomicMember, moderationEntity.banDeleteMessageMinutes, 0)
+            moderationEntity.banDeleteMessageMinutes = 0
+            moderationEntity.commitTransaction()
+
+            ActionResult()
+                .withRedraw()
+        }
+        turnOffButton.setCanExpand(false)
+        horizontalContainer.add(turnOffButton)
+
+        container.add(horizontalContainer, DashboardText(getString(Category.MODERATION, "mod_dashboard_banmessages_hint"), DashboardText.Style.HINT))
         return container
     }
 

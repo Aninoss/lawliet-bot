@@ -70,11 +70,12 @@ public class BanCommand extends WarnCommand {
         }
 
         if (!BotPermissionUtil.can(guild, Permission.MANAGE_SERVER)) {
-            guild.ban(target, 1, TimeUnit.DAYS)
+            int deleteMessageMinutes = getGuildEntity().getModeration().getBanDeleteMessageMinutes();
+            guild.ban(target, deleteMessageMinutes, TimeUnit.MINUTES)
                     .reason(reason)
                     .submit()
                     .exceptionally(e -> {
-                        guild.ban(target, 1, TimeUnit.DAYS).queue();
+                        guild.ban(target, deleteMessageMinutes, TimeUnit.MINUTES).queue();
                         return null;
                     });
         }
@@ -83,14 +84,15 @@ public class BanCommand extends WarnCommand {
     @Override
     protected void processAll(Guild guild, List<User> targets, String reason) {
         if (BotPermissionUtil.can(guild, Permission.MANAGE_SERVER)) {
+            int deleteMessageMinutes = getGuildEntity().getModeration().getBanDeleteMessageMinutes();
             List<List<User>> partitionedTargets = Lists.partition(targets, 200);
             for (List<User> users : partitionedTargets) {
                 List<UserSnowflake> userSnowflakes = users.stream().map(user -> UserSnowflake.fromId(user.getId())).collect(Collectors.toList());
-                guild.ban(userSnowflakes, 1, TimeUnit.DAYS)
+                guild.ban(userSnowflakes, deleteMessageMinutes, TimeUnit.MINUTES)
                         .reason(reason)
                         .submit()
                         .exceptionally(e -> {
-                            guild.ban(userSnowflakes, 1, TimeUnit.DAYS).queue();
+                            guild.ban(userSnowflakes, deleteMessageMinutes, TimeUnit.MINUTES).queue();
                             return null;
                         });
             }

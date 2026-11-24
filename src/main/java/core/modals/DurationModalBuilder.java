@@ -18,6 +18,7 @@ public class DurationModalBuilder extends AbstractModalBuilder<Long, DurationMod
     private static final long MAX_MINUTES = Duration.ofDays(1000).toMinutes() - 1;
 
     private long minMinutes = 0;
+    private long maxMinutes = MAX_MINUTES;
 
     public DurationModalBuilder(NavigationAbstract command, String propertyName) {
         super(command, propertyName, TextInputStyle.SHORT);
@@ -26,6 +27,11 @@ public class DurationModalBuilder extends AbstractModalBuilder<Long, DurationMod
     public DurationModalBuilder setMinMinutes(long minMinutes) {
         this.minMinutes = minMinutes;
         setMinMaxLength(minMinutes > 0 ? 1 : 0, 12);
+        return this;
+    }
+
+    public DurationModalBuilder setMaxMinutes(long maxMinutes) {
+        this.maxMinutes = maxMinutes;
         return this;
     }
 
@@ -44,10 +50,10 @@ public class DurationModalBuilder extends AbstractModalBuilder<Long, DurationMod
         }
 
         newValueLong = newValueLong != -1 ? newValueLong : 0L;
-        if (newValueLong < minMinutes || newValueLong > MAX_MINUTES) {
+        if (newValueLong < minMinutes || newValueLong > maxMinutes) {
             getCommand().setLog(LogStatus.FAILURE, TextManager.getString(getCommand().getLocale(), TextManager.COMMANDS, "stateprocessor_duration_outofrange",
                     TimeUtil.getDurationString(Duration.ofMinutes(minMinutes)),
-                    TimeUtil.getDurationString(Duration.ofMinutes(MAX_MINUTES))
+                    TimeUtil.getDurationString(Duration.ofMinutes(maxMinutes))
             ));
             draw(member);
             return;
