@@ -14,6 +14,7 @@ import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.components.buttons.ButtonStyle
 import javax.persistence.Embeddable
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
@@ -41,8 +42,15 @@ class FisheryDmReminderEntity(
         eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"))
 
         try {
+            val disableButton = Button.of(
+                    ButtonStyle.SECONDARY,
+                    DISABLE_BUTTON_ID_PREFIX + type.name,
+                    TextManager.getString(locale, Category.FISHERY, "dm_reminder_disable_button")
+            )
+            val components = buttons.filterNotNull() + disableButton
+
             val channel = JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId).complete()
-            channel.sendMessageEmbeds(eb.build()).setComponents(ActionRows.of(*buttons)).complete()
+            channel.sendMessageEmbeds(eb.build()).setComponents(ActionRows.of(components)).complete()
 
             if (errors > 0 || !dmsOpenForPublicInstance) {
                 beginTransaction()
@@ -70,6 +78,8 @@ class FisheryDmReminderEntity(
     }
 
     companion object {
+
+        const val DISABLE_BUTTON_ID_PREFIX = "fishery_dm_disable:"
 
         @JvmStatic
         fun findAllUserEntitiesWithType(entityManager: EntityManagerWrapper, type: Type): List<UserEntity> {
