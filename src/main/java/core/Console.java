@@ -15,6 +15,7 @@ import modules.SupportTemplates;
 import modules.anilist.AnilistCharacterFile;
 import modules.casinologs.CasinoLogCache;
 import modules.fishery.Fishery;
+import modules.moderation.LogReceiverRemovalNotification;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
@@ -65,6 +66,7 @@ public class Console {
         tasks.put("auto_stocks", Console::onAutoStocks);
         tasks.put("collect_anilist_characters", Console::onCollectAnilistCharacters);
         tasks.put("send_premium_code_notifications", Console::onSendPremiumCodeNotifications);
+        tasks.put("log_receiver_removal_notifications", Console::onLogReceiverRemovalNotifications);
         tasks.put("clean_images", Console::onCleanImages);
         tasks.put("discord_backup", Console::onDiscordBackup);
         tasks.put("discord_secondary_domain", Console::onDiscordSecondaryDomain);
@@ -158,6 +160,10 @@ public class Console {
 
     private static void onSendPremiumCodeNotifications(String[] args) throws ExecutionException, InterruptedException {
         SendPremiumCodeNotifications.execute();
+    }
+
+    private static void onLogReceiverRemovalNotifications(String[] args) throws InterruptedException {
+        LogReceiverRemovalNotification.execute();
     }
 
     private static void onCleanImages(String[] args) {

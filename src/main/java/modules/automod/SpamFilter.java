@@ -107,14 +107,6 @@ public class SpamFilter extends AutoModAbstract {
                 .addField(TextManager.getString(locale, Category.MODERATION, "spamfilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "spamfilter_state0_mactionlist").split("\n")[spamFilterEntity.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "spamfilter_log_channel"), message.getChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "spamfilter_log_content"), StringUtil.shortenString(content, 1024), false);
-
-        for (Long userId : spamFilterEntity.getLogReceiverUserIds()) {
-            if (userId != message.getGuild().getSelfMember().getIdLong()) {
-                JDAUtil.openPrivateChannel(message.getJDA(), userId)
-                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                        .queue();
-            }
-        }
     }
 
     @Override

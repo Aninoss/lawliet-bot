@@ -36,14 +36,6 @@ public class WordFilter extends AutoModAbstract {
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log", StringUtil.escapeMarkdown(member.getUser().getName())))
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(JDAUtil.combineMessageContentRaw(message), 1024), true);
-
-        for (Long userId : wordFilterEntity.getLogReceiverUserIds()) {
-            if (userId != message.getGuild().getSelfMember().getIdLong()) {
-                JDAUtil.openPrivateChannel(message.getJDA(), userId)
-                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                        .queue();
-            }
-        }
     }
 
     @Override

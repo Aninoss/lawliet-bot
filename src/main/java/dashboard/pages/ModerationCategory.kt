@@ -372,21 +372,6 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         activeSwitch.isChecked = inviteFilterEntity.active
         container.add(activeSwitch, DashboardSeparator(true), generateInviteFilterExcludedField())
 
-        val logReceivers = DashboardMultiMembersComboBox(
-                this,
-                getString(Category.MODERATION, "invitefilter_state0_mlogreciever"),
-                { it.inviteFilter.logReceiverUserIds },
-                true,
-                InviteFilterCommand.MAX_LOG_RECEIVERS,
-                InviteFilterCommand::class,
-                BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS
-        )
-        container.add(
-                logReceivers,
-                DashboardText(getString(Category.MODERATION, "mod_dashboard_logreceivers"), DashboardText.Style.HINT),
-                DashboardSeparator(true)
-        )
-
         val actions = (0 until 3).map {
             DiscordEntity(it.toString(), getString(Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[it])
         }
@@ -405,7 +390,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             ActionResult()
         }
         action.selectedValues = actions.filter { it.id.toInt() == inviteFilterEntity.action.ordinal }
-        container.add(action)
+        container.add(DashboardSeparator(true), action)
 
         return container
     }
@@ -472,18 +457,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         )
         container.add(ignoredUsers)
 
-        val logReceivers = DashboardMultiMembersComboBox(
-                this,
-                getString(Category.MODERATION, "wordfilter_state0_mlogreciever"),
-                { it.wordFilter.logReceiverUserIds },
-                true,
-                WordFilterCommand.MAX_LOG_RECEIVERS,
-                WordFilterCommand::class,
-                BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS
-        )
         container.add(
-                logReceivers,
-                DashboardText(getString(Category.MODERATION, "mod_dashboard_logreceivers"), DashboardText.Style.HINT),
                 DashboardSeparator(true),
                 generateWordsComboBox()
         )
@@ -552,23 +526,6 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         activeSwitch.isChecked = spamFilterEntity.active
         container.add(activeSwitch, DashboardSeparator(true), generateSpamFilterExcludedField(unlocked))
 
-        val logReceivers = DashboardMultiMembersComboBox(
-            this,
-            getString(Category.MODERATION, "spamfilter_state0_mlogreciever"),
-            { it.spamFilter.logReceiverUserIds },
-            true,
-            SpamFilterCommand.MAX_LOG_RECEIVERS,
-            SpamFilterCommand::class,
-            BotLogEntity.Event.SPAM_FILTER_LOG_RECEIVERS
-        )
-        logReceivers.isEnabled = unlocked
-
-        container.add(
-            logReceivers,
-            DashboardText(getString(Category.MODERATION, "mod_dashboard_logreceivers"), DashboardText.Style.HINT),
-            DashboardSeparator(true)
-        )
-
         val actions = (0 until 3).map {
             DiscordEntity(it.toString(), getString(Category.MODERATION, "spamfilter_state0_mactionlist").split("\n")[it])
         }
@@ -588,7 +545,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         }
         action.isEnabled = unlocked
         action.selectedValues = actions.filter { it.id.toInt() == spamFilterEntity.action.ordinal }
-        container.add(action)
+        container.add(DashboardSeparator(true), action)
 
         if (!unlocked) {
             container.add(DashboardText(getString(TextManager.GENERAL, "patreon_beta_description"), DashboardText.Style.ERROR))

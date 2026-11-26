@@ -37,12 +37,10 @@ import java.util.Locale;
 public class WordFilterCommand extends NavigationAbstract {
 
     public static int MAX_EXCLUDED_MEMBERS = 25;
-    public static int MAX_LOG_RECEIVERS = 10;
     public static final int MAX_WORDS = 40;
     public static final int MAX_LETTERS_PER_WORD = 20;
 
     private static final int STATE_SET_EXCLUDED_MEMBERS = 1,
-            STATE_SET_LOG_RECEIVERS = 2,
             STATE_SET_WORDS = 3;
 
     public WordFilterCommand(Locale locale, String prefix) {
@@ -57,11 +55,6 @@ public class WordFilterCommand extends NavigationAbstract {
                         .setLogEvent(BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS)
                         .setGetter(() -> getGuildEntity().getWordFilter().getExcludedMemberIds())
                         .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getWordFilter().getExcludedMemberIds(),userIds)),
-                new MembersStateProcessor(this, STATE_SET_LOG_RECEIVERS, DEFAULT_STATE, getString("state0_mlogreciever"))
-                        .setMinMax(0, MAX_LOG_RECEIVERS)
-                        .setLogEvent(BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS)
-                        .setGetter(() -> getGuildEntity().getWordFilter().getLogReceiverUserIds())
-                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getWordFilter().getLogReceiverUserIds(), userIds)),
                 new StringListStateProcessor(this, STATE_SET_WORDS, DEFAULT_STATE, getString("state0_mwords"))
                         .setMax(MAX_WORDS, MAX_LETTERS_PER_WORD)
                         .setStringSplitterFunction(input -> List.of(WordFilter.translateString(input).split(" ")))
@@ -94,10 +87,6 @@ public class WordFilterCommand extends NavigationAbstract {
                 return true;
 
             case 2:
-                setState(STATE_SET_LOG_RECEIVERS);
-                return true;
-
-            case 3:
                 setState(STATE_SET_WORDS);
                 return true;
 
@@ -113,7 +102,6 @@ public class WordFilterCommand extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), wordFilter.getActive()), true)
                 .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(wordFilter.getExcludedMembers(), getLocale(), m -> m.getAsMention(getLocale())), true)
-                .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(wordFilter.getLogReceivers(), getLocale(), m -> m.getAsMention(getLocale())), true)
                 .addField(getString("state0_mwords"), getWordsString(wordFilter.getWords()), true);
     }
 

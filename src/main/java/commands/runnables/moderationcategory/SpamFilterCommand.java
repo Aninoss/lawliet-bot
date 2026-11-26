@@ -40,11 +40,9 @@ public class SpamFilterCommand extends NavigationAbstract {
 
     public static int MAX_EXCLUDED_MEMBERS = 25;
     public static int MAX_EXCLUDED_CHANNELS = 25;
-    public static int MAX_LOG_RECEIVERS = 10;
 
     private static final int STATE_SET_EXCLUDED_MEMBERS = 1,
             STATE_SET_EXCLUDED_CHANNELS = 2,
-            STATE_SET_LOG_RECEIVERS = 3,
             STATE_SET_ACTION = 4;
 
     public SpamFilterCommand(Locale locale, String prefix) {
@@ -64,12 +62,7 @@ public class SpamFilterCommand extends NavigationAbstract {
                         .setChannelTypes(Collections.emptyList())
                         .setLogEvent(BotLogEntity.Event.SPAM_FILTER_EXCLUDED_CHANNELS)
                         .setGetter(() -> getGuildEntity().getSpamFilter().getExcludedChannelIds())
-                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getSpamFilter().getExcludedChannelIds(), userIds)),
-                new MembersStateProcessor(this, STATE_SET_LOG_RECEIVERS, DEFAULT_STATE, getString("state0_mlogreciever"))
-                        .setMinMax(0, MAX_LOG_RECEIVERS)
-                        .setLogEvent(BotLogEntity.Event.SPAM_FILTER_LOG_RECEIVERS)
-                        .setGetter(() -> getGuildEntity().getSpamFilter().getLogReceiverUserIds())
-                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getSpamFilter().getLogReceiverUserIds(), userIds))
+                        .setSetter(userIds -> CollectionUtil.replace(getGuildEntity().getSpamFilter().getExcludedChannelIds(), userIds))
         ));
         return true;
     }
@@ -100,10 +93,6 @@ public class SpamFilterCommand extends NavigationAbstract {
                 return true;
 
             case 3:
-                setState(STATE_SET_LOG_RECEIVERS);
-                return true;
-
-            case 4:
                 setState(STATE_SET_ACTION);
                 return true;
 
@@ -143,7 +132,6 @@ public class SpamFilterCommand extends NavigationAbstract {
                 .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getGuildMessageChannel().get(), getLocale(), spamFilter.getActive()), true)
                 .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(spamFilter.getExcludedMembers(), getLocale(), m -> m.getAsMention(locale)), true)
                 .addField(getString("state0_mignoredchannels"), new ListGen<AtomicGuildChannel>().getList(spamFilter.getExcludedChannels(), getLocale(), m -> m.getAsMention(locale)), true)
-                .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(spamFilter.getLogReceivers(), getLocale(), m -> m.getAsMention(locale)), true)
                 .addField(getString("state0_maction"), getString("state0_mactionlist").split("\n")[spamFilter.getAction().ordinal()], true);
     }
 
