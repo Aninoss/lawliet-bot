@@ -24,7 +24,6 @@ import mysql.modules.autowork.DBAutoWork;
 import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -236,10 +235,10 @@ public class GuildEntityProcessors implements ExceptionRunnable {
 
                 Locale locale = fisheryDmReminderEntity.getLocale();
                 String guildsMention = MentionUtil.getMentionedStringOfGuilds(locale, new ArrayList<>(guilds)).getMentionText();
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(TextManager.getString(locale, Category.FISHERY, "work_message_title"))
-                        .setDescription(TextManager.getString(locale, Category.FISHERY, "work_message_desc", guildsMention));
-                fisheryDmReminderEntity.sendEmbed(eb);
+                fisheryDmReminderEntity.sendReminder(
+                        TextManager.getString(locale, Category.FISHERY, "work_message_title"),
+                        TextManager.getString(locale, Category.FISHERY, "work_message_desc", guildsMention)
+                );
 
                 entityManager.clear();
             }

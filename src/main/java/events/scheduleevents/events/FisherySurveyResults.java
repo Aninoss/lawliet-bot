@@ -2,7 +2,6 @@ package events.scheduleevents.events;
 
 import commands.Category;
 import constants.ExceptionRunnable;
-import core.EmbedFactory;
 import core.MainLogger;
 import core.Program;
 import core.TextManager;
@@ -20,7 +19,6 @@ import mysql.modules.survey.SurveyQuestion;
 import mysql.modules.survey.SurveySecondVote;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -127,17 +125,16 @@ public class FisherySurveyResults implements ExceptionRunnable {
 
     private static void sendSurveyResult(FisheryDmReminderEntity fisheryDmReminder, SurveyQuestion surveyQuestion, byte won, int percent) {
         Locale locale = fisheryDmReminder.getLocale();
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"))
-                .setDescription(TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
+        fisheryDmReminder.sendReminder(
+                TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"),
+                TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
                         surveyQuestion.getQuestion(),
                         surveyQuestion.getAnswers()[0],
                         surveyQuestion.getAnswers()[1],
                         surveyQuestion.getAnswers()[Math.min(1, won)],
                         String.valueOf(percent)
-                ));
-
-        fisheryDmReminder.sendEmbed(eb);
+                )
+        );
     }
 
 }

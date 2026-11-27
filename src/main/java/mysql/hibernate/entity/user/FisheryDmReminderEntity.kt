@@ -7,14 +7,16 @@ import core.ShardManager
 import core.TextManager
 import core.assets.UserAsset
 import core.cache.UserBannedCache
-import core.components.ActionRows
+import core.utils.ComponentsUtil
 import core.utils.JDAUtil
 import mysql.hibernate.EntityManagerWrapper
 import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.template.HibernateEmbeddedEntity
-import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.components.buttons.ButtonStyle
+import net.dv8tion.jda.api.components.container.ContainerChildComponent
+import net.dv8tion.jda.api.components.textdisplay.TextDisplay
 import javax.persistence.Embeddable
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
@@ -32,14 +34,12 @@ class FisheryDmReminderEntity(
     var errors: Int = 0
     var dmsOpenForPublicInstance = true
 
-    fun sendEmbed(eb: EmbedBuilder, vararg buttons: Button?) {
+    fun sendReminder(title: String, description: String, vararg buttons: Button?) {
         if ((!Program.publicInstance() && dmsOpenForPublicInstance) ||
                 UserBannedCache.getInstance().isBanned(userId)
         ) {
             return
         }
-
-        eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"))
 
         try {
             val disableButton = Button.of(
@@ -47,10 +47,16 @@ class FisheryDmReminderEntity(
                     DISABLE_BUTTON_ID_PREFIX + type.name,
                     TextManager.getString(locale, Category.FISHERY, "dm_reminder_disable_button")
             )
-            val components = buttons.filterNotNull() + disableButton
+            val rowButtons = buttons.filterNotNull() + disableButton
+
+            val components = ArrayList<ContainerChildComponent>()
+            components.add(TextDisplay.of(description))
+            components.add(TextDisplay.of("-# " + TextManager.getString(locale, Category.FISHERY, "cooldowns_footer")))
+            components.add(ActionRow.of(rowButtons))
+            val componentTree = ComponentsUtil.createCommandComponentTree(title, components, ComponentsUtil.DEFAULT_CONTAINER_COLOR)
 
             val channel = JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId).complete()
-            channel.sendMessageEmbeds(eb.build()).setComponents(ActionRows.of(components)).complete()
+            channel.sendMessageComponents(componentTree).useComponentsV2().complete()
 
             if (errors > 0 || !dmsOpenForPublicInstance) {
                 beginTransaction()

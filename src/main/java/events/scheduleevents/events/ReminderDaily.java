@@ -2,7 +2,6 @@ package events.scheduleevents.events;
 
 import commands.Category;
 import constants.ExceptionRunnable;
-import core.EmbedFactory;
 import core.Program;
 import core.TextManager;
 import events.scheduleevents.ScheduleEventDaily;
@@ -10,7 +9,6 @@ import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.user.FisheryDmReminderEntity;
 import mysql.hibernate.entity.user.UserEntity;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.List;
 import java.util.Locale;
@@ -34,10 +32,10 @@ public class ReminderDaily implements ExceptionRunnable {
                 FisheryDmReminderEntity fisheryDmReminder = userEntity.getFisheryDmReminders().get(FisheryDmReminderEntity.Type.DAILY);
                 Locale locale = fisheryDmReminder.getLocale();
 
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(TextManager.getString(locale, Category.FISHERY, "daily_message_title"))
-                        .setDescription(TextManager.getString(locale, Category.FISHERY, "daily_message_desc"));
-                fisheryDmReminder.sendEmbed(eb);
+                fisheryDmReminder.sendReminder(
+                        TextManager.getString(locale, Category.FISHERY, "daily_message_title"),
+                        TextManager.getString(locale, Category.FISHERY, "daily_message_desc")
+                );
             }
         }
     }
